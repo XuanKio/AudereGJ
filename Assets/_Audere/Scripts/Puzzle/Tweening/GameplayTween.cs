@@ -45,6 +45,12 @@ namespace Audere.Puzzle.Tweening
             return 1f - inverse * inverse * inverse;
         }
 
+        public static float EaseOutQuadratic(float value)
+        {
+            float inverse = 1f - Mathf.Clamp01(value);
+            return 1f - inverse * inverse;
+        }
+
         public static float EaseInCubic(float value)
         {
             value = Mathf.Clamp01(value);

@@ -9,6 +9,19 @@ namespace Audere.Puzzle
     [DisallowMultipleComponent]
     public sealed class GridPlayer : MonoBehaviour
     {
+        [Serializable]
+        private struct FallProfile
+        {
+            [Min(.1f)] public float outwardCells;
+            [Min(.05f)] public float dropCells;
+
+            public FallProfile(float outward, float drop)
+            {
+                outwardCells = outward;
+                dropCells = drop;
+            }
+        }
+
         [SerializeField, Min(0.01f)] private float stepDuration = 0.2f;
         [SerializeField, Range(.2f, 2f)] private float visualScale = 1.5f;
 
@@ -20,11 +33,12 @@ namespace Audere.Puzzle
         [SerializeField, Range(0f, .2f)] private float landingWiden = .075f;
 
         [Header("Falling")]
-        [SerializeField, Min(.1f)] private float fallDuration = .52f;
-        [Tooltip("Extra outward travel after reaching the empty cell, measured in grid cells.")]
-        [SerializeField, Range(.25f, 2f)] private float fallOutwardCells = .9f;
-        [Tooltip("Small downward drift during the fade, measured in grid cells.")]
-        [SerializeField, Range(.05f, 1f)] private float fallDropCells = .45f;
+        [SerializeField, Min(.1f)] private float fallDuration = .62f;
+        [Tooltip("Independent travel/drop tuning for each exit direction, measured in grid cells.")]
+        [SerializeField] private FallProfile fallLeft = new FallProfile(1.2f, .85f);
+        [SerializeField] private FallProfile fallRight = new FallProfile(1.2f, .85f);
+        [SerializeField] private FallProfile fallUp = new FallProfile(1.05f, .75f);
+        [SerializeField] private FallProfile fallDown = new FallProfile(1.25f, 1.5f);
         [SerializeField, Range(.02f, .5f)] private float fallEndScale = .08f;
 
         private SpriteRenderer spriteRenderer;
@@ -75,6 +89,17 @@ namespace Audere.Puzzle
                 UpdateFacing(start, destination);
                 board.NotifyPlayerExited(previousGridPosition, this);
 
+                // Start falling from the last safe tile. Finishing a normal step
+                // into empty space first would ease velocity to zero and hitch.
+                if (!destinationHasTile)
+                {
+                    FellDuringTraversal = true;
+                    GridPosition = path[index];
+                    onFallStarted?.Invoke();
+                    yield return PlayFall(start, destination);
+                    yield break;
+                }
+
                 while (elapsed < stepDuration)
                 {
                     elapsed += Time.deltaTime;
@@ -93,18 +118,8 @@ namespace Audere.Puzzle
                 transform.position = destination;
                 transform.localScale = Vector3.one * visualScale;
                 GridPosition = path[index];
-
-                if (destinationHasTile)
-                {
-                    board.NotifyPlayerEntered(GridPosition, this);
-                    yield return PlayLandingResponse();
-                    continue;
-                }
-
-                FellDuringTraversal = true;
-                onFallStarted?.Invoke();
-                yield return PlayFall(start, destination);
-                yield break;
+                board.NotifyPlayerEntered(GridPosition, this);
+                yield return PlayLandingResponse();
             }
         }
 
@@ -138,10 +153,13 @@ namespace Audere.Puzzle
             Vector3 direction = movement.sqrMagnitude > Mathf.Epsilon
                 ? movement.normalized
                 : Vector3.right;
-            Vector3 fallStart = transform.position;
+            ApplyHorizontalFacing(direction.x);
+            Vector3 fallStart = previousPosition;
             float cellWorldDistance = Mathf.Max(.01f, movement.magnitude);
-            Vector3 outwardTarget = fallStart + direction * (cellWorldDistance * fallOutwardCells);
-            float dropDistance = cellWorldDistance * fallDropCells;
+            FallProfile profile = GetFallProfile(direction);
+            Vector3 outwardTarget = fallStart +
+                direction * (cellWorldDistance * profile.outwardCells);
+            float dropDistance = cellWorldDistance * profile.dropCells;
             Vector3 startScale = transform.localScale;
             Vector3 endScale = Vector3.one * (visualScale * fallEndScale);
             Color startColor = spriteRenderer.color;
@@ -149,22 +167,38 @@ namespace Audere.Puzzle
             GameplayTween tween = new GameplayTween(fallDuration)
                 .OnUpdate(progress =>
                 {
-                    float travel = GameplayTween.EaseOutCubic(progress);
-                    float drop = GameplayTween.EaseInCubic(progress);
-                    float dissolve = GameplayTween.EaseInOutCubic(progress);
+                    // Jump into the empty grid, then continue vertically down.
+                    // The phases overlap so movement never stops between them.
+                    float outwardPhase = Mathf.Clamp01(progress / .55f);
+                    float dropPhase = Mathf.InverseLerp(.28f, 1f, progress);
+                    float travel = GameplayTween.EaseOutCubic(outwardPhase);
+                    float drop = GameplayTween.EaseInOutCubic(dropPhase);
+                    float dissolve = GameplayTween.EaseOutQuadratic(progress);
+                    float fade = progress;
+                    float hopLift = Mathf.Sin(outwardPhase * Mathf.PI) *
+                        stepArcHeight * .5f;
 
                     transform.position = Vector3.LerpUnclamped(fallStart, outwardTarget, travel) +
+                        Vector3.up * hopLift +
                         Vector3.down * (dropDistance * drop);
                     transform.localScale = Vector3.LerpUnclamped(startScale, endScale, dissolve);
 
                     Color color = startColor;
-                    color.a = Mathf.Lerp(startColor.a, 0f, dissolve);
+                    color.a = Mathf.Lerp(startColor.a, 0f, fade);
                     spriteRenderer.color = color;
                 });
 
             yield return tween.Play();
 
             spriteRenderer.enabled = false;
+        }
+
+        private FallProfile GetFallProfile(Vector3 direction)
+        {
+            if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+                return direction.x < 0f ? fallLeft : fallRight;
+
+            return direction.y > 0f ? fallUp : fallDown;
         }
 
         private void RestoreVisualState()
@@ -184,8 +218,13 @@ namespace Audere.Puzzle
         private void UpdateFacing(Vector3 start, Vector3 destination)
         {
             float horizontalMovement = destination.x - start.x;
-            if (spriteRenderer != null && Mathf.Abs(horizontalMovement) > Mathf.Epsilon)
-                spriteRenderer.flipX = horizontalMovement > 0f;
+            ApplyHorizontalFacing(horizontalMovement);
+        }
+
+        private void ApplyHorizontalFacing(float horizontalDirection)
+        {
+            if (spriteRenderer != null && Mathf.Abs(horizontalDirection) > Mathf.Epsilon)
+                spriteRenderer.flipX = horizontalDirection > 0f;
         }
 
         private Vector3 GetVisualOffset(GridSpace2D referenceGridSpace = null)

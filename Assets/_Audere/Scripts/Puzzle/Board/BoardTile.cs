@@ -35,6 +35,10 @@ namespace Audere.Puzzle.Board
             CacheBehaviours();
 
             foreach (IBoardTileBehaviour behaviour in behaviours)
+                if (behaviour is IBoardTileDataReceiver receiver)
+                    receiver.ReceiveTileData(data);
+
+            foreach (IBoardTileBehaviour behaviour in behaviours)
                 behaviour.OnTileInitialized(this);
 
             IsLevelGoal = behaviours.Exists(behaviour => behaviour is ILevelGoalTile);

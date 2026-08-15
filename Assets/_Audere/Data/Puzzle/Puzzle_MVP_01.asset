@@ -11,51 +11,93 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 647c0a9bef978874aa749caa2e3e5bbf, type: 3}
   m_Name: Puzzle_MVP_01
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   puzzleId: basic-slot-polish-demo
   boardTiles:
   - position: {x: -3, y: -1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: -2, y: -1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: -1, y: -1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: 0, y: -1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: 1, y: -1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: 2, y: -1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: 3, y: -1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: -3, y: 0}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: -2, y: 0}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: -1, y: 0}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: 0, y: 0}
-    tileType: 0
+    tileType: 2
+    dialogue: {fileID: 11400000, guid: 803faf833f9e73445b2e8e23581ae5e5, type: 2}
+    triggerDialogueOnce: 1
   - position: {x: 1, y: 0}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: 2, y: 0}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: 3, y: 0}
     tileType: 1
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: -3, y: 1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: -2, y: 1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: -1, y: 1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: 0, y: 1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: 1, y: 1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: 2, y: 1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   - position: {x: 3, y: 1}
     tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
   boardCells:
   - {x: -3, y: -1}
   - {x: -2, y: -1}

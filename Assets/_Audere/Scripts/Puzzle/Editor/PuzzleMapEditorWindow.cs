@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Audere.Dialogue;
 using Audere.Puzzle.Board;
 using Audere.Puzzle.PathPieces;
 using UnityEditor;
@@ -12,6 +13,18 @@ namespace Audere.Puzzle.Editor
 {
     public sealed class PuzzleMapEditorWindow : EditorWindow
     {
+        private struct DialogueTileSettings
+        {
+            public DialogueData Data;
+            public bool TriggerOnce;
+
+            public DialogueTileSettings(DialogueData data, bool triggerOnce)
+            {
+                Data = data;
+                TriggerOnce = triggerOnce;
+            }
+        }
+
         private enum PaintTool
         {
             Tile,
@@ -24,6 +37,8 @@ namespace Audere.Puzzle.Editor
         private const string DefaultFolder = "Assets/_Audere/Data/Puzzle/Levels";
 
         private readonly Dictionary<Vector2Int, PuzzleTileType> boardTiles = new Dictionary<Vector2Int, PuzzleTileType>();
+        private readonly Dictionary<Vector2Int, DialogueTileSettings> dialogueTiles =
+            new Dictionary<Vector2Int, DialogueTileSettings>();
         private readonly List<PathPieceData> pathPieces = new List<PathPieceData>();
 
         private PuzzleData targetData;
@@ -34,6 +49,8 @@ namespace Audere.Puzzle.Editor
         private Vector2Int gridSize = new Vector2Int(9, 9);
         private Vector2Int playerPosition;
         private bool hasPlayer;
+        private bool hasSelectedCell;
+        private Vector2Int selectedCell;
         private PuzzleTileType selectedTileType = PuzzleTileType.Grass;
         private PaintTool activeTool;
         private Vector2 gridScroll;
@@ -79,6 +96,7 @@ namespace Audere.Puzzle.Editor
             DrawToolbar();
             EditorGUILayout.Space(4f);
             DrawGrid();
+            DrawSelectedTileSettings();
             EditorGUILayout.Space(10f);
             DrawPathPieceList();
             EditorGUILayout.Space(10f);
@@ -160,7 +178,9 @@ namespace Audere.Puzzle.Editor
                     if (EditorUtility.DisplayDialog("Clear puzzle map?", "This clears the unsaved editor canvas.", "Clear", "Cancel"))
                     {
                         boardTiles.Clear();
+                        dialogueTiles.Clear();
                         hasPlayer = false;
+                        hasSelectedCell = false;
                     }
                 }
             }
@@ -245,10 +265,24 @@ namespace Audere.Puzzle.Editor
             {
                 case PaintTool.Tile:
                     boardTiles[coordinate] = selectedTileType;
+                    if (selectedTileType == PuzzleTileType.Dialogue)
+                    {
+                        if (!dialogueTiles.ContainsKey(coordinate))
+                            dialogueTiles[coordinate] = new DialogueTileSettings(null, true);
+                    }
+                    else
+                    {
+                        dialogueTiles.Remove(coordinate);
+                    }
+
+                    selectedCell = coordinate;
+                    hasSelectedCell = true;
                     break;
                 case PaintTool.Erase:
                     boardTiles.Remove(coordinate);
+                    dialogueTiles.Remove(coordinate);
                     if (hasPlayer && playerPosition == coordinate) hasPlayer = false;
+                    if (hasSelectedCell && selectedCell == coordinate) hasSelectedCell = false;
                     break;
                 case PaintTool.Player:
                     playerPosition = coordinate;
@@ -260,6 +294,35 @@ namespace Audere.Puzzle.Editor
 
             currentEvent.Use();
             Repaint();
+        }
+
+        private void DrawSelectedTileSettings()
+        {
+            if (!hasSelectedCell)
+                return;
+
+            EditorGUILayout.Space(8f);
+            EditorGUILayout.LabelField($"Selected Cell ({selectedCell.x}, {selectedCell.y})", EditorStyles.boldLabel);
+
+            if (!boardTiles.TryGetValue(selectedCell, out PuzzleTileType tileType) ||
+                tileType != PuzzleTileType.Dialogue)
+            {
+                EditorGUILayout.HelpBox(
+                    "Paint or click a Dialogue tile to assign its dialogue data.",
+                    MessageType.Info);
+                return;
+            }
+
+            if (!dialogueTiles.TryGetValue(selectedCell, out DialogueTileSettings settings))
+                settings = new DialogueTileSettings(null, true);
+
+            settings.Data = (DialogueData)EditorGUILayout.ObjectField(
+                "Dialogue Data",
+                settings.Data,
+                typeof(DialogueData),
+                false);
+            settings.TriggerOnce = EditorGUILayout.Toggle("Trigger Once", settings.TriggerOnce);
+            dialogueTiles[selectedCell] = settings;
         }
 
         private void DrawTilePrefabPreview(Rect cellRect, PuzzleTileType tileType)
@@ -377,8 +440,17 @@ namespace Audere.Puzzle.Editor
                 return;
 
             boardTiles.Clear();
+            dialogueTiles.Clear();
             foreach (PuzzleTileData tile in targetData.BoardTiles)
+            {
                 boardTiles[tile.Position] = tile.TileType;
+                if (tile.TileType == PuzzleTileType.Dialogue)
+                    dialogueTiles[tile.Position] = new DialogueTileSettings(
+                        tile.Dialogue,
+                        tile.TriggerDialogueOnce);
+            }
+
+            hasSelectedCell = false;
 
             playerPosition = targetData.PlayerStartPosition;
             hasPlayer = boardTiles.ContainsKey(playerPosition);
@@ -445,6 +517,16 @@ namespace Audere.Puzzle.Editor
                 SerializedProperty tileProperty = tilesProperty.GetArrayElementAtIndex(index);
                 tileProperty.FindPropertyRelative("position").vector2IntValue = sortedTiles[index].Key;
                 tileProperty.FindPropertyRelative("tileType").enumValueIndex = (int)sortedTiles[index].Value;
+
+                bool isDialogueTile = sortedTiles[index].Value == PuzzleTileType.Dialogue;
+                DialogueTileSettings settings = isDialogueTile && dialogueTiles.TryGetValue(
+                    sortedTiles[index].Key,
+                    out DialogueTileSettings configuredSettings)
+                    ? configuredSettings
+                    : new DialogueTileSettings(null, false);
+
+                tileProperty.FindPropertyRelative("dialogue").objectReferenceValue = settings.Data;
+                tileProperty.FindPropertyRelative("triggerDialogueOnce").boolValue = settings.TriggerOnce;
             }
 
             // Keep the legacy coordinate-only list synchronized while older branches still consume it.
@@ -516,6 +598,15 @@ namespace Audere.Puzzle.Editor
             if (pathPieces.Count > PuzzleContentConstants.Hand.MaxSlots)
                 issues.Add($"- A hand can contain at most {PuzzleContentConstants.Hand.MaxSlots} Path Piece cards.");
             if (pathPieces.Any(piece => piece == null)) issues.Add("- Remove or assign empty Path Piece slots.");
+
+            foreach (KeyValuePair<Vector2Int, PuzzleTileType> tile in boardTiles)
+            {
+                if (tile.Value != PuzzleTileType.Dialogue)
+                    continue;
+
+                if (!dialogueTiles.TryGetValue(tile.Key, out DialogueTileSettings settings) || settings.Data == null)
+                    issues.Add($"- Dialogue tile at ({tile.Key.x}, {tile.Key.y}) needs Dialogue Data.");
+            }
 
             return issues;
         }

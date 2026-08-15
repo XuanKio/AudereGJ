@@ -5,7 +5,7 @@ Tài liệu này mô tả implementation hiện tại của gameplay puzzle tron
 ## 1. Kết quả hiện tại
 
 - Board được sinh từ `PuzzleData`, không hard-code layout bằng GameObject trong scene.
-- Tile được tách thành prefab riêng. Hiện có `Grass` và `Goal`.
+- Tile được tách thành prefab riêng. Hiện có `Grass`, `Goal` và `Dialogue`.
 - Player, tile, Path Preview, Path Piece Hand và card đều là prefab.
 - Path Preview được vẽ bằng Canvas/UI nhưng luật chơi vẫn dùng grid coordinate.
 - Gameplay Mask **không phải UI**. Đây là world prefab dưới `Main Camera`, gồm bốn SpriteRenderer đen.
@@ -142,6 +142,7 @@ Gameplay Mask là con của camera nên vùng che giữ nguyên khi camera di ch
 | --- | --- | --- | --- |
 | `Grass` | `grass` | `Assets/_Audere/Prefabs/Puzzle/Tiles/Grass.prefab` | `GrassTileBehaviour` |
 | `Goal` | `goal` | `Assets/_Audere/Prefabs/Puzzle/Tiles/Goal.prefab` | `GoalTileBehaviour` |
+| `Dialogue` | `dialogue` | `Assets/_Audere/Prefabs/Puzzle/Tiles/Dialogue.prefab` | `DialogueTileBehaviour` |
 
 `BoardManager` lấy prefab từ `PuzzleTileCatalog`. Nó không đổi màu tile bằng code và không chứa nhánh visual riêng cho Goal.
 
@@ -284,6 +285,7 @@ Workflow:
 
 1. Chọn hoặc tạo `PuzzleData`.
 2. Paint tile bằng Tile Type.
+   - Với `Dialogue`, click cell rồi gán `Dialogue Data` và `Trigger Once` trong phần `Selected Cell`.
 3. Đặt Player và Goal.
 4. Thêm/tạo thứ tự path piece trong hand.
 5. `Save Data` để lưu asset.
@@ -301,12 +303,15 @@ Assets/_Audere/Prefabs/Puzzle/World/GameplayMask.prefab
 Assets/_Audere/Prefabs/Puzzle/Actors/Player.prefab
 Assets/_Audere/Prefabs/Puzzle/Tiles/Grass.prefab
 Assets/_Audere/Prefabs/Puzzle/Tiles/Goal.prefab
+Assets/_Audere/Prefabs/Puzzle/Tiles/Dialogue.prefab
 Assets/_Audere/Prefabs/Puzzle/UI/PathPreviewUI.prefab
 Assets/_Audere/Prefabs/Puzzle/UI/PathPieceHandUI.prefab
 Assets/_Audere/Prefabs/Puzzle/UI/PathPieceCardUI.prefab
 
 Assets/_Audere/Data/Puzzle/PuzzleTileCatalog.asset
 Assets/_Audere/Data/Puzzle/Puzzle_MVP_01.asset
+Assets/_Audere/Data/Dialogue/DialogueCharacterCatalog.asset
+Assets/_Audere/Data/Dialogue/Dialogue_Sample.asset
 Assets/_Audere/Data/Puzzle/PathPieces/PathPiece_Line_2.asset
 Assets/_Audere/Data/Puzzle/PathPieces/PathPiece_L_Corner.asset
 Assets/_Audere/Data/Puzzle/PathPieces/PathPiece_Line_4.asset
@@ -332,6 +337,8 @@ Assets/_Audere/Data/Puzzle/PathPieces/PathPiece_Line_4.asset
 - Runtime screenshot palette mới: `Assets/Screenshots/polish_step_idle.png`.
 - Runtime screenshot preview mới: `Assets/Screenshots/polish_preview_valid_fixed.png`.
 - Build `Assembly-CSharp` và `Assembly-CSharp-Editor`: `0 warning`, `0 error`.
+- `Puzzle_MVP_01`: 19 Grass, 1 Dialogue tại `(0,0)`, 1 Goal; Dialogue cell dùng sample data và trigger một lần.
+- Runtime dialogue được kiểm tra trong Play Mode; `GameplayUIRoot` là root độc lập, còn Main Menu dùng UI riêng.
 
 ## 12. Phần còn chờ polish/art
 

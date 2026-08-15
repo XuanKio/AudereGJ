@@ -1,5 +1,11 @@
 namespace Audere.Puzzle.Board
 {
+    /// <summary>Receives the complete per-cell data before tile initialization.</summary>
+    public interface IBoardTileDataReceiver
+    {
+        void ReceiveTileData(PuzzleTileData data);
+    }
+
     /// <summary>
     /// Optional behaviour contract implemented by components on a tile prefab.
     /// A future tile can react to the player without adding tile-specific code to BoardManager.

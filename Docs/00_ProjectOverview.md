@@ -10,7 +10,7 @@ summary: Top-level map of the Audere project — what it is, the doc index, fold
 # Audere — Project Overview
 
 > **Read this first.** It's the index + living map so a new session skips re-scanning the repo.
-> **Last updated:** 2026-08-11 · **Engine:** Unity 6000.0.79f1 (URP, 2D)
+> **Last updated:** 2026-08-15 · **Engine:** Unity 6000.0.79f1 (URP, 2D)
 
 ## What Audere is
 
@@ -31,6 +31,8 @@ assets + audio ids imply the shape:
 | [`01_ProjectSetup.md`](01_ProjectSetup.md) | Unity version, packages, how to open/run/build. |
 | [`02_Bootstrap.md`](02_Bootstrap.md) | Entry point, services, scene flow, conventions. |
 | [`03_AudioSystem.md`](03_AudioSystem.md) | Id-based audio (AudioId → catalog → clip). |
+| [`04_PuzzleGameplay_SteptileArchitecture.md`](04_PuzzleGameplay_SteptileArchitecture.md) | PuzzleData, board/tile prefabs, placement, Map Editor. |
+| [`05_DialogueSystem.md`](05_DialogueSystem.md) | Persistent gameplay UI, dialogue data, presenter và Dialogue tile. |
 
 ## Architecture at a glance
 
@@ -51,11 +53,13 @@ D:\PJ\AudereGJ\
 │   ├── Scripts/
 │   │   ├── Core/            Global services + contracts   (namespace Audere.Core)
 │   │   ├── UI/              UI controllers                 (Audere.UI)
-│   │   └── Audio/           Id-based audio system          (Audere.Audio)
+│   │   ├── Audio/           Id-based audio system          (Audere.Audio)
+│   │   ├── Puzzle/          Puzzle board, path, editor      (Audere.Puzzle)
+│   │   └── Dialogue/        Dialogue data + persistent UI   (Audere.Dialogue)
 │   ├── Scenes/              00_Bootstrap, 10_MainMenu, 20_Game (+ SampleScene leftover)
-│   ├── Data/Audio/          AudioCatalog.asset (id → clip mapping; currently EMPTY)
+│   ├── Data/                Audio, Puzzle và Dialogue ScriptableObjects
 │   ├── Audio/               Raw audio assets (empty)
-│   ├── Prefab/              Prefabs (empty)
+│   ├── Prefabs/             Puzzle, world và UI prefabs
 │   └── AssetGame/           Imported art: DiceCombat, Enemyy, Nilah, Timor, Step Tile
 ├── Packages/ ProjectSettings/
 └── Docs/                    ← these docs (outside Assets, not imported by Unity)
@@ -87,6 +91,16 @@ imported third-party assets).
 | `AudioCatalog.cs` | `ScriptableObject` `List<AudioEntry>` → dictionary lookup. `TryGet`. | Active |
 | `AudioService.cs` | `IGameService`. `Play(AudioId)` → catalog → `AudioSource.PlayOneShot`. `AudioService.Instance`. 2D. | Active |
 
+### Dialogue — `Scripts/Dialogue/` (`Audere.Dialogue`)
+| Script | Responsibility | Status |
+|--------|----------------|--------|
+| `DialogueCharacterId.cs` | Constant nhân vật dùng làm dropdown ổn định trong dialogue data. | Active |
+| `DialogueCharacterCatalog.cs` | Map character constant → tên hiển thị và portrait. | Active |
+| `DialogueData.cs` | Data đoạn thoại: nhân vật Left/Right và danh sách line theo speaker. | Active |
+| `GameplayUIRoot.cs` | Singleton UI độc lập, `DontDestroyOnLoad` giữa gameplay scenes; tự hủy khi vào Main Menu. | Active |
+| `DialogueController.cs` | Left/right presentation, typewriter, emphasis, input và pause gameplay bằng unscaled time. | Active |
+| `DialogueTileBehaviour.cs` | Nhận `DialogueData` theo từng `PuzzleTileData` cell và phát thoại khi Player bước vào. | Active |
+
 ### Deferred (documented, NOT built)
 | Planned | Why deferred |
 |---------|--------------|
@@ -103,6 +117,8 @@ imported third-party assets).
 | 2026-08-11 | Audio id-based: `AudioId` enum → `AudioCatalog` (SO) → clip; explicit permanent numeric ids. | Decouples gameplay from file names; designer swaps sounds in one asset; ids stable across reordering. |
 | 2026-08-11 | `20_Game` before `GameSettings`; `SaveManager` = auto-save, deferred. | Core loop first; save needs the data model locked down. |
 | 2026-08-11 | Docs live in repo-root `Docs/` (outside `Assets/`). | Keeps docs out of Unity's asset import (no `.meta` clutter); standard repo convention. |
+| 2026-08-15 | Gameplay UI dùng prefab `GameplayUIRoot` độc lập và persistent; Main Menu giữ UI riêng. | Không gắn UI vào Player; tránh mất UI khi đổi gameplay scene và tránh kéo UI gameplay vào Main Menu. |
+| 2026-08-15 | Dialogue dùng `DialogueCharacterId` + catalog trung tâm + `DialogueData`; trigger được gán theo từng cell trong `PuzzleData`. | Designer chỉ chọn constant nhân vật; tên/portrait tự resolve và không lặp theo từng đoạn thoại. |
 
 ## Maintenance
 
