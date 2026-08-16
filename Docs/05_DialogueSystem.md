@@ -105,6 +105,22 @@ Trong khi phát thoại:
 
 `Trigger Once` được nhớ theo `Dialogue Id` trong lifetime của `GameplayUIRoot`, nên giữ qua các gameplay scene và reset khi quay lại Main Menu.
 
+### Thông số animation hiện tại
+
+| Thành phần | Giá trị | Nơi chỉnh |
+| --- | ---: | --- |
+| Character fade-in | `0.24 s` | `DialogueController.characterEntranceDuration` |
+| Độ sáng người không nói | `0.34`, alpha `1`, scale `1` | `Left.prefab` và `Right.prefab` |
+| Delay trước khi bubble xuất hiện | `0.06 s` | `DialogueController.bubbleDelay` |
+| Bubble pop-in | `0.20 s` | `DialogueBubble.prefab` |
+| Bubble start scale | `0.78` | `DialogueBubble.prefab` |
+| Bubble overshoot scale | `1.06` | `DialogueBubble.prefab` |
+| Bubble trượt lên | `22 px` | `DialogueBubble.prefab` |
+| Bubble pop-out | `0.09 s` | `DialogueBubble.prefab` |
+| Tốc độ typewriter | `42 ký tự/s` | `DialogueController.charactersPerSecond` |
+
+Các animation dùng `Time.unscaledDeltaTime`. Portrait không được scale khi đổi speaker; chỉ `DialogueBubble` được scale để tạo hiệu ứng pop.
+
 ## 5. Gán thoại vào map
 
 Mở:
@@ -139,6 +155,19 @@ Audere > Dialogue > Preview Sample
 ```
 
 Menu setup bootstrap các asset còn thiếu từ mẫu Left/Right và không ghi đè catalog, sample hoặc tile prefab đã tồn tại. `Preview Sample` vào Play Mode và phát sample ngay để kiểm tra nhịp animation. Không cần chạy setup mỗi lần sửa nội dung; thoại thường ngày chỉ sửa trên `DialogueData` và catalog.
+
+### Script chịu trách nhiệm
+
+| Script | Vai trò |
+| --- | --- |
+| `DialogueCharacterId.cs` | Constant nhân vật cho dropdown. |
+| `DialogueCharacterCatalog.cs` | Resolve constant thành tên và portrait. |
+| `DialogueData.cs` | Cặp nhân vật và thứ tự các line Left/Right. |
+| `DialogueCharacterSlotView.cs` | Portrait, tint người nói/không nói và visibility của slot. |
+| `DialogueBubbleView.cs` | Nội dung bubble, pop-in, rise và pop-out. |
+| `DialogueController.cs` | Điều phối thứ tự character → bubble → typewriter, input và pause. |
+| `GameplayUIRoot.cs` | Singleton UI persistent giữa gameplay scene. |
+| `DialogueTileBehaviour.cs` | Phát data được gán cho cell khi Player bước vào. |
 
 QA gần nhất ngày 2026-08-16:
 

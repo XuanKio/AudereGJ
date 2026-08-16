@@ -32,7 +32,7 @@ assets + audio ids imply the shape:
 | [`02_Bootstrap.md`](02_Bootstrap.md) | Entry point, services, scene flow, conventions. |
 | [`03_AudioSystem.md`](03_AudioSystem.md) | Id-based audio (AudioId → catalog → clip). |
 | [`04_PuzzleGameplay_SteptileArchitecture.md`](04_PuzzleGameplay_SteptileArchitecture.md) | PuzzleData, board/tile prefabs, placement, Map Editor. |
-| [`05_DialogueSystem.md`](05_DialogueSystem.md) | Persistent gameplay UI, dialogue data, presenter và Dialogue tile. |
+| [`05_DialogueSystem.md`](05_DialogueSystem.md) | Persistent gameplay UI, dialogue data, controller, animation và Dialogue tile. |
 
 ## Architecture at a glance
 
@@ -119,6 +119,7 @@ imported third-party assets).
 | 2026-08-11 | Docs live in repo-root `Docs/` (outside `Assets/`). | Keeps docs out of Unity's asset import (no `.meta` clutter); standard repo convention. |
 | 2026-08-15 | Gameplay UI dùng prefab `GameplayUIRoot` độc lập và persistent; Main Menu giữ UI riêng. | Không gắn UI vào Player; tránh mất UI khi đổi gameplay scene và tránh kéo UI gameplay vào Main Menu. |
 | 2026-08-15 | Dialogue dùng `DialogueCharacterId` + catalog trung tâm + `DialogueData`; trigger được gán theo từng cell trong `PuzzleData`. | Designer chỉ chọn constant nhân vật; tên/portrait tự resolve và không lặp theo từng đoạn thoại. |
+| 2026-08-16 | Portrait Left/Right luôn giữ scale; người không nói dùng tint tối, bubble chuyển lượt bằng pop/fade/rise trước khi chạy typewriter. | Tránh viền do alpha/scale portrait và giúp lượt nói chuyển mượt, dễ nhận biết. |
 
 ## Maintenance
 
