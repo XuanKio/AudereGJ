@@ -15,7 +15,7 @@ MonoBehaviour:
   characters:
   - character: 1
     displayName: Audere
-    portrait: {fileID: -2684102947291226346, guid: 2dbff64666d0f9e419172d21115391ab, type: 3}
+    portrait: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
   - character: 2
     displayName: Timor
-    portrait: {fileID: 0}
+    portrait: {fileID: 1651829463544687908, guid: 28d3115c877f4b54198a2715eef13e33, type: 3}

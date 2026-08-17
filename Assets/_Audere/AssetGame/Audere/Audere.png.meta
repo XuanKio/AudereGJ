@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 2dbff64666d0f9e419172d21115391ab
+guid: 6996de3b28ad9a1448c8c318b9f09ff4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2684102947291226346
-    second: Main_0
+      213: -7552794342590586862
+    second: Audere_0
+  - first:
+      213: 1041760414261097982
+    second: Audere_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +40,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +78,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -126,13 +129,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Main_0
+      name: Audere_1
       rect:
         serializedVersion: 2
-        x: 127
-        y: 50
-        width: 801
-        height: 1008
+        x: 3073
+        y: 1434
+        width: 11
+        height: 8
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +144,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 61f9026279620cad0800000000000000
-      internalID: -2684102947291226346
+      spriteID: ef5b819c393157e00800000000000000
+      internalID: 1041760414261097982
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Audere_0
+      rect:
+        serializedVersion: 2
+        x: 1151
+        y: 0
+        width: 1740
+        height: 2083
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1394c952dc3af0d499f0dc5a1213199c
+      internalID: -458334604
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Audere_2
+      rect:
+        serializedVersion: 2
+        x: 2897
+        y: 885
+        width: 6
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 91a13ba18a7c2b04f9a2507a0277eea0
+      internalID: -1003744834
       vertices: []
       indices: 
       edges: []
@@ -151,8 +198,8 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
-    internalID: 0
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 1537655665
     vertices: []
     indices: 
     edges: []
@@ -161,7 +208,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Main_0: -2684102947291226346
+      Audere_0: -458334604
+      Audere_1: 1041760414261097982
+      Audere_2: -1003744834
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

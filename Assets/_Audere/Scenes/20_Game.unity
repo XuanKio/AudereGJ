@@ -1027,11 +1027,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3479284154816267959, guid: 9c4ffd185ffe6e9419d6a00c1ece06d4, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5337902640382870502, guid: 9c4ffd185ffe6e9419d6a00c1ece06d4, type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag
       value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5588354168565332788, guid: 9c4ffd185ffe6e9419d6a00c1ece06d4, type: 3}
+      propertyPath: m_UseSpriteMesh
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5919585175249091734, guid: 9c4ffd185ffe6e9419d6a00c1ece06d4, type: 3}
       propertyPath: m_IsActive
@@ -1116,6 +1120,18 @@ PrefabInstance:
     - target: {fileID: 6070289272159346969, guid: 9c4ffd185ffe6e9419d6a00c1ece06d4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6189275210422505642, guid: 9c4ffd185ffe6e9419d6a00c1ece06d4, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.47
+      objectReference: {fileID: 0}
+    - target: {fileID: 6189275210422505642, guid: 9c4ffd185ffe6e9419d6a00c1ece06d4, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.47
+      objectReference: {fileID: 0}
+    - target: {fileID: 6189275210422505642, guid: 9c4ffd185ffe6e9419d6a00c1ece06d4, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.47
       objectReference: {fileID: 0}
     - target: {fileID: 7550447075264360288, guid: 9c4ffd185ffe6e9419d6a00c1ece06d4, type: 3}
       propertyPath: m_Name
@@ -1440,6 +1456,14 @@ PrefabInstance:
     - target: {fileID: 813879447345792918, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1456769421717324199, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1456769421717324199, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2260509265049219670, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
       propertyPath: m_IsActive

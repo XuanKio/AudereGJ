@@ -331,8 +331,43 @@ namespace Audere.Dialogue.Editor
             slot.name = isLeft ? "Left" : "Right";
 
             Transform oldBubble = slot.transform.Find("Dialogue Bubble");
+            if (oldBubble == null)
+                oldBubble = slot.transform.Find("DialogueBubble");
             if (oldBubble != null)
                 Object.DestroyImmediate(oldBubble.gameObject);
+
+            Image rootImage = slot.GetComponent<Image>();
+            Transform existingVisual = slot.transform.Find("Avatar");
+            GameObject characterVisual = existingVisual != null
+                ? existingVisual.gameObject
+                : new GameObject(
+                    "Avatar",
+                    typeof(RectTransform),
+                    typeof(CanvasRenderer),
+                    typeof(Image));
+
+            RectTransform characterRect = characterVisual.GetComponent<RectTransform>();
+            characterRect.SetParent(slot.transform, false);
+            characterRect.anchorMin = Vector2.zero;
+            characterRect.anchorMax = Vector2.one;
+            characterRect.offsetMin = Vector2.zero;
+            characterRect.offsetMax = Vector2.zero;
+            characterRect.pivot = new Vector2(.5f, .5f);
+            characterRect.localRotation = Quaternion.identity;
+            characterRect.localScale = Vector3.one;
+            characterRect.SetAsFirstSibling();
+
+            Image characterImage = characterVisual.GetComponent<Image>();
+            if (rootImage != null)
+            {
+                EditorUtility.CopySerialized(rootImage, characterImage);
+                Object.DestroyImmediate(rootImage);
+            }
+            characterImage.raycastTarget = false;
+
+            CanvasRenderer rootRenderer = slot.GetComponent<CanvasRenderer>();
+            if (rootRenderer != null)
+                Object.DestroyImmediate(rootRenderer);
 
             CanvasGroup canvasGroup = slot.GetComponent<CanvasGroup>();
             if (canvasGroup == null)
@@ -342,9 +377,12 @@ namespace Audere.Dialogue.Editor
             RectTransform bubbleRect = bubble.GetComponent<RectTransform>();
             bubbleRect.SetParent(slot.transform, false);
             bubbleRect.anchoredPosition = new Vector2(isLeft ? 19f : -19f, 327f);
+            bubbleRect.SetAsLastSibling();
 
-            DialogueCharacterSlotView view = slot.AddComponent<DialogueCharacterSlotView>();
-            SetReference(view, "characterImage", slot.GetComponent<Image>());
+            DialogueCharacterSlotView view = slot.GetComponent<DialogueCharacterSlotView>();
+            if (view == null)
+                view = slot.AddComponent<DialogueCharacterSlotView>();
+            SetReference(view, "characterImage", characterImage);
             SetReference(view, "bubble", bubble.GetComponent<DialogueBubbleView>());
             SetReference(view, "canvasGroup", canvasGroup);
 
