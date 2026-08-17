@@ -50,7 +50,12 @@ namespace Audere.Puzzle.PathPieces
                 hand.SelectionChanged -= HandleSelectionChanged;
             hand = pieceHand;
             if (hand != null)
+            {
                 hand.SelectionChanged += HandleSelectionChanged;
+                Canvas handCanvas = hand.GetComponentInParent<Canvas>();
+                if (handCanvas != null)
+                    puzzleCanvas = handCanvas;
+            }
             observedSelectedPiece = hand != null ? hand.SelectedPiece : null;
             if (boardCamera == null) boardCamera = Camera.main;
             if (preview != null) preview.Setup();

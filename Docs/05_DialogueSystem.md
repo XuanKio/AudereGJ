@@ -7,7 +7,10 @@ Tài liệu này mô tả hệ dialogue data-driven hiện tại, cách gán tho
 Dialogue không nằm trên Player và không được sinh bằng runtime code. Toàn bộ layout nằm trong prefab, lấy trực tiếp từ mẫu `Canvas/Left` đã setup trong scene:
 
 ```text
-GameplayUIRoot                         DontDestroyOnLoad
+GameplayUIRoot                         Canvas + DontDestroyOnLoad
+├── PuzzleUI
+│   └── Path Piece Hand UI
+│       └── Cards
 └── DialogueUI
     ├── Left                          nested Left.prefab
     │   └── DialogueBubble            shared DialogueBubble.prefab
@@ -34,7 +37,8 @@ Assets/_Audere/Prefabs/UI/Dialogue/DialogueBubble.prefab
 - bản trùng bị hủy nếu scene gameplay khác cũng chứa prefab này;
 - root tự đóng thoại, khôi phục `Time.timeScale` và tự hủy khi vào `10_MainMenu`;
 - Main Menu tiếp tục dùng UI riêng;
-- `Canvas/Path Piece Hand UI` vẫn là UI riêng của scene vì có reference gameplay theo scene.
+- gameplay scene không tạo Canvas HUD thứ hai; `PuzzleUI` và `DialogueUI` cùng nằm trong root Canvas;
+- `PuzzleManager` và `PathPlacementController` bind lại `Path Piece Hand UI`/Canvas persistent khi level được load.
 
 ## 2. Character constant và catalog
 
@@ -139,6 +143,8 @@ Workflow:
 
 Map Editor validation không cho save nếu Dialogue cell chưa có data. Mỗi cell giữ reference riêng, nên cùng một `Dialogue.prefab` có thể phát nhiều đoạn thoại khác nhau.
 
+Khi chọn Dialogue tile được sinh trong Play Mode, `Dialogue Tile Behaviour` hiển thị `Grid Position`, `Dialogue Data`, `Trigger Once` và `Triggered`. `Dialogue Data`/`Trigger Once` có thể chỉnh ngay tại đây; custom Inspector ghi thay đổi về đúng cell trong `PuzzleData` và cập nhật runtime tile. Ngoài Play Mode, nút `Open Puzzle Map Editor` mở đúng nơi chỉnh dữ liệu lưu, tránh gán nhầm data chung vào prefab.
+
 Sample map hiện đặt Dialogue tile tại `(0,0)`:
 
 ```text
@@ -166,14 +172,17 @@ Menu setup bootstrap các asset còn thiếu từ mẫu Left/Right và không gh
 | `DialogueCharacterSlotView.cs` | Portrait, tint người nói/không nói và visibility của slot. |
 | `DialogueBubbleView.cs` | Nội dung bubble, pop-in, rise và pop-out. |
 | `DialogueController.cs` | Điều phối thứ tự character → bubble → typewriter, input và pause. |
-| `GameplayUIRoot.cs` | Singleton UI persistent giữa gameplay scene. |
+| `GameplayUIRoot.cs` | Singleton root Canvas chứa riêng `PuzzleUI` và `DialogueUI`, persistent giữa gameplay scene. |
 | `DialogueTileBehaviour.cs` | Phát data được gán cho cell khi Player bước vào. |
+| `DialogueTileBehaviourEditor.cs` | Hiển thị/chỉnh data của cell runtime, ghi về `PuzzleData` và mở Map Editor từ Inspector. |
 
 QA gần nhất ngày 2026-08-16:
 
 - Unity Console: `0` error sau compile và Play Mode test;
 - `Assembly-CSharp` và `Assembly-CSharp-Editor`: `0 warning`, `0 error`;
-- scene có root độc lập `GameplayUIRoot/DialogueUI/Left|Right` đúng vị trí mẫu;
+- scene chỉ có một gameplay Canvas: `GameplayUIRoot/PuzzleUI|DialogueUI`; Main Menu vẫn dùng UI riêng;
+- PuzzleUI sinh đúng 3 card và cả Puzzle Manager/placement bind vào UI persistent;
+- Dialogue tile `(0,0)` hiện `Dialogue_Sample`, `Trigger Once = true` trong runtime Inspector;
 - sample mở được, text tiếng Việt + tên Audere hiển thị đúng, typewriter chạy khi `timeScale = 0`;
 - `ForceClose` trả `IsPlaying = false` và `Time.timeScale = 1`;
 - `DialogueTileBehaviour` tại cell `(0,0)` đã gọi sample thành công;

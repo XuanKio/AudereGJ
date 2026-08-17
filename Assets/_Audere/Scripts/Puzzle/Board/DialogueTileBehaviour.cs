@@ -10,10 +10,20 @@ namespace Audere.Puzzle.Board
         private bool triggerOnce = true;
         private bool triggered;
 
+        public DialogueData DialogueData => dialogueData;
+        public bool TriggerOnce => triggerOnce;
+        public bool Triggered => triggered;
+
         public void ReceiveTileData(PuzzleTileData data)
         {
-            dialogueData = data.Dialogue;
-            triggerOnce = data.TriggerDialogueOnce;
+            ConfigureData(data.Dialogue, data.TriggerDialogueOnce);
+        }
+
+        public void ConfigureData(DialogueData data, bool shouldTriggerOnce)
+        {
+            dialogueData = data;
+            triggerOnce = shouldTriggerOnce;
+            triggered = false;
         }
 
         public void OnTileInitialized(BoardTile tile) { }

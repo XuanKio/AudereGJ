@@ -42,8 +42,16 @@ namespace Audere.Puzzle
         [SerializeField, Range(.02f, .5f)] private float fallEndScale = .08f;
 
         private SpriteRenderer spriteRenderer;
+        private Transform groundedShadow;
         private GridSpace2D gridSpace;
         private Color prefabColor;
+        private Vector3 shadowRestLocalPosition;
+        private Quaternion shadowRestLocalRotation;
+        private Vector3 shadowRestLocalScale;
+        private Vector3 shadowRestWorldOffset;
+        private Quaternion shadowRestWorldRotation;
+        private Vector3 shadowRestWorldScale;
+        private bool shadowStartsActive;
         public Vector2Int GridPosition { get; private set; }
         public bool FellDuringTraversal { get; private set; }
 
@@ -59,6 +67,8 @@ namespace Audere.Puzzle
 
             gridSpace = GetComponentInParent<GridSpace2D>();
             prefabColor = spriteRenderer.color;
+            groundedShadow = FindGroundedShadow();
+            CacheShadowLocalPose();
             RestoreVisualState();
         }
 
@@ -106,17 +116,20 @@ namespace Audere.Puzzle
                     float progress = Mathf.Clamp01(elapsed / stepDuration);
                     float easedProgress = SmootherStep(progress);
                     float travelPulse = Mathf.Sin(progress * Mathf.PI);
-                    transform.position = Vector3.Lerp(start, destination, easedProgress) +
+                    Vector3 groundedPosition = Vector3.Lerp(start, destination, easedProgress);
+                    transform.position = groundedPosition +
                         Vector3.up * (stepArcHeight * travelPulse);
                     transform.localScale = new Vector3(
                         visualScale * (1f - travelStretch * travelPulse * .35f),
                         visualScale * (1f + travelStretch * travelPulse),
                         visualScale);
+                    KeepShadowGrounded(groundedPosition);
                     yield return null;
                 }
 
                 transform.position = destination;
                 transform.localScale = Vector3.one * visualScale;
+                KeepShadowGrounded(destination);
                 GridPosition = path[index];
                 board.NotifyPlayerEntered(GridPosition, this);
                 yield return PlayLandingResponse();
@@ -141,10 +154,12 @@ namespace Audere.Puzzle
                     visualScale * (1f + landingWiden * impact - rebound * .02f),
                     visualScale * (1f - landingSquash * impact + rebound * .04f),
                     visualScale);
+                KeepShadowGrounded(transform.position);
                 yield return null;
             }
 
             transform.localScale = Vector3.one * visualScale;
+            KeepShadowGrounded(transform.position);
         }
 
         private IEnumerator PlayFall(Vector3 previousPosition, Vector3 edgePosition)
@@ -182,6 +197,7 @@ namespace Audere.Puzzle
                         Vector3.up * hopLift +
                         Vector3.down * (dropDistance * drop);
                     transform.localScale = Vector3.LerpUnclamped(startScale, endScale, dissolve);
+                    KeepShadowGrounded(fallStart);
 
                     Color color = startColor;
                     color.a = Mathf.Lerp(startColor.a, 0f, fade);
@@ -191,6 +207,8 @@ namespace Audere.Puzzle
             yield return tween.Play();
 
             spriteRenderer.enabled = false;
+            if (groundedShadow != null)
+                groundedShadow.gameObject.SetActive(false);
         }
 
         private FallProfile GetFallProfile(Vector3 direction)
@@ -213,6 +231,15 @@ namespace Audere.Puzzle
 
             transform.rotation = Quaternion.identity;
             transform.localScale = Vector3.one * visualScale;
+
+            if (groundedShadow != null)
+            {
+                groundedShadow.localPosition = shadowRestLocalPosition;
+                groundedShadow.localRotation = shadowRestLocalRotation;
+                groundedShadow.localScale = shadowRestLocalScale;
+                groundedShadow.gameObject.SetActive(shadowStartsActive);
+                CacheShadowWorldPose();
+            }
         }
 
         private void UpdateFacing(Vector3 start, Vector3 destination)
@@ -242,6 +269,61 @@ namespace Audere.Puzzle
             return activeGridSpace != null
                 ? activeGridSpace.transform.TransformVector(localOffset)
                 : localOffset;
+        }
+
+        private Transform FindGroundedShadow()
+        {
+            foreach (Transform child in GetComponentsInChildren<Transform>(true))
+            {
+                if (child == transform)
+                    continue;
+
+                if (child.name.StartsWith("shadow", StringComparison.OrdinalIgnoreCase))
+                    return child;
+            }
+
+            return null;
+        }
+
+        private void CacheShadowLocalPose()
+        {
+            if (groundedShadow == null)
+                return;
+
+            shadowRestLocalPosition = groundedShadow.localPosition;
+            shadowRestLocalRotation = groundedShadow.localRotation;
+            shadowRestLocalScale = groundedShadow.localScale;
+            shadowStartsActive = groundedShadow.gameObject.activeSelf;
+        }
+
+        private void CacheShadowWorldPose()
+        {
+            shadowRestWorldOffset = groundedShadow.position - transform.position;
+            shadowRestWorldRotation = groundedShadow.rotation;
+            shadowRestWorldScale = groundedShadow.lossyScale;
+        }
+
+        private void KeepShadowGrounded(Vector3 playerGroundPosition)
+        {
+            if (groundedShadow == null || !groundedShadow.gameObject.activeSelf)
+                return;
+
+            groundedShadow.position = playerGroundPosition + shadowRestWorldOffset;
+            groundedShadow.rotation = shadowRestWorldRotation;
+
+            Transform shadowParent = groundedShadow.parent;
+            Vector3 parentScale = shadowParent != null
+                ? shadowParent.lossyScale
+                : Vector3.one;
+            groundedShadow.localScale = new Vector3(
+                DivideScale(shadowRestWorldScale.x, parentScale.x),
+                DivideScale(shadowRestWorldScale.y, parentScale.y),
+                DivideScale(shadowRestWorldScale.z, parentScale.z));
+        }
+
+        private static float DivideScale(float value, float divisor)
+        {
+            return Mathf.Abs(divisor) > Mathf.Epsilon ? value / divisor : value;
         }
 
         private static float SmootherStep(float value)

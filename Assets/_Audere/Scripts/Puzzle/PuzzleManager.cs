@@ -1,4 +1,5 @@
 using System.Collections;
+using Audere.Dialogue;
 using Audere.Puzzle.Board;
 using Audere.Puzzle.PathPieces;
 using UnityEngine;
@@ -39,6 +40,8 @@ namespace Audere.Puzzle
 
         public void LoadPuzzle()
         {
+            ResolveGameplayUiReferences();
+
             if (puzzleData == null || board == null || player == null || hand == null || placement == null)
             {
                 Debug.LogError(
@@ -60,6 +63,16 @@ namespace Audere.Puzzle
             placement.Setup(this, board, player, hand);
             CurrentState = State.Playing;
             SetHudMessage("Choose a path piece");
+        }
+
+        private void ResolveGameplayUiReferences()
+        {
+            GameplayUIRoot uiRoot = GameplayUIRoot.Instance;
+            if (uiRoot == null)
+                uiRoot = FindFirstObjectByType<GameplayUIRoot>(FindObjectsInactive.Include);
+
+            if (uiRoot != null && uiRoot.PathPieceHand != null)
+                hand = uiRoot.PathPieceHand;
         }
 
         public void SubmitPlacement(PlacementResult result)

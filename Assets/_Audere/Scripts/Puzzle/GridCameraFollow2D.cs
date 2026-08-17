@@ -60,6 +60,12 @@ namespace Audere.Puzzle
             if (board == null) board = FindFirstObjectByType<BoardManager>();
         }
 
+        private void OnEnable()
+        {
+            velocity = Vector3.zero;
+            initialized = false;
+        }
+
         private void LateUpdate()
         {
             if (target == null || followCamera == null)

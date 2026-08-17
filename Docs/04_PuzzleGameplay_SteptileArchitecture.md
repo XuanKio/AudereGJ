@@ -8,7 +8,7 @@ Tài liệu này mô tả implementation hiện tại của gameplay puzzle tron
 - Tile được tách thành prefab riêng. Hiện có `Grass`, `Goal` và `Dialogue`.
 - Player, tile, Path Preview, Path Piece Hand và card đều là prefab.
 - Path Preview được vẽ bằng Canvas/UI nhưng luật chơi vẫn dùng grid coordinate.
-- Gameplay Mask **không phải UI**. Đây là world prefab dưới `Main Camera`, gồm bốn SpriteRenderer đen.
+- `PuzzleViewportMask` **không phải UI**. Đây là camera-space prefab, child trực tiếp của `Main Camera`, gồm bốn SpriteRenderer đen và luôn đi theo camera follow.
 - Camera đi theo Player và board có thể dài hơn vùng đang nhìn thấy.
 - Preview chỉ hoạt động trong vùng RectTransform của `Path Preview UI`; ra ngoài vùng này preview biến mất và con trỏ hệ điều hành hiện lại.
 - Player có animation rơi khi path đi ra cell không có tile.
@@ -24,45 +24,53 @@ Level test hiện tại quay về map cơ bản rộng 7 cột, từ `x = -3` đ
 
 ```text
 Main Camera
-└── GameplayMask                  world prefab
-    ├── Mask Top                 SpriteRenderer
-    ├── Mask Bottom              SpriteRenderer
-    ├── Mask Left                SpriteRenderer
-    └── Mask Right               SpriteRenderer
+└── PuzzleViewportMask            camera-space prefab; chỉ active trong Puzzle
+    ├── Mask Top                  SpriteRenderer
+    ├── Mask Bottom               SpriteRenderer
+    ├── Mask Left                 SpriteRenderer
+    └── Mask Right                SpriteRenderer
 
-Canvas
-├── Path Preview UI              Canvas preview + RectMask2D
-│   └── Visual Root
-│       ├── Connector Root
-│       ├── Endpoint A
-│       └── Endpoint B
-├── Path Piece Hand UI
-│   └── Cards
-└── Debug UI
+GameplayUIRoot                    persistent root Canvas
+├── PuzzleUI
+│   └── Path Piece Hand UI
+│       └── Cards
+└── DialogueUI
+    ├── Left
+    └── Right
 
 EventSystem
 
 WORLD
-├── Placed Path Root
-└── Puzzle Root                  GridSpace2D
+├── Puzzle Root                  GridSpace2D; tắt khi preview combat
+    ├── Path Preview             world-space preview Canvas
+    │   ├── Connector Root
+    │   ├── Endpoint A
+    │   └── Endpoint B
     ├── Player
+    │   └── shadow (1)           Grounded visual; không nhận hop/squash
     ├── StepTile Board
-    └── Goal
+    ├── Goal
+    └── Placed Path Root
+└── Combat Root                  sibling mode root; xem 06_CombatGameplay.md
+    └── CombatBoard              world-space Canvas prefab
 
 SYSTEMS
-├── Puzzle Manager
-├── Path Placement Controller
-└── Board Controller
+├── Puzzle Systems                lifecycle group
+│   ├── Puzzle Manager
+│   ├── Path Placement Controller
+│   └── Board Controller
+└── Combat Systems
+    └── Combat Controller
 ```
 
-`GameplayMask` được parent trực tiếp vào camera nên tự đi theo camera mà không cần script riêng để cập nhật transform.
+`Placed Path Root` thuộc `Puzzle Root`. `PuzzleViewportMask` thuộc camera vì nó mô tả viewport chứ không mô tả map. `WorldModeController` vẫn bật/tắt mask cùng `Puzzle Root`, `PuzzleUI` và `Puzzle Systems`, nên mask không xuất hiện trong Combat.
 
-## 3. Gameplay Mask dạng world object
+## 3. Puzzle Viewport Mask dạng world object
 
 Prefab:
 
 ```text
-Assets/_Audere/Prefabs/Puzzle/World/GameplayMask.prefab
+Assets/_Audere/Prefabs/Puzzle/Camera/PuzzleViewportMask.prefab
 ```
 
 Mask được tạo từ bốn object đen bao quanh vùng chơi:
@@ -81,11 +89,11 @@ Mỗi phần chỉ có `Transform + SpriteRenderer`. Không có runtime code sin
 
 ### Cách chỉnh trong Scene
 
-1. Mở `Main Camera > GameplayMask`.
+1. Mở `Main Camera > PuzzleViewportMask`.
 2. Mở prefab hoặc unpack nếu muốn tùy biến riêng theo scene.
 3. Chỉnh `Position` và `Scale` của `Mask Top`, `Mask Bottom`, `Mask Left`, `Mask Right`.
 4. Bốn SpriteRenderer dùng màu đen và Sorting Order cao để che world object.
-5. Sau khi đổi vùng hở, chỉnh RectTransform của `Canvas > Path Preview UI` cho khớp vùng gameplay nhìn thấy.
+5. Sau khi đổi vùng hở, chỉnh RectTransform của `WORLD > Puzzle Root > Path Preview` cho khớp vùng gameplay nhìn thấy.
 
 Camera render full screen. Bốn world object là phần thực sự che nội dung bên ngoài; không dùng Image UI để giả lập black box.
 
@@ -134,7 +142,7 @@ Grid math không bị giới hạn theo kích thước màn hình. `BoardManager
 - clamp theo world bounds của board;
 - hỗ trợ board dài 20 ô hoặc hơn.
 
-Gameplay Mask là con của camera nên vùng che giữ nguyên khi camera di chuyển.
+`PuzzleViewportMask` là child của `Main Camera`, local position `(0, 0, 9)` để render tại world Z `-1` khi camera ở Z `-10`. Vì vậy camera follow có di chuyển thế nào thì vùng hở vẫn cố định trên màn hình. Lifecycle Puzzle/Combat do reference riêng trong `WorldModeController` quản lý.
 
 ## 6. Tile prefab và type
 
@@ -223,7 +231,8 @@ Path được phép đi ra cell không có tile. Khi đó `PlacementResult.WillF
 3. drift theo hướng di chuyển;
 4. rơi, xoay, thu nhỏ và fade;
 5. ẩn SpriteRenderer;
-6. reload level sau một khoảng ngắn.
+6. giữ bóng ở cell an toàn cuối cùng, rồi ẩn bóng khi fall hoàn tất;
+7. reload level sau một khoảng ngắn.
 
 ## 8.1. Step feel và tile landing feedback
 
@@ -233,6 +242,9 @@ Player movement hiện dùng một nhịp hoàn chỉnh thay vì chỉ `Lerp` th
 2. Giữa bước có arc cao `0.075 world unit` và stretch nhẹ theo trục dọc.
 3. Khi chạm cell, Player squash trong `0.085 giây` rồi trả về scale gốc.
 4. Tile nhận `OnPlayerEntered` cùng thời điểm va chạm và tự chạy press → rebound → settle.
+5. Child có tên bắt đầu bằng `shadow` được `GridPlayer` nhận tự động làm grounded shadow: bóng vẫn trượt ngang theo cell nhưng giữ nguyên world Y, rotation và scale trong toàn bộ hop/landing.
+
+`shadow (1)` vẫn nằm trong `Player.prefab` để đi theo logical player. `GridPlayer` bù transform ở runtime, vì vậy không cần tách bóng ra ngoài prefab và không cần kéo reference thủ công trong Inspector.
 
 Tile feedback nằm trên từng prefab, không nằm trong `BoardManager`:
 
@@ -292,14 +304,14 @@ Workflow:
 6. `Apply to Scene` để gán cho `PuzzleManager`.
 7. `Apply & Play` để chạy thử.
 
-Board data không bị giới hạn bởi Gameplay Mask. Mask chỉ quyết định vùng camera được nhìn thấy, còn map có thể dài/rộng hơn và camera sẽ follow Player.
+Board data không bị giới hạn bởi `PuzzleViewportMask`. Mask chỉ quyết định vùng camera được nhìn thấy, còn map có thể dài/rộng hơn.
 
 ## 10. Asset chính
 
 ```text
 Assets/_Audere/Scenes/20_Game.unity
 
-Assets/_Audere/Prefabs/Puzzle/World/GameplayMask.prefab
+Assets/_Audere/Prefabs/Puzzle/Camera/PuzzleViewportMask.prefab
 Assets/_Audere/Prefabs/Puzzle/Actors/Player.prefab
 Assets/_Audere/Prefabs/Puzzle/Tiles/Grass.prefab
 Assets/_Audere/Prefabs/Puzzle/Tiles/Goal.prefab
@@ -323,14 +335,18 @@ Assets/_Audere/Data/Puzzle/PathPieces/PathPiece_Line_4.asset
 
 - Unity 6.0.79f1 kết nối thành công.
 - Console: `0` error.
-- `Main Camera/GameplayMask`: đúng 4 child `Top/Bottom/Left/Right`, mỗi child có SpriteRenderer.
+- `Main Camera/PuzzleViewportMask`: đúng 4 child `Top/Bottom/Left/Right`, mỗi child có SpriteRenderer; active trong Puzzle và inactive trong Combat.
+- `WORLD/Puzzle Root/Placed Path Root`: nằm cùng lifecycle với board, goal và preview.
 - `StepTile Board`: sinh 20 Grass; Goal sinh riêng trong Goal root, tổng map 7 × 3.
 - `Path Piece Hand UI/Cards`: đúng 3 card.
+- Gameplay HUD và dialogue dùng chung đúng `1` root Canvas: `GameplayUIRoot/PuzzleUI|DialogueUI`; Canvas scene cũ đã được gỡ.
+- `PuzzleManager.hand` và `PathPlacementController.puzzleCanvas` tự bind lại vào UI persistent.
 - Card thường dùng đúng `slot.aseprite`, size `128 × 128`, spacing `24`.
 - Card được chọn: `y = 18`, scale `1.025`; khung slot wobble trong khi `Piece Root` giữ rotation `0°`.
 - Toggle lần hai: `y = 0`, scale `1`, slot position/rotation trở về `0`, selection được clear.
 - `Grass` và `Goal`: đủ 21 instance `TileStepFeedback`; visual luôn settle về position `(0,0,0)` và scale `(1,1,1)`.
 - Traversal test `(-3,0) → (0,0)`: Player kết thúc đúng grid, scale trở lại `(0.72,0.72,0.72)`.
+- Grounded-shadow runtime probe: trong trạng thái giữa bước có hop + stretch, world Y của bóng giữ nguyên `-0.077438`; sai lệch position và scale đều bằng `0`.
 - Path Preview: retarget scale đo được `0.88 → 1.0`; Invalid đổi đúng `#A45D5D` và endpoint còn khoảng `94%`.
 - Scene override cũ làm mất `Connector Template` đã được gỡ; runtime sinh thành công 20–25 connector.
 - Runtime screenshot card được chọn: `Assets/Screenshots/slot_selected_verified.png`.
@@ -339,9 +355,12 @@ Assets/_Audere/Data/Puzzle/PathPieces/PathPiece_Line_4.asset
 - Build `Assembly-CSharp` và `Assembly-CSharp-Editor`: `0 warning`, `0 error`.
 - `Puzzle_MVP_01`: 19 Grass, 1 Dialogue tại `(0,0)`, 1 Goal; Dialogue cell dùng sample data và trigger một lần.
 - Runtime dialogue được kiểm tra trong Play Mode; `GameplayUIRoot` là root độc lập, còn Main Menu dùng UI riêng.
+- Dialogue tile Inspector hiển thị `Dialogue Data`, `Trigger Once`, `Triggered`; khi chạy có thể sửa trực tiếp và ghi về đúng cell trong `PuzzleData`, đồng thời có nút mở Puzzle Map Editor.
+- Runtime screenshots sau khi gộp UI: `Assets/Screenshots/gameplay_ui_merged_verified.png` và `Assets/Screenshots/gameplay_ui_merged_dialogue_verified.png`.
+- Mode-switch regression: Combat → Puzzle dựng lại đủ 20 tile runtime; Puzzle → Combat tắt toàn bộ puzzle world/systems mà không để controller con kẹt inactive.
 
 ## 12. Phần còn chờ polish/art
 
 - `Placed Path Root` đã có nhưng renderer cho path sau commit chưa hoàn thiện đầy đủ.
 - Preview đã có slot visual state `Valid`, `Invalid`, `Dangerous`; cần art/prefab variant riêng nếu muốn phân biệt mạnh hơn.
-- Gameplay Mask hiện là khung đen sạch để dễ chỉnh layout; có thể thay sprite/material trên chính prefab mà không sửa gameplay code.
+- `PuzzleViewportMask` hiện là khung đen camera-space để dễ chỉnh layout; có thể thay sprite/material trên chính prefab mà không sửa gameplay code.

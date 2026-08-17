@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Audere.Puzzle;
 using Audere.Puzzle.Board;
+using Audere.Puzzle.PathPieces;
 using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -24,6 +25,7 @@ namespace Audere.Dialogue.Editor
         private const string LeftSlotPrefabPath = DialoguePrefabFolder + "/Left.prefab";
         private const string RightSlotPrefabPath = DialoguePrefabFolder + "/Right.prefab";
         private const string GameplayRootPrefabPath = "Assets/_Audere/Prefabs/UI/GameplayUIRoot.prefab";
+        private const string PathPieceHandPrefabPath = "Assets/_Audere/Prefabs/Puzzle/UI/PathPieceHandUI.prefab";
         private const string DialogueTilePrefabPath = "Assets/_Audere/Prefabs/Puzzle/Tiles/Dialogue.prefab";
         private const string PortraitPath = "Assets/_Audere/AssetGame/Audere/Main.png";
         private const string BubbleSpritePath = "Assets/_Audere/AssetGame/Dialogue.png";
@@ -374,6 +376,28 @@ namespace Audere.Dialogue.Editor
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 0.5f;
 
+            GameObject puzzleUi = new GameObject("PuzzleUI", typeof(RectTransform));
+            RectTransform puzzleRect = puzzleUi.GetComponent<RectTransform>();
+            puzzleRect.SetParent(root.transform, false);
+            puzzleRect.anchorMin = Vector2.zero;
+            puzzleRect.anchorMax = Vector2.one;
+            puzzleRect.offsetMin = Vector2.zero;
+            puzzleRect.offsetMax = Vector2.zero;
+
+            GameObject handPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PathPieceHandPrefabPath);
+            if (handPrefab == null)
+                throw new InvalidOperationException("PathPieceHandUI prefab is missing.");
+
+            GameObject hand = (GameObject)PrefabUtility.InstantiatePrefab(handPrefab);
+            hand.name = "Path Piece Hand UI";
+            RectTransform handRect = hand.GetComponent<RectTransform>();
+            handRect.SetParent(puzzleRect, false);
+            handRect.anchorMin = new Vector2(0f, 0f);
+            handRect.anchorMax = new Vector2(1f, 0f);
+            handRect.pivot = new Vector2(.5f, 0f);
+            handRect.anchoredPosition = new Vector2(0f, 28f);
+            handRect.sizeDelta = new Vector2(0f, 190f);
+
             GameObject dialogueUi = new GameObject(
                 "DialogueUI",
                 typeof(RectTransform),
@@ -396,7 +420,11 @@ namespace Audere.Dialogue.Editor
             SetReference(controller, "dialogueGroup", dialogueUi.GetComponent<CanvasGroup>());
             SetReference(controller, "leftSlot", left.GetComponent<DialogueCharacterSlotView>());
             SetReference(controller, "rightSlot", right.GetComponent<DialogueCharacterSlotView>());
-            SetReference(root.GetComponent<GameplayUIRoot>(), "dialogue", controller);
+            GameplayUIRoot gameplayRoot = root.GetComponent<GameplayUIRoot>();
+            SetReference(gameplayRoot, "gameplayCanvas", canvas);
+            SetReference(gameplayRoot, "puzzleUi", puzzleRect);
+            SetReference(gameplayRoot, "pathPieceHand", hand.GetComponent<PathPieceHand>());
+            SetReference(gameplayRoot, "dialogue", controller);
 
             PrefabUtility.SaveAsPrefabAsset(root, GameplayRootPrefabPath);
             Object.DestroyImmediate(root);

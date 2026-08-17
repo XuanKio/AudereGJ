@@ -15,9 +15,16 @@ namespace Audere.Puzzle.Editor
         {
             Transform worldRoot = FindOrCreateRoot("WORLD");
             Transform systemsRoot = FindOrCreateRoot("SYSTEMS");
-            Transform placedPathRoot = FindOrCreateChild(worldRoot, "Placed Path Root");
-
             Transform puzzleRoot = FindOrCreateChild(worldRoot, "Puzzle Root");
+            Transform placedPathRoot = puzzleRoot.Find("Placed Path Root");
+            if (placedPathRoot == null)
+            {
+                placedPathRoot = worldRoot.Find("Placed Path Root");
+                if (placedPathRoot == null)
+                    placedPathRoot = FindOrCreateChild(puzzleRoot, "Placed Path Root");
+            }
+            placedPathRoot.SetParent(puzzleRoot, true);
+
             BoardManager oldBoard = Object.FindFirstObjectByType<BoardManager>();
             bool hasSystemBoard = oldBoard != null && oldBoard.transform.parent == systemsRoot;
             if (puzzleRoot.GetComponent<GridSpace2D>() == null && oldBoard != null && !hasSystemBoard)
@@ -69,7 +76,7 @@ namespace Audere.Puzzle.Editor
             if (gameplayCamera != null)
             {
                 ConfigureGameplayCamera(gameplayCamera);
-                ConfigureGameplayMask(worldRoot, gameplayCamera);
+                ConfigurePuzzleViewportMask(worldRoot, puzzleRoot, gameplayCamera);
                 GridCameraFollow2D follow = gameplayCamera.GetComponent<GridCameraFollow2D>();
                 if (follow == null)
                     follow = gameplayCamera.gameObject.AddComponent<GridCameraFollow2D>();
@@ -138,26 +145,30 @@ namespace Audere.Puzzle.Editor
 
         }
 
-        private static void ConfigureGameplayMask(Transform worldRoot, Camera gameplayCamera)
+        private static void ConfigurePuzzleViewportMask(
+            Transform worldRoot,
+            Transform puzzleRoot,
+            Camera gameplayCamera)
         {
-            Transform gameplayMask = worldRoot.Find("GameplayMask");
-            if (gameplayMask == null)
-                gameplayMask = gameplayCamera.transform.Find("GameplayMask");
-            if (gameplayMask == null)
+            Transform viewportMask = puzzleRoot.Find("PuzzleViewportMask");
+            if (viewportMask == null)
+                viewportMask = worldRoot.Find("GameplayMask");
+            if (viewportMask == null)
+                viewportMask = gameplayCamera.transform.Find("GameplayMask");
+            if (viewportMask == null)
             {
                 GameObject namedMask = GameObject.Find("GameplayMask");
-                gameplayMask = namedMask != null ? namedMask.transform : null;
+                viewportMask = namedMask != null ? namedMask.transform : null;
             }
-            if (gameplayMask == null)
+            if (viewportMask == null)
                 return;
 
-            gameplayMask.SetParent(worldRoot, true);
-            gameplayMask.position = new Vector3(
-                gameplayCamera.transform.position.x,
-                gameplayCamera.transform.position.y,
-                -1f);
-            gameplayMask.localScale = Vector3.one * .5814f;
-            gameplayMask.gameObject.SetActive(true);
+            viewportMask.name = "PuzzleViewportMask";
+            viewportMask.SetParent(gameplayCamera.transform, false);
+            viewportMask.localPosition = new Vector3(0f, 0f, 9f);
+            viewportMask.localRotation = Quaternion.identity;
+            viewportMask.localScale = Vector3.one * .5814f;
+            viewportMask.gameObject.SetActive(true);
         }
 
         private static void CopyBoardAuthoringSettings(BoardManager source, BoardManager destination)
