@@ -21,6 +21,11 @@ namespace Audere.Combat
         [SerializeField] private CombatBoardView boardView;
         [SerializeField, Min(.01f)] private float spawnStagger = .065f;
 
+        [Header("Dice Collision")]
+        [SerializeField, Range(0f, 1f)] private float diceCollisionBounciness = .92f;
+        [SerializeField, Min(0f)] private float diceCollisionSeparationPadding = .5f;
+        [SerializeField, Range(1, 4)] private int diceCollisionIterations = 2;
+
         private readonly List<CombatDieView> activeDice = new List<CombatDieView>();
         private int playerArmor;
         private int enemyHealth;
@@ -189,6 +194,38 @@ namespace Audere.Combat
 
                 die.TickMovement(playRect, deltaTime);
             }
+
+            ResolveDiceCollisions(playRect);
+        }
+
+        private void ResolveDiceCollisions(Rect playRect)
+        {
+            int iterations = Mathf.Clamp(diceCollisionIterations, 1, 4);
+            for (int iteration = 0; iteration < iterations; iteration++)
+            {
+                for (int i = 0; i < activeDice.Count - 1; i++)
+                {
+                    CombatDieView first = activeDice[i];
+                    if (first == null || first.IsCaptured || !first.gameObject.activeInHierarchy) continue;
+
+                    for (int j = i + 1; j < activeDice.Count; j++)
+                    {
+                        CombatDieView second = activeDice[j];
+                        if (second == null || second.IsCaptured || !second.gameObject.activeInHierarchy) continue;
+                        first.ResolveCollisionWith(
+                            second,
+                            diceCollisionBounciness,
+                            diceCollisionSeparationPadding);
+                    }
+                }
+            }
+
+            for (int i = 0; i < activeDice.Count; i++)
+            {
+                CombatDieView die = activeDice[i];
+                if (die != null && !die.IsCaptured && die.gameObject.activeInHierarchy)
+                    die.ConstrainToBounds(playRect);
+            }
         }
 
         private void TryCatchUnderCursor()
@@ -216,11 +253,6 @@ namespace Audere.Combat
                 CombatDieView die = activeDice[i];
                 if (die != null && die.CanInteract && boardView.CursorOverlaps(die))
                 {
-                    if (boardView.IsCursorStunned)
-                    {
-                        boardView.PlayBlockedCursorFeedback();
-                        return;
-                    }
                     activeDice[i] = boardView.RerollDie(die, encounterData.RollSymbol());
                     AudioService.Instance?.Play(AudioId.Dice_Roll);
                     return;
@@ -252,6 +284,7 @@ namespace Audere.Combat
                     boardView.PlayEnemyDamageFeedback(
                         previousEnemyHealth / (float)encounterData.EnemyMaxHealth,
                         enemyHealth / (float)encounterData.EnemyMaxHealth);
+                    boardView.PlayEnemyDamageNumber(previousEnemyHealth - enemyHealth);
                     boardView.PlayAttackHitVfx();
                     boardView.TriggerEnemyHitFeedback();
                     AudioService.Instance?.Play(AudioId.Dice_Hit);

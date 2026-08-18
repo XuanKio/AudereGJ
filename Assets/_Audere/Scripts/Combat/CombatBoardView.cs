@@ -36,6 +36,15 @@ namespace Audere.Combat
         [SerializeField] private Transform vfxRoot;
         [SerializeField] private GameObject enemyScratchVfxPrefab;
 
+        [Header("Enemy Damage Number")]
+        [SerializeField] private RectTransform damageNumberRoot;
+        [SerializeField] private TMP_FontAsset damageNumberFont;
+        [SerializeField] private Color damageNumberColor = new Color(1f, .90f, .68f, 1f);
+        [SerializeField, Min(8f)] private float damageNumberFontSize = 84f;
+        [SerializeField, Min(.1f)] private float damageNumberDuration = .72f;
+        [SerializeField, Min(0f)] private float damageNumberRiseDistance = 74f;
+        [SerializeField, Min(0f)] private float damageNumberSpawnSpread = 18f;
+
         [Header("Presentation")]
         [SerializeField] private CombatDieView attackDicePrefab;
         [SerializeField] private CombatDieView armorDicePrefab;
@@ -56,6 +65,7 @@ namespace Audere.Combat
 
         private readonly List<CombatBulletView> activeBullets = new List<CombatBulletView>();
         private readonly List<GameObject> activeHitVfx = new List<GameObject>();
+        private readonly List<CombatDamageNumberView> damageNumberPool = new List<CombatDamageNumberView>();
         private Camera eventCamera;
         private SpriteRenderer[] enemySpriteRenderers;
         private Material[] enemyOriginalMaterials;
@@ -132,6 +142,9 @@ namespace Audere.Combat
             if (currentDie == null || currentDie.IsCaptured)
                 return currentDie;
 
+            if (catchCursorView != null)
+                catchCursorView.PlayRerollFeedback();
+
             if (currentDie.PrefabSymbol == nextSymbol)
             {
                 currentDie.Reroll(nextSymbol);
@@ -140,7 +153,7 @@ namespace Audere.Combat
 
             Vector2 position = currentDie.RectTransform.anchoredPosition;
             Vector2 velocity = currentDie.MoveVelocity;
-            currentDie.gameObject.SetActive(false);
+            currentDie.ReturnToPool();
 
             CombatDieView replacement = FindPooledDie(nextSymbol);
             if (replacement == null)
@@ -231,7 +244,7 @@ namespace Audere.Combat
         public bool CursorOverlaps(CombatDieView die)
         {
             return catchCursor != null && catchCursor.gameObject.activeInHierarchy && die != null &&
-                RectTransformsOverlap(catchCursor, die.RectTransform);
+                CircleOverlapsRectTransform(catchCursor, die.RectTransform);
         }
 
         public void PlayBlockedCursorFeedback()
@@ -247,7 +260,7 @@ namespace Audere.Combat
             for (int i = 0; i < stunZoneRoot.childCount; i++)
             {
                 if (stunZoneRoot.GetChild(i) is RectTransform zone && zone.gameObject.activeInHierarchy &&
-                    RectTransformsOverlap(zone, target)) return true;
+                    CircleOverlapsRectTransform(target, zone)) return true;
             }
             return false;
         }
@@ -524,6 +537,35 @@ namespace Audere.Combat
             StartCoroutine(PlayAttackHitVfxRoutine());
         }
 
+        public void PlayEnemyDamageNumber(int damage)
+        {
+            ResolveReferences();
+            if (damage <= 0 || damageNumberRoot == null || damageNumberFont == null || !isActiveAndEnabled)
+                return;
+
+            CombatDamageNumberView numberView = FindPooledDamageNumber();
+            if (numberView == null) numberView = CreateDamageNumber();
+            if (numberView == null) return;
+
+            Vector3 worldAnchor = vfxRoot != null
+                ? vfxRoot.position
+                : enemyVisual != null ? enemyVisual.position : damageNumberRoot.position;
+            Vector3 localAnchor = damageNumberRoot.InverseTransformPoint(worldAnchor);
+            Vector2 spread = new Vector2(
+                Random.Range(-damageNumberSpawnSpread, damageNumberSpawnSpread),
+                Random.Range(damageNumberSpawnSpread * .35f, damageNumberSpawnSpread));
+            float horizontalDrift = Random.Range(-damageNumberSpawnSpread, damageNumberSpawnSpread);
+
+            numberView.Play(
+                damage,
+                new Vector2(localAnchor.x, localAnchor.y + 54f) + spread,
+                damageNumberColor,
+                damageNumberFontSize,
+                damageNumberDuration,
+                damageNumberRiseDistance,
+                horizontalDrift);
+        }
+
         public IEnumerator PlayEnemyIntro()
         {
             if (enemyVisual == null) yield break;
@@ -586,6 +628,7 @@ namespace Audere.Combat
             ClearRuntimeDice();
             ClearRuntimeBullets();
             ClearActiveHitVfx();
+            ClearDamageNumbers();
         }
 
         public void ClearRuntimeDice()
@@ -594,10 +637,24 @@ namespace Audere.Combat
             if (airborneDiceRoot != null)
             {
                 for (int i = airborneDiceRoot.childCount - 1; i >= 0; i--)
-                    airborneDiceRoot.GetChild(i).gameObject.SetActive(false);
+                    ReturnDieToPool(airborneDiceRoot.GetChild(i));
             }
             for (int i = diceRoot.childCount - 1; i >= 0; i--)
-                diceRoot.GetChild(i).gameObject.SetActive(false);
+                ReturnDieToPool(diceRoot.GetChild(i));
+        }
+
+        private static void ReturnDieToPool(Transform child)
+        {
+            if (child == null) return;
+            CombatDieView die = child.GetComponent<CombatDieView>();
+            if (die != null)
+            {
+                die.ReturnToPool();
+                return;
+            }
+
+            if (child.gameObject.activeSelf)
+                child.gameObject.SetActive(false);
         }
 
         public void ClearRuntimeBullets()
@@ -679,6 +736,65 @@ namespace Audere.Combat
             image.color = new Color(.86f, .36f, .48f, 1f);
             image.raycastTarget = false;
             return bulletObject.GetComponent<CombatBulletView>();
+        }
+
+        private CombatDamageNumberView FindPooledDamageNumber()
+        {
+            for (int i = 0; i < damageNumberPool.Count; i++)
+            {
+                CombatDamageNumberView numberView = damageNumberPool[i];
+                if (numberView != null && !numberView.gameObject.activeSelf)
+                    return numberView;
+            }
+            return null;
+        }
+
+        private CombatDamageNumberView CreateDamageNumber()
+        {
+            if (damageNumberRoot == null || damageNumberFont == null) return null;
+
+            GameObject numberObject = new GameObject(
+                "Enemy Damage Number",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(TextMeshProUGUI),
+                typeof(CanvasGroup),
+                typeof(CombatDamageNumberView));
+            RectTransform rect = numberObject.GetComponent<RectTransform>();
+            rect.SetParent(damageNumberRoot, false);
+            rect.anchorMin = new Vector2(.5f, .5f);
+            rect.anchorMax = new Vector2(.5f, .5f);
+            rect.pivot = new Vector2(.5f, .5f);
+            rect.sizeDelta = new Vector2(220f, 96f);
+
+            TextMeshProUGUI label = numberObject.GetComponent<TextMeshProUGUI>();
+            label.font = damageNumberFont;
+            label.fontSize = damageNumberFontSize;
+            label.alignment = TextAlignmentOptions.Center;
+            label.color = damageNumberColor;
+            label.raycastTarget = false;
+            label.textWrappingMode = TextWrappingModes.NoWrap;
+            label.outlineColor = new Color32(39, 25, 45, 255);
+            label.outlineWidth = .18f;
+
+            CanvasGroup group = numberObject.GetComponent<CanvasGroup>();
+            group.interactable = false;
+            group.blocksRaycasts = false;
+
+            CombatDamageNumberView numberView = numberObject.GetComponent<CombatDamageNumberView>();
+            numberView.Configure(label, group);
+            damageNumberPool.Add(numberView);
+            numberObject.SetActive(false);
+            return numberView;
+        }
+
+        private void ClearDamageNumbers()
+        {
+            for (int i = 0; i < damageNumberPool.Count; i++)
+            {
+                if (damageNumberPool[i] != null)
+                    damageNumberPool[i].StopImmediately();
+            }
         }
 
         private IEnumerator PlayAttackHitVfxRoutine()
@@ -836,6 +952,7 @@ namespace Audere.Combat
             cameraShakeRoutine = null;
             RestoreCameraAfterShake();
             ClearActiveHitVfx();
+            ClearDamageNumbers();
             SetEnemyWhiteFlash(false);
             if (enemyVisual != null) enemyVisual.localPosition = enemyAuthoredLocalPosition;
         }
@@ -893,6 +1010,8 @@ namespace Audere.Combat
                 enemyNameText = ResolveText("Enemy Name");
             if (enemyVisual == null) enemyVisual = FindDescendant(transform, "Enemy");
             if (vfxRoot == null) vfxRoot = FindDescendant(transform, "Vfx");
+            if (damageNumberRoot == null)
+                damageNumberRoot = FindDescendant(transform, "Damage Number Root") as RectTransform;
         }
 
         private RectTransform ResolveRect(RectTransform current, params string[] names)
@@ -943,6 +1062,66 @@ namespace Audere.Combat
             Rect aRect = Rect.MinMaxRect(aCorners[0].x, aCorners[0].y, aCorners[2].x, aCorners[2].y);
             Rect bRect = Rect.MinMaxRect(bCorners[0].x, bCorners[0].y, bCorners[2].x, bCorners[2].y);
             return aRect.Overlaps(bRect, true);
+        }
+
+        private static bool CircleOverlapsRectTransform(RectTransform circle, RectTransform target)
+        {
+            if (circle == null || target == null) return false;
+
+            Vector3[] worldCorners = new Vector3[4];
+            target.GetWorldCorners(worldCorners);
+            Vector2[] localCorners = new Vector2[4];
+            for (int i = 0; i < localCorners.Length; i++)
+                localCorners[i] = circle.InverseTransformPoint(worldCorners[i]);
+
+            Vector2 center = circle.rect.center;
+            float radius = Mathf.Min(circle.rect.width, circle.rect.height) * .5f;
+            float radiusSquared = radius * radius;
+
+            if (PointInsideQuad(center, localCorners))
+                return true;
+
+            for (int i = 0; i < localCorners.Length; i++)
+            {
+                Vector2 corner = localCorners[i];
+                if ((corner - center).sqrMagnitude <= radiusSquared)
+                    return true;
+
+                Vector2 nextCorner = localCorners[(i + 1) % localCorners.Length];
+                if (DistanceToSegmentSquared(center, corner, nextCorner) <= radiusSquared)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool PointInsideQuad(Vector2 point, Vector2[] corners)
+        {
+            bool hasNegative = false;
+            bool hasPositive = false;
+            for (int i = 0; i < corners.Length; i++)
+            {
+                Vector2 edge = corners[(i + 1) % corners.Length] - corners[i];
+                Vector2 toPoint = point - corners[i];
+                float cross = edge.x * toPoint.y - edge.y * toPoint.x;
+                hasNegative |= cross < 0f;
+                hasPositive |= cross > 0f;
+                if (hasNegative && hasPositive)
+                    return false;
+            }
+            return true;
+        }
+
+        private static float DistanceToSegmentSquared(Vector2 point, Vector2 start, Vector2 end)
+        {
+            Vector2 segment = end - start;
+            float lengthSquared = segment.sqrMagnitude;
+            if (lengthSquared <= Mathf.Epsilon)
+                return (point - start).sqrMagnitude;
+
+            float t = Mathf.Clamp01(Vector2.Dot(point - start, segment) / lengthSquared);
+            Vector2 closest = start + segment * t;
+            return (point - closest).sqrMagnitude;
         }
     }
 }

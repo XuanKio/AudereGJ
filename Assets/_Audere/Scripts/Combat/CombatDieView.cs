@@ -157,6 +157,76 @@ namespace Audere.Combat
 
             float travelMultiplier = isLanded ? 1f : tossTravelSpeedMultiplier;
             Vector2 position = rectTransform.anchoredPosition + velocity * travelMultiplier * deltaTime;
+            rectTransform.anchoredPosition = position;
+            ConstrainToBounds(playRect);
+
+            if (rotateWhileMoving)
+                rectTransform.Rotate(0f, 0f, angularVelocity * deltaTime);
+        }
+
+        public bool ResolveCollisionWith(CombatDieView other, float bounciness, float separationPadding)
+        {
+            if (other == null || other == this || captured || other.captured ||
+                rectTransform == null || other.rectTransform == null ||
+                !gameObject.activeInHierarchy || !other.gameObject.activeInHierarchy)
+                return false;
+
+            RectTransform collisionSpace = landedParent != null
+                ? landedParent
+                : rectTransform.parent as RectTransform;
+            if (collisionSpace == null) return false;
+
+            Vector2 center = GetCenterInSpace(rectTransform, collisionSpace);
+            Vector2 otherCenter = GetCenterInSpace(other.rectTransform, collisionSpace);
+            Vector2 halfExtents = GetHalfExtentsInSpace(rectTransform, collisionSpace);
+            Vector2 otherHalfExtents = GetHalfExtentsInSpace(other.rectTransform, collisionSpace);
+            Vector2 delta = otherCenter - center;
+            float overlapX = halfExtents.x + otherHalfExtents.x - Mathf.Abs(delta.x);
+            float overlapY = halfExtents.y + otherHalfExtents.y - Mathf.Abs(delta.y);
+            if (overlapX <= 0f || overlapY <= 0f) return false;
+
+            Vector2 normal;
+            float penetration;
+            if (overlapX < overlapY)
+            {
+                float direction = Mathf.Abs(delta.x) > .001f
+                    ? Mathf.Sign(delta.x)
+                    : GetInstanceID() < other.GetInstanceID() ? -1f : 1f;
+                normal = Vector2.right * direction;
+                penetration = overlapX;
+            }
+            else
+            {
+                float direction = Mathf.Abs(delta.y) > .001f
+                    ? Mathf.Sign(delta.y)
+                    : GetInstanceID() < other.GetInstanceID() ? -1f : 1f;
+                normal = Vector2.up * direction;
+                penetration = overlapY;
+            }
+
+            float correctionDistance = (penetration + Mathf.Max(0f, separationPadding)) * .5f;
+            TranslateInSpace(rectTransform, collisionSpace, -normal * correctionDistance);
+            TranslateInSpace(other.rectTransform, collisionSpace, normal * correctionDistance);
+
+            Vector2 relativeVelocity = other.velocity - velocity;
+            float velocityAlongNormal = Vector2.Dot(relativeVelocity, normal);
+            if (velocityAlongNormal < 0f)
+            {
+                float restitution = Mathf.Clamp01(bounciness);
+                float impulseMagnitude = -(1f + restitution) * velocityAlongNormal * .5f;
+                Vector2 impulse = normal * impulseMagnitude;
+                velocity -= impulse;
+                other.velocity += impulse;
+            }
+
+            return true;
+        }
+
+        public void ConstrainToBounds(Rect playRect)
+        {
+            if (rectTransform == null) return;
+
+            Vector2 position = rectTransform.anchoredPosition;
             Vector2 halfSize = rectTransform.rect.size * .5f;
 
             float minX = playRect.xMin + halfSize.x;
@@ -164,20 +234,29 @@ namespace Audere.Combat
             float minY = playRect.yMin + halfSize.y;
             float maxY = playRect.yMax - halfSize.y;
 
-            if (position.x < minX || position.x > maxX)
+            if (position.x < minX)
             {
-                position.x = Mathf.Clamp(position.x, minX, maxX);
-                velocity.x *= -1f;
+                position.x = minX;
+                if (velocity.x < 0f) velocity.x *= -1f;
             }
-            if (position.y < minY || position.y > maxY)
+            else if (position.x > maxX)
             {
-                position.y = Mathf.Clamp(position.y, minY, maxY);
-                velocity.y *= -1f;
+                position.x = maxX;
+                if (velocity.x > 0f) velocity.x *= -1f;
+            }
+
+            if (position.y < minY)
+            {
+                position.y = minY;
+                if (velocity.y < 0f) velocity.y *= -1f;
+            }
+            else if (position.y > maxY)
+            {
+                position.y = maxY;
+                if (velocity.y > 0f) velocity.y *= -1f;
             }
 
             rectTransform.anchoredPosition = position;
-            if (rotateWhileMoving)
-                rectTransform.Rotate(0f, 0f, angularVelocity * deltaTime);
         }
 
         public void Reroll(CombatSymbol nextSymbol)
@@ -206,6 +285,36 @@ namespace Audere.Combat
             canvasGroup.blocksRaycasts = false;
             StopAllCoroutines();
             StartCoroutine(CaptureAnimation());
+        }
+
+        public void ReturnToPool()
+        {
+            StopAllCoroutines();
+            MoveToPresentationRoot(landedParent);
+
+            captured = false;
+            isLanded = false;
+            tossMotionStarted = false;
+            velocity = Vector2.zero;
+            angularVelocity = 0f;
+
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.blocksRaycasts = false;
+            }
+
+            if (rectTransform != null)
+            {
+                rectTransform.localScale = Vector3.one;
+                rectTransform.localRotation = authoredRotation;
+            }
+            ApplyVisualOffset(0f);
+            ApplyVisualScale(Vector3.one);
+            ApplyShadowScale(1f);
+
+            if (gameObject.activeSelf)
+                gameObject.SetActive(false);
         }
 
         private IEnumerator TossAnimation()
@@ -328,6 +437,29 @@ namespace Audere.Combat
                 shadowRect.localScale = authoredShadowScale * multiplier;
         }
 
+        private static Vector2 GetCenterInSpace(RectTransform target, RectTransform space)
+        {
+            Vector3 worldCenter = target.TransformPoint(target.rect.center);
+            Vector3 localCenter = space.InverseTransformPoint(worldCenter);
+            return new Vector2(localCenter.x, localCenter.y);
+        }
+
+        private static Vector2 GetHalfExtentsInSpace(RectTransform target, RectTransform space)
+        {
+            Vector2 halfSize = target.rect.size * .5f;
+            Vector3 localX = space.InverseTransformVector(target.TransformVector(new Vector3(halfSize.x, 0f, 0f)));
+            Vector3 localY = space.InverseTransformVector(target.TransformVector(new Vector3(0f, halfSize.y, 0f)));
+            return new Vector2(
+                Mathf.Abs(localX.x) + Mathf.Abs(localY.x),
+                Mathf.Abs(localX.y) + Mathf.Abs(localY.y));
+        }
+
+        private static void TranslateInSpace(RectTransform target, RectTransform space, Vector2 displacement)
+        {
+            Vector3 worldDisplacement = space.TransformVector(new Vector3(displacement.x, displacement.y, 0f));
+            target.position += worldDisplacement;
+        }
+
         private void MoveToPresentationRoot(RectTransform targetRoot)
         {
             if (rectTransform == null || targetRoot == null || rectTransform.parent == targetRoot)
@@ -340,11 +472,6 @@ namespace Audere.Combat
             rectTransform.anchoredPosition = position;
             rectTransform.localScale = scale;
             rectTransform.localRotation = rotation;
-        }
-
-        private void OnDisable()
-        {
-            MoveToPresentationRoot(landedParent);
         }
 
         private IEnumerator PulseReroll()
@@ -376,7 +503,7 @@ namespace Audere.Combat
                 canvasGroup.alpha = 1f - eased;
                 yield return null;
             }
-            gameObject.SetActive(false);
+            ReturnToPool();
         }
     }
 }

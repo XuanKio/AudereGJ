@@ -19,10 +19,18 @@ namespace Audere.Combat
         [SerializeField, Min(.05f)] private float blockedFeedbackDuration = .44f;
         [SerializeField, Range(90f, 540f)] private float blockedSpinDegrees = 320f;
         [SerializeField, Range(.01f, .5f)] private float blockedStartScale = .06f;
+        [Header("Reroll Feedback")]
+        [SerializeField, Min(.05f)] private float rerollFeedbackDuration = .22f;
+        [SerializeField, Range(1f, 90f)] private float rerollClockwiseDegrees = 22f;
+        [SerializeField, Range(0f, .25f)] private float rerollScalePunch = .05f;
 
         private Graphic[] borderParts;
         private Coroutine colorRoutine;
         private Coroutine blockedRoutine;
+        private Coroutine rerollRoutine;
+        private Quaternion borderAuthoredRotation = Quaternion.identity;
+        private Vector3 borderAuthoredScale = Vector3.one;
+        private bool borderPoseCaptured;
 
         public bool IsStunned { get; private set; }
 
@@ -71,6 +79,18 @@ namespace Audere.Combat
             if (blockedRoutine != null)
                 StopCoroutine(blockedRoutine);
             blockedRoutine = StartCoroutine(AnimateBlockedX());
+        }
+
+        public void PlayRerollFeedback()
+        {
+            ResolveReferences();
+            if (borderRoot == null || !isActiveAndEnabled)
+                return;
+
+            if (rerollRoutine != null)
+                StopCoroutine(rerollRoutine);
+            ResetBorderPose();
+            rerollRoutine = StartCoroutine(AnimateReroll());
         }
 
         private IEnumerator AnimateState(bool stunned)
@@ -132,6 +152,36 @@ namespace Audere.Combat
             blockedRoutine = null;
         }
 
+        private IEnumerator AnimateReroll()
+        {
+            float elapsed = 0f;
+            while (elapsed < rerollFeedbackDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / rerollFeedbackDuration);
+                float turnAmount;
+                if (t < .42f)
+                {
+                    float kickT = t / .42f;
+                    turnAmount = 1f - Mathf.Pow(1f - kickT, 3f);
+                }
+                else
+                {
+                    float settleT = Mathf.InverseLerp(.42f, 1f, t);
+                    turnAmount = 1f - Mathf.SmoothStep(0f, 1f, settleT);
+                }
+
+                float scalePulse = 1f + Mathf.Sin(t * Mathf.PI) * rerollScalePunch;
+                borderRoot.localRotation = borderAuthoredRotation *
+                    Quaternion.Euler(0f, 0f, -rerollClockwiseDegrees * turnAmount);
+                borderRoot.localScale = borderAuthoredScale * scalePulse;
+                yield return null;
+            }
+
+            ResetBorderPose();
+            rerollRoutine = null;
+        }
+
         private static float EaseOutBack(float t)
         {
             const float overshoot = 1.45f;
@@ -170,7 +220,17 @@ namespace Audere.Combat
         private void OnDisable()
         {
             blockedRoutine = null;
+            rerollRoutine = null;
+            ResetBorderPose();
             ResetBlockedFeedback();
+        }
+
+        private void ResetBorderPose()
+        {
+            if (borderRoot == null || !borderPoseCaptured)
+                return;
+            borderRoot.localRotation = borderAuthoredRotation;
+            borderRoot.localScale = borderAuthoredScale;
         }
 
         private void ResolveReferences()
@@ -185,6 +245,13 @@ namespace Audere.Combat
             }
             if (blockedX == null)
                 blockedX = transform.Find("Blocked X")?.GetComponent<CanvasGroup>();
+
+            if (borderRoot != null && !borderPoseCaptured)
+            {
+                borderAuthoredRotation = borderRoot.localRotation;
+                borderAuthoredScale = borderRoot.localScale;
+                borderPoseCaptured = true;
+            }
 
             borderParts = borderRoot != null
                 ? borderRoot.GetComponentsInChildren<Graphic>(true)

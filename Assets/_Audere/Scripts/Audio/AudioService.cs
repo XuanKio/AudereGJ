@@ -6,21 +6,29 @@ namespace Audere.Audio
     /// <summary>
     /// Global audio service. Gameplay calls <c>AudioService.Instance.Play(AudioId.X)</c> —
     /// it never references a clip, file name, or path. The <see cref="AudioCatalog"/> resolves
-    /// the id to a clip + volume, then it is fired via <c>AudioSource.PlayOneShot</c> (Unity 6
-    /// allows many overlapping one-shots on a single AudioSource).
+    /// the id to a clip + volume, then it is fired via <c>AudioSource.PlayOneShot</c>.
     ///
     /// Lives under the persistent Bootstrap services root and is initialized by the
     /// <see cref="Bootstrapper"/> via <see cref="IGameService"/>.
     /// </summary>
     public sealed class AudioService : MonoBehaviour, IGameService
     {
+        public const string MusicVolumePrefKey = "Audere.Audio.MusicVolume";
+        public const string SfxVolumePrefKey = "Audere.Audio.SfxVolume";
+
         public static AudioService Instance { get; private set; }
 
         [Tooltip("Shared AudioId -> AudioClip mapping asset. Assign the AudioCatalog.asset here.")]
         [SerializeField] private AudioCatalog catalog;
 
+        [Tooltip("Optional music source. Its saved volume is applied automatically when assigned.")]
+        [SerializeField] private AudioSource musicSource;
+
         [Tooltip("Optional. Auto-created as a 2D source (spatialBlend 0) if left empty.")]
         [SerializeField] private AudioSource sfxSource;
+
+        public float MusicVolume { get; private set; } = 0.8f;
+        public float SfxVolume { get; private set; } = 0.8f;
 
         public void Initialize()
         {
@@ -40,10 +48,32 @@ namespace Audere.Audio
             }
 
             sfxSource.playOnAwake = false;
-            sfxSource.spatialBlend = 0f; // Audere is 2D: UI/SFX are position-independent.
+            sfxSource.spatialBlend = 0f;
+
+            MusicVolume = PlayerPrefs.GetFloat(MusicVolumePrefKey, 0.8f);
+            SfxVolume = PlayerPrefs.GetFloat(SfxVolumePrefKey, 0.8f);
+            ApplyVolumes();
 
             if (catalog == null)
                 Debug.LogWarning("[AudioService] No AudioCatalog assigned. Play(...) will no-op.");
+        }
+
+        public void SetMusicVolume(float value)
+        {
+            MusicVolume = Mathf.Clamp01(value);
+            PlayerPrefs.SetFloat(MusicVolumePrefKey, MusicVolume);
+
+            if (musicSource != null)
+                musicSource.volume = MusicVolume;
+        }
+
+        public void SetSfxVolume(float value)
+        {
+            SfxVolume = Mathf.Clamp01(value);
+            PlayerPrefs.SetFloat(SfxVolumePrefKey, SfxVolume);
+
+            if (sfxSource != null)
+                sfxSource.volume = SfxVolume;
         }
 
         /// <summary>Play a one-shot SFX by its stable <see cref="AudioId"/>.</summary>
@@ -66,5 +96,15 @@ namespace Audere.Audio
 
             sfxSource.PlayOneShot(entry.clip, entry.volume);
         }
+
+        private void ApplyVolumes()
+        {
+            if (musicSource != null)
+                musicSource.volume = MusicVolume;
+
+            if (sfxSource != null)
+                sfxSource.volume = SfxVolume;
+        }
     }
 }
+

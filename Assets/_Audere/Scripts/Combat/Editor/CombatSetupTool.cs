@@ -27,6 +27,7 @@ namespace Audere.EditorTools
         private const string StunZoneMaterialPath = "Assets/_Audere/Materials/UI_StunZoneDots.mat";
         private const string EncounterPath = "Assets/_Audere/Data/Combat/CombatEncounter_Sample.asset";
         private const string FontPath = "Assets/_Audere/AssetGame/Font/MTO-Astro-City SDF.asset";
+        private const string DamageNumberFontPath = "Assets/_Audere/AssetGame/Font/deltarune SDF.asset";
         private const string AttackIconPath = "Assets/_Audere/AssetGame/IconDice/attack.aseprite";
         private const string ArmorIconPath = "Assets/_Audere/AssetGame/IconDice/gaurd.aseprite";
         private const string HealIconPath = "Assets/_Audere/AssetGame/IconDice/heal.aseprite";
@@ -302,21 +303,20 @@ namespace Audere.EditorTools
             RectTransform border = EnsureStretchRect(cursor, "Cursor Border");
             border.SetAsFirstSibling();
 
-            const int horizontalDots = 9;
-            for (int i = 0; i < horizontalDots; i++)
-            {
-                float x = Mathf.Lerp(-46f, 46f, i / (horizontalDots - 1f));
-                EnsureCursorDot(border, $"Top Dot {i:00}", new Vector2(x, 46f), new Vector2(5f, 4f));
-                EnsureCursorDot(border, $"Bottom Dot {i:00}", new Vector2(x, -46f), new Vector2(5f, 4f));
-            }
+            for (int i = border.childCount - 1; i >= 0; i--)
+                Object.DestroyImmediate(border.GetChild(i).gameObject);
 
-            const int verticalDots = 7;
-            for (int i = 0; i < verticalDots; i++)
+            Image oldBorderImage = border.GetComponent<Image>();
+            if (oldBorderImage != null)
+                Object.DestroyImmediate(oldBorderImage);
+            CombatDashedRingGraphic borderGraphic = border.GetComponent<CombatDashedRingGraphic>();
+            if (borderGraphic == null)
             {
-                float y = Mathf.Lerp(-34.5f, 34.5f, i / (verticalDots - 1f));
-                EnsureCursorDot(border, $"Left Dot {i:00}", new Vector2(-46f, y), new Vector2(4f, 5f));
-                EnsureCursorDot(border, $"Right Dot {i:00}", new Vector2(46f, y), new Vector2(4f, 5f));
+                borderGraphic = border.gameObject.AddComponent<CombatDashedRingGraphic>();
+                borderGraphic.Configure(8, 8f, .68f, 3f, 22.5f, 8);
             }
+            borderGraphic.color = new Color(.95f, .92f, 1f, .96f);
+            borderGraphic.raycastTarget = false;
 
             RectTransform blocked = EnsureRect(cursor, "Blocked X");
             ConfigureRect(blocked, Vector2.zero, new Vector2(100f, 100f));
@@ -342,19 +342,6 @@ namespace Audere.EditorTools
             CombatCatchCursorView view = GetOrAdd<CombatCatchCursorView>(cursor.gameObject);
             view.Configure(cursorImage, border, blockedGroup);
             return view;
-        }
-
-        private static void EnsureCursorDot(
-            RectTransform parent,
-            string name,
-            Vector2 position,
-            Vector2 size)
-        {
-            RectTransform dot = EnsureRect(parent, name);
-            ConfigureRect(dot, position, size);
-            Image image = GetOrAdd<Image>(dot.gameObject);
-            image.color = new Color(.95f, .92f, 1f, .96f);
-            image.raycastTarget = false;
         }
 
         private static void SetupBoardPrefab()
@@ -417,6 +404,8 @@ namespace Audere.EditorTools
                 Transform enemy = FindDescendant(root.transform, "Enemy");
                 Transform vfxRoot = FindDirectChild(root.transform, "Vfx") ??
                     FindDescendant(root.transform, "Vfx");
+                RectTransform damageNumberRoot = EnsureStretchRect(root.transform, "Damage Number Root");
+                damageNumberRoot.SetAsLastSibling();
                 TMP_Text enemyNameText = enemy != null
                     ? FindDescendant(enemy, "Enemy Name")?.GetComponent<TMP_Text>()
                     : null;
@@ -453,6 +442,11 @@ namespace Audere.EditorTools
                 RectTransform cursor = EnsureRect(cursorRoot, "Catch Cursor");
                 ConfigureRect(cursor, Vector2.zero, new Vector2(100f, 100f));
                 Image cursorImage = GetOrAdd<Image>(cursor.gameObject);
+                Sprite circularFill = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
+                if (circularFill != null)
+                    cursorImage.sprite = circularFill;
+                cursorImage.type = Image.Type.Simple;
+                cursorImage.preserveAspect = true;
                 cursorImage.color = new Color(1f, 1f, 1f, .015f);
                 cursorImage.raycastTarget = false;
                 Outline outline = GetOrAdd<Outline>(cursor.gameObject);
@@ -492,6 +486,8 @@ namespace Audere.EditorTools
                 SetObject(serialized, "enemyVisual", enemy);
                 SetObject(serialized, "vfxRoot", vfxRoot);
                 SetObject(serialized, "enemyScratchVfxPrefab", AssetDatabase.LoadAssetAtPath<GameObject>(ScratchVfxPath));
+                SetObject(serialized, "damageNumberRoot", damageNumberRoot);
+                SetObject(serialized, "damageNumberFont", AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(DamageNumberFontPath));
                 SetObject(serialized, "attackDicePrefab", LoadDicePrefab(AttackDicePrefabPath));
                 SetObject(serialized, "armorDicePrefab", LoadDicePrefab(ArmorDicePrefabPath));
                 SetObject(serialized, "healDicePrefab", LoadDicePrefab(HealDicePrefabPath));
