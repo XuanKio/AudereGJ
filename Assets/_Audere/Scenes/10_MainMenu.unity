@@ -3579,6 +3579,7 @@ GameObject:
   - component: {fileID: 1743400284}
   - component: {fileID: 1743400286}
   - component: {fileID: 1743400285}
+  - component: {fileID: 1743400287}
   m_Layer: 0
   m_Name: Bg
   m_TagString: Untagged
@@ -3595,7 +3596,7 @@ RectTransform:
   m_GameObject: {fileID: 1743400283}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 19.5, y: 19.5, z: 19.5}
+  m_LocalScale: {x: 20.2, y: 20.2, z: 20.2}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 231229817}
@@ -3643,6 +3644,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1743400283}
   m_CullTransparentMesh: 1
+--- !u!114 &1743400287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1743400283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f9a947726cef4c4098ac550cf9bee04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  background: {fileID: 0}
+  maxPointerOffset: {x: 24, y: 14}
+  followSharpness: 2.2
+  idleDriftAmount: {x: 5, y: 3}
+  idleDriftSpeed: 0.1
+  invertPointer: 1
 --- !u!21 &1751705343
 Material:
   serializedVersion: 8
