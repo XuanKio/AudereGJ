@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   servicesRoot: {fileID: 1247210075}
-  firstScene: 10_MainMenu
+  firstScene: 20_Game
 --- !u!4 &337808937
 Transform:
   m_ObjectHideFlags: 0
@@ -386,6 +386,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   catalog: {fileID: 11400000, guid: bc86fa36bc1fbec4f969d60833c7fb98, type: 2}
+  musicSource: {fileID: 0}
   sfxSource: {fileID: 1910942243}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

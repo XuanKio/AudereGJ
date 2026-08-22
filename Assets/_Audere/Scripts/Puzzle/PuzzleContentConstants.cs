@@ -18,11 +18,13 @@ namespace Audere.Puzzle
             public const string Line2 = "line-2";
             public const string LCorner = "l-corner";
             public const string Line4 = "line-4";
+            public const string Line3 = "line-3";
+            public const string LCorner3 = "l-corner-3";
         }
 
         public static class Hand
         {
-            public const int MaxSlots = 3;
+            public const int MaxSlots = 4;
         }
 
         public static class AssetPaths
@@ -53,6 +55,8 @@ namespace Audere.Puzzle
                 PathPieceType.Line2 => Pieces.Line2,
                 PathPieceType.LCorner => Pieces.LCorner,
                 PathPieceType.Line4 => Pieces.Line4,
+                PathPieceType.Line3 => Pieces.Line3,
+                PathPieceType.LCorner3 => Pieces.LCorner3,
                 _ => type.ToString().ToLowerInvariant()
             };
         }
@@ -69,6 +73,8 @@ namespace Audere.Puzzle
     {
         Line2 = 0,
         LCorner = 1,
-        Line4 = 2
+        Line4 = 2,
+        Line3 = 3,
+        LCorner3 = 4
     }
 }

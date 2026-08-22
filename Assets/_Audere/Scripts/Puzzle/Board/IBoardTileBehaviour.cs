@@ -17,6 +17,15 @@ namespace Audere.Puzzle.Board
         void OnPlayerExited(BoardTile tile, GridPlayer player);
     }
 
+    /// <summary>
+    /// Optional presentation reset used when a scene-authored puzzle is replayed.
+    /// Runtime transitions snap back to authored state instead of trying to resume.
+    /// </summary>
+    public interface IBoardTileResettable
+    {
+        void ResetToAuthoredState();
+    }
+
     /// <summary>Marker implemented by a prefab behaviour when that tile completes a level.</summary>
     public interface ILevelGoalTile { }
 }

@@ -1,4 +1,5 @@
 using Audere.Core;
+using Audere.GameplayInput;
 using Audere.Puzzle.PathPieces;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,12 +17,14 @@ namespace Audere.Dialogue
         [SerializeField] private RectTransform puzzleUi;
         [SerializeField] private PathPieceHand pathPieceHand;
         [SerializeField] private DialogueController dialogue;
+        [SerializeField] private GameplayInputGate inputGate;
 
         public static GameplayUIRoot Instance { get; private set; }
         public Canvas GameplayCanvas => gameplayCanvas;
         public RectTransform PuzzleUi => puzzleUi;
         public PathPieceHand PathPieceHand => pathPieceHand;
         public DialogueController Dialogue => dialogue;
+        public GameplayInputGate InputGate => inputGate;
 
         private void Awake()
         {
@@ -77,6 +80,8 @@ namespace Audere.Dialogue
                 pathPieceHand = GetComponentInChildren<PathPieceHand>(true);
             if (dialogue == null)
                 dialogue = GetComponentInChildren<DialogueController>(true);
+            if (inputGate == null)
+                inputGate = GetComponentInChildren<GameplayInputGate>(true);
         }
     }
 }

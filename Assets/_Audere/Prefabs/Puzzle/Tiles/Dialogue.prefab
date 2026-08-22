@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5243431440796953948}
   - component: {fileID: 439680604571541043}
   m_Layer: 0
-  m_Name: Tile Visual
+  m_Name: Visual Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28,7 +28,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1925952350606350717}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -76,12 +76,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -7516342049021962738, guid: e4912237d30c0774c9b88274ee6443c1, type: 3}
-  m_Color: {r: 0.75, g: 0.95, b: 1, a: 1}
+  m_Sprite: {fileID: -6360158653769171789, guid: daafdb5be2b290d4084b47a2867e194c, type: 3}
+  m_Color: {r: 0.039215688, g: 0.29411766, b: 0.28627452, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 14.07, y: 6.74}
+  m_Size: {x: 0.96, y: 0.96}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -98,6 +98,8 @@ GameObject:
   - component: {fileID: 1925952350606350717}
   - component: {fileID: 5651697643431477574}
   - component: {fileID: 5047640267667900441}
+  - component: {fileID: 5656244445824886762}
+  - component: {fileID: 736736540329610588}
   m_Layer: 0
   m_Name: Dialogue
   m_TagString: Untagged
@@ -134,8 +136,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridPosition: {x: 0, y: 0}
-  tileType: 0
-  spriteRenderer: {fileID: 0}
+  tileType: 2
+  spriteRenderer: {fileID: 439680604571541043}
   cellFill: 0.92
 --- !u!114 &5047640267667900441
 MonoBehaviour:
@@ -149,3 +151,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87eb11c8e9298764d9996646c1e1c9d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dialogueData: {fileID: 0}
+  triggerOnce: 1
+--- !u!114 &5656244445824886762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9221157655219480085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6628f8b4773a0544a98994c298cc8979, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &736736540329610588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9221157655219480085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73a0331d864ce80468396b5cb3e4c796, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualRoot: {fileID: 5243431440796953948}
+  pressDuration: 0.055
+  pressDistance: 0.065
+  pressWiden: 0.045
+  pressSquash: 0.09
+  reboundDuration: 0.085
+  reboundDistance: 0.018
+  reboundNarrow: 0.018
+  reboundStretch: 0.035
+  settleDuration: 0.14

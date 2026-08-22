@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 647c0a9bef978874aa749caa2e3e5bbf, type: 3}
+  m_Name: Puzzle_D1_BREAKFAST_TUTORIAL
+  m_EditorClassIdentifier: 
+  puzzleId: d1-breakfast-use-all-pieces
+  boardTiles: []
+  boardCells: []
+  playerStartPosition: {x: 2, y: 0}
+  goalPosition: {x: 1, y: 1}
+  availablePathPieces:
+  - {fileID: 11400000, guid: c05a08ff0337e4544b1c2851e18251a8, type: 2}
+  - {fileID: 11400000, guid: 5683ce287b4d59b44a42c359e2cc90d4, type: 2}
+  requireAllPathPieces: 1

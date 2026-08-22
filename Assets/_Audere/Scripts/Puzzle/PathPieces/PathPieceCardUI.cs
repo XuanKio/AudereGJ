@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Audere.Dialogue;
+using Audere.GameplayInput;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -39,12 +41,16 @@ namespace Audere.Puzzle.PathPieces
         private Vector2 slotHomePosition;
         private float selectionBlend;
         private float hoverBlend;
+        private bool tutorialAttention;
+        private GameplayInputGate inputGate;
 
         public RectTransform RectTransform { get; private set; }
 
         private void Awake()
         {
             RectTransform = GetComponent<RectTransform>();
+            GameplayUIRoot uiRoot = GameplayUIRoot.Instance;
+            inputGate = uiRoot != null ? uiRoot.InputGate : null;
             ApplyStaticVisuals();
         }
 
@@ -91,13 +97,24 @@ namespace Audere.Puzzle.PathPieces
             selected = value;
         }
 
+        public void SetTutorialAttention(bool value)
+        {
+            tutorialAttention = value;
+        }
+
         public void OnPointerClick(PointerEventData eventData)
         {
+            if (!HasPuzzleInput())
+                return;
+
             owner?.ToggleSelection(pieceIndex);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
+            if (!HasPuzzleInput())
+                return;
+
             hovered = true;
         }
 
@@ -122,9 +139,15 @@ namespace Audere.Puzzle.PathPieces
 
             float selectedAmount = EaseOutCubic(selectionBlend);
             float hoverAmount = EaseOutCubic(hoverBlend) * (1f - selectedAmount);
-            float lift = selectedLift * selectedAmount + hoverLift * hoverAmount;
+            float attentionAmount = tutorialAttention && !selected
+                ? .5f + .5f * Mathf.Sin(Time.unscaledTime * 4.5f)
+                : 0f;
+            float lift = selectedLift * selectedAmount + hoverLift * hoverAmount +
+                attentionAmount * 5f;
             Vector2 targetPosition = homePosition + Vector2.up * lift;
-            Vector3 targetScale = Vector3.one * Mathf.Lerp(1f, selectedScale, selectedAmount);
+            float attentionScale = 1f + attentionAmount * .025f;
+            Vector3 targetScale = Vector3.one *
+                (Mathf.Lerp(1f, selectedScale, selectedAmount) * attentionScale);
             RectTransform.anchoredPosition = Vector2.Lerp(RectTransform.anchoredPosition, targetPosition, blend);
             RectTransform.localScale = Vector3.Lerp(RectTransform.localScale, targetScale, blend);
 
@@ -154,6 +177,17 @@ namespace Audere.Puzzle.PathPieces
         {
             float inverse = 1f - Mathf.Clamp01(value);
             return 1f - inverse * inverse * inverse;
+        }
+
+        private bool HasPuzzleInput()
+        {
+            if (inputGate == null)
+            {
+                GameplayUIRoot uiRoot = GameplayUIRoot.Instance;
+                inputGate = uiRoot != null ? uiRoot.InputGate : null;
+            }
+
+            return inputGate != null && inputGate.Allows(GameplayInputMode.Puzzle);
         }
 
         private void BuildShape(PathPieceData piece)

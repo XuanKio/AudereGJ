@@ -1,3 +1,5 @@
+using Audere.Dialogue;
+using Audere.GameplayInput;
 using UnityEngine;
 
 namespace Audere.Puzzle.Board
@@ -12,6 +14,7 @@ namespace Audere.Puzzle.Board
     {
         [SerializeField] private Camera boardCamera;
         private BoardManager board;
+        private GameplayInputGate inputGate;
 
         private void Awake()
         {
@@ -19,11 +22,17 @@ namespace Audere.Puzzle.Board
 
             if (boardCamera == null)
                 boardCamera = Camera.main;
+
+            GameplayUIRoot uiRoot = GameplayUIRoot.Instance;
+            inputGate = uiRoot != null ? uiRoot.InputGate : null;
         }
 
         private void Update()
         {
-            if (board == null || !Input.GetMouseButtonDown(0) || boardCamera == null)
+            if (!HasPuzzleInput() ||
+                board == null ||
+                !Input.GetMouseButtonDown(0) ||
+                boardCamera == null)
                 return;
 
             if (board.GridSpace != null &&
@@ -33,6 +42,17 @@ namespace Audere.Puzzle.Board
                 Vector2Int gridPosition = board.GridSpace.WorldToCell(worldPosition);
                 Debug.Log($"[Board] Clicked tile {gridPosition}.");
             }
+        }
+
+        private bool HasPuzzleInput()
+        {
+            if (inputGate == null)
+            {
+                GameplayUIRoot uiRoot = GameplayUIRoot.Instance;
+                inputGate = uiRoot != null ? uiRoot.InputGate : null;
+            }
+
+            return inputGate != null && inputGate.Allows(GameplayInputMode.Puzzle);
         }
     }
 }

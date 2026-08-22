@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using Audere.Dialogue;
+using Audere.GameplayInput;
 using Audere.Puzzle.Board;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -25,9 +28,11 @@ namespace Audere.Puzzle.PathPieces
         private Vector2Int origin;
         private PlacementResult currentResult;
         private bool previewActive;
+        private bool rotationInputEnabled = true;
         private float cursorToPreviewMidpointDistance;
         private bool hasAnchoredOrigin;
         private PathPieceData observedSelectedPiece;
+        private GameplayInputGate inputGate;
         private readonly List<Vector2Int> previewGridPath = new List<Vector2Int>();
         private readonly List<Vector3> previewWorldPath = new List<Vector3>();
 
@@ -35,6 +40,10 @@ namespace Audere.Puzzle.PathPieces
         public Vector2Int PointerCell { get; private set; }
         public Vector2 PreviewMidpointGridPosition { get; private set; }
         public float CursorToPreviewMidpointDistance => cursorToPreviewMidpointDistance;
+        public bool RotationInputEnabled => rotationInputEnabled;
+        public event Action<GridRotation> RotationChanged;
+        public event Action<PlacementResult> PreviewChanged;
+        public event Action<PlacementResult> PlacementRejected;
 
         public void Setup(
             PuzzleManager owner,
@@ -58,6 +67,8 @@ namespace Audere.Puzzle.PathPieces
             }
             observedSelectedPiece = hand != null ? hand.SelectedPiece : null;
             if (boardCamera == null) boardCamera = Camera.main;
+            GameplayUIRoot uiRoot = GameplayUIRoot.Instance;
+            inputGate = uiRoot != null ? uiRoot.InputGate : null;
             if (preview != null) preview.Setup();
             if (observedSelectedPiece != null)
                 ShowInitialPreview();
@@ -65,7 +76,8 @@ namespace Audere.Puzzle.PathPieces
 
         private void Update()
         {
-            if (puzzle == null ||
+            if (!HasPuzzleInput() ||
+                puzzle == null ||
                 puzzle.CurrentState != PuzzleManager.State.Playing ||
                 boardCamera == null ||
                 gridSpace == null)
@@ -90,10 +102,12 @@ namespace Audere.Puzzle.PathPieces
             if (!TryMovePreviewToScreenPosition(pointerScreenPosition))
                 return;
 
-            if (Input.GetKeyDown(KeyCode.R) || Input.GetMouseButtonDown(1))
+            if (rotationInputEnabled &&
+                (Input.GetKeyDown(KeyCode.R) || Input.GetMouseButtonDown(1)))
             {
                 rotation = (GridRotation)(((int)rotation + 1) % 4);
                 TryMovePreviewToScreenPosition(pointerScreenPosition);
+                RotationChanged?.Invoke(rotation);
             }
 
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -112,6 +126,19 @@ namespace Audere.Puzzle.PathPieces
             observedSelectedPiece = null;
             HidePreview();
             if (hand != null) hand.ClearSelection();
+        }
+
+        /// <summary>
+        /// Lets a scene-authored tutorial introduce rotation after the player has
+        /// learned the basic select-and-place action. Regular puzzles keep it on.
+        /// </summary>
+        public void SetRotationInputEnabled(bool value)
+        {
+            rotationInputEnabled = value;
+            if (rotationInputEnabled)
+                return;
+
+            rotation = GridRotation.Degrees0;
         }
 
         private void HandleSelectionChanged(PathPieceData selectedPiece)
@@ -185,7 +212,8 @@ namespace Audere.Puzzle.PathPieces
         /// </summary>
         public bool TryMovePreviewToScreenPosition(Vector2 screenPosition)
         {
-            if (puzzle == null ||
+            if (!HasPuzzleInput() ||
+                puzzle == null ||
                 puzzle.CurrentState != PuzzleManager.State.Playing ||
                 hand == null ||
                 hand.SelectedPiece == null ||
@@ -209,8 +237,16 @@ namespace Audere.Puzzle.PathPieces
         /// </summary>
         public bool TryCommitPreview()
         {
-            if (!previewActive || !currentResult.CanCommit || puzzle == null)
+            if (!HasPuzzleInput() ||
+                !previewActive ||
+                puzzle == null)
                 return false;
+
+            if (!currentResult.CanCommit)
+            {
+                PlacementRejected?.Invoke(currentResult);
+                return false;
+            }
 
             puzzle.SubmitPlacement(currentResult);
             return true;
@@ -258,6 +294,7 @@ namespace Audere.Puzzle.PathPieces
 
             preview.Show(previewWorldPath, cellWorldSize);
             preview.SetState(GetPresentationState(currentResult));
+            PreviewChanged?.Invoke(currentResult);
         }
 
         private bool BuildWorldPreviewPath(
@@ -328,6 +365,17 @@ namespace Audere.Puzzle.PathPieces
             }
 
             return false;
+        }
+
+        private bool HasPuzzleInput()
+        {
+            if (inputGate == null)
+            {
+                GameplayUIRoot uiRoot = GameplayUIRoot.Instance;
+                inputGate = uiRoot != null ? uiRoot.InputGate : null;
+            }
+
+            return inputGate != null && inputGate.Allows(GameplayInputMode.Puzzle);
         }
 
         private void OnDestroy()

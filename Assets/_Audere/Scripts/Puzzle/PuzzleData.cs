@@ -10,11 +10,17 @@ namespace Audere.Puzzle
     public sealed class PuzzleData : ScriptableObject
     {
         [SerializeField] private string puzzleId = "new-puzzle";
+
+        [Header("Legacy Layout (Bake To Scene Once)")]
+        [Tooltip("Migration source only. Runtime gameplay uses scene/prefab BoardTile objects after baking.")]
         [SerializeField] private List<PuzzleTileData> boardTiles = new List<PuzzleTileData>();
         [SerializeField, HideInInspector] private List<Vector2Int> boardCells = new List<Vector2Int>();
         [SerializeField] private Vector2Int playerStartPosition;
         [SerializeField, HideInInspector] private Vector2Int goalPosition;
+
+        [Header("Reusable Runtime Config")]
         [SerializeField] private List<PathPieceData> availablePathPieces = new List<PathPieceData>();
+        [SerializeField] private bool requireAllPathPieces;
 
         public string PuzzleId => puzzleId;
         public IReadOnlyList<PuzzleTileData> BoardTiles
@@ -44,5 +50,6 @@ namespace Audere.Puzzle
             }
         }
         public IReadOnlyList<PathPieceData> AvailablePathPieces => availablePathPieces;
+        public bool RequireAllPathPieces => requireAllPathPieces;
     }
 }

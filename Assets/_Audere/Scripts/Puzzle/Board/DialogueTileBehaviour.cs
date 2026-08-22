@@ -6,8 +6,8 @@ namespace Audere.Puzzle.Board
     [DisallowMultipleComponent]
     public sealed class DialogueTileBehaviour : MonoBehaviour, IBoardTileBehaviour, IBoardTileDataReceiver
     {
-        private DialogueData dialogueData;
-        private bool triggerOnce = true;
+        [SerializeField] private DialogueData dialogueData;
+        [SerializeField] private bool triggerOnce = true;
         private bool triggered;
 
         public DialogueData DialogueData => dialogueData;
@@ -26,7 +26,10 @@ namespace Audere.Puzzle.Board
             triggered = false;
         }
 
-        public void OnTileInitialized(BoardTile tile) { }
+        public void OnTileInitialized(BoardTile tile)
+        {
+            triggered = false;
+        }
 
         public void OnPlayerEntered(BoardTile tile, GridPlayer player)
         {

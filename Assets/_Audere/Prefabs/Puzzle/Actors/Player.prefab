@@ -101,11 +101,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7be8ccb862381594cb428f372494804e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stepDuration: 0.2
+  stepDuration: 0.32
   visualScale: 1.5
   stepArcHeight: 0.075
   travelStretch: 0.065
-  landingDuration: 0.085
+  landingDuration: 0.1
   landingSquash: 0.105
   landingWiden: 0.075
   fallDuration: 0.62

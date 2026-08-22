@@ -5,8 +5,8 @@ using UnityEngine;
 namespace Audere.Puzzle.Board
 {
     /// <summary>
-    /// Owns grid state and instantiates tile-specific prefabs through the tile catalog.
-    /// It never needs to know about Grass or any future tile behaviour directly.
+    /// Registers the scene-authored board and owns its runtime lookup state. BuildBoard
+    /// remains available only for legacy/demo conversion flows.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class BoardManager : MonoBehaviour
@@ -17,9 +17,9 @@ namespace Audere.Puzzle.Board
         [SerializeField] private Transform levelObjectiveRoot;
         [SerializeField] private PuzzleTileCatalog tileCatalog;
 
-        [Header("Optional Demo Board")]
-        [SerializeField] private bool buildDemoBoardOnAwake = true;
-        [SerializeField] private List<Vector2Int> demoCells = new List<Vector2Int>
+        [Header("Legacy Demo Data")]
+        [SerializeField, HideInInspector] private bool buildDemoBoardOnAwake;
+        [SerializeField, HideInInspector] private List<Vector2Int> demoCells = new List<Vector2Int>
         {
             new Vector2Int(-3, 1), new Vector2Int(-2, 1), new Vector2Int(-1, 1),
             new Vector2Int(0, 1),  new Vector2Int(1, 1),  new Vector2Int(2, 1),
@@ -34,17 +34,26 @@ namespace Audere.Puzzle.Board
         private readonly List<BoardTile> spawnedTiles = new List<BoardTile>();
 
         public GridSpace2D GridSpace => gridSpace;
+        public Transform BoardVisualRoot => boardVisualRoot;
+        public Transform LevelObjectiveRoot => levelObjectiveRoot;
         public PuzzleTileCatalog TileCatalog => tileCatalog;
         public IReadOnlyList<Vector2Int> GridPositions => gridPositions;
 
         private void Awake()
         {
-            if (gridSpace == null) gridSpace = FindFirstObjectByType<GridSpace2D>();
+            if (gridSpace == null && boardVisualRoot != null)
+                gridSpace = boardVisualRoot.GetComponentInParent<GridSpace2D>();
+            if (gridSpace == null)
+                gridSpace = FindFirstObjectByType<GridSpace2D>();
             if (boardVisualRoot == null) boardVisualRoot = transform;
             if (buildDemoBoardOnAwake)
-                BuildDemoBoard();
-            else
-                RegisterExistingTiles();
+            {
+                Debug.LogWarning(
+                    "[BoardManager] Runtime demo generation is disabled. Materialize the board into the scene instead.",
+                    this);
+            }
+
+            RegisterExistingTiles();
         }
 
         public bool ContainsCell(Vector2Int gridPosition) => tilesByPosition.ContainsKey(gridPosition);
@@ -106,7 +115,15 @@ namespace Audere.Puzzle.Board
             tilesByPosition.Clear();
             gridPositions.Clear();
             foreach (BoardTile tile in spawnedTiles)
-                if (tile != null) Destroy(tile.gameObject);
+            {
+                if (tile == null)
+                    continue;
+
+                if (Application.isPlaying)
+                    Destroy(tile.gameObject);
+                else
+                    DestroyImmediate(tile.gameObject);
+            }
             spawnedTiles.Clear();
         }
 
@@ -149,15 +166,68 @@ namespace Audere.Puzzle.Board
             }
         }
 
-        private void RegisterExistingTiles()
+        public void RegisterExistingTiles()
         {
             tilesByPosition.Clear();
             gridPositions.Clear();
-            foreach (BoardTile tile in GetComponentsInChildren<BoardTile>())
+            HashSet<BoardTile> sceneTiles = new HashSet<BoardTile>();
+            CollectTiles(boardVisualRoot, sceneTiles);
+            CollectTiles(levelObjectiveRoot, sceneTiles);
+
+            foreach (BoardTile tile in sceneTiles)
             {
-                spawnedTiles.Add(tile);
+                Vector2Int position = gridSpace != null
+                    ? gridSpace.WorldToCell(tile.transform.position)
+                    : tile.GridPosition;
+                tile.InitializeSceneAuthored(position);
                 RegisterTile(tile);
             }
+        }
+
+        public void ResetSceneAuthoredState()
+        {
+            HashSet<BoardTile> sceneTiles = new HashSet<BoardTile>();
+            CollectTiles(boardVisualRoot, sceneTiles);
+            CollectTiles(levelObjectiveRoot, sceneTiles);
+
+            foreach (BoardTile tile in sceneTiles)
+                tile.ResetToAuthoredState();
+
+            RegisterExistingTiles();
+        }
+
+        public void SetSceneTilesVisible(bool visible)
+        {
+            HashSet<BoardTile> sceneTiles = new HashSet<BoardTile>();
+            CollectTiles(boardVisualRoot, sceneTiles);
+            CollectTiles(levelObjectiveRoot, sceneTiles);
+
+            foreach (BoardTile tile in sceneTiles)
+                tile.gameObject.SetActive(visible);
+        }
+
+        public bool TryGetLevelGoal(out BoardTile goal)
+        {
+            foreach (BoardTile tile in tilesByPosition.Values)
+            {
+                if (!tile.IsLevelGoal)
+                    continue;
+
+                goal = tile;
+                return true;
+            }
+
+            goal = null;
+            return false;
+        }
+
+        private static void CollectTiles(Transform root, HashSet<BoardTile> results)
+        {
+            if (root == null)
+                return;
+
+            foreach (BoardTile tile in root.GetComponentsInChildren<BoardTile>(true))
+                results.Add(tile);
         }
 
         private void OnDrawGizmosSelected()

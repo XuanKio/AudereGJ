@@ -16,6 +16,11 @@ namespace Audere.Puzzle.Board
         [SerializeField, Range(0.1f, 1f)] private float cellFill = 0.92f;
 
         private readonly List<IBoardTileBehaviour> behaviours = new List<IBoardTileBehaviour>();
+        private SpriteRenderer[] authoredRenderers;
+        private Color[] authoredRendererColors;
+        private bool[] authoredRendererEnabled;
+        private Vector3 authoredLocalScale;
+        private bool authoredStateCaptured;
 
         public Vector2Int GridPosition => gridPosition;
         public PuzzleTileType TileType => tileType;
@@ -42,6 +47,60 @@ namespace Audere.Puzzle.Board
                 behaviour.OnTileInitialized(this);
 
             IsLevelGoal = behaviours.Exists(behaviour => behaviour is ILevelGoalTile);
+        }
+
+        /// <summary>
+        /// Initializes a tile that already exists in a scene or prefab. Its transform,
+        /// name and visual scale are authoring data and must not be overwritten at runtime.
+        /// </summary>
+        public void InitializeSceneAuthored(Vector2Int position)
+        {
+            gridPosition = position;
+            CaptureAuthoredState();
+            CacheBehaviours();
+
+            foreach (IBoardTileBehaviour behaviour in behaviours)
+                behaviour.OnTileInitialized(this);
+
+            IsLevelGoal = behaviours.Exists(behaviour => behaviour is ILevelGoalTile);
+        }
+
+        public void ResetToAuthoredState()
+        {
+            CaptureAuthoredState();
+            gameObject.SetActive(true);
+            transform.localScale = authoredLocalScale;
+
+            for (int index = 0; index < authoredRenderers.Length; index++)
+            {
+                SpriteRenderer renderer = authoredRenderers[index];
+                if (renderer == null)
+                    continue;
+
+                renderer.enabled = authoredRendererEnabled[index];
+                renderer.color = authoredRendererColors[index];
+            }
+
+            CacheBehaviours();
+            foreach (IBoardTileBehaviour behaviour in behaviours)
+                if (behaviour is IBoardTileResettable resettable)
+                    resettable.ResetToAuthoredState();
+        }
+
+        public bool TryGetBehaviour<T>(out T result) where T : class, IBoardTileBehaviour
+        {
+            CacheBehaviours();
+            foreach (IBoardTileBehaviour behaviour in behaviours)
+            {
+                if (behaviour is T match)
+                {
+                    result = match;
+                    return true;
+                }
+            }
+
+            result = null;
+            return false;
         }
 
         public void NotifyPlayerEntered(GridPlayer player)
@@ -79,6 +138,23 @@ namespace Audere.Puzzle.Board
             {
                 if (component is IBoardTileBehaviour behaviour)
                     behaviours.Add(behaviour);
+            }
+        }
+
+        private void CaptureAuthoredState()
+        {
+            if (authoredStateCaptured)
+                return;
+
+            authoredStateCaptured = true;
+            authoredLocalScale = transform.localScale;
+            authoredRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+            authoredRendererColors = new Color[authoredRenderers.Length];
+            authoredRendererEnabled = new bool[authoredRenderers.Length];
+            for (int index = 0; index < authoredRenderers.Length; index++)
+            {
+                authoredRendererColors[index] = authoredRenderers[index].color;
+                authoredRendererEnabled[index] = authoredRenderers[index].enabled;
             }
         }
     }

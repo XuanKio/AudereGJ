@@ -1,10 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Audere.GameplayInput;
 using TMPro;
 using UnityEngine;
 
 namespace Audere.Dialogue
 {
+    public enum DialogueResult
+    {
+        Completed,
+        Cancelled
+    }
+
     [DisallowMultipleComponent]
     public sealed class DialogueController : MonoBehaviour
     {
@@ -23,8 +31,13 @@ namespace Audere.Dialogue
 
         private readonly HashSet<string> playedDialogueIds = new HashSet<string>();
         private Coroutine playbackRoutine;
+        private Action<DialogueResult> activeCompletion;
         private float timeScaleBeforeDialogue = 1f;
         private bool ownsGameplayPause;
+        private bool cancellationRequested;
+        private int playRequestVersion;
+        private GameplayInputGate inputGate;
+        private GameplayInputToken inputToken;
 
         public bool IsPlaying => playbackRoutine != null;
 
@@ -33,13 +46,33 @@ namespace Audere.Dialogue
             HideImmediately();
         }
 
+        private void Update()
+        {
+            if (IsPlaying && SkipPressed())
+                cancellationRequested = true;
+        }
+
         private void OnDisable()
         {
-            StopPlayback(true);
+            CancelPlayback();
         }
 
         public bool Play(DialogueData data, bool triggerOnce = true)
         {
+            return Play(data, null, triggerOnce);
+        }
+
+        public bool Play(
+            DialogueData data,
+            Action<DialogueResult> onEnded,
+            bool triggerOnce = true)
+        {
+            if (!isActiveAndEnabled)
+            {
+                Debug.LogError("[DialogueController] Enable the controller before calling Play.", this);
+                return false;
+            }
+
             if (data == null || !data.HasLines)
             {
                 Debug.LogWarning("[DialogueController] Dialogue data is missing or has no lines.", data);
@@ -53,17 +86,40 @@ namespace Audere.Dialogue
                 !TryResolveCharacter(data.RightCharacter, out DialogueCharacterCatalog.Entry rightCharacter))
                 return false;
 
-            StopPlayback(true);
+            int requestVersion = ++playRequestVersion;
+            CancelPlayback();
+
+            // A cancellation callback is allowed to start another dialogue. In that case,
+            // let that newer request win instead of overwriting its coroutine and callback.
+            if (requestVersion != playRequestVersion)
+                return false;
+
+            GameplayInputGate gate = ResolveInputGate();
+            if (gate == null)
+            {
+                Debug.LogError("[DialogueController] GameplayInputGate is not available.", this);
+                return false;
+            }
+
+            GameplayInputToken token = gate.PushMode(this, GameplayInputMode.Dialogue);
+            if (!token.IsValid)
+                return false;
+
+            inputGate = gate;
+            inputToken = token;
+
             if (triggerOnce)
                 playedDialogueIds.Add(data.DialogueId);
 
+            activeCompletion = onEnded;
+            cancellationRequested = false;
             playbackRoutine = StartCoroutine(PlayRoutine(data, leftCharacter, rightCharacter));
             return true;
         }
 
         public void ForceClose()
         {
-            StopPlayback(true);
+            CancelPlayback();
             HideImmediately();
         }
 
@@ -105,7 +161,7 @@ namespace Audere.Dialogue
 
             foreach (DialogueData.Line line in data.Lines)
             {
-                if (SkipPressed())
+                if (CancelPressed())
                     break;
 
                 if (currentBubble != null)
@@ -128,19 +184,19 @@ namespace Audere.Dialogue
                     currentBubble = speakingSlot.Bubble;
                 }
 
-                if (SkipPressed())
+                if (CancelPressed())
                     break;
 
                 if (text != null)
                     yield return TypeLine(text);
 
-                if (SkipPressed())
+                if (CancelPressed())
                     break;
 
-                while (!AdvancePressed() && !SkipPressed())
+                while (!AdvancePressed() && !CancelPressed())
                     yield return null;
 
-                if (SkipPressed())
+                if (CancelPressed())
                     break;
 
                 yield return null;
@@ -149,9 +205,11 @@ namespace Audere.Dialogue
             if (currentBubble != null)
                 yield return currentBubble.PopOut();
 
-            playbackRoutine = null;
-            RestoreGameplayTime();
-            HideImmediately();
+            DialogueResult result = cancellationRequested
+                ? DialogueResult.Cancelled
+                : DialogueResult.Completed;
+
+            EndPlayback(result, false);
         }
 
         private IEnumerator AnimateCharactersIn()
@@ -196,7 +254,7 @@ namespace Audere.Dialogue
 
             while (text.maxVisibleCharacters < characterCount)
             {
-                if (SkipPressed())
+                if (CancelPressed())
                     yield break;
 
                 if (AdvancePressed())
@@ -227,16 +285,32 @@ namespace Audere.Dialogue
             return false;
         }
 
-        private void StopPlayback(bool restoreTime)
+        private void CancelPlayback()
         {
-            if (playbackRoutine != null)
-            {
-                StopCoroutine(playbackRoutine);
-                playbackRoutine = null;
-            }
+            if (playbackRoutine == null)
+                return;
 
-            if (restoreTime)
-                RestoreGameplayTime();
+            EndPlayback(DialogueResult.Cancelled, true);
+        }
+
+        private void EndPlayback(DialogueResult result, bool stopCoroutine)
+        {
+            Coroutine routine = playbackRoutine;
+            if (routine == null)
+                return;
+
+            playbackRoutine = null;
+            if (stopCoroutine)
+                StopCoroutine(routine);
+
+            RestoreGameplayTime();
+            HideImmediately();
+
+            Action<DialogueResult> completion = activeCompletion;
+            activeCompletion = null;
+            cancellationRequested = false;
+            ReleaseInputClaim();
+            completion?.Invoke(result);
         }
 
         private void RestoreGameplayTime()
@@ -248,17 +322,53 @@ namespace Audere.Dialogue
             ownsGameplayPause = false;
         }
 
-        private static bool AdvancePressed()
+        private GameplayInputGate ResolveInputGate()
         {
-            return Input.GetMouseButtonDown(0) ||
-                   Input.GetKeyDown(KeyCode.Space) ||
-                   Input.GetKeyDown(KeyCode.Return) ||
-                   Input.GetKeyDown(KeyCode.KeypadEnter);
+            GameplayUIRoot root = GetComponentInParent<GameplayUIRoot>(true);
+            if (root == null)
+                root = GameplayUIRoot.Instance;
+
+            return root != null ? root.InputGate : null;
         }
 
-        private static bool SkipPressed()
+        private void ReleaseInputClaim()
         {
-            return Input.GetKeyDown(KeyCode.Escape);
+            GameplayInputGate gate = inputGate;
+            GameplayInputToken token = inputToken;
+            inputGate = null;
+            inputToken = default;
+
+            if (gate != null && token.IsValid)
+                gate.Release(token);
+        }
+
+        private bool HasDialogueInput()
+        {
+            return inputGate != null &&
+                   inputGate.IsActive(inputToken) &&
+                   inputGate.Allows(GameplayInputMode.Dialogue);
+        }
+
+        private bool AdvancePressed()
+        {
+            return HasDialogueInput() &&
+                   (Input.GetMouseButtonDown(0) ||
+                   Input.GetKeyDown(KeyCode.Space) ||
+                   Input.GetKeyDown(KeyCode.Return) ||
+                   Input.GetKeyDown(KeyCode.KeypadEnter));
+        }
+
+        private bool SkipPressed()
+        {
+            return HasDialogueInput() && Input.GetKeyDown(KeyCode.Escape);
+        }
+
+        private bool CancelPressed()
+        {
+            if (cancellationRequested || SkipPressed())
+                cancellationRequested = true;
+
+            return cancellationRequested;
         }
     }
 }

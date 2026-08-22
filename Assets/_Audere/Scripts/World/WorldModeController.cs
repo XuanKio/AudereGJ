@@ -14,7 +14,6 @@ namespace Audere.World
         [SerializeField] private GameObject puzzleRoot;
         [SerializeField] private GameObject combatRoot;
         [SerializeField] private GameObject puzzleViewportMask;
-        [SerializeField] private GameObject puzzleSystemsRoot;
         [SerializeField] private GameObject combatSystemsRoot;
 
         [Header("Transition")]
@@ -94,7 +93,6 @@ namespace Audere.World
             SetActiveIfNeeded(combatRoot, !puzzleActive);
             SetActiveIfNeeded(puzzleViewportMask, puzzleActive);
             SetActiveIfNeeded(puzzleUi != null ? puzzleUi.gameObject : null, puzzleActive);
-            SetActiveIfNeeded(puzzleSystemsRoot, puzzleActive);
             SetActiveIfNeeded(combatSystemsRoot, !puzzleActive);
 
             if (puzzleCameraFollow != null)

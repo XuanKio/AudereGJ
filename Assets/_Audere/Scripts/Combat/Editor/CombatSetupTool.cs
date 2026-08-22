@@ -117,7 +117,6 @@ namespace Audere.EditorTools
             SetObject(modeSerialized, "puzzleRoot", puzzleRoot.gameObject);
             SetObject(modeSerialized, "combatRoot", combatRoot.gameObject);
             SetObject(modeSerialized, "puzzleViewportMask", puzzleViewportMask);
-            SetObject(modeSerialized, "puzzleSystemsRoot", puzzleSystems);
             SetObject(modeSerialized, "combatSystemsRoot", combatSystems);
             SetObject(modeSerialized, "transitionFade", transitionFade);
             SetObject(modeSerialized, "worldCamera", mainCamera);
@@ -128,7 +127,6 @@ namespace Audere.EditorTools
             combatRoot.gameObject.SetActive(true);
             if (puzzleViewportMask != null)
                 puzzleViewportMask.SetActive(false);
-            puzzleSystems.SetActive(false);
             combatSystems.SetActive(true);
 
             GameplayUIRoot gameplayUi = Object.FindFirstObjectByType<GameplayUIRoot>(FindObjectsInactive.Include);

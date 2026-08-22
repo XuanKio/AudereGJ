@@ -77,7 +77,7 @@ namespace Audere.Puzzle.Editor
 
         private void OnEnable()
         {
-            sceneManager = FindFirstObjectByType<PuzzleManager>();
+            sceneManager = FindFirstObjectByType<PuzzleManager>(FindObjectsInactive.Include);
             tileCatalog = AssetDatabase.LoadAssetAtPath<PuzzleTileCatalog>(
                 PuzzleContentConstants.AssetPaths.TileCatalog);
         }
@@ -110,8 +110,8 @@ namespace Audere.Puzzle.Editor
         {
             EditorGUILayout.LabelField("Steptile-style Puzzle Map Editor", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
-                "Left-click or drag to paint prefab-backed tile types. Goal is a real tile type with its own prefab. " +
-                "Player is the only actor marker; right-click always erases.",
+                "This grid edits legacy PuzzleData for one-time conversion. Use Materialize/Bake To Scene, then " +
+                "edit the resulting tile, Goal, PlayerStart and interactive GameObjects directly in Scene View or Prefab Mode.",
                 MessageType.Info);
 
             tileCatalog = (PuzzleTileCatalog)EditorGUILayout.ObjectField(
@@ -424,11 +424,11 @@ namespace Audere.Puzzle.Editor
             {
                 GUI.enabled = targetData != null && sceneManager != null && GetValidationIssues().Count == 0;
 
-                if (GUILayout.Button("Apply to Scene", GUILayout.Height(34f)))
-                    ApplyToScene(false);
+                if (GUILayout.Button("Materialize/Bake To Scene", GUILayout.Height(34f)))
+                    MaterializeToScene(false);
 
-                if (GUILayout.Button("Apply & Play", GUILayout.Height(34f)))
-                    ApplyToScene(true);
+                if (GUILayout.Button("Bake & Play", GUILayout.Height(34f)))
+                    MaterializeToScene(true);
 
                 GUI.enabled = true;
             }
@@ -552,7 +552,7 @@ namespace Audere.Puzzle.Editor
             ShowNotification(new GUIContent($"Saved {targetData.name}"));
         }
 
-        private void ApplyToScene(bool enterPlayMode)
+        private void MaterializeToScene(bool enterPlayMode)
         {
             if (targetData == null || sceneManager == null)
                 return;
@@ -565,19 +565,28 @@ namespace Audere.Puzzle.Editor
             }
 
             SaveData();
-            Undo.RecordObject(sceneManager, "Apply Puzzle Data");
-            SerializedObject serializedManager = new SerializedObject(sceneManager);
-            serializedManager.FindProperty("puzzleData").objectReferenceValue = targetData;
-            serializedManager.ApplyModifiedProperties();
-            EditorUtility.SetDirty(sceneManager);
-            EditorSceneManager.MarkSceneDirty(sceneManager.gameObject.scene);
-            EditorSceneManager.SaveScene(sceneManager.gameObject.scene);
-            Selection.activeObject = sceneManager;
+            int existingTileCount = PuzzleSceneMaterializer.CountExistingTiles(sceneManager);
+            bool replaceExisting = existingTileCount == 0 || EditorUtility.DisplayDialog(
+                "Replace scene-authored puzzle?",
+                $"This bake will replace {existingTileCount} existing BoardTile GameObjects. " +
+                "The operation supports Undo.",
+                "Replace & Bake",
+                "Cancel");
+
+            if (!replaceExisting || !PuzzleSceneMaterializer.Materialize(
+                    sceneManager,
+                    targetData,
+                    tileCatalog,
+                    true))
+                return;
 
             if (enterPlayMode)
+            {
+                EditorSceneManager.SaveScene(sceneManager.gameObject.scene);
                 EditorApplication.isPlaying = true;
+            }
             else
-                ShowNotification(new GUIContent("Applied to scene Puzzle Manager"));
+                ShowNotification(new GUIContent("Baked scene-authored puzzle objects"));
         }
 
         private List<string> GetValidationIssues()

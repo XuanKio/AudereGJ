@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audere Puzzle Map Generator"
+  short_description: "Generate and verify scene-first StepTile puzzle maps."
+  default_prompt: "Design or regenerate an Audere StepTile puzzle and verify that every required path piece is used before reaching the goal."

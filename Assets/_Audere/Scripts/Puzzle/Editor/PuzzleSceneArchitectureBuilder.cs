@@ -13,6 +13,18 @@ namespace Audere.Puzzle.Editor
         [MenuItem("Audere/Puzzle/Migrate Gameplay Scene Architecture")]
         public static void MigrateOpenGameplayScene()
         {
+            PuzzleRuntime existingRuntime = Object.FindFirstObjectByType<PuzzleRuntime>(
+                FindObjectsInactive.Include);
+            if (existingRuntime != null)
+            {
+                Debug.Log(
+                    "[PuzzleSceneArchitectureBuilder] This scene already uses one shared Puzzle Runtime. " +
+                    "The legacy migration was skipped so it cannot pull Path Placement back into a level branch.",
+                    existingRuntime);
+                Selection.activeObject = existingRuntime.gameObject;
+                return;
+            }
+
             Transform worldRoot = FindOrCreateRoot("WORLD");
             Transform systemsRoot = FindOrCreateRoot("SYSTEMS");
             Transform puzzleRoot = FindOrCreateChild(worldRoot, "Puzzle Root");
@@ -226,6 +238,14 @@ namespace Audere.Puzzle.Editor
                 serializedPuzzle.FindProperty("hud").objectReferenceValue = hud;
                 serializedPuzzle.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(puzzleManager);
+
+                PuzzleController controller = puzzleManager.GetComponent<PuzzleController>();
+                if (controller == null)
+                    controller = puzzleManager.gameObject.AddComponent<PuzzleController>();
+                SerializedObject serializedController = new SerializedObject(controller);
+                serializedController.FindProperty("puzzle").objectReferenceValue = puzzleManager;
+                serializedController.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(controller);
             }
 
             if (placement != null)
@@ -246,7 +266,9 @@ namespace Audere.Puzzle.Editor
             for (int index = boardRoot.childCount - 1; index >= 0; index--)
             {
                 Transform child = boardRoot.GetChild(index);
-                if (child.name == "Board Tiles" || child.GetComponent<BoardTile>() != null)
+                // Only remove the obsolete runtime container. Direct BoardTile children
+                // are scene-authored layout and must survive architecture migrations.
+                if (child.name == "Board Tiles")
                     Object.DestroyImmediate(child.gameObject);
             }
         }

@@ -19,6 +19,7 @@ namespace Audere.Puzzle.PathPieces
         private readonly List<PathPieceData> pieces = new List<PathPieceData>();
         private readonly List<PathPieceCardUI> cards = new List<PathPieceCardUI>();
         private int selectedIndex = -1;
+        private bool tutorialAttention;
 
         public bool HasPieces => pieces.Count > 0;
         public int Count => pieces.Count;
@@ -88,6 +89,14 @@ namespace Audere.Puzzle.PathPieces
             RefreshSelection();
         }
 
+        public void SetTutorialAttention(bool value)
+        {
+            tutorialAttention = value;
+            foreach (PathPieceCardUI card in cards)
+                if (card != null)
+                    card.SetTutorialAttention(value);
+        }
+
         private void RebuildCards()
         {
             if (cardRoot == null)
@@ -116,12 +125,17 @@ namespace Audere.Puzzle.PathPieces
                 PathPieceCardUI card = Instantiate(cardPrefab, cardRoot);
                 card.name = $"Path Piece {index + 1:00}";
                 card.gameObject.SetActive(true);
-                card.RectTransform.anchorMin = new Vector2(.5f, .5f);
-                card.RectTransform.anchorMax = new Vector2(.5f, .5f);
-                card.RectTransform.pivot = new Vector2(.5f, .5f);
-                card.RectTransform.sizeDelta = cardSize;
-                card.RectTransform.anchoredPosition = new Vector2(firstX + index * (cardSize.x + cardSpacing), 0f);
+                // The hand can be rebuilt while PuzzleUI is inactive. In that case
+                // the clone has not run Awake yet, so its cached RectTransform is
+                // intentionally unavailable. Read the required component directly.
+                RectTransform cardRect = card.GetComponent<RectTransform>();
+                cardRect.anchorMin = new Vector2(.5f, .5f);
+                cardRect.anchorMax = new Vector2(.5f, .5f);
+                cardRect.pivot = new Vector2(.5f, .5f);
+                cardRect.sizeDelta = cardSize;
+                cardRect.anchoredPosition = new Vector2(firstX + index * (cardSize.x + cardSpacing), 0f);
                 card.Bind(this, pieces[index], index);
+                card.SetTutorialAttention(tutorialAttention);
                 cards.Add(card);
             }
 

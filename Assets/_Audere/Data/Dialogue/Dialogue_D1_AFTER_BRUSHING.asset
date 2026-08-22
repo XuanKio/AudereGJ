@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D1_AFTER_BRUSHING
+  m_EditorClassIdentifier: 
+  dialogueId: d1-home-after-brushing
+  leftCharacter: 1
+  rightCharacter: 2
+  lines:
+  - speaker: 0
+    text: "Xong r\u1ED3i\u2026 v\u1ECB b\u1EA1c h\xE0 l\xE0m t\u1EDB t\u1EC9nh h\u1EB3n."
+  - speaker: 1
+    text: "\u1EEA, tr\xF4ng c\u1EADu t\u1EC9nh h\u01A1n r\u1ED3i \u0111\u1EA5y."
+  - speaker: 0
+    text: "M\u1ED9t ch\xFAt th\xF4i."
+  - speaker: 1
+    text: "Th\u1EBF l\xE0 \u0111\u1EE7 r\u1ED3i. Gi\u1EDD \u0103n s\xE1ng nh\xE9. B\u1ED1 c\u1EADu \u0111\u1EC3 b\xE1nh m\xEC trong b\u1EBFp r\u1ED3i \u0111\u1EA5y."
+  - speaker: 0
+    text: "V\u1EABn c\xF2n k\u1ECBp ch\u1EE9?"
+  - speaker: 1
+    text: "C\xF2n. M\xECnh c\u1EE9 l\xE0m t\u1EEBng vi\u1EC7c m\u1ED9t th\xF4i."

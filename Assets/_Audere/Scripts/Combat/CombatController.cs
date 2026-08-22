@@ -1,10 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Audere.Audio;
+using Audere.Dialogue;
+using Audere.GameplayInput;
 using UnityEngine;
 
 namespace Audere.Combat
 {
+    public enum CombatResult
+    {
+        Victory,
+        Defeat,
+        Cancelled,
+        Special,
+    }
+
     [DisallowMultipleComponent]
     public sealed class CombatController : MonoBehaviour
     {
@@ -15,8 +26,11 @@ namespace Audere.Combat
             Playing,
             Victory,
             Defeat,
+            Special,
         }
 
+        [Header("Lifecycle")]
+        [SerializeField] private bool playOnStart;
         [SerializeField] private CombatEncounterData encounterData;
         [SerializeField] private CombatBoardView boardView;
         [SerializeField, Min(.01f)] private float spawnStagger = .065f;
@@ -35,11 +49,18 @@ namespace Audere.Combat
         private float encounterTimeRemaining;
         private float patternTimeRemaining;
         private float shotCooldown;
-        private bool hasStarted;
+        private bool isPlaying;
         private bool isBatchSpawning;
         private Coroutine batchRoutine;
+        private Action<CombatResult> completionCallback;
+        private int playRequestVersion;
+        private GameplayInputGate inputGate;
+        private GameplayInputToken inputToken;
 
         public State CurrentState { get; private set; } = State.Idle;
+        public bool IsPlaying => isPlaying;
+        public CombatEncounterData CurrentEncounter => encounterData;
+        public CombatBoardView BoardView => boardView;
         public int PlayerArmor => playerArmor;
         public float PlayerTime => encounterTimeRemaining;
         public int EnemyHealth => enemyHealth;
@@ -54,25 +75,16 @@ namespace Audere.Combat
 
         private void Start()
         {
-            hasStarted = true;
-            BeginEncounter();
-        }
-
-        private void OnEnable()
-        {
-            if (hasStarted)
+            if (playOnStart)
                 BeginEncounter();
         }
 
         private void OnDisable()
         {
-            StopAllCoroutines();
-            batchRoutine = null;
-            activeDice.Clear();
-            isBatchSpawning = false;
-            if (boardView != null)
-                boardView.ClearCombatRuntime();
-            CurrentState = State.Idle;
+            if (isPlaying)
+                Cancel();
+            else
+                ResetRuntimeState();
         }
 
         private void Update()
@@ -86,7 +98,9 @@ namespace Audere.Combat
 
             // The Heart is centered inside the catcher, so mouse movement drives
             // both dice interaction and dodging in the same shared space.
-            boardView.UpdateCursor(Input.mousePosition);
+            bool hasCombatInput = HasCombatInput();
+            if (hasCombatInput)
+                boardView.UpdateCursor(Input.mousePosition);
             boardView.TickHeartFeedback(deltaTime);
 
             TickDice(deltaTime);
@@ -98,35 +112,95 @@ namespace Audere.Combat
             for (int i = 0; i < bulletHits && CurrentState == State.Playing; i++)
                 ApplyPlayerHit();
 
-            if (Input.GetMouseButtonDown(0))
-                TryCatchUnderCursor();
-            else if (Input.GetMouseButtonDown(1))
-                TryRerollUnderCursor();
+            if (hasCombatInput)
+            {
+                if (Input.GetMouseButtonDown(0))
+                    TryCatchUnderCursor();
+                else if (Input.GetMouseButtonDown(1))
+                    TryRerollUnderCursor();
+            }
 
             if (encounterTimeRemaining <= 0f)
                 EndCombat(State.Defeat);
         }
 
-        private void LateUpdate()
+        public bool Play(CombatEncounterData data, Action<CombatResult> onEnded = null)
         {
-            if (CurrentState == State.Defeat && Input.GetKeyDown(KeyCode.R))
-                BeginEncounter();
-        }
-
-        public void BeginEncounter()
-        {
-            StopAllCoroutines();
-            batchRoutine = null;
-            activeDice.Clear();
-            isBatchSpawning = false;
-
-            if (encounterData == null || boardView == null)
+            if (data == null || boardView == null)
             {
                 Debug.LogError("[CombatController] Assign Encounter Data and Combat Board View.", this);
-                CurrentState = State.Idle;
-                return;
+                return false;
             }
 
+            if (!isActiveAndEnabled)
+            {
+                Debug.LogError("[CombatController] Enable the controller before calling Play.", this);
+                return false;
+            }
+
+            int requestVersion = ++playRequestVersion;
+            if (isPlaying)
+            {
+                Cancel();
+                if (requestVersion != playRequestVersion)
+                    return false;
+            }
+
+            GameplayInputGate gate = ResolveInputGate();
+            if (gate == null)
+            {
+                Debug.LogError("[CombatController] GameplayInputGate is not available.", this);
+                return false;
+            }
+
+            GameplayInputToken token = gate.PushMode(this, GameplayInputMode.Combat);
+            if (!token.IsValid)
+                return false;
+
+            inputGate = gate;
+            inputToken = token;
+
+            completionCallback = null;
+            encounterData = data;
+            completionCallback = onEnded;
+            isPlaying = true;
+            StartEncounterRuntime();
+            return true;
+        }
+
+        // Kept for existing scene/debug callers. A repeated call cancels the
+        // active encounter before starting a fresh run with the assigned data.
+        public void BeginEncounter()
+        {
+            Play(encounterData);
+        }
+
+        public bool Cancel()
+        {
+            if (!isPlaying)
+                return false;
+
+            ResetRuntimeState(false);
+            Complete(CombatResult.Cancelled);
+            return true;
+        }
+
+        public void ResetEncounter()
+        {
+            if (isPlaying)
+                Cancel();
+            else
+                ResetRuntimeState();
+        }
+
+        public void CompleteSpecial()
+        {
+            EndCombat(State.Special);
+        }
+
+        private void StartEncounterRuntime()
+        {
+            ResetRuntimeState(false);
             playerArmor = 0;
             enemyHealth = encounterData.EnemyMaxHealth;
             encounterTimeRemaining = encounterData.EncounterDuration;
@@ -136,6 +210,7 @@ namespace Audere.Combat
 
             boardView.ClearCombatRuntime();
             boardView.PrepareEncounter(encounterData.EnemyDisplayName);
+            CurrentState = State.EncounterIntro;
             StartCoroutine(EncounterIntro());
         }
 
@@ -170,9 +245,11 @@ namespace Audere.Combat
 
         private IEnumerator EncounterIntro()
         {
-            CurrentState = State.EncounterIntro;
             yield return boardView.PlayEnemyIntro();
             yield return new WaitForSecondsRealtime(.12f);
+
+            if (!isPlaying || CurrentState != State.EncounterIntro)
+                yield break;
 
             CurrentState = State.Playing;
             boardView.ResetPlayer();
@@ -443,15 +520,86 @@ namespace Audere.Combat
 
         private void EndCombat(State result)
         {
-            if (CurrentState == State.Victory || CurrentState == State.Defeat)
+            if (!isPlaying ||
+                (result != State.Victory && result != State.Defeat && result != State.Special))
                 return;
 
             CurrentState = result;
-            if (batchRoutine != null)
-                StopCoroutine(batchRoutine);
+            StopEncounterRuntime();
+            Complete(result switch
+            {
+                State.Victory => CombatResult.Victory,
+                State.Defeat => CombatResult.Defeat,
+                _ => CombatResult.Special,
+            });
+        }
+
+        private void Complete(CombatResult result)
+        {
+            if (!isPlaying)
+                return;
+
+            isPlaying = false;
+            Action<CombatResult> callback = completionCallback;
+            completionCallback = null;
+            ReleaseInputClaim();
+            callback?.Invoke(result);
+        }
+
+        private void ResetRuntimeState(bool resetLifecycleState = true)
+        {
+            StopEncounterRuntime();
+            playerArmor = 0;
+            enemyHealth = 0;
+            encounterTimeRemaining = 0f;
+            batchIndex = 0;
+            patternIndex = 0;
+            patternShotIndex = 0;
+            patternTimeRemaining = 0f;
+            shotCooldown = 0f;
+            CurrentState = State.Idle;
+
+            if (resetLifecycleState)
+            {
+                isPlaying = false;
+                completionCallback = null;
+                ReleaseInputClaim();
+            }
+        }
+
+        private GameplayInputGate ResolveInputGate()
+        {
+            GameplayUIRoot root = GameplayUIRoot.Instance;
+            return root != null ? root.InputGate : null;
+        }
+
+        private void ReleaseInputClaim()
+        {
+            GameplayInputGate gate = inputGate;
+            GameplayInputToken token = inputToken;
+            inputGate = null;
+            inputToken = default;
+
+            if (gate != null && token.IsValid)
+                gate.Release(token);
+        }
+
+        private bool HasCombatInput()
+        {
+            return inputGate != null &&
+                   inputGate.IsActive(inputToken) &&
+                   inputGate.Allows(GameplayInputMode.Combat);
+        }
+
+        private void StopEncounterRuntime()
+        {
+            StopAllCoroutines();
             batchRoutine = null;
-            isBatchSpawning = false;
             activeDice.Clear();
+            isBatchSpawning = false;
+            if (boardView == null)
+                return;
+
             boardView.ClearCombatRuntime();
             boardView.SetCursorVisible(false);
         }

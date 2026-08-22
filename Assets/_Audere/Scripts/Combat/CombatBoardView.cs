@@ -22,6 +22,7 @@ namespace Audere.Combat
         [SerializeField] private RectTransform catchCursor;
         [SerializeField] private CombatCatchCursorView catchCursorView;
         [SerializeField] private CombatPlayerView playerView;
+        [SerializeField] private CombatRetryView retryView;
 
         [Header("Authored Presentation")]
         [FormerlySerializedAs("enemyStatus")]
@@ -83,6 +84,15 @@ namespace Audere.Combat
 
         public RectTransform PlayArea => playArea;
         public RectTransform CatchCursor => catchCursor;
+        public CombatRetryView RetryView
+        {
+            get
+            {
+                if (retryView == null)
+                    retryView = GetComponent<CombatRetryView>();
+                return retryView;
+            }
+        }
         public bool IsCursorStunned => catchCursorView != null && catchCursorView.IsStunned;
         public Vector2 PlayerPosition
         {
@@ -976,6 +986,7 @@ namespace Audere.Combat
             if (catchCursorView == null && catchCursor != null)
                 catchCursorView = catchCursor.GetComponent<CombatCatchCursorView>();
             if (playerView == null && playerRoot != null) playerView = playerRoot.GetComponent<CombatPlayerView>();
+            if (retryView == null) retryView = GetComponent<CombatRetryView>();
             if (timerFill == null)
             {
                 Transform child = FindDescendant(transform, "Timer Fill");
