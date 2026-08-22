@@ -84,7 +84,7 @@ Không có turn, `End Turn` hay bước resolve cuối batch. Hết batch chỉ 
 - `Enemy HP <= 0`: Victory.
 - `TIME <= 0`: Defeat (`TIME UP`). TIME đồng thời là sinh lực của người chơi.
 
-Sau Defeat nhấn `R` để retry.
+Khi combat chạy độc lập với `Play On Start`, có thể dùng flow debug/retry cũ. Khi combat do Story điều khiển, Defeat không tự chờ phím `R`; `CombatStep` quyết định Complete/Fail/Retry/Cancel.
 
 ## 4. Dice và hiệu ứng tức thì
 
@@ -197,3 +197,23 @@ Các lệnh Play Mode phục vụ kiểm thử:
 - `Preview Enemy White Flash`.
 
 Lưu ý: `Audere > Dialogue > Preview Sample` chủ động pause `Time.timeScale` khi dialogue mở. Đây là hành vi của Dialogue overlay; đóng/skip dialogue trước khi đánh giá timer combat.
+
+## 9. Lifecycle và Story integration (2026-08-22)
+
+`CombatController.Play(encounterData, callback)` trả một trong:
+
+```text
+Victory, Defeat, Cancelled, Special
+```
+
+Controller không tự load scene, mở dialogue hoặc chọn ending. Callback one-shot, session cũ không sống sang lần Play mới; `Cancel()` và disable giữa chừng trả `Cancelled`, còn `ResetEncounter()` phục vụ replay/test.
+
+`CombatStep` map kết quả bằng Inspector. Mặc định:
+
+```text
+Victory → Complete
+Defeat  → Retry
+Special → Complete
+```
+
+Với combat cốt truyện yêu cầu Audere thua, đặt `Defeat Behaviour = Complete`; Story chạy tiếp mà không hiện retry. Với combat phải thắng, `Retry` giữ StoryEvent đứng tại CombatStep, dùng retry panel của combat presentation và tạo một combat session mới sạch cho mỗi lần thử.

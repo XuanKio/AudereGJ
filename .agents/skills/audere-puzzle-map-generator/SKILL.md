@@ -13,8 +13,12 @@ Design a readable StepTile puzzle, prove it is solvable under the project's actu
 - Use `PuzzleData` only for reusable configuration and the available PathPiece list. Do not regenerate or overwrite a scene-authored board at runtime.
 - Represent an inaccessible cell by omitting its BoardTile. Do not invent a blocked tile type or add a visual placeholder unless the user explicitly requests one.
 - Reuse the shared `Puzzle Runtime`, `Path Preview`, `PathPlacementController`, Player, HUD, and `Placed Path Root`. A level prefab must not duplicate them.
+- Keep exactly one shared Player per location. A level prefab owns only its `PlayerStart`; never add or hide a level-specific Player during a puzzle chain.
 - Prefer existing `PathPieceData` assets. Create a new piece only when no existing shape can satisfy the requested design.
 - Treat user-facing row and column numbers as one-based when stated that way: Unity coordinate is `(column - 1, row - 1)`. Preserve an explicitly supplied Unity coordinate such as Player `(0,0)`.
+- For a chained transition, the previous Goal world position and the next PlayerStart world position must match. Keep the current Goal tile as the visible hand-off anchor during intervening dialogue, then hide the superseded level when the next board begins revealing.
+- Do not put the shared Player in a `SetActiveStep` disable list between puzzle events. Reposition the existing Player at the next `PlayerStart` without an inactive frame.
+- After moving a level root to an anchor, refresh board registration before sorting reveal order or starting gameplay. The first revealed tile must overlap the next `PlayerStart`.
 
 ## Design workflow
 
@@ -25,6 +29,7 @@ Design a readable StepTile puzzle, prove it is solvable under the project's actu
 5. Require at least one solution that uses every piece and reaches Goal only after the last piece. Prefer a small solution count for authored puzzles; do not claim uniqueness unless the solver reports it.
 6. Materialize only the validated walkable cells in the level prefab, place PlayerStart and Goal directly, update the level's `PuzzleData` piece list, and retain shared-runtime references.
 7. Re-run the solver against the final authored coordinates, compile Unity, check Console, and Play-test completion plus reset/replay.
+8. For chained puzzles, Play-test the actual Goal-to-PlayerStart hand-off: one visible anchor tile, zero position delta, no duplicate old Goal, no duplicate preview, and no Player blink.
 
 ## Solver spec
 
@@ -54,3 +59,5 @@ The report includes solution count, valid first moves, first moves that belong t
 ## Handoff
 
 Report the zero-based Unity coordinates, the equivalent one-based row/column meaning when useful, the selected piece assets, intended solution, number of solver solutions, trap rationale, prefab/data files changed, and Unity runtime verification. Clearly separate validated facts from intended difficulty.
+
+For a chained level, also report the source Goal, target PlayerStart, measured world-position delta, first revealed tile, and whether the shared Player stayed active throughout prepare/reveal.

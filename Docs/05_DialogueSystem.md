@@ -125,31 +125,20 @@ Trong khi phát thoại:
 
 Các animation dùng `Time.unscaledDeltaTime`. Portrait không được scale khi đổi speaker; chỉ `DialogueBubble` được scale để tạo hiệu ứng pop.
 
-## 5. Gán thoại vào map
+## 5. Gán thoại vào scene-first map
 
-Mở:
+Sau khi puzzle đã materialize, `DialogueTileBehaviour` trên GameObject/prefab là source of truth:
 
-```text
-Audere > Puzzle > Map Editor
-```
+1. Đặt `Dialogue.prefab` hoặc thêm behaviour vào tile scene-authored phù hợp.
+2. Trong Inspector, gán direct `Dialogue Data`.
+3. Chọn `Trigger Once` nếu tile chỉ được phát một lần trong session.
+4. Lưu scene/level prefab và Play-test.
 
-Workflow:
+Custom Inspector hiển thị `Grid Position`, `Dialogue Data`, `Trigger Once` và runtime `Triggered`. Chỉnh Inspector không ghi ngược về `PuzzleData`.
 
-1. Chọn `PuzzleData`.
-2. Chọn Tile Type `Dialogue` và paint/click cell.
-3. Tại `Selected Cell`, gán `Dialogue Data`.
-4. Chọn hoặc bỏ `Trigger Once`.
-5. `Save Data`, sau đó `Apply to Scene` hoặc `Apply & Play`.
+`Audere > Puzzle > Map Editor` chỉ còn là đường migration cho data/map cũ. Sau `Materialize/Bake To Scene`, chỉnh tile trực tiếp trong Scene/Prefab Mode.
 
-Map Editor validation không cho save nếu Dialogue cell chưa có data. Mỗi cell giữ reference riêng, nên cùng một `Dialogue.prefab` có thể phát nhiều đoạn thoại khác nhau.
-
-Khi chọn Dialogue tile được sinh trong Play Mode, `Dialogue Tile Behaviour` hiển thị `Grid Position`, `Dialogue Data`, `Trigger Once` và `Triggered`. `Dialogue Data`/`Trigger Once` có thể chỉnh ngay tại đây; custom Inspector ghi thay đổi về đúng cell trong `PuzzleData` và cập nhật runtime tile. Ngoài Play Mode, nút `Open Puzzle Map Editor` mở đúng nơi chỉnh dữ liệu lưu, tránh gán nhầm data chung vào prefab.
-
-Sample map hiện đặt Dialogue tile tại `(0,0)`:
-
-```text
-Assets/_Audere/Data/Puzzle/Puzzle_MVP_01.asset
-```
+Nếu tile chỉ đóng vai trò trigger, visual có thể giống tile thường; gameplay phân biệt bằng component chứ không cần một sprite Dialogue đặc biệt.
 
 ## 6. Setup và QA
 
@@ -174,9 +163,9 @@ Menu setup bootstrap các asset còn thiếu từ mẫu Left/Right và không gh
 | `DialogueController.cs` | Điều phối thứ tự character → bubble → typewriter, input và pause. |
 | `GameplayUIRoot.cs` | Singleton root Canvas chứa riêng `PuzzleUI` và `DialogueUI`, persistent giữa gameplay scene. |
 | `DialogueTileBehaviour.cs` | Phát data được gán cho cell khi Player bước vào. |
-| `DialogueTileBehaviourEditor.cs` | Hiển thị/chỉnh data của cell runtime, ghi về `PuzzleData` và mở Map Editor từ Inspector. |
+| `DialogueTileBehaviourEditor.cs` | Chỉnh direct scene/prefab component; không ghi ngược về `PuzzleData`; có nút mở legacy Map Editor. |
 
-QA gần nhất ngày 2026-08-16:
+QA lịch sử ngày 2026-08-16 (trước scene-first migration):
 
 - Unity Console: `0` error sau compile và Play Mode test;
 - `Assembly-CSharp` và `Assembly-CSharp-Editor`: `0 warning`, `0 error`;
@@ -187,3 +176,22 @@ QA gần nhất ngày 2026-08-16:
 - `ForceClose` trả `IsPlaying = false` và `Time.timeScale = 1`;
 - `DialogueTileBehaviour` tại cell `(0,0)` đã gọi sample thành công;
 - warning còn lại là Timor chưa có portrait nguồn.
+
+## 7. Lifecycle và Story integration (2026-08-22)
+
+`DialogueController` có completion contract:
+
+```text
+DialogueResult.Completed
+DialogueResult.Cancelled
+```
+
+- Đi hết toàn bộ line trả `Completed` đúng một lần.
+- Escape, `ForceClose`, disable hoặc scene transition giữa chừng trả `Cancelled` đúng một lần.
+- Callback được xóa trước khi gọi và không tồn tại sang lần `Play` sau.
+- `IsPlaying` và `Time.timeScale` được khôi phục theo đúng giá trị trước dialogue, kể cả `0.5`.
+- Dialogue giữ claim `GameplayInputMode.Dialogue`; đóng thoại tự khôi phục claim Puzzle/Combat bên dưới.
+
+`DialogueStep` tham chiếu `DialogueData` và optional `DialogueController`. Nếu controller không gán, step dùng `GameplayUIRoot.Instance.Dialogue`. Step không overwrite dialogue đang chạy và chỉ đóng session do chính nó mở khi Story bị cancel.
+
+Dialogue tile không cần visual khác tile thường nếu vai trò chỉ là trigger hành động. Layout puzzle vẫn scene-first; không ghi chỉnh sửa runtime tile ngược về layout nếu không chủ động dùng tool migration.

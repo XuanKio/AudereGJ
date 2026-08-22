@@ -1,7 +1,7 @@
 ---
 id: audere.overview
 archetype: state
-version: 1.0.0
+version: 1.1.0
 schema_version: 1.0.0
 cost_tier: M
 summary: Top-level map of the Audere project — what it is, the doc index, folder map, script inventory, decision log.
@@ -10,18 +10,17 @@ summary: Top-level map of the Audere project — what it is, the doc index, fold
 # Audere — Project Overview
 
 > **Read this first.** It's the index + living map so a new session skips re-scanning the repo.
-> **Last updated:** 2026-08-16 · **Engine:** Unity 6000.0.79f1 (URP, 2D)
+> **Last updated:** 2026-08-22 · **Engine:** Unity 6000.0.79f1 (URP, 2D)
 
 ## What Audere is
 
-A 2D Unity 6 game-jam project. Concrete design is still being defined; the current
-assets + audio ids imply the shape:
+- **Established Canon:** game narrative 2D với nhân vật chính Audere và Timor trong vai trò quan trọng của Day 1.
+- **Established Canon:** gameplay hiện có Dialogue, puzzle StepTile scene-first và combat DiceCatcher real-time.
+- **Established Canon:** story flow được author trong Unity Hierarchy bằng StoryEvent/StoryStep.
+- **Design Intent:** Choice sẽ phục vụ các đoạn hội thoại/quyết định về sau.
+- **Unresolved:** Choice UI, StoryState, save/checkpoint và branching chưa được implement.
 
-- **Exploration** via tiles you rotate / select / connect (`Tile_Rotate`, `Tile_Select`, `Tile_Connect`).
-- **Combat** driven by dice (`Dice_Select`, `Dice_Roll`, `Dice_Hit`).
-- Two characters: **Nilah** (step/hurt sfx) and **Timor** (a cat — meow/step).
-
-> Treat the gameplay bullets as *inferred from assets*, not a locked GDD. Update when the design firms up.
+Asset/sample/debug content không tự trở thành canon. Xem quy tắc tại [`07_StorySystem_SceneFirst.md`](07_StorySystem_SceneFirst.md).
 
 ## Documentation index
 
@@ -31,9 +30,10 @@ assets + audio ids imply the shape:
 | [`01_ProjectSetup.md`](01_ProjectSetup.md) | Unity version, packages, how to open/run/build. |
 | [`02_Bootstrap.md`](02_Bootstrap.md) | Entry point, services, scene flow, conventions. |
 | [`03_AudioSystem.md`](03_AudioSystem.md) | Id-based audio (AudioId → catalog → clip). |
-| [`04_PuzzleGameplay_SteptileArchitecture.md`](04_PuzzleGameplay_SteptileArchitecture.md) | PuzzleData, board/tile prefabs, placement, Map Editor. |
+| [`04_PuzzleGameplay_SteptileArchitecture.md`](04_PuzzleGameplay_SteptileArchitecture.md) | Scene-first level prefabs, shared runtime/Player, map rules và Goal → PlayerStart hand-off. |
 | [`05_DialogueSystem.md`](05_DialogueSystem.md) | Persistent gameplay UI, dialogue data, controller, animation và Dialogue tile. |
 | [`06_CombatGameplay.md`](06_CombatGameplay.md) | WORLD mode switching, Combat Root, dice-catching loop, encounter data và board presentation. |
+| [`07_StorySystem_SceneFirst.md`](07_StorySystem_SceneFirst.md) | StoryDirector/Event/Step, hierarchy order, chaining và integration Dialogue/Puzzle/Combat. |
 
 ## Architecture at a glance
 
@@ -58,7 +58,9 @@ D:\PJ\AudereGJ\
 │   │   ├── Puzzle/          Puzzle board, path, editor      (Audere.Puzzle)
 │   │   ├── Combat/          Dice combat runtime             (Audere.Combat)
 │   │   ├── World/           Puzzle/Combat mode coordinator  (Audere.World)
-│   │   └── Dialogue/        Dialogue data + persistent UI   (Audere.Dialogue)
+│   │   ├── Dialogue/        Dialogue data + persistent UI   (Audere.Dialogue)
+│   │   ├── Input/           Owner-safe gameplay input gate  (Audere.GameplayInput)
+│   │   └── Story/           Scene-first story runner        (Audere.Story)
 │   ├── Scenes/              00_Bootstrap, 10_MainMenu, 20_Game (+ SampleScene leftover)
 │   ├── Data/                Audio, Puzzle và Dialogue ScriptableObjects
 │   ├── Audio/               Raw audio assets (empty)
@@ -102,7 +104,22 @@ imported third-party assets).
 | `DialogueData.cs` | Data đoạn thoại: nhân vật Left/Right và danh sách line theo speaker. | Active |
 | `GameplayUIRoot.cs` | Singleton root Canvas chứa `PuzzleUI` và `DialogueUI`, `DontDestroyOnLoad` giữa gameplay scenes; tự hủy khi vào Main Menu. | Active |
 | `DialogueController.cs` | Left/right presentation, typewriter, emphasis, input và pause gameplay bằng unscaled time. | Active |
-| `DialogueTileBehaviour.cs` | Nhận `DialogueData` theo từng `PuzzleTileData` cell và phát thoại khi Player bước vào. | Active |
+| `DialogueTileBehaviour.cs` | Scene/prefab component giữ `DialogueData` và phát thoại khi Player bước vào tile. | Active |
+
+### Story — `Scripts/Story/` (`Audere.Story`)
+| Script | Responsibility | Status |
+|--------|----------------|--------|
+| `StoryDirector.cs` | Registry StoryEvent trong scene, one-event-at-a-time, direct-reference/ID play và deferred auto-next. | Active |
+| `StoryEvent.cs` | Chạy đúng một StoryStep trên mỗi direct child theo sibling order. | Active |
+| `StoryStep.cs` | Base coroutine lifecycle `Running/Completed/Cancelled/Failed`, callback one-shot. | Active |
+| `Steps/*.cs` | Dialogue, Puzzle, Combat, WorldMode, Wait, SetActive, MoveActor và board transition. | Active |
+
+### Puzzle lifecycle/input — `Scripts/Puzzle/`, `Scripts/Input/`
+| Script | Responsibility | Status |
+|--------|----------------|--------|
+| `PuzzleRootCoordinator.cs` | Shared Player/runtime, normalize level prefabs, Goal → PlayerStart hand-off và reveal ordering. | Active |
+| `PuzzleController.cs` | Scene-first puzzle lifecycle callback và Puzzle input claim. | Active |
+| `GameplayInputGate.cs` | Token/owner-safe mode stack cho Puzzle, Combat và Dialogue overlay. | Active |
 
 ### World — `Scripts/World/` (`Audere.World`)
 | Script | Responsibility | Status |
@@ -155,6 +172,10 @@ imported third-party assets).
 | 2026-08-16 | Ba dice prefab dùng icon Aseprite riêng: Attack=`attack`, Armor=`gaurd`, Heal=`heal`; TMP label chỉ là fallback inactive. | Art được author trực tiếp trên đúng prefab để chỉnh độc lập; `CombatDieView` không giữ một thư viện ba sprite. |
 | 2026-08-16 | Dice có phase tung neutral `#23212D`: ground shadow trượt qua board, thân dice nảy parabol 2–3 lần rồi cú chạm cuối mới reveal màu Attack `#A83B44`, Armor `#B0ABB7`, Heal `#D8C097`. | Tạo chiều sâu giả 3D như reference, tránh batch đồng bộ và chỉ mở input khi dice thật sự ổn định. |
 | 2026-08-16 | Dice đang tung chuyển sang `Airborne Dice Overlay` ngoài `Dice Field/RectMask2D`, render trên `Frame`; landed mới trả về `Dice Root`. | Dice có thể phủ lên mép board như vật thể đang bay thay vì bị mask hoặc viền đè lên. |
+| 2026-08-22 | Puzzle layout chuyển sang scene-first; level prefab/Scene là source of truth, `PuzzleData` chỉ giữ config/migration. | Designer nhìn và chỉnh trực tiếp board, Goal, PlayerStart và interactive object khi không Play. |
+| 2026-08-22 | Một location chỉ có một Player/PuzzleRuntime/PathPreview/PlacedPathRoot dùng chung; từng `PZ_*` chỉ giữ level content. | Tránh duplicate preview/path/player và lỗi state khi đổi puzzle. |
+| 2026-08-22 | Puzzle hand-off dùng Goal trước làm world anchor cho PlayerStart sau; Player không bị tắt giữa event. | Giữ chuyển cảnh liền mạch và tránh nháy/lệch tile. |
+| 2026-08-22 | Story author bằng `StoryDirector → StoryEvent → direct-child StoryStep`, sibling order là execution order. | Flow đọc/chỉnh trực tiếp trong Hierarchy và không hardcode story trong manager. |
 
 ## Maintenance
 
