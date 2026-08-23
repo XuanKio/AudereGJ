@@ -108,6 +108,7 @@ scene load. Mỗi scene sở hữu `StoryDirector` riêng; source event kết th
 | `BoardTileTransitionStep` | Hide/reveal board theo wave và capture Goal transition anchor. |
 | `PuzzleStep` | Play trực tiếp một scene-authored `PuzzleController`, chờ `PuzzleResult`. |
 | `WorldModeStep` | Gọi `WorldModeController.SwitchTo` và tùy chọn chờ transition xong. |
+| `FullscreenWorldModeTransitionStep` | Chạy shared `FullscreenTransitionProfile`, swap mode ở mốc profile rồi mới Complete sau cleanup. |
 | `CombatStep` | Play encounter và map Victory/Defeat/Special thành Complete/Fail/Retry/Cancel. |
 | `WaitStep` | Chờ scaled/unscaled duration; mặc định unscaled. |
 | `SetActiveStep` | Disable list trước, enable list sau; không rollback khi cancel. |
@@ -161,6 +162,12 @@ Ba presentation mode dùng chung là `Puzzle`, `Combat`, `Story`. Giá trị enu
 và Combat không đổi để giữ serialized scene. `Story` có camera pose và story root riêng; mode
 này không phải gameplay session và không tự cấp input.
 
+`FullscreenWorldModeTransitionStep` cũng chỉ đổi presentation. Scene tham chiếu một shared
+profile asset và focus renderer khi profile yêu cầu; step dùng unscaled time và chờ distortion
+sạch hoàn toàn mới cho Story chạy tới
+`CombatStep`. Cancel ở cả trước và sau mode swap phải tắt renderer feature, reset material và
+khôi phục `sourceMode`; không được để Combat root active mà chưa có Combat input owner.
+
 ## 7. Quy tắc authoring flow puzzle liên tiếp
 
 ```text
@@ -210,8 +217,9 @@ Các `TEST_*`, `DebugStoryStep`, sample dialogue/encounter và nội dung brains
   `D1_CLASSROOM_ANNOUNCEMENT` nối sang `D1_CLASSROOM_RECESS_BIANCA`. Interest tile xuất hiện, Audere nhích tới rồi quay về chỗ cũ
   theo `MoveActorStep`/`SetActiveStep`, không hardcode trong dialogue controller.
 - Event giờ nghỉ dùng `CharacterMotionStep` cho Bianca nhảy từng tile và cho Audere giật mình
-  tại chỗ rồi quay sang phải. Sau thoại Timor, event dùng `WorldModeStep → CombatStep →
-  WorldModeStep` để chạy encounter prototype rồi khôi phục nguyên bố cục Story.
+  tại chỗ rồi quay sang phải. Sau thoại Timor, event dùng
+  `FullscreenWorldModeTransitionStep → CombatStep → WorldModeStep`: vào Combat bằng shared
+  profile `Dreamy Disorientation`, rồi trở lại Story bằng fade đen và khôi phục nguyên bố cục.
 - Combat prototype chỉ xác nhận contract kỹ thuật. Enemy, ý nghĩa narrative và kết quả canon
   vẫn `Unresolved`; không suy chúng từ art/name placeholder.
 - Classroom staging trình bày ngang: Audere đứng bên trái, Teacher đứng bên phải trên cùng

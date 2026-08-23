@@ -230,31 +230,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visualRoot: {fileID: 8645893048799992791}
   connectorRoot: {fileID: 4544004251233285412}
-  endpointAImage: {fileID: 6859745830856360718}
-  endpointBImage: {fileID: 6832771020511404651}
-  connectorTemplate: {fileID: 651050489773935790}
+  endpointA: {fileID: 0}
+  endpointB: {fileID: 0}
+  connectorTemplate: {fileID: 0}
   endpointSprite: {fileID: -7229646230898672557, guid: 5826bb178ed23674c947d484d7cdb422, type: 3}
   connectorSprite: {fileID: -998410569971287069, guid: ef044398ee454ec439ac28a85e256d92, type: 3}
   endpointScaleToBoardTile: 0.86
-  manualEndpointSize: 96
-  endpointClearance: 4
-  countMode: 0
-  connectorSpacing: 13
-  connectorSize: 7.5
-  fixedConnectorCount: 7
-  minimumConnectorCount: 0
-  maximumConnectorCount: 96
+  connectorScaleToBoardTile: 0.2
+  connectorSpacingToBoardTile: 0.32
+  endpointClearanceToBoardTile: 0.06
+  maximumConnectorCount: 64
+  sortingOrder: 3
   positionSharpness: 20
   appearanceSharpness: 18
   retargetStartScale: 0.88
   retargetScaleSharpness: 16
-  allowEndpointDragging: 1
-  showManualPreviewOnEnable: 1
-  manualEndpointA: {x: -180, y: 0}
-  manualEndpointB: {x: 180, y: 0}
-  validStateVisual: {fileID: 0}
-  invalidStateVisual: {fileID: 0}
-  dangerousStateVisual: {fileID: 0}
   validEndpointColor: {r: 0.88235295, g: 0.8392157, b: 0.6509804, a: 1}
   validConnectorColor: {r: 0.7764706, g: 0.7294118, b: 0.5294118, a: 1}
   invalidEndpointColor: {r: 0.6431373, g: 0.3647059, b: 0.3647059, a: 1}

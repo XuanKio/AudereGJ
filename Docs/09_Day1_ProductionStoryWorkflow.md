@@ -77,6 +77,7 @@ Lifecycle của hệ thống con:
 DialogueStep → DialogueController.Play → chờ Completed/Cancelled
 PuzzleStep   → PuzzleController.Play   → chờ Completed/Cancelled/Failed
 CombatStep   → CombatController.Play   → map Victory/Defeat/Special theo Inspector
+FullscreenWorldModeTransitionStep → fullscreen presentation → swap mode → cleanup
 ```
 
 Input chỉ được cấp khi controller gameplay thực sự `Play()`. `WorldModeStep` và
@@ -204,9 +205,9 @@ mất một lựa chọn nhỏ của cô, nhưng Timor vẫn nghe như đang qua
 - Lớp sẽ cùng chuẩn bị trang trí, đồ ăn và trò chơi.
 - Giáo viên cho mỗi học sinh chọn một việc vừa sức, không cần vội hoặc làm thật nhiều.
 - Audere chú ý tới phần trang trí; interest tile hiện và cô nhích về phía trước.
-- Timor hỏi liệu cô có thích không. Audere thừa nhận: “Một chút.”
-- Timor nói việc đó không cần tới hai người, nhắc Audere đã làm đủ nhiều trong buổi sáng và
-  bảo cô cứ ngồi yên một lúc.
+- Timor hỏi liệu cô có thích không. Audere ban đầu không biết, rồi thừa nhận: “Chắc là có.”
+- Timor công nhận thích phần đó cũng không sao, nhưng nói hai người chưa cần ghi tên ngay.
+  Cậu nhận xét Audere chưa ngồi yên phút nào từ sáng, bảo cô nghỉ và để chuyện đó tính sau.
 - Audere quay về chỗ cũ, interest tile biến mất và cô đáp: “…Ừm.”
 
 **Dialogue polish:** announcement được chia thành bubble ngắn, mỗi bubble chỉ giữ một ý:
@@ -269,8 +270,10 @@ Timor tiến thêm một bước trong việc giành quyền định hướng ph
 - Bianca xin lỗi, nói mình đang phụ trang trí và mời Audere cùng làm bảng một chút.
 - Bianca không thúc ép; cô chủ động mở đường lui: “Không tiện cũng không sao.”
 - Audere im lặng. Timor bảo cô đừng trả lời vội, nhìn cậu và để cậu giúp.
-- Sequence giữ một nhịp sau câu của Timor rồi fade sang combat prototype dùng runtime của
-  scene 20. Kết thúc prototype sẽ fade về đúng khung Story trước đó.
+- Sequence giữ một nhịp sau câu của Timor rồi dùng shared profile `Dreamy Disorientation`:
+  nghiêng/zoom nhẹ, wave rộng, scene trôi, radial bend và smear quanh Audere. Combat hiện qua
+  lớp distortion đang hạ xuống; kết thúc prototype vẫn fade
+  về đúng khung Story trước đó.
 - Enemy, ý nghĩa combat và kết quả narrative chính thức vẫn **Unresolved**. Tên/art prototype
   không được dùng làm bằng chứng canon.
 
@@ -313,7 +316,7 @@ D1_CLASSROOM_RECESS_BIANCA [StoryEvent]
 ├── 170_AudereStaysSilent           [WaitStep]
 ├── 180_TimorIntervenes             [DialogueStep]
 ├── 190_HoldAfterTimor              [WaitStep]
-├── 200_EnterCombatPrototype        [WorldModeStep: Combat]
+├── 200_ClassroomIsConsumed         [FullscreenWorldModeTransitionStep]
 ├── 210_PlayCombatPrototype         [CombatStep]
 ├── 220_ReturnToStory               [WorldModeStep: Story]
 └── 230_HoldAfterCombat             [WaitStep]
@@ -321,6 +324,8 @@ D1_CLASSROOM_RECESS_BIANCA [StoryEvent]
 
 Bianca đang dùng prefab `Bianca_PLACEHOLDER`; portrait và art chính thức là **Unresolved**.
 Motion contract và cách thay Animator sau này nằm tại `Docs/10_CharacterExpressionAndMotion.md`.
+Fullscreen shader, timeline, cancel và replay contract nằm tại
+`Docs/11_FullscreenWorldTransitions.md`.
 
 ## 5. DialogueData production
 

@@ -9,6 +9,8 @@ using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -26,6 +28,17 @@ namespace Audere.EditorTools
             "Assets/_Audere/Data/Combat/CombatEncounter_Sample.asset";
         private const string ClassroomPrototypeEncounterPath =
             "Assets/_Audere/Data/Combat/CombatEncounter_D1_CLASSROOM_PROTOTYPE.asset";
+        private const string Renderer2DPath = "Assets/Settings/Renderer2D.asset";
+        private const string FullscreenTransitionShaderPath =
+            "Assets/_Audere/Shaders/FullscreenDreamyDisorientation.shader";
+        private const string FullscreenTransitionMaterialPath =
+            "Assets/_Audere/Materials/PostProcess/FullscreenDreamyDisorientation.mat";
+        private const string FullscreenTransitionProfilePath =
+            "Assets/_Audere/Data/Transitions/WorldTransition_DreamyDisorientation.asset";
+        private const string FullscreenTransitionFeatureName =
+            "Audere Fullscreen World Transition";
+        private const string LegacyFullscreenTransitionFeatureName =
+            "Audere Fullscreen Combat Transition";
         private const string CharacterCatalogPath =
             "Assets/_Audere/Data/Dialogue/DialogueCharacterCatalog.asset";
         private const string DialogueFolder = "Assets/_Audere/Data/Dialogue/Day1/Classroom";
@@ -50,17 +63,77 @@ namespace Audere.EditorTools
             EnsureFolder("Assets/_Audere/Prefabs/Story/Characters");
             EnsureFolder(DialogueFolder);
 
+            FullscreenTransitionAssets transitionAssets = EnsureFullscreenTransitionAssets();
             CreateOrUpdateBiancaPrefab();
             ConfigureCharacterCatalog();
             PolishClassroomAnnouncementDialogue();
             DialogueAssets dialogue = CreateDialogueAssets();
-            SetupScene(scene, dialogue);
+            SetupScene(scene, dialogue, transitionAssets);
 
             AssetDatabase.SaveAssets();
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
             Debug.Log(
                 "[ClassroomRecessSetup] Bianca recess story and the non-canon classroom combat prototype hand-off are ready.");
+        }
+
+        [MenuItem("Audere/Story/Setup Classroom Combat Transition")]
+        public static void SetupCombatTransitionOnly()
+        {
+            if (Application.isPlaying)
+            {
+                Debug.LogWarning("[ClassroomCombatTransitionSetup] Stop Play Mode before authoring the scene.");
+                return;
+            }
+
+            Scene scene = SceneManager.GetActiveScene();
+            if (scene.path != ScenePath)
+            {
+                Debug.LogError($"[ClassroomCombatTransitionSetup] Open '{ScenePath}' before running setup.");
+                return;
+            }
+
+            FullscreenTransitionAssets transitionAssets = EnsureFullscreenTransitionAssets();
+            GameObject classroom = FindRoot(scene, "CLASSROOM");
+            GameObject storyRoot = FindRoot(scene, "STORY");
+            if (classroom == null || storyRoot == null)
+                throw new MissingReferenceException("Classroom transition setup requires CLASSROOM and STORY.");
+
+            CombatRuntime combat = SetupCombatRuntime(scene, classroom, transitionAssets);
+            StoryEvent recessEvent = RequireChild(storyRoot.transform, "D1_CLASSROOM_RECESS_BIANCA")
+                .GetComponent<StoryEvent>();
+            SpriteRenderer audereRenderer = RequireChild(
+                    RequireChild(
+                        RequireChild(classroom.transform, "CLASSROOM ART PLACEHOLDER"),
+                        "Actors"),
+                    "Audere")
+                .GetComponent<SpriteRenderer>();
+            if (recessEvent == null || audereRenderer == null)
+                throw new MissingReferenceException("Recess event and Audere renderer are required.");
+
+            Transform stepTransform = FindDirectChild(recessEvent.transform, "200_ClassroomIsConsumed")
+                ?? FindDirectChild(recessEvent.transform, "200_EnterCombatPrototype");
+            if (stepTransform == null)
+                throw new MissingReferenceException("Missing the authored 200 combat-entry step.");
+
+            stepTransform.name = "200_ClassroomIsConsumed";
+            foreach (StoryStep existingStep in stepTransform.GetComponents<StoryStep>())
+                UnityEngine.Object.DestroyImmediate(existingStep);
+            FullscreenWorldModeTransitionStep transitionStep =
+                stepTransform.gameObject.AddComponent<FullscreenWorldModeTransitionStep>();
+            ConfigureFullscreenTransition(
+                transitionStep,
+                combat.TransitionController,
+                combat.ModeController,
+                transitionAssets.Profile,
+                audereRenderer);
+
+            AssetDatabase.SaveAssets();
+            EditorUtility.SetDirty(recessEvent);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            Debug.Log(
+                "[ClassroomCombatTransitionSetup] Fullscreen Story-to-Combat transition is authored; dialogue assets were not changed.");
         }
 
         private static void CreateOrUpdateBiancaPrefab()
@@ -286,7 +359,8 @@ namespace Audere.EditorTools
 
         private static void SetupScene(
             Scene scene,
-            DialogueAssets dialogue)
+            DialogueAssets dialogue,
+            FullscreenTransitionAssets transitionAssets)
         {
             GameObject classroom = FindRoot(scene, "CLASSROOM");
             GameObject storyRoot = FindRoot(scene, "STORY");
@@ -315,7 +389,7 @@ namespace Audere.EditorTools
             if (biancaPrefab == null || tilePrefab == null)
                 throw new MissingReferenceException("Bianca or Grass tile prefab is missing.");
 
-            CombatRuntime combat = SetupCombatRuntime(scene, classroom);
+            CombatRuntime combat = SetupCombatRuntime(scene, classroom, transitionAssets);
 
             GameObject bianca = EnsurePrefabChild(actors, "Bianca_PLACEHOLDER", biancaPrefab);
             bianca.transform.localPosition = new Vector3(1.4f, seatTile.transform.localPosition.y, -1f);
@@ -405,10 +479,12 @@ namespace Audere.EditorTools
             ConfigureWait(CreateStep<WaitStep>(recessEvent, "170_AudereStaysSilent"), .6f);
             ConfigureDialogue(CreateStep<DialogueStep>(recessEvent, "180_TimorIntervenes"), dialogue.Timor);
             ConfigureWait(CreateStep<WaitStep>(recessEvent, "190_HoldAfterTimor"), .25f);
-            ConfigureWorldMode(
-                CreateStep<WorldModeStep>(recessEvent, "200_EnterCombatPrototype"),
+            ConfigureFullscreenTransition(
+                CreateStep<FullscreenWorldModeTransitionStep>(recessEvent, "200_ClassroomIsConsumed"),
+                combat.TransitionController,
                 combat.ModeController,
-                WorldGameplayMode.Combat);
+                transitionAssets.Profile,
+                audereRenderer);
             ConfigureCombat(
                 CreateStep<CombatStep>(recessEvent, "210_PlayCombatPrototype"),
                 combat.Controller,
@@ -423,7 +499,10 @@ namespace Audere.EditorTools
             EditorUtility.SetDirty(announcement);
         }
 
-        private static CombatRuntime SetupCombatRuntime(Scene scene, GameObject classroom)
+        private static CombatRuntime SetupCombatRuntime(
+            Scene scene,
+            GameObject classroom,
+            FullscreenTransitionAssets transitionAssets)
         {
             GameObject boardPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(CombatBoardPrefabPath);
             if (boardPrefab == null)
@@ -479,6 +558,13 @@ namespace Audere.EditorTools
             modeSerialized.FindProperty("storyOrthographicSize").floatValue = camera.orthographicSize;
             modeSerialized.ApplyModifiedPropertiesWithoutUndo();
 
+            FullscreenTransitionController transitionController =
+                GetOrAdd<FullscreenTransitionController>(world);
+            SerializedObject transitionSerialized = new SerializedObject(transitionController);
+            SetObject(transitionSerialized, "worldCamera", camera);
+            SetObject(transitionSerialized, "rendererFeature", transitionAssets.Feature);
+            transitionSerialized.ApplyModifiedPropertiesWithoutUndo();
+
             classroom.SetActive(true);
             combatRoot.gameObject.SetActive(false);
             combatSystems.gameObject.SetActive(false);
@@ -490,7 +576,213 @@ namespace Audere.EditorTools
 
             EditorUtility.SetDirty(world);
             EditorUtility.SetDirty(systems);
-            return new CombatRuntime(modeController, controller, encounter);
+            return new CombatRuntime(modeController, transitionController, controller, encounter);
+        }
+
+        private static FullscreenTransitionAssets EnsureFullscreenTransitionAssets()
+        {
+            EnsureFolder("Assets/_Audere/Materials/PostProcess");
+            EnsureFolder("Assets/_Audere/Data/Transitions");
+
+            Shader shader = AssetDatabase.LoadAssetAtPath<Shader>(FullscreenTransitionShaderPath);
+            if (shader == null)
+                throw new MissingReferenceException(
+                    $"Missing fullscreen transition shader at '{FullscreenTransitionShaderPath}'.");
+
+            Material material =
+                AssetDatabase.LoadAssetAtPath<Material>(FullscreenTransitionMaterialPath);
+            if (material == null)
+            {
+                material = new Material(shader) { name = "FullscreenDreamyDisorientation" };
+                AssetDatabase.CreateAsset(material, FullscreenTransitionMaterialPath);
+            }
+            else if (material.shader != shader)
+            {
+                material.shader = shader;
+            }
+
+            material.name = "FullscreenDreamyDisorientation";
+            ResetTransitionMaterial(material);
+            EditorUtility.SetDirty(material);
+            FullscreenTransitionProfile profile = EnsureDreamyDisorientationProfile(material);
+
+            Renderer2DData rendererData =
+                AssetDatabase.LoadAssetAtPath<Renderer2DData>(Renderer2DPath);
+            if (rendererData == null)
+                throw new MissingReferenceException($"Missing Renderer2D data at '{Renderer2DPath}'.");
+
+            FullScreenPassRendererFeature feature = null;
+            foreach (ScriptableRendererFeature candidate in rendererData.rendererFeatures)
+            {
+                if (candidate is FullScreenPassRendererFeature fullscreen &&
+                    (candidate.name == FullscreenTransitionFeatureName ||
+                     candidate.name == LegacyFullscreenTransitionFeatureName))
+                {
+                    feature = fullscreen;
+                    break;
+                }
+            }
+
+            if (feature == null)
+            {
+                foreach (UnityEngine.Object subAsset in AssetDatabase.LoadAllAssetsAtPath(Renderer2DPath))
+                {
+                    if (subAsset is FullScreenPassRendererFeature fullscreen &&
+                        (subAsset.name == FullscreenTransitionFeatureName ||
+                         subAsset.name == LegacyFullscreenTransitionFeatureName))
+                    {
+                        feature = fullscreen;
+                        break;
+                    }
+                }
+            }
+
+            if (feature == null)
+            {
+                feature = ScriptableObject.CreateInstance<FullScreenPassRendererFeature>();
+                feature.name = FullscreenTransitionFeatureName;
+                AssetDatabase.AddObjectToAsset(feature, rendererData);
+            }
+
+            if (!rendererData.rendererFeatures.Contains(feature))
+                rendererData.rendererFeatures.Add(feature);
+
+            feature.name = FullscreenTransitionFeatureName;
+
+            feature.injectionPoint =
+                FullScreenPassRendererFeature.InjectionPoint.AfterRenderingPostProcessing;
+            feature.fetchColorBuffer = true;
+            feature.requirements = ScriptableRenderPassInput.None;
+            feature.passMaterial = material;
+            feature.passIndex = 0;
+            feature.bindDepthStencilAttachment = false;
+            feature.SetActive(false);
+            feature.Create();
+
+            SyncRendererFeatureMap(rendererData);
+            rendererData.SetDirty();
+            EditorUtility.SetDirty(feature);
+            EditorUtility.SetDirty(rendererData);
+            return new FullscreenTransitionAssets(profile, material, feature);
+        }
+
+        private static FullscreenTransitionProfile EnsureDreamyDisorientationProfile(Material material)
+        {
+            FullscreenTransitionProfile profile =
+                AssetDatabase.LoadAssetAtPath<FullscreenTransitionProfile>(
+                    FullscreenTransitionProfilePath);
+            if (profile != null)
+                return profile;
+
+            profile = ScriptableObject.CreateInstance<FullscreenTransitionProfile>();
+            profile.name = "WorldTransition_DreamyDisorientation";
+            AssetDatabase.CreateAsset(profile, FullscreenTransitionProfilePath);
+
+            SerializedObject serialized = new SerializedObject(profile);
+            serialized.FindProperty("profileId").stringValue = "dreamy-disorientation";
+            serialized.FindProperty("displayName").stringValue = "Dreamy Disorientation";
+            SetObject(serialized, "material", material);
+            serialized.FindProperty("duration").floatValue = 1.50f;
+            serialized.FindProperty("modeSwapTime").floatValue = 1.10f;
+            serialized.FindProperty("usesFocusRenderer").boolValue = true;
+            serialized.FindProperty("effectTimeProperty").stringValue = "_EffectTime";
+
+            SerializedProperty tracks = serialized.FindProperty("floatTracks");
+            tracks.arraySize = 9;
+            ConfigureTransitionTrack(
+                tracks.GetArrayElementAtIndex(0),
+                "_RotationDegrees",
+                0f, 0f, .30f, -.7f, .70f, 1f, 1.10f, -1.6f, 1.25f, .5f, 1.50f, 0f);
+            ConfigureTransitionTrack(
+                tracks.GetArrayElementAtIndex(1),
+                "_Zoom",
+                0f, 1f, .30f, 1.03f, .70f, 1.035f, 1.10f, 1.06f, 1.25f, 1.025f, 1.50f, 1f);
+            ConfigureTransitionTrack(
+                tracks.GetArrayElementAtIndex(2),
+                "_WaveStrength",
+                0f, 0f, .25f, 0f, .45f, .003f, .70f, .009f, 1.05f, .018f,
+                1.20f, .012f, 1.50f, 0f);
+            ConfigureTransitionTrack(
+                tracks.GetArrayElementAtIndex(3),
+                "_DriftX",
+                0f, 0f, .30f, 0f, .70f, -.004f, 1.10f, -.015f, 1.25f, .006f, 1.50f, 0f);
+            ConfigureTransitionTrack(
+                tracks.GetArrayElementAtIndex(4),
+                "_DriftY",
+                0f, 0f, .30f, 0f, .70f, .002f, 1.10f, -.006f, 1.25f, .003f, 1.50f, 0f);
+            ConfigureTransitionTrack(
+                tracks.GetArrayElementAtIndex(5),
+                "_RadialStrength",
+                0f, 0f, .35f, 0f, .55f, .008f, .90f, .025f, 1.10f, .04f,
+                1.25f, .018f, 1.50f, 0f);
+            ConfigureTransitionTrack(
+                tracks.GetArrayElementAtIndex(6),
+                "_SmearStrength",
+                0f, 0f, .35f, 0f, .55f, .003f, .80f, .012f, 1.10f, .035f,
+                1.25f, .015f, 1.50f, 0f);
+            ConfigureTransitionTrack(
+                tracks.GetArrayElementAtIndex(7),
+                "_VeilStrength",
+                0f, 0f, .65f, 0f, .85f, .15f, 1.10f, .90f, 1.20f, .45f, 1.50f, 0f);
+            ConfigureTransitionTrack(
+                tracks.GetArrayElementAtIndex(8),
+                "_ChromaticOffset",
+                0f, 0f, .45f, 0f, .75f, .001f, 1.10f, .003f, 1.25f, .001f, 1.50f, 0f);
+
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(profile);
+            return profile;
+        }
+
+        private static void ConfigureTransitionTrack(
+            SerializedProperty track,
+            string shaderProperty,
+            params float[] timeValuePairs)
+        {
+            track.FindPropertyRelative("shaderProperty").stringValue = shaderProperty;
+            int keyCount = timeValuePairs.Length / 2;
+            Keyframe[] keys = new Keyframe[keyCount];
+            for (int index = 0; index < keyCount; index++)
+            {
+                keys[index] = new Keyframe(
+                    timeValuePairs[index * 2],
+                    timeValuePairs[index * 2 + 1],
+                    0f,
+                    0f);
+            }
+            track.FindPropertyRelative("values").animationCurveValue = new AnimationCurve(keys);
+        }
+
+        private static void SyncRendererFeatureMap(ScriptableRendererData rendererData)
+        {
+            SerializedObject serialized = new SerializedObject(rendererData);
+            SerializedProperty featureMap = serialized.FindProperty("m_RendererFeatureMap");
+            featureMap.arraySize = rendererData.rendererFeatures.Count;
+            for (int index = 0; index < rendererData.rendererFeatures.Count; index++)
+            {
+                ScriptableRendererFeature feature = rendererData.rendererFeatures[index];
+                long localId = 0;
+                if (feature != null)
+                    AssetDatabase.TryGetGUIDAndLocalFileIdentifier(feature, out _, out localId);
+                featureMap.GetArrayElementAtIndex(index).longValue = localId;
+            }
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void ResetTransitionMaterial(Material material)
+        {
+            material.SetFloat("_EffectTime", 0f);
+            material.SetVector("_FocusCenter", new Vector2(.5f, .5f));
+            material.SetFloat("_AspectRatio", 16f / 9f);
+            material.SetFloat("_RotationDegrees", 0f);
+            material.SetFloat("_Zoom", 1f);
+            material.SetFloat("_WaveStrength", 0f);
+            material.SetFloat("_DriftX", 0f);
+            material.SetFloat("_DriftY", 0f);
+            material.SetFloat("_RadialStrength", 0f);
+            material.SetFloat("_SmearStrength", 0f);
+            material.SetFloat("_VeilStrength", 0f);
+            material.SetFloat("_ChromaticOffset", 0f);
         }
 
         private static CombatEncounterData EnsurePrototypeEncounter()
@@ -751,6 +1043,23 @@ namespace Audere.EditorTools
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        private static void ConfigureFullscreenTransition(
+            FullscreenWorldModeTransitionStep step,
+            FullscreenTransitionController transitionController,
+            WorldModeController modeController,
+            FullscreenTransitionProfile transitionProfile,
+            Renderer focusRenderer)
+        {
+            SerializedObject serialized = new SerializedObject(step);
+            SetObject(serialized, "transitionController", transitionController);
+            SetObject(serialized, "worldModeController", modeController);
+            SetObject(serialized, "transitionProfile", transitionProfile);
+            SetObject(serialized, "focusRenderer", focusRenderer);
+            serialized.FindProperty("sourceMode").enumValueIndex = (int)WorldGameplayMode.Story;
+            serialized.FindProperty("targetMode").enumValueIndex = (int)WorldGameplayMode.Combat;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         private static void ConfigureCombat(
             CombatStep step,
             CombatController controller,
@@ -892,17 +1201,37 @@ namespace Audere.EditorTools
         private readonly struct CombatRuntime
         {
             public readonly WorldModeController ModeController;
+            public readonly FullscreenTransitionController TransitionController;
             public readonly CombatController Controller;
             public readonly CombatEncounterData Encounter;
 
             public CombatRuntime(
                 WorldModeController modeController,
+                FullscreenTransitionController transitionController,
                 CombatController controller,
                 CombatEncounterData encounter)
             {
                 ModeController = modeController;
+                TransitionController = transitionController;
                 Controller = controller;
                 Encounter = encounter;
+            }
+        }
+
+        private readonly struct FullscreenTransitionAssets
+        {
+            public readonly FullscreenTransitionProfile Profile;
+            public readonly Material Material;
+            public readonly FullScreenPassRendererFeature Feature;
+
+            public FullscreenTransitionAssets(
+                FullscreenTransitionProfile profile,
+                Material material,
+                FullScreenPassRendererFeature feature)
+            {
+                Profile = profile;
+                Material = material;
+                Feature = feature;
             }
         }
 

@@ -54,8 +54,9 @@ These are qualitative writing bands, not numerical game state.
 - Timor begins answering before Audere can decide.
 - He frames alternatives as needless risk, effort, or embarrassment.
 - Audere may still feel grateful even when an opportunity closes.
-- The classroom decoration beat is the first implemented example: Timor frames non-participation
-  as rest after a demanding morning, so the lost choice still sounds like care.
+- The classroom decoration beat is the first implemented example: Timor acknowledges that
+  Audere likes the task, then frames postponing the sign-up as rest after a nonstop morning.
+  The lost choice still sounds like care.
 - The Bianca beat strengthens the same band: an ordinary classmate leaves a genuine pause,
   and Timor steps into that pause before Audere can form her own response.
 

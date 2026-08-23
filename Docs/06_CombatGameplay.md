@@ -23,7 +23,11 @@ SYSTEMS
     └── Combat Controller
 ```
 
-`Puzzle Root` và `Combat Root` là hai mode ngang hàng dưới `WORLD`. `WorldModeController` là nơi duy nhất bật/tắt root, systems, Puzzle UI và camera bằng fade đen. Combat board thuộc lifecycle của `Combat Root`; `GameplayUIRoot` chỉ chứa UI dùng xuyên scene và Dialogue.
+`Puzzle Root` và `Combat Root` là hai mode ngang hàng dưới `WORLD`. `WorldModeController` là
+nơi duy nhất bật/tắt root, systems, Puzzle UI và camera. Chuyển mode thông thường dùng fade
+đen; riêng Story → Combat có thể gọi `ApplyModeImmediate` ở giữa một fullscreen transition
+đang che kín hình. Combat board thuộc lifecycle của `Combat Root`; `GameplayUIRoot` chỉ chứa
+UI dùng xuyên scene và Dialogue.
 
 `WorldGameplayMode` giữ thứ tự serialize ổn định: `Puzzle = 0`, `Combat = 1`, `Story = 2`.
 `Story` là presentation mode, không phải một gameplay controller và không tự claim input.
@@ -231,7 +235,7 @@ Scene `30_Classroom` hiện có một hand-off kỹ thuật sau thoại Timor:
 
 ```text
 190_HoldAfterTimor
-→ 200_EnterCombatPrototype       [WorldModeStep: Story → Combat]
+→ 200_ClassroomIsConsumed       [FullscreenWorldModeTransitionStep]
 → 210_PlayCombatPrototype        [CombatStep]
 → 220_ReturnToStory              [WorldModeStep: Combat → Story]
 → 230_HoldAfterCombat
@@ -240,8 +244,17 @@ Scene `30_Classroom` hiện có một hand-off kỹ thuật sau thoại Timor:
 `WORLD` tham chiếu trực tiếp `CLASSROOM` làm `storyRoot`; `Combat Root` chứa cùng prefab
 `CombatBoard` của scene 20. `SYSTEMS/Combat Systems` chỉ active ở mode Combat. Camera dùng
 pose riêng cho Story và Combat; `PuzzleViewportMask` bật ở Puzzle/Story và tắt trong Combat.
+`200_ClassroomIsConsumed` dùng shared profile `Dreamy Disorientation` trong `1.50 s`: camera
+presentation nghiêng/zoom nhẹ, wide wave, UV drift, radial bend và smear quanh Audere; đổi
+Story → Combat ở giây `1.10`, rồi distortion hạ xuống để Combat hiện rõ. Timeline nằm trong
+`WorldTransition_DreamyDisorientation.asset`, không nằm riêng trong scene. Renderer Feature
+inactive ngoài khoảng này nên
+scene 20 và pixel art bình thường không chịu thêm full-screen blit. Chiều Combat → Story vẫn
+dùng fade đen hiện tại.
+
 Mode switch chỉ đổi presentation. `CombatController.Play()` vẫn là nơi duy nhất claim Combat
-input, nên fade hoặc bật root không thể vô tình cấp input sớm.
+input, nên fullscreen transition, fade hoặc bật root không thể vô tình cấp input sớm. Contract
+shader, timeline và cancel/replay nằm tại `Docs/11_FullscreenWorldTransitions.md`.
 
 Encounter hiện tại:
 

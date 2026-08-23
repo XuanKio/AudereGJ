@@ -81,11 +81,11 @@ Source: production event `D1_CLASSROOM_ANNOUNCEMENT` in `30_Classroom` and its r
 - **Design Intent:** the teacher's baseline presence is healing, gentle, cheerful, and mature;
   this should be expressed through patience and reduced pressure rather than therapeutic
   exposition.
-- **Established Canon:** Audere quietly notices the decoration task and admits she may like
-  it a little.
-- **Established Canon:** Timor tells her it does not need to involve them, says she has
-  already done enough that morning, and suggests sitting still. Audere yields and returns to
-  her seat.
+- **Established Canon:** Audere quietly notices the decoration task. She first says she does
+  not know whether she likes it, then admits that she probably does.
+- **Established Canon:** Timor says liking it is fine, but they do not need to sign up yet.
+  He points out that Audere has not sat still all morning, asks her to rest, and postpones the
+  decision until later. Audere yields and returns to her seat.
 - **Relationship state:** the scene is the first implemented edge from `Trusted guidance`
   into `Protective pre-emption`: Timor still sounds caring, but closes an option before
   Audere can try it.
@@ -109,9 +109,11 @@ Source: production event `D1_CLASSROOM_RECESS_BIANCA` in `30_Classroom` and its 
   to choose; Timor occupies that pause before Audere can answer while still sounding helpful.
 - **Unresolved:** Bianca's portrait/final art and wider character history. The current prefab
   is a presentation placeholder and does not establish appearance.
-- **Established implementation state:** after Timor's last line, the event fades into a
-  reusable combat prototype and returns to the same Story presentation after either Victory
-  or Defeat. This establishes the technical hand-off only.
+- **Established implementation state:** after Timor's last line, a shared dreamy distortion
+  profile tilts, drifts, bends, and smears the classroom around Audere before revealing the
+  reusable combat prototype, and returns to the same Story presentation after either Victory
+  or Defeat. This
+  establishes the technical hand-off only.
 - **Unresolved:** the enemy, combat's in-world/psychological meaning, canonical outcome,
   post-combat dialogue, and whether the prototype rules survive into the accepted story.
   `PROTOTYPE`, placeholder art, and temporary result mapping are not narrative evidence.

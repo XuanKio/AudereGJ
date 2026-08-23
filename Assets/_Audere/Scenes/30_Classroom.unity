@@ -687,6 +687,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Combat Board
       objectReference: {fileID: 0}
+    - target: {fileID: 1456769421717324199, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1456769421717324199, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3122740741147979611, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1412,7 +1420,7 @@ GameObject:
   - component: {fileID: 657039897}
   - component: {fileID: 657039898}
   m_Layer: 0
-  m_Name: 200_EnterCombatPrototype
+  m_Name: 200_ClassroomIsConsumed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1442,12 +1450,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 657039896}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a4824fb05663cd54c9a813d247edf257, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf46ffd913f2b542bc077019f491592, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  transitionController: {fileID: 1183088061}
   worldModeController: {fileID: 1183088060}
+  transitionProfile: {fileID: 11400000, guid: 28bea8f07421d3043bb509003a768fa8, type: 2}
+  focusRenderer: {fileID: 1810595052}
+  sourceMode: 2
   targetMode: 1
-  waitUntilTransitionFinished: 1
 --- !u!1 &710915966
 GameObject:
   m_ObjectHideFlags: 0
@@ -2971,6 +2982,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1183088059}
   - component: {fileID: 1183088060}
+  - component: {fileID: 1183088061}
   m_Layer: 0
   m_Name: WORLD
   m_TagString: Untagged
@@ -3026,6 +3038,20 @@ MonoBehaviour:
   storyCameraPosition: {x: 0, y: -0.04, z: -10}
   storyOrthographicSize: 1.05
   enableDebugHotkeys: 1
+--- !u!114 &1183088061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1183088058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c3535bd811fdb947aac10a9cf878068, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  worldCamera: {fileID: 718158744}
+  rendererFeature: {fileID: -3412710209744528233, guid: 424799608f7334c24bf367e4bbfa7f9a, type: 2}
 --- !u!1 &1279538774
 GameObject:
   m_ObjectHideFlags: 0
@@ -3393,6 +3419,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5919585175249091734, guid: 9c4ffd185ffe6e9419d6a00c1ece06d4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6070289272159346969, guid: 9c4ffd185ffe6e9419d6a00c1ece06d4, type: 3}
       propertyPath: m_Pivot.x
       value: 0
