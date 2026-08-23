@@ -8,7 +8,9 @@ namespace Audere.Dialogue
     {
         None = 0,
         Audere = 1,
-        Timor = 2
+        Timor = 2,
+        Teacher = 3,
+        Bianca = 4
     }
 
     public enum DialogueSpeakerSide

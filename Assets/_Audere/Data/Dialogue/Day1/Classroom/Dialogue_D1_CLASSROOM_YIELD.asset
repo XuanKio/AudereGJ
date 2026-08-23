@@ -10,18 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
-  m_Name: Dialogue_D1_AFTER_BREAKFAST
+  m_Name: Dialogue_D1_CLASSROOM_YIELD
   m_EditorClassIdentifier: 
-  dialogueId: d1-home-after-breakfast
+  dialogueId: d1-classroom-yield
   leftCharacter: 1
   rightCharacter: 2
   lines:
   - speaker: 0
-    text: "Xong r\u1ED3i."
-  - speaker: 1
-    text: "\u1EEAm. V\u1EADy l\xE0 c\xF2n m\u1ED7i vi\u1EC7c ra kh\u1ECFi nh\xE0
-      th\xF4i."
-  - speaker: 0
-    text: "Nghe nh\u01B0 vi\u1EC7c kh\xF3 nh\u1EA5t \u1EA5y."
-  - speaker: 1
-    text: "Th\u1EBF th\xEC may cho c\u1EADu l\xE0 c\xF3 t\u1EDB."
+    text: "\u2026\u1EEAm."

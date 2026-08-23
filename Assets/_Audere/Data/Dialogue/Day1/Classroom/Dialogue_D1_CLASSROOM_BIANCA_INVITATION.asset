@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D1_CLASSROOM_BIANCA_INVITATION
+  m_EditorClassIdentifier: 
+  dialogueId: d1-classroom-bianca-invitation
+  leftCharacter: 1
+  rightCharacter: 4
+  lines:
+  - speaker: 1
+    text: "T\u1EDB \u0111ang ph\u1EE5 ph\u1EA7n trang tr\xED."
+  - speaker: 1
+    text: "B\u1ECDn t\u1EDB c\xF2n thi\u1EBFu ng\u01B0\u1EDDi l\xE0m b\u1EA3ng."
+  - speaker: 1
+    text: "C\u1EADu c\xF3 mu\u1ED1n l\xE0m c\xF9ng kh\xF4ng?"
+  - speaker: 1
+    text: "Ch\u1EC9 m\u1ED9t ch\xFAt th\xF4i."

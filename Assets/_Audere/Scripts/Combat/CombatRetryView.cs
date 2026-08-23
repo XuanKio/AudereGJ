@@ -12,7 +12,7 @@ namespace Audere.Combat
         [SerializeField] private TMP_Text messageText;
         [SerializeField] private Button retryButton;
         [SerializeField, TextArea] private string defaultMessage =
-            "Tiếp tục đi, Audere.\nCậu làm được mà.";
+            "Không sao. Tớ vẫn ở đây.\nMình thử lại nhé.";
 
         private UnityEngine.Object activeOwner;
         private Action pendingRetry;

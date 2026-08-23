@@ -673,7 +673,7 @@ MonoBehaviour:
     \u0111\u1EE9ng."
   secondPieceRejectedInstruction: "N\u1ED1i m\u1EA3nh n\xE0y v\xE0o \u0111o\u1EA1n
     \u0111\u01B0\u1EDDng \u0111\xE3 \u0111\u1EB7t."
-  retryLine: "Kh\xF4ng sao. Th\u1EED l\u1EA1i t\u1EEB ch\u1ED7 Audere nh\xE9."
+  retryLine: "Timor — Không sao. Mình bắt đầu lại từ chỗ cậu nhé."
 --- !u!114 &6377758613494998005 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4031944003909623490, guid: 49b393cf0554a36439c1072453aab7db, type: 3}

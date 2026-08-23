@@ -4,5 +4,6 @@ namespace Audere.World
     {
         Puzzle = 0,
         Combat = 1,
+        Story = 2,
     }
 }

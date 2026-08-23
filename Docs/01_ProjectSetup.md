@@ -1,7 +1,7 @@
 ---
 id: audere.setup
 archetype: knowledge
-version: 1.0.0
+version: 1.1.0
 schema_version: 1.0.0
 cost_tier: S
 summary: How to open, run, and build Audere — engine version, packages, and project layout.
@@ -9,7 +9,7 @@ summary: How to open, run, and build Audere — engine version, packages, and pr
 
 # Audere — Project Setup
 
-> **Last updated:** 2026-08-11
+> **Last updated:** 2026-08-23
 
 ## Engine
 
@@ -54,6 +54,7 @@ Scenes, in order (must match `Audere.Core.GameScenes`):
 | 0 | `Assets/_Audere/Scenes/00_Bootstrap.unity` |
 | 1 | `Assets/_Audere/Scenes/10_MainMenu.unity` |
 | 2 | `Assets/_Audere/Scenes/20_Game.unity` |
+| 3 | `Assets/_Audere/Scenes/30_Classroom.unity` |
 
 `SampleScene.unity` is a Unity template leftover and is intentionally **not** in Build Settings.
 
@@ -70,4 +71,5 @@ Scenes, in order (must match `Audere.Core.GameScenes`):
 - New global system → implement `IGameService`, drop under `Bootstrap › Services`.
 - Play a sound → `AudioService.Instance.Play(AudioId.X)`, never a file path.
 
-See [`02_Bootstrap.md`](02_Bootstrap.md) and [`03_AudioSystem.md`](03_AudioSystem.md).
+See [`02_Bootstrap.md`](02_Bootstrap.md), [`03_AudioSystem.md`](03_AudioSystem.md) and
+[`08_VisualPalette.md`](08_VisualPalette.md).

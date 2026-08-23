@@ -45,7 +45,7 @@ Assets/_Audere/Prefabs/UI/Dialogue/DialogueBubble.prefab
 Nhân vật được chọn bằng dropdown `DialogueCharacterId`, hiện có:
 
 ```text
-None, Audere, Timor
+None, Audere, Timor, Teacher, Bianca
 ```
 
 Tên hiển thị và portrait không nằm trong từng đoạn thoại. Chúng được gắn một lần tại:
@@ -56,7 +56,17 @@ Assets/_Audere/Data/Dialogue/DialogueCharacterCatalog.asset
 
 Khi tạo `DialogueData`, designer chỉ cần chọn `Left Character` và `Right Character`; runtime tự lấy `Display Name` và `Portrait` từ catalog.
 
-Hiện `Audere` đã có portrait. `Timor` đã có constant và tên nhưng chưa có portrait vì thư mục `Assets/_Audere/AssetGame/Timor` chưa chứa ảnh; gán sprite vào catalog khi art sẵn sàng.
+Hiện `Audere` và `Timor` đã có portrait. `Teacher` đã có constant và display name `Cô giáo`,
+nhưng portrait/art cụ thể vẫn là **Unresolved** nên catalog đang để trống thay vì tự canon hóa
+một thiết kế placeholder.
+
+`Bianca` đã có constant và display name để phục vụ production event giờ nghỉ. Portrait chính
+thức vẫn là **Unresolved**; prefab màu hồng hiện tại chỉ là presentation placeholder.
+
+Voice hiện hành của `Teacher` được giữ tại
+`.agents/skills/audere-dialogue-voice/references/characters/teacher.md`: ôn hòa, vui vẻ,
+trưởng thành và tạo cảm giác chữa lành bằng cách giảm áp lực, đưa lựa chọn vừa sức; không dùng
+ngôn ngữ trị liệu hoặc tự nói thẳng rằng cô đang “chữa lành”.
 
 Khi thêm nhân vật mới:
 
@@ -65,6 +75,21 @@ Khi thêm nhân vật mới:
 3. Gán `Display Name` và `Portrait` tại entry đó.
 
 ## 3. DialogueData
+
+Folder convention:
+
+```text
+Assets/_Audere/Data/Dialogue/
+├── DialogueCharacterCatalog.asset
+├── Day1/
+│   ├── Home/
+│   ├── BusStop/
+│   └── Classroom/
+└── Samples/
+```
+
+Production dialogue is grouped by day first, then location. Shared catalogs stay at the
+Dialogue root; sample/debug content stays outside production day folders.
 
 Tạo asset bằng:
 
@@ -78,10 +103,21 @@ Mỗi asset gồm:
 - `Left Character` và `Right Character`: dropdown constant nhân vật;
 - `Lines`: danh sách theo thứ tự, mỗi dòng chỉ chọn `Speaker` (`Left` hoặc `Right`) và nhập `Text`.
 
+### Quy tắc độ dài bubble
+
+- Một `Line` là một nhịp thoại có thể đọc độc lập, không phải một đoạn văn chờ TMP tự wrap.
+- Với prefab hiện tại, mục tiêu là tối đa `42` ký tự hiển thị, tính cả khoảng trắng.
+- Câu dài hơn phải được tách theo ý hoàn chỉnh hoặc được kiểm tra trực quan ở target resolution.
+- Không tách giữa câu chỉ để dòng sau bắt đầu bằng một mệnh đề viết thường nếu có thể viết lại
+  thành hai câu tự nhiên.
+- Nhịp rất ngắn như `Xin lỗi!` được tách riêng khi nó tạo pause hoặc đổi thái độ; không tách
+  máy móc nếu chỉ làm tăng số lần click.
+- QA phải preview line dài nhất ở cả bubble trái và phải, gồm tên nhân vật và dấu tiếng Việt.
+
 Sample:
 
 ```text
-Assets/_Audere/Data/Dialogue/Dialogue_Sample.asset
+Assets/_Audere/Data/Dialogue/Samples/Dialogue_Sample.asset
 ```
 
 Như vậy tên/ảnh không bị lặp trong từng line và một character có thể đổi portrait/tên tại một nơi duy nhất.
@@ -101,11 +137,18 @@ Trong khi phát thoại:
 - gameplay pause bằng `Time.timeScale = 0`;
 - typewriter dùng `Time.unscaledDeltaTime` nên vẫn chạy;
 - hai portrait hiện cùng lúc bằng fade ngắn, không đổi kích thước;
+- trước fade-in, controller đọc speaker của line đầu tiên; người sắp nói sáng ngay từ frame đầu,
+  người còn lại vào đúng trạng thái inactive, nên không còn nháy cả hai portrait ở độ sáng active;
+- trạng thái mặc định của slot là chưa nói; chỉ line hiện tại hoặc line đầu sắp phát mới được
+  đánh dấu active;
 - người không nói được tint tối nhưng giữ nguyên scale để không lộ viền;
 - mỗi lượt chỉ có bubble của người nói: bubble cũ thu/fade xuống ngắn, bubble mới bắt đầu sát đầu nhân vật rồi pop + trượt lên nhẹ; sau đó text mới chạy typewriter;
 - click, `Space` hoặc `Return` hoàn tất dòng/đi tiếp;
 - `Escape` đóng toàn bộ đoạn thoại;
 - khi đóng, time scale trước đó được khôi phục đúng giá trị.
+- `Dialogue_Text` chạy bằng AudioSource 2D riêng chỉ trong lúc `TypeLine` đang reveal chữ;
+  text hiện đủ tự nhiên hoặc do click, Escape, `ForceClose`, disable và scene transition đều
+  dừng source ngay nên không có tiếng gõ kéo dài trong lúc chờ người chơi đọc.
 
 `Trigger Once` được nhớ theo `Dialogue Id` trong lifetime của `GameplayUIRoot`, nên giữ qua các gameplay scene và reset khi quay lại Main Menu.
 
@@ -195,3 +238,7 @@ DialogueResult.Cancelled
 `DialogueStep` tham chiếu `DialogueData` và optional `DialogueController`. Nếu controller không gán, step dùng `GameplayUIRoot.Instance.Dialogue`. Step không overwrite dialogue đang chạy và chỉ đóng session do chính nó mở khi Story bị cancel.
 
 Dialogue tile không cần visual khác tile thường nếu vai trò chỉ là trigger hành động. Layout puzzle vẫn scene-first; không ghi chỉnh sửa runtime tile ngược về layout nếu không chủ động dùng tool migration.
+
+Trong story staging, hãy tách `DialogueData` tại nơi cần chèn hành động giữa các câu. Ví dụ
+`D1_CLASSROOM_ANNOUNCEMENT` dùng các asset nhỏ quanh `WaitStep`, `SetActiveStep` và
+`MoveActorStep`, nhờ vậy thoại không phải tự điều khiển actor hoặc timing của scene.

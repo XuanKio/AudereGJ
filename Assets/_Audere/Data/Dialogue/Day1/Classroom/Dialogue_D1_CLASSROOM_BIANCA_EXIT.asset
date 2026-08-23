@@ -10,21 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
-  m_Name: Dialogue_D1_BUS_STOP_ARRIVAL
+  m_Name: Dialogue_D1_CLASSROOM_BIANCA_EXIT
   m_EditorClassIdentifier: 
-  dialogueId: d1-bus-stop-arrival
+  dialogueId: d1-classroom-bianca-exit
   leftCharacter: 1
-  rightCharacter: 2
+  rightCharacter: 4
   lines:
-  - speaker: 0
-    text: "\u0110\u1EBFn r\u1ED3i."
   - speaker: 1
-    text: "V\xE0 c\xF2n ch\u01B0a mu\u1ED9n."
-  - speaker: 0
-    text: "T\u1EDB bi\u1EBFt m\xE0."
-  - speaker: 1
-    text: "C\u1EADu v\u1EEBa nh\xECn gi\u1EDD \xE0?"
-  - speaker: 0
-    text: "...Kh\xF4ng."
-  - speaker: 1
-    text: "\u1EEA."
+    text: "Kh\xF4ng ti\u1EC7n c\u0169ng kh\xF4ng sao."

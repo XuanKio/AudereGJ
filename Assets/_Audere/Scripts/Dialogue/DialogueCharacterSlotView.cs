@@ -22,10 +22,12 @@ namespace Audere.Dialogue
             characterImage.enabled = character.Portrait != null;
         }
 
-        public void PrepareForEntrance(DialogueCharacterCatalog.Entry character)
+        public void PrepareForEntrance(
+            DialogueCharacterCatalog.Entry character,
+            bool isPreparingToSpeak = false)
         {
             SetCharacter(character);
-            SetCharacterBrightness(1f);
+            SetCharacterBrightness(isPreparingToSpeak ? 1f : inactiveBrightness);
             SetVisibility(0f);
             HideBubble();
             transform.localScale = Vector3.one;

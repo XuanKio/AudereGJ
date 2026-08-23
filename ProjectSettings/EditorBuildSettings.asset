@@ -14,6 +14,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Audere/Scenes/20_Game.unity
     guid: d7666dfee816cee489b73d4afcb17903
+  - enabled: 1
+    path: Assets/_Audere/Scenes/30_Classroom.unity
+    guid: 2ad532a41e235184e850d0f79a39a51f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

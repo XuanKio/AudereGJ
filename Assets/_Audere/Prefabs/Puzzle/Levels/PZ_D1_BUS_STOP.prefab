@@ -487,19 +487,13 @@ MonoBehaviour:
   puzzle: {fileID: 469180357242717938}
   hand: {fileID: 0}
   hud: {fileID: 0}
-  openingInstruction: "D\xF9ng h\u1EBFt ba m\u1EA3nh \u0111\u1EC3 t\u1EDBi b\u1EBFn
-    xe."
-  skippedPieceMessage: "Timor \u2014 M\xECnh v\u1EABn c\xF2n m\u1ED9t m\u1EA3nh n\u1EEFa.
-    Quay l\u1EA1i m\u1ED9t ch\xFAt nh\xE9."
-  retryInstruction: "Timor \u2014 Th\u1EED l\u1EA1i nh\xE9. Nh\xECn \u0111i\u1EC3m
-    cu\u1ED1i c\u1EE7a m\u1EA3nh tr\u01B0\u1EDBc."
+  openingInstruction: "Dùng hết bốn mảnh để tới bến xe."
+  skippedPieceMessage: "Timor — Còn một mảnh nữa đấy. Mình quay lại một chút nhé."
+  retryInstruction: "Timor — Không sao. Mình nối lại từ chỗ cậu đứng nhé."
   attemptFailedMessages:
-  - "Timor \u2014 Khoan, \u0111\u01B0\u1EDDng \u0111\xF3 kh\xF4ng n\u1ED1i \u0111\u01B0\u1EE3c
-    r\u1ED3i."
-  - "Timor \u2014 Th\u1EED l\u1EA1i nh\xE9. Nh\xECn \u0111i\u1EC3m cu\u1ED1i c\u1EE7a
-    m\u1EA3nh tr\u01B0\u1EDBc."
-  - "Timor \u2014 G\u1EA7n \u0111\xFAng r\u1ED3i. Xem m\u1EA3nh ti\u1EBFp theo s\u1EBD
-    \u0111\u1EB7t \u1EDF \u0111\xE2u n\u1EEFa."
+  - "Timor — Khoan một chút. Đoạn đó chưa nối được rồi."
+  - "Timor — Không sao. Mình nhìn lại chỗ đường vừa dừng nhé."
+  - "Timor — Gần tới rồi. Cứ lo đoạn ngay trước mặt cậu thôi."
 --- !u!1 &5584085434328690587
 GameObject:
   m_ObjectHideFlags: 0

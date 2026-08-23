@@ -1,6 +1,6 @@
 # Audere–Timor Relationship
 
-## Current relationship: Day 1 morning
+## Current relationship: Day 1 morning through classroom announcement
 
 ### Established Canon
 
@@ -8,6 +8,11 @@
 - Audere accepts his sequencing of the routine and his company.
 - Timor notices Audere's state, supplies the next task, and knows a detail about breakfast prepared by her father.
 - Their exchange permits mild protest and light teasing without visible rupture.
+- At the bus stop, Audere thanks Timor and receives `Tớ ở đây mà` as reassurance.
+- In class, Timor closes the decoration option before Audere acts; Audere yields and returns
+  to her seat.
+- During recess, Bianca gives Audere room to accept or decline a small invitation. Before
+  Audere answers, Timor asks her to wait, look at him, and let him help.
 
 ### Strongly Implied
 
@@ -37,18 +42,22 @@ At the beginning, portray the relief and practical benefit as real. Introduce co
 
 These are qualitative writing bands, not numerical game state.
 
-### 1. Trusted guidance — current established band
+### 1. Trusted guidance — established foundation
 
 - Timor suggests or selects the next small action.
 - Audere mildly protests but generally follows.
 - Direction is paired with presence, reassurance, or useful knowledge.
 - Control can plausibly be read as care.
 
-### 2. Protective pre-emption — Design Intent
+### 2. Protective pre-emption — first edge now established
 
 - Timor begins answering before Audere can decide.
 - He frames alternatives as needless risk, effort, or embarrassment.
 - Audere may still feel grateful even when an opportunity closes.
+- The classroom decoration beat is the first implemented example: Timor frames non-participation
+  as rest after a demanding morning, so the lost choice still sounds like care.
+- The Bianca beat strengthens the same band: an ordinary classmate leaves a genuine pause,
+  and Timor steps into that pause before Audere can form her own response.
 
 ### 3. Restricted agency — Design Intent
 
@@ -71,4 +80,3 @@ Before writing their exchange, answer:
 5. Does either character notice that cost yet?
 
 Do not move to a later progression band merely because a more dramatic line sounds stronger.
-

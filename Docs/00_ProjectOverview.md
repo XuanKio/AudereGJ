@@ -1,7 +1,7 @@
 ---
 id: audere.overview
 archetype: state
-version: 1.1.0
+version: 1.2.0
 schema_version: 1.0.0
 cost_tier: M
 summary: Top-level map of the Audere project — what it is, the doc index, folder map, script inventory, decision log.
@@ -10,7 +10,7 @@ summary: Top-level map of the Audere project — what it is, the doc index, fold
 # Audere — Project Overview
 
 > **Read this first.** It's the index + living map so a new session skips re-scanning the repo.
-> **Last updated:** 2026-08-22 · **Engine:** Unity 6000.0.79f1 (URP, 2D)
+> **Last updated:** 2026-08-23 · **Engine:** Unity 6000.0.79f1 (URP, 2D)
 
 ## What Audere is
 
@@ -34,13 +34,15 @@ Asset/sample/debug content không tự trở thành canon. Xem quy tắc tại [
 | [`05_DialogueSystem.md`](05_DialogueSystem.md) | Persistent gameplay UI, dialogue data, controller, animation và Dialogue tile. |
 | [`06_CombatGameplay.md`](06_CombatGameplay.md) | WORLD mode switching, Combat Root, dice-catching loop, encounter data và board presentation. |
 | [`07_StorySystem_SceneFirst.md`](07_StorySystem_SceneFirst.md) | StoryDirector/Event/Step, hierarchy order, chaining và integration Dialogue/Puzzle/Combat. |
+| [`08_VisualPalette.md`](08_VisualPalette.md) | Shared camera fallback, PuzzleViewportMask, transition cover và ranh giới với màu UI/location-specific. |
+| [`09_Day1_ProductionStoryWorkflow.md`](09_Day1_ProductionStoryWorkflow.md) | Current Day 1 canon, exact production event hierarchy và workflow dựng beat/scene tiếp theo. |
 
 ## Architecture at a glance
 
 ```
 Unity Start → 00_Bootstrap → Bootstrapper
                               ├─ init services (IGameService): SceneFlow, AudioService
-                              └─ SceneFlow.Load → 10_MainMenu → [New Game] → 20_Game
+                              └─ SceneFlow.Load → 10_MainMenu → [New Game] → 20_Game → 30_Classroom
 ```
 
 The Bootstrapper is a thin entry point; every real capability is its own service under a
@@ -61,7 +63,7 @@ D:\PJ\AudereGJ\
 │   │   ├── Dialogue/        Dialogue data + persistent UI   (Audere.Dialogue)
 │   │   ├── Input/           Owner-safe gameplay input gate  (Audere.GameplayInput)
 │   │   └── Story/           Scene-first story runner        (Audere.Story)
-│   ├── Scenes/              00_Bootstrap, 10_MainMenu, 20_Game (+ SampleScene leftover)
+│   ├── Scenes/              00_Bootstrap, 10_MainMenu, 20_Game, 30_Classroom (+ SampleScene leftover)
 │   ├── Data/                Audio, Puzzle và Dialogue ScriptableObjects
 │   ├── Audio/               Raw audio assets (empty)
 │   ├── Prefabs/             Puzzle, world và UI prefabs
@@ -176,6 +178,10 @@ imported third-party assets).
 | 2026-08-22 | Một location chỉ có một Player/PuzzleRuntime/PathPreview/PlacedPathRoot dùng chung; từng `PZ_*` chỉ giữ level content. | Tránh duplicate preview/path/player và lỗi state khi đổi puzzle. |
 | 2026-08-22 | Puzzle hand-off dùng Goal trước làm world anchor cho PlayerStart sau; Player không bị tắt giữa event. | Giữ chuyển cảnh liền mạch và tránh nháy/lệch tile. |
 | 2026-08-22 | Story author bằng `StoryDirector → StoryEvent → direct-child StoryStep`, sibling order là execution order. | Flow đọc/chỉnh trực tiếp trong Hierarchy và không hardcode story trong manager. |
+| 2026-08-23 | Production story chuyển `20_Game → 30_Classroom` qua fade + `SceneLoadStep`; mỗi scene có StoryDirector riêng. | Direct StoryEvent reference không sống qua Single scene load; flow vẫn đọc được tại từng Hierarchy và đi qua SceneFlow. |
+| 2026-08-23 | Placeholder classroom actors/art được đặt tên rõ; Teacher id có catalog entry nhưng portrait để trống. | Cho phép dựng và kiểm tra staging mà không tự biến art tạm hoặc suy luận nhân vật thành canon. |
+| 2026-08-23 | Classroom staging chỉ giữ Audere trái / Teacher phải, cân giữa cùng baseline; Teacher dùng prefab riêng. Dialogue entrance resolve first speaker trước fade. | Tập trung beat vào hai nhân vật, dễ thay art Teacher tại một chỗ và loại nháy active-state của cả hai portrait khi bắt đầu thoại. |
+| 2026-08-23 | Production camera fallback dùng `#160D1C`; `PuzzleViewportMask` dùng `#0D0918` từ prefab; transition cover dùng đen. Main Menu giữ màu UI xanh riêng nhưng camera vẫn dùng fallback chung. | Tránh đổi tông/lóe skybox giữa scene, đồng thời không xóa màu ngữ cảnh của UI và location art. |
 
 ## Maintenance
 

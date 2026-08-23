@@ -97,6 +97,23 @@ namespace Audere.Audio
             sfxSource.PlayOneShot(entry.clip, entry.volume);
         }
 
+        public bool TryResolveSfx(AudioId id, out AudioClip clip, out float volume)
+        {
+            clip = null;
+            volume = 0f;
+
+            if (catalog == null ||
+                !catalog.TryGet(id, out AudioEntry entry) ||
+                entry.clip == null)
+            {
+                return false;
+            }
+
+            clip = entry.clip;
+            volume = entry.volume * SfxVolume;
+            return true;
+        }
+
         private void ApplyVolumes()
         {
             if (musicSource != null)

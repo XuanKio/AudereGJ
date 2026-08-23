@@ -20,6 +20,19 @@ Use the four labels defined in `SKILL.md` whenever evidence quality matters. A p
 - Avoid naming an emotion when posture, silence, a partial answer, or a concrete concern can carry it.
 - Read exchanges aloud. Remove explanatory clauses that no person in the moment needs to say.
 
+## Dialogue bubble readability
+
+- Treat one `DialogueData.Line` as one readable speech beat, not a paragraph that relies on
+  TMP auto-wrap.
+- For the current dialogue prefab, aim for at most `42` visible characters including spaces.
+  A longer line must be split or visually verified at the target game resolution.
+- Split at a complete thought, reaction, or change of intention. Prefer two short standalone
+  sentences over breaking one grammatical sentence into a lowercase continuation.
+- Keep a very short beat when it changes timing or emotion (`Xin lỗi!`, a hesitation, a
+  correction). Do not split mechanically if it only adds clicks without changing the beat.
+- After editing, preview the longest line for both left and right bubbles; character names and
+  Vietnamese diacritics must remain inside their authored rectangles.
+
 ## Subtext
 
 For each important line, know:
@@ -51,4 +64,3 @@ At the current Day 1 opening, Timor's help should feel genuinely useful. A contr
 4. Is the speaker naming their own psychology too neatly?
 5. Does the tutorial remain understandable if all character flavor is removed?
 6. Does the character interaction still make sense if all UI instruction is removed?
-

@@ -38,6 +38,7 @@ namespace Audere.Dialogue
             DontDestroyOnLoad(gameObject);
             SceneManager.sceneLoaded += HandleSceneLoaded;
             ResolveReferences();
+            ApplyScenePresentation(SceneManager.GetActiveScene());
 
             if (gameObject.scene.name == GameScenes.MainMenu)
                 Destroy(gameObject);
@@ -65,6 +66,8 @@ namespace Audere.Dialogue
 
             if (dialogue != null)
                 dialogue.ForceClose();
+
+            ApplyScenePresentation(scene);
         }
 
         private void ResolveReferences()
@@ -82,6 +85,17 @@ namespace Audere.Dialogue
                 dialogue = GetComponentInChildren<DialogueController>(true);
             if (inputGate == null)
                 inputGate = GetComponentInChildren<GameplayInputGate>(true);
+        }
+
+        private void ApplyScenePresentation(Scene scene)
+        {
+            if (puzzleUi == null)
+                return;
+
+            if (scene.name == GameScenes.Classroom)
+                puzzleUi.gameObject.SetActive(false);
+            else if (scene.name == GameScenes.Game)
+                puzzleUi.gameObject.SetActive(true);
         }
     }
 }

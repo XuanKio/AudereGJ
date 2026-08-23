@@ -10,5 +10,6 @@ namespace Audere.Core
         public const string Bootstrap = "00_Bootstrap";
         public const string MainMenu  = "10_MainMenu";
         public const string Game      = "20_Game";
+        public const string Classroom = "30_Classroom";
     }
 }

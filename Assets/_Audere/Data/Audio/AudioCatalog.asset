@@ -12,4 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9285fdc4516f53f46b857659beea3e56, type: 3}
   m_Name: AudioCatalog
   m_EditorClassIdentifier: 
-  entries: []
+  entries:
+  - id: 4004
+    clip: {fileID: 8300000, guid: 187225d1c92e44f41a2b8d6c8236d1cb, type: 3}
+    volume: 0.72
+  - id: 4005
+    clip: {fileID: 8300000, guid: e789e5af7c8d87f458ce5afcd7d5b7a0, type: 3}
+    volume: 0.34
+  - id: 1004
+    clip: {fileID: 8300000, guid: 529e0c62d022c4f47b1d2325453e16b3, type: 3}
+    volume: 0.55
+  - id: 4006
+    clip: {fileID: 8300000, guid: 63489812f3e611747a3deed4c102cc79, type: 3}
+    volume: 0.16
+  - id: 2003
+    clip: {fileID: 8300000, guid: 1a6ec52d3ce125c46bb79c37f2e5d7ad, type: 3}
+    volume: 0.6

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Audere.Audio;
 using Audere.Dialogue;
 using Audere.Puzzle.Board;
 using Audere.Puzzle.PathPieces;
@@ -241,7 +242,7 @@ namespace Audere.Puzzle
         {
             CurrentState = State.Traversing;
             placement.HidePreview();
-            SetHudMessage("Đang di chuyển…");
+            SetHudMessage(string.Empty);
             yield return player.Traverse(result.GridPath, board, HandleFallStarted);
             hand.ConsumeSelected();
 
@@ -307,6 +308,7 @@ namespace Audere.Puzzle
 
         private void HandleFallStarted()
         {
+            AudioService.Instance?.Play(AudioId.Player_Fall);
             CurrentState = State.Falling;
             SetHudMessage("Cẩn thận…");
             PuzzleFallStarted?.Invoke();

@@ -13,11 +13,14 @@ namespace Audere.World
         [SerializeField] private WorldGameplayMode startingMode = WorldGameplayMode.Combat;
         [SerializeField] private GameObject puzzleRoot;
         [SerializeField] private GameObject combatRoot;
+        [SerializeField] private GameObject storyRoot;
         [SerializeField] private GameObject puzzleViewportMask;
+        [SerializeField] private bool storyUsesPuzzleViewportMask = true;
         [SerializeField] private GameObject combatSystemsRoot;
 
         [Header("Transition")]
         [SerializeField] private CanvasGroup transitionFade;
+        [SerializeField] private bool revealStartingModeOnStart = true;
         [SerializeField, Min(.01f)] private float fadeOutDuration = .18f;
         [SerializeField, Min(0f)] private float coveredHoldDuration = .05f;
         [SerializeField, Min(.01f)] private float fadeInDuration = .28f;
@@ -27,9 +30,11 @@ namespace Audere.World
         [SerializeField] private GridCameraFollow2D puzzleCameraFollow;
         [SerializeField] private Vector3 combatCameraPosition = new Vector3(0f, 0f, -10f);
         [SerializeField, Min(.01f)] private float combatOrthographicSize = 1.25f;
+        [SerializeField] private Vector3 storyCameraPosition = new Vector3(0f, 0f, -10f);
+        [SerializeField, Min(.01f)] private float storyOrthographicSize = 1.25f;
 
         [Header("Development")]
-        [Tooltip("F1 = Puzzle, F2 = Combat. Disable before a release build if those keys are needed elsewhere.")]
+        [Tooltip("F1 = Puzzle, F2 = Combat, F3 = Story. Disable before a release build if those keys are needed elsewhere.")]
         [SerializeField] private bool enableDebugHotkeys = true;
 
         private Coroutine transitionRoutine;
@@ -47,15 +52,15 @@ namespace Audere.World
             if (transitionFade != null)
             {
                 transitionFade.gameObject.SetActive(true);
-                transitionFade.alpha = 1f;
-                transitionFade.blocksRaycasts = true;
+                transitionFade.alpha = revealStartingModeOnStart ? 1f : 0f;
+                transitionFade.blocksRaycasts = revealStartingModeOnStart;
                 transitionFade.interactable = false;
             }
         }
 
         private void Start()
         {
-            if (transitionFade != null)
+            if (transitionFade != null && revealStartingModeOnStart)
                 transitionRoutine = StartCoroutine(RevealStartingMode());
         }
 
@@ -64,14 +69,17 @@ namespace Audere.World
             if (!enableDebugHotkeys || IsTransitioning)
                 return;
 
-            if (Input.GetKeyDown(KeyCode.F1))
+            if (Input.GetKeyDown(KeyCode.F1) && puzzleRoot != null)
                 ShowPuzzle();
-            else if (Input.GetKeyDown(KeyCode.F2))
+            else if (Input.GetKeyDown(KeyCode.F2) && combatRoot != null)
                 ShowCombat();
+            else if (Input.GetKeyDown(KeyCode.F3) && storyRoot != null)
+                ShowStory();
         }
 
         public void ShowPuzzle() => SwitchTo(WorldGameplayMode.Puzzle);
         public void ShowCombat() => SwitchTo(WorldGameplayMode.Combat);
+        public void ShowStory() => SwitchTo(WorldGameplayMode.Story);
 
         public void SwitchTo(WorldGameplayMode nextMode)
         {
@@ -88,21 +96,32 @@ namespace Audere.World
         {
             ResolveGameplayUi();
             bool puzzleActive = mode == WorldGameplayMode.Puzzle;
+            bool combatActive = mode == WorldGameplayMode.Combat;
+            bool storyActive = mode == WorldGameplayMode.Story;
 
             SetActiveIfNeeded(puzzleRoot, puzzleActive);
-            SetActiveIfNeeded(combatRoot, !puzzleActive);
-            SetActiveIfNeeded(puzzleViewportMask, puzzleActive);
+            SetActiveIfNeeded(combatRoot, combatActive);
+            SetActiveIfNeeded(storyRoot, storyActive);
+            SetActiveIfNeeded(
+                puzzleViewportMask,
+                puzzleActive || (storyActive && storyUsesPuzzleViewportMask));
             SetActiveIfNeeded(puzzleUi != null ? puzzleUi.gameObject : null, puzzleActive);
-            SetActiveIfNeeded(combatSystemsRoot, !puzzleActive);
+            SetActiveIfNeeded(combatSystemsRoot, combatActive);
 
             if (puzzleCameraFollow != null)
                 puzzleCameraFollow.enabled = puzzleActive;
 
-            if (!puzzleActive && worldCamera != null)
+            if (combatActive && worldCamera != null)
             {
                 worldCamera.transform.position = combatCameraPosition;
                 if (worldCamera.orthographic)
                     worldCamera.orthographicSize = combatOrthographicSize;
+            }
+            else if (storyActive && worldCamera != null)
+            {
+                worldCamera.transform.position = storyCameraPosition;
+                if (worldCamera.orthographic)
+                    worldCamera.orthographicSize = storyOrthographicSize;
             }
 
             CurrentMode = mode;
@@ -181,6 +200,12 @@ namespace Audere.World
             {
                 Transform child = transform.Find("Combat Root");
                 if (child != null) combatRoot = child.gameObject;
+            }
+
+            if (storyRoot == null)
+            {
+                Transform child = transform.Find("Story Root");
+                if (child != null) storyRoot = child.gameObject;
             }
 
             if (worldCamera == null)

@@ -33,6 +33,8 @@ namespace Audere.Puzzle.PathPieces
         private bool hasAnchoredOrigin;
         private PathPieceData observedSelectedPiece;
         private GameplayInputGate inputGate;
+        private int pointerInputBlockedThroughFrame;
+        private bool waitingForPrimaryPointerRelease;
         private readonly List<Vector2Int> previewGridPath = new List<Vector2Int>();
         private readonly List<Vector3> previewWorldPath = new List<Vector3>();
 
@@ -69,6 +71,7 @@ namespace Audere.Puzzle.PathPieces
             if (boardCamera == null) boardCamera = Camera.main;
             GameplayUIRoot uiRoot = GameplayUIRoot.Instance;
             inputGate = uiRoot != null ? uiRoot.InputGate : null;
+            ArmPointerInput();
             if (preview != null) preview.Setup();
             if (observedSelectedPiece != null)
                 ShowInitialPreview();
@@ -88,6 +91,9 @@ namespace Audere.Puzzle.PathPieces
                 HandleSelectionChanged(selectedPiece);
 
             if (selectedPiece == null)
+                return;
+
+            if (!IsPointerInputReady())
                 return;
 
             if (!TryGetPointerInput(out Vector2 pointerScreenPosition, out bool pointerPressedThisFrame))
@@ -327,6 +333,42 @@ namespace Audere.Puzzle.PathPieces
             return result.WillFall
                 ? PathPreview.PresentationState.Dangerous
                 : PathPreview.PresentationState.Valid;
+        }
+
+        private void ArmPointerInput()
+        {
+            // Dialogue can finish and start this puzzle in the same Update frame.
+            // Do not let that closing click commit the selected preview.
+            pointerInputBlockedThroughFrame = Time.frameCount + 1;
+            waitingForPrimaryPointerRelease = IsPrimaryPointerHeld();
+        }
+
+        private bool IsPointerInputReady()
+        {
+            if (Time.frameCount <= pointerInputBlockedThroughFrame)
+                return false;
+
+            if (!waitingForPrimaryPointerRelease)
+                return true;
+
+            if (IsPrimaryPointerHeld())
+                return false;
+
+            waitingForPrimaryPointerRelease = false;
+            pointerInputBlockedThroughFrame = Time.frameCount;
+            return false;
+        }
+
+        private static bool IsPrimaryPointerHeld()
+        {
+            if (Input.touchCount > 0)
+            {
+                Touch touch = Input.GetTouch(0);
+                return touch.phase != TouchPhase.Ended &&
+                       touch.phase != TouchPhase.Canceled;
+            }
+
+            return Input.GetMouseButton(0);
         }
 
         private bool TryGetPointerInput(

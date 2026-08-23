@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Audere.Audio;
 using Audere.GameplayInput;
 using TMPro;
 using UnityEngine;
@@ -29,6 +30,10 @@ namespace Audere.Dialogue
         [SerializeField, Min(0.01f)] private float characterEntranceDuration = 0.24f;
         [SerializeField, Min(0f)] private float bubbleDelay = 0.06f;
 
+        [Header("Audio")]
+        [SerializeField] private AudioId typewriterAudioId = AudioId.Dialogue_Text;
+        [SerializeField] private AudioSource typewriterAudioSource;
+
         private readonly HashSet<string> playedDialogueIds = new HashSet<string>();
         private Coroutine playbackRoutine;
         private Action<DialogueResult> activeCompletion;
@@ -43,6 +48,7 @@ namespace Audere.Dialogue
 
         private void Awake()
         {
+            EnsureTypewriterAudioSource();
             HideImmediately();
         }
 
@@ -125,6 +131,8 @@ namespace Audere.Dialogue
 
         public void HideImmediately()
         {
+            StopTypewriterSound();
+
             if (dialogueGroup != null)
             {
                 dialogueGroup.alpha = 0f;
@@ -152,8 +160,13 @@ namespace Audere.Dialogue
                 dialogueGroup.blocksRaycasts = true;
             }
 
-            leftSlot.PrepareForEntrance(leftCharacter);
-            rightSlot.PrepareForEntrance(rightCharacter);
+            DialogueSpeakerSide firstSpeaker = data.Lines[0].Speaker;
+            leftSlot.PrepareForEntrance(
+                leftCharacter,
+                firstSpeaker == DialogueSpeakerSide.Left);
+            rightSlot.PrepareForEntrance(
+                rightCharacter,
+                firstSpeaker == DialogueSpeakerSide.Right);
 
             yield return AnimateCharactersIn();
 
@@ -252,14 +265,20 @@ namespace Audere.Dialogue
             int characterCount = text.textInfo.characterCount;
             float visibleCharacters = 0f;
 
+            StartTypewriterSound();
+
             while (text.maxVisibleCharacters < characterCount)
             {
                 if (CancelPressed())
+                {
+                    StopTypewriterSound();
                     yield break;
+                }
 
                 if (AdvancePressed())
                 {
                     text.maxVisibleCharacters = characterCount;
+                    StopTypewriterSound();
                     yield break;
                 }
 
@@ -267,6 +286,44 @@ namespace Audere.Dialogue
                 text.maxVisibleCharacters = Mathf.Min(characterCount, Mathf.FloorToInt(visibleCharacters));
                 yield return null;
             }
+
+            StopTypewriterSound();
+        }
+
+        private void EnsureTypewriterAudioSource()
+        {
+            if (typewriterAudioSource == null)
+                typewriterAudioSource = gameObject.AddComponent<AudioSource>();
+
+            typewriterAudioSource.playOnAwake = false;
+            typewriterAudioSource.loop = true;
+            typewriterAudioSource.spatialBlend = 0f;
+        }
+
+        private void StartTypewriterSound()
+        {
+            EnsureTypewriterAudioSource();
+
+            AudioService audioService = AudioService.Instance;
+            if (audioService == null ||
+                !audioService.TryResolveSfx(typewriterAudioId, out AudioClip clip, out float volume))
+            {
+                return;
+            }
+
+            typewriterAudioSource.Stop();
+            typewriterAudioSource.clip = clip;
+            typewriterAudioSource.volume = volume;
+            typewriterAudioSource.Play();
+        }
+
+        private void StopTypewriterSound()
+        {
+            if (typewriterAudioSource == null)
+                return;
+
+            typewriterAudioSource.Stop();
+            typewriterAudioSource.clip = null;
         }
 
         private bool TryResolveCharacter(

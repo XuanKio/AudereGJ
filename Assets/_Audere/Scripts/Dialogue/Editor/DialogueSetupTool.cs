@@ -20,7 +20,8 @@ namespace Audere.Dialogue.Editor
         private const string DialogueDataFolder = "Assets/_Audere/Data/Dialogue";
         private const string DialoguePrefabFolder = "Assets/_Audere/Prefabs/UI/Dialogue";
         private const string CharacterCatalogPath = DialogueDataFolder + "/DialogueCharacterCatalog.asset";
-        private const string SampleDialoguePath = DialogueDataFolder + "/Dialogue_Sample.asset";
+        private const string SampleDialogueFolder = DialogueDataFolder + "/Samples";
+        private const string SampleDialoguePath = SampleDialogueFolder + "/Dialogue_Sample.asset";
         private const string BubblePrefabPath = DialoguePrefabFolder + "/DialogueBubble.prefab";
         private const string LeftSlotPrefabPath = DialoguePrefabFolder + "/Left.prefab";
         private const string RightSlotPrefabPath = DialoguePrefabFolder + "/Right.prefab";
@@ -43,6 +44,7 @@ namespace Audere.Dialogue.Editor
             try
             {
                 EnsureFolder(DialogueDataFolder);
+                EnsureFolder(SampleDialogueFolder);
                 EnsureFolder(DialoguePrefabFolder);
                 EnsureFolder("Assets/_Audere/Prefabs/UI");
 

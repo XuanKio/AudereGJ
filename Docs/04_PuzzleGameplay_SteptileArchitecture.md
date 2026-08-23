@@ -234,6 +234,11 @@ Thiết lập Day 1 hiện xoay quanh:
 
 Thứ tự reveal được tính từ `PlayerStart`. Trước khi sort, coordinator gọi `BoardManager.RegisterExistingTiles()` để grid position phản ánh pose level sau khi đã align.
 
+`BoardTileTransitionStep` phát `Tile_Pop` khi tile bắt đầu biến mất hoặc vừa xuất hiện. Clip
+được throttle tối thiểu `0.11 s`, nên board lớn vẫn có nhịp âm thanh theo wave mà không phát
+chồng một one-shot cho mọi tile trong cùng frame. Khi Player bắt đầu rời tile an toàn để rơi,
+`PuzzleManager.HandleFallStarted()` phát `Player_Fall`; sound không chờ tới lúc reset map.
+
 ## 10. Input ownership
 
 `GameplayInputGate` nằm dưới `GameplayUIRoot` và quản lý claim theo token/owner:

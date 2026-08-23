@@ -4,8 +4,8 @@
 
 When sources disagree, use this order for identifying the current implemented state, while still recording the conflict:
 
-1. Current `DialogueData` referenced by the real `D1_HOME_MORNING` StoryEvent.
-2. Current serialized values in `Assets/_Audere/Scenes/20_Game.unity`.
+1. Current `DialogueData` referenced by real production StoryEvents.
+2. Current serialized values in `Assets/_Audere/Scenes/20_Game.unity` and `30_Classroom.unity`.
 3. Current runtime/data scripts that define character ids and content ownership.
 4. Project documentation under `Docs/`.
 5. Test/sample assets, filenames, imported asset names, and comments.
@@ -52,11 +52,76 @@ Source: `PZ_D1_BREAKFAST`, `UseAllPiecesTutorialGuide`, and `70_PlayBreakfastPuz
 - **Current Timor feedback:** if the player reaches the goal while skipping a piece, he rejects the shortcut, says nothing should be omitted, and asks Audere to try again; retry language remains reassuring.
 - Whether every tutorial message is diegetic spoken dialogue or HUD attribution is `Unresolved`.
 
+### D1_TO_BUS_STOP — arrival and safety anchor
+
+Source: `D1_TO_BUS_STOP` in `20_Game`, `Dialogue_D1_BUS_STOP_ARRIVAL.asset`, and
+`Dialogue_D1_BUS_STOP_SAFE.asset`.
+
+- **Established Canon:** Audere reaches the bus stop in time and remains on the Goal while
+  the path disappears and the bus approaches.
+- **Established Canon:** Timor frames the success as doing one thing at a time. Audere
+  thanks him; Timor answers `Tớ ở đây mà.`
+- **Strongly Implied:** this reassurance feels safe and dependable to Audere and deepens the
+  practical reliance established during the morning routine.
+- **Design Intent:** the line becomes emotionally costly later because Timor's constant
+  presence will make refusing his protection harder. The later payoff is not yet implemented.
+- **Design Intent:** a subtle shoulder-relax animation may communicate relief later, but it
+  must not move the shared gameplay Player away from the Goal.
+
+### D1_CLASSROOM_ANNOUNCEMENT
+
+Source: production event `D1_CLASSROOM_ANNOUNCEMENT` in `30_Classroom` and its referenced
+`Dialogue_D1_CLASSROOM_*` / `Dialogue_D1_TEACHER_*` assets.
+
+- **Established Canon:** Audere settles into her usual classroom seat. The teacher announces
+  an end-of-year class party with decoration, food, and games, and invites each student to
+  help with one small part.
+- **Established Canon:** the teacher frames participation as a calm, shared invitation: each
+  student may choose one manageable task, without urgency or pressure to do a lot.
+- **Design Intent:** the teacher's baseline presence is healing, gentle, cheerful, and mature;
+  this should be expressed through patience and reduced pressure rather than therapeutic
+  exposition.
+- **Established Canon:** Audere quietly notices the decoration task and admits she may like
+  it a little.
+- **Established Canon:** Timor tells her it does not need to involve them, says she has
+  already done enough that morning, and suggests sitting still. Audere yields and returns to
+  her seat.
+- **Relationship state:** the scene is the first implemented edge from `Trusted guidance`
+  into `Protective pre-emption`: Timor still sounds caring, but closes an option before
+  Audere can try it.
+- **Unresolved:** Teacher portrait and personal name, final classroom art, named classmates, and whether Timor
+  is externally perceptible. Placeholder actors do not settle these questions.
+
+### D1_CLASSROOM_RECESS_BIANCA
+
+Source: production event `D1_CLASSROOM_RECESS_BIANCA` in `30_Classroom` and its referenced
+`Dialogue_D1_CLASSROOM_BIANCA_*` / `Dialogue_D1_CLASSROOM_TIMOR_INTERVENES` assets.
+
+- **Established Canon:** after a light fade into recess, Bianca approaches Audere from the
+  right while the board tiles appear ahead of her and fade behind her.
+- **Established Canon:** Bianca calls Audere, moves a little closer when she receives no
+  response, and accidentally startles her. Audere hops once in surprise and turns toward Bianca.
+- **Established Canon:** Bianca apologizes, explains that she is helping with decoration,
+  invites Audere to help with the board, and explicitly says it is fine if it is inconvenient.
+- **Established Canon:** Audere remains silent. Timor tells her not to answer yet, redirects
+  her attention to him, and says he will help.
+- **Relationship state:** `Protective pre-emption` is reinforced. Bianca gives Audere room
+  to choose; Timor occupies that pause before Audere can answer while still sounding helpful.
+- **Unresolved:** Bianca's portrait/final art and wider character history. The current prefab
+  is a presentation placeholder and does not establish appearance.
+- **Established implementation state:** after Timor's last line, the event fades into a
+  reusable combat prototype and returns to the same Story presentation after either Victory
+  or Defeat. This establishes the technical hand-off only.
+- **Unresolved:** the enemy, combat's in-world/psychological meaning, canonical outcome,
+  post-combat dialogue, and whether the prototype rules survive into the accepted story.
+  `PROTOTYPE`, placeholder art, and temporary result mapping are not narrative evidence.
+
 ## Later story
 
 - **Design Intent:** Timor's protection gradually becomes deciding for Audere and preventing her choices.
 - **Design Intent:** Audere's agency develops slowly through small decisions and resistance.
-- Specific school events, additional characters, combat meaning, branch order, endings, and exact turning points are not documented in the current project and remain `Unresolved` for this bible.
+- Combat meaning, branch order, endings, and exact later turning points remain `Unresolved`
+  unless separately implemented and recorded.
 
 ## Conflict and ambiguity ledger
 
@@ -81,9 +146,8 @@ Source: `PZ_D1_BREAKFAST`, `UseAllPiecesTutorialGuide`, and `70_PlayBreakfastPuz
 
 ### Documentation freshness
 
-- `Docs/05_DialogueSystem.md` says Timor has no portrait, while the current catalog assigns one.
-- `Docs/00_ProjectOverview.md` predates the Story System and says concrete design is still inferred.
-- **Status:** architecture docs are useful context but not authoritative character canon when contradicted by current assets.
+- Architecture docs are implementation context, while this ledger and current production
+  assets remain authoritative for character canon when a conflict appears.
 
 ## Missing data to collect later
 
@@ -93,4 +157,3 @@ Source: `PZ_D1_BREAKFAST`, `UseAllPiecesTutorialGuide`, and `70_PlayBreakfastPuz
 - Voice under anger, grief, comfort, social pressure, and combat.
 - Exact later-story milestones and when each relationship progression band begins.
 - Canon status and voice of future characters.
-

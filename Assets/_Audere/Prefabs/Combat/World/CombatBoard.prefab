@@ -292,8 +292,7 @@ MonoBehaviour:
   retryRoot: {fileID: 9093918569676447882}
   messageText: {fileID: 5985559220395640507}
   retryButton: {fileID: 24427651997493202}
-  defaultMessage: "Ti\u1EBFp t\u1EE5c \u0111i, Audere.\nC\u1EADu l\xE0m \u0111\u01B0\u1EE3c
-    m\xE0."
+  defaultMessage: "Không sao. Tớ vẫn ở đây.\nMình thử lại nhé."
 --- !u!1 &567050330410539987
 GameObject:
   m_ObjectHideFlags: 0
@@ -1716,8 +1715,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Ti\u1EBFp t\u1EE5c \u0111i, Audere.\nC\u1EADu l\xE0m \u0111\u01B0\u1EE3c
-    m\xE0."
+  m_text: "Không sao. Tớ vẫn ở đây.\nMình thử lại nhé."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 970093ff28456064e8690745b4d1ccf8, type: 2}
   m_sharedMaterial: {fileID: 8985584106190578975, guid: 970093ff28456064e8690745b4d1ccf8, type: 2}

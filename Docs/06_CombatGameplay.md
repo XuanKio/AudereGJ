@@ -1,6 +1,8 @@
 # Audere Combat Gameplay
 
-Tài liệu này mô tả combat real-time trong scene `20_Game`. Catch Cursor đi theo mouse để bắt/reroll dice; Audere Heart nằm đúng tâm Catch Cursor nên cũng né đạn bằng mouse trong cùng một Battle Box.
+Tài liệu này mô tả combat real-time dùng chung trong scene `20_Game` và hand-off prototype ở
+`30_Classroom`. Catch Cursor đi theo mouse để bắt/reroll dice; Audere Heart nằm đúng tâm
+Catch Cursor nên cũng né đạn bằng mouse trong cùng một Battle Box.
 
 ## 1. Scene hierarchy và lifecycle
 
@@ -12,6 +14,7 @@ WORLD                              WorldModeController
 ├── Puzzle Root
 ├── Combat Root
 │   └── CombatBoard                prefab instance; world-space Canvas
+├── Story Root / direct Story ref  presentation của location; có thể nằm ngoài WORLD
 └── World Transition Overlay       fade chuyển mode
 
 SYSTEMS
@@ -22,10 +25,14 @@ SYSTEMS
 
 `Puzzle Root` và `Combat Root` là hai mode ngang hàng dưới `WORLD`. `WorldModeController` là nơi duy nhất bật/tắt root, systems, Puzzle UI và camera bằng fade đen. Combat board thuộc lifecycle của `Combat Root`; `GameplayUIRoot` chỉ chứa UI dùng xuyên scene và Dialogue.
 
+`WorldGameplayMode` giữ thứ tự serialize ổn định: `Puzzle = 0`, `Combat = 1`, `Story = 2`.
+`Story` là presentation mode, không phải một gameplay controller và không tự claim input.
+
 Debug mode:
 
 - `F1`: Puzzle.
 - `F2`: Combat.
+- `F3`: Story.
 - Menu `Audere > Combat > Debug > Switch To Puzzle/Combat`.
 
 ## 2. Shared Battle Box
@@ -217,3 +224,52 @@ Special → Complete
 ```
 
 Với combat cốt truyện yêu cầu Audere thua, đặt `Defeat Behaviour = Complete`; Story chạy tiếp mà không hiện retry. Với combat phải thắng, `Retry` giữ StoryEvent đứng tại CombatStep, dùng retry panel của combat presentation và tạo một combat session mới sạch cho mỗi lần thử.
+
+## 10. Classroom prototype và hướng mở rộng (2026-08-23)
+
+Scene `30_Classroom` hiện có một hand-off kỹ thuật sau thoại Timor:
+
+```text
+190_HoldAfterTimor
+→ 200_EnterCombatPrototype       [WorldModeStep: Story → Combat]
+→ 210_PlayCombatPrototype        [CombatStep]
+→ 220_ReturnToStory              [WorldModeStep: Combat → Story]
+→ 230_HoldAfterCombat
+```
+
+`WORLD` tham chiếu trực tiếp `CLASSROOM` làm `storyRoot`; `Combat Root` chứa cùng prefab
+`CombatBoard` của scene 20. `SYSTEMS/Combat Systems` chỉ active ở mode Combat. Camera dùng
+pose riêng cho Story và Combat; `PuzzleViewportMask` bật ở Puzzle/Story và tắt trong Combat.
+Mode switch chỉ đổi presentation. `CombatController.Play()` vẫn là nơi duy nhất claim Combat
+input, nên fade hoặc bật root không thể vô tình cấp input sớm.
+
+Encounter hiện tại:
+
+```text
+Assets/_Audere/Data/Combat/CombatEncounter_D1_CLASSROOM_PROTOTYPE.asset
+```
+
+- **Design Intent:** dùng encounter ngắn để kiểm tra Story → Combat → Story và reuse scene 20.
+- **Unresolved:** enemy chính thức, tên, art, ý nghĩa tâm lý, điều kiện thắng/thua canon và
+  beat truyện sau combat.
+- Cả Victory và Defeat tạm map về `Complete` để QA được đường quay lại Story. Đây không phải
+  quyết định kết quả cốt truyện.
+
+Hướng mở rộng giữ theo nhu cầu thật, không nhét logic enemy mới vào StoryEvent:
+
+```text
+StoryEvent
+→ CombatStep (chọn encounter + result mapping)
+→ CombatEncounterData (composition root của trận)
+   ├── enemy identity/presentation
+   ├── rule set / dice pool
+   └── danh sách attack pattern/mechanic
+→ CombatController (lifecycle và result, không biết story tiếp theo)
+```
+
+Ở prototype đầu, tiếp tục dùng `CombatEncounterData` hiện có. Khi xuất hiện enemy thứ hai có
+art hoặc hành vi thực sự khác, tách identity/presentation thành `EnemyDefinition`. Khi xuất
+hiện pattern hoặc mechanic thứ hai không thể biểu diễn bằng các field hiện tại, tách chúng
+thành ScriptableObject module riêng (`EnemyAttackPattern`, `CombatModifier`/`CombatRuleSet`)
+và để encounter compose danh sách module. Không mở rộng enum/switch vô hạn trong controller,
+nhưng cũng không tạo interface/module rỗng trước khi có use case thứ hai để kiểm chứng contract.

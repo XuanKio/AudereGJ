@@ -15,10 +15,12 @@ namespace Audere.Audio
         UI_Click = 1001,
         UI_Hover = 1002,
         UI_Back = 1003,
+        Dialogue_Text = 1004,
 
         // Nilah - 2000
         Nilah_Step = 2001,
         Nilah_Hurt = 2002,
+        Player_Fall = 2003,
 
         // Timor - 3000
         Timor_Meow = 3001,
@@ -28,6 +30,9 @@ namespace Audere.Audio
         Tile_Rotate = 4001,
         Tile_Select = 4002,
         Tile_Connect = 4003,
+        Bus_Approach = 4004,
+        Classroom_Murmur = 4005,
+        Tile_Pop = 4006,
 
         // Combat - 5000
         Dice_Select = 5001,

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audere Story Scene Builder"
+  short_description: "Build scene-first story flows for Audere"
+  default_prompt: "Use $audere-story-scene-builder to build or revise an Audere StoryEvent scene flow."

@@ -9,7 +9,7 @@ summary: The single entry point, global services, and scene flow — and how to 
 
 # Audere — Bootstrap & Scene Flow
 
-> **Last updated:** 2026-08-11
+> **Last updated:** 2026-08-23
 
 ## Goal
 
@@ -74,7 +74,8 @@ SceneFlow.Load("20_Game")
 |-------|----------------|----------------------------------------------|
 | 0     | `00_Bootstrap` | Entry point. Inits services, loads MainMenu. |
 | 1     | `10_MainMenu`  | Title + New Game button.                     |
-| 2     | `20_Game`      | Gameplay (placeholder for now).              |
+| 2     | `20_Game`      | Day 1 morning StepTile sequence.              |
+| 3     | `30_Classroom` | Day 1 classroom announcement sequence.        |
 
 Scene names are centralized in `Audere.Core.GameScenes` — reference those constants,
 never magic strings. Keep them in sync with Build Settings.
@@ -88,8 +89,10 @@ never magic strings. Keep them in sync with Build Settings.
   (`InputSystemUIInputModule`), `Canvas` (overlay, scale-with-screen 1920×1080) › `Title`
   (TMP "AUDERE"), `NewGameButton` (Image+Button) › `Label` (TMP), `MainMenu`
   (MainMenuController → `newGameButton`).
-- **20_Game** — `Main Camera` (+AudioListener), `Canvas` (overlay) › `GameLabel` (TMP
-  "20_Game (placeholder)").
+- **20_Game** — scene-first Day 1 morning and bus-stop puzzle flow under `STORY`.
+- **30_Classroom** — classroom staging, local `StoryDirector`, transition overlay and
+  `D1_CLASSROOM_ANNOUNCEMENT`. It also contains a `GameplayUIRoot` prefab instance as a
+  safe direct-entry fallback; the persistent instance destroys the duplicate in normal flow.
 
 ## Scripts
 
@@ -113,6 +116,10 @@ never magic strings. Keep them in sync with Build Settings.
 
 **Add a scene:** create it, add a `GameScenes` constant, add it to Build Settings, load it
 via `SceneFlow.Load(GameScenes.X)`.
+
+Production cross-scene story uses `SceneLoadStep`, which delegates to the persistent
+`SceneFlow`. Fade the source scene before the load and author a local fade-in step at the
+start of the destination event. Do not connect `StoryEvent` references across scenes.
 
 ## Deferred (documented now, NOT built yet)
 

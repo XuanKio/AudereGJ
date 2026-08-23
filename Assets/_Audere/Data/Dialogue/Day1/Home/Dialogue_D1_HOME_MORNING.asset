@@ -17,17 +17,18 @@ MonoBehaviour:
   rightCharacter: 2
   lines:
   - speaker: 1
-    text: "Audere\u2026 d\u1EADy th\xF4i. C\u1EADu s\u1EAFp mu\u1ED9n r\u1ED3i."
+    text: "Audere… dậy thôi. Muộn thật rồi đấy."
   - speaker: 0
-    text: "\u1EEAm\u2026 m\u1EA5y gi\u1EDD r\u1ED3i?"
+    text: "Ừm… cho tớ một phút."
   - speaker: 1
-    text: "\u0110\u1EE7 mu\u1ED9n \u0111\u1EC3 c\u1EADu \u0111\u1EEBng th\u1EED ng\u1EE7
-      th\xEAm n\u0103m ph\xFAt n\u1EEFa."
+    text: "Một phút của cậu thường dài lắm."
   - speaker: 0
-    text: "\u2026T\u1EDB \u0111ang d\u1EADy m\xE0."
+    text: "…Mấy giờ rồi?"
   - speaker: 1
-    text: "\u1EEA. Ch\u01B0a c\u1EA7n ngh\u0129 h\u1EBFt m\u1ECDi th\u1EE9 ngay \u0111\xE2u. M\xECnh \u0111\xE1nh r\u0103ng tr\u01B0\u1EDBc nh\xE9."
+    text: "Vẫn kịp, nếu mình bắt đầu ngay bây giờ. Chưa cần nghĩ tới cả buổi sáng đâu."
+  - speaker: 1
+    text: "Đánh răng trước nhé."
   - speaker: 0
-    text: "\u0110\u01B0\u1EE3c r\u1ED3i\u2026"
+    text: "Ừ… tớ dậy đây."
   - speaker: 1
-    text: "T\u1EDB \u0111i c\xF9ng c\u1EADu."
+    text: "Tớ đi cùng cậu."

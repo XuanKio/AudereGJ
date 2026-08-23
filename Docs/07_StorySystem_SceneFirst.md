@@ -1,6 +1,6 @@
 # Audere Story System — scene-first hierarchy flow
 
-> **Last updated:** 2026-08-22
+> **Last updated:** 2026-08-23
 
 Story của Audere được author trực tiếp trong scene bằng `StoryDirector → StoryEvent → StoryStep`. Sibling order trong Hierarchy là thứ tự chạy.
 
@@ -35,7 +35,13 @@ STORY [StoryDirector]
     ├── 20_RevealBusStopBoard       [BoardTileTransitionStep]
     ├── 30_BusStopApproachDialogue  [DialogueStep]
     ├── 40_PlayBusStopPuzzle        [PuzzleStep]
-    └── ...
+    ├── 50_SettleAtBusStop          [BoardTileTransitionStep]
+    ├── 60_HoldAtGoal               [WaitStep]
+    ├── 65_BusApproaches            [PlayAudioStep]
+    ├── 70_BusStopArrivalDialogue   [DialogueStep]
+    ├── 90_BusStopSafetyDialogue    [DialogueStep]
+    ├── 110_FadeToClassroom         [CanvasFadeStep]
+    └── 120_LoadClassroom           [SceneLoadStep]
 ```
 
 Đổi sibling order là đổi flow. Child inactive được bỏ qua. Step nằm trong group con không được thu thập ngầm.
@@ -82,7 +88,16 @@ Flow Day 1 hiện tại:
 D1_HOME_MORNING Completed
 → frame kế tiếp
 → D1_TO_BUS_STOP
+→ fade + SceneFlow.Load(GameScenes.Classroom)
+→ D1_CLASSROOM_ANNOUNCEMENT trong scene `30_Classroom`
+→ D1_CLASSROOM_RECESS_BIANCA
+→ Story → Combat prototype → Story
+→ dừng sau `230_HoldAfterCombat`
 ```
+
+Cross-scene flow không dùng direct `Next Event`, vì reference đó không tồn tại sau Single
+scene load. Mỗi scene sở hữu `StoryDirector` riêng; source event kết thúc bằng
+`SceneLoadStep`, còn destination scene tự khởi động event đã serialize của nó.
 
 ## 5. Step hiện có
 
@@ -97,6 +112,10 @@ D1_HOME_MORNING Completed
 | `WaitStep` | Chờ scaled/unscaled duration; mặc định unscaled. |
 | `SetActiveStep` | Disable list trước, enable list sau; không rollback khi cancel. |
 | `MoveActorStep` | Lerp actor tới direct Transform target; cancel dừng tại chỗ. |
+| `CharacterMotionStep` | Hop/squash/landing và facing cho actor story. `TravelToTarget` dùng cho locomotion; `VerticalInPlace` khóa X/Z và trở về baseline cho phản xạ giật mình. |
+| `CanvasFadeStep` | Fade một `CanvasGroup` bằng unscaled time; dùng cho source/destination scene transition. |
+| `SceneLoadStep` | Load scene qua `SceneFlow`, không gọi raw `SceneManager.LoadScene`. |
+| `PlayAudioStep` | Phát một `AudioId`; có thể cho phép placeholder/missing service chỉ warning rồi tiếp tục. |
 | `DebugStoryStep` | Log/delay để kiểm tra runner, không dùng làm canon content. |
 
 ## 6. Quy tắc tích hợp
@@ -138,6 +157,10 @@ CombatController.Play → Combat input
 DialogueController.Play → Dialogue overlay input
 ```
 
+Ba presentation mode dùng chung là `Puzzle`, `Combat`, `Story`. Giá trị enum cũ của Puzzle
+và Combat không đổi để giữ serialized scene. `Story` có camera pose và story root riêng; mode
+này không phải gameplay session và không tự cấp input.
+
 ## 7. Quy tắc authoring flow puzzle liên tiếp
 
 ```text
@@ -174,3 +197,28 @@ Lưu ý:
 
 Các `TEST_*`, `DebugStoryStep`, sample dialogue/encounter và nội dung brainstorm chỉ là công cụ kiểm thử. Chúng không xác nhận cốt truyện, tính cách hay thứ tự canon nếu chưa được ghi rõ trong tài liệu narrative chính thức.
 
+## 10. Production flow hiện tại
+
+- `20_Game/STORY` chỉ giữ `D1_HOME_MORNING` và `D1_TO_BUS_STOP`; các `TEST_*` cũ đã được
+  loại khỏi production scene.
+- Bus-stop goal được giữ làm anchor trong lúc path tile và Puzzle UI biến mất. Sau một nhịp
+  yên, SFX xe bus và hai đoạn thoại kết beat trước khi fade sang lớp học.
+- Vì Bus Stop là puzzle cuối scene, shared Player đứng nguyên trên Goal cho tới lúc fade.
+  Không dùng `MoveActorStep` để diễn tả pose/thả lỏng vì step đó dịch root gameplay; biểu cảm
+  về sau phải nằm ở Animator hoặc visual child mà không đổi vị trí grid.
+- `30_Classroom` author trực tiếp actor, tile, staging target và
+  `D1_CLASSROOM_ANNOUNCEMENT` nối sang `D1_CLASSROOM_RECESS_BIANCA`. Interest tile xuất hiện, Audere nhích tới rồi quay về chỗ cũ
+  theo `MoveActorStep`/`SetActiveStep`, không hardcode trong dialogue controller.
+- Event giờ nghỉ dùng `CharacterMotionStep` cho Bianca nhảy từng tile và cho Audere giật mình
+  tại chỗ rồi quay sang phải. Sau thoại Timor, event dùng `WorldModeStep → CombatStep →
+  WorldModeStep` để chạy encounter prototype rồi khôi phục nguyên bố cục Story.
+- Combat prototype chỉ xác nhận contract kỹ thuật. Enemy, ý nghĩa narrative và kết quả canon
+  vẫn `Unresolved`; không suy chúng từ art/name placeholder.
+- Classroom staging trình bày ngang: Audere đứng bên trái, Teacher đứng bên phải trên cùng
+  baseline và cả cặp được cân giữa khung hình. Hai Student placeholder/tile đã được bỏ khỏi
+  production scene để beat chỉ tập trung vào Audere và Teacher. Teacher là prefab riêng tại
+  `Assets/_Audere/Prefabs/Story/Characters/Teacher.prefab`; sprite hiện tại vẫn là placeholder
+  và được thay trực tiếp trong prefab khi có art chính thức.
+- Các object có hậu tố `PLACEHOLDER` là presentation tạm, không tự xác nhận thiết kế canon.
+- SFX bus/classroom hiện là clip placeholder được map qua `AudioCatalog`; có thể thay clip tại
+  catalog mà không sửa StoryEvent.

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Audere.Audio;
 using Audere.Puzzle;
 using Audere.Puzzle.Board;
 using UnityEngine;
@@ -46,6 +47,12 @@ namespace Audere.Story.Steps
         [SerializeField, Range(0f, .05f)] private float revealOvershoot = .015f;
         [SerializeField] private bool useUnscaledTime = true;
 
+        [Header("Audio")]
+        [SerializeField] private AudioId tileTransitionAudioId = AudioId.Tile_Pop;
+        [SerializeField, Min(0f)] private float tileSoundInterval = .11f;
+
+        private float nextTileSoundTime;
+
         private Transform activeTransform;
         private Vector3 activeAuthoredScale;
         private Vector3 activeAuthoredLocalPosition;
@@ -64,6 +71,7 @@ namespace Audere.Story.Steps
 
         protected override IEnumerator Execute()
         {
+            nextTileSoundTime = float.NegativeInfinity;
             List<Transform> hideTargets = ResolveTargets(
                 sourcePuzzle,
                 objectsToHide,
@@ -223,6 +231,7 @@ namespace Audere.Story.Steps
             Vector3 authoredScale,
             Vector3 authoredLocalPosition)
         {
+            TryPlayTileTransitionSound();
             CaptureVisualState(target, authoredScale, authoredLocalPosition);
             Vector3 hiddenLocalPosition = authoredLocalPosition + Vector3.down * verticalOffset;
 
@@ -296,6 +305,7 @@ namespace Audere.Story.Steps
 
             if (transitionDuration <= 0f || revealWaveDuration <= 0f)
             {
+                TryPlayTileTransitionSound();
                 RestoreRevealVisualStates();
                 yield break;
             }
@@ -320,7 +330,10 @@ namespace Audere.Story.Steps
                         continue;
 
                     if (!state.Target.gameObject.activeSelf)
+                    {
                         state.Target.gameObject.SetActive(true);
+                        TryPlayTileTransitionSound();
+                    }
                     ApplyRevealProgress(state, progress);
                 }
                 yield return null;
@@ -444,6 +457,19 @@ namespace Audere.Story.Steps
             activeTransform = null;
             activeRenderers.Clear();
             activeRendererColors.Clear();
+        }
+
+        private void TryPlayTileTransitionSound()
+        {
+            if (tileTransitionAudioId == AudioId.None)
+                return;
+
+            float now = Time.unscaledTime;
+            if (now < nextTileSoundTime)
+                return;
+
+            AudioService.Instance?.Play(tileTransitionAudioId);
+            nextTileSoundTime = now + tileSoundInterval;
         }
 
         private static float SmoothStep(float value)

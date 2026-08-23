@@ -10,29 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
-  m_Name: Dialogue_D1_LEAVING_CHECKLIST
+  m_Name: Dialogue_D1_BUS_STOP_APPROACH
   m_EditorClassIdentifier: 
-  dialogueId: d1-home-leaving-checklist
+  dialogueId: d1-bus-stop-approach
   leftCharacter: 1
   rightCharacter: 2
   lines:
   - speaker: 1
-    text: "C\u1EB7p?"
+    text: "Thấy mái che phía trước không? Bến xe đấy."
   - speaker: 0
-    text: "C\xF3."
+    text: "Xa hơn tớ nhớ."
   - speaker: 1
-    text: "\u0110i\u1EC7n tho\u1EA1i?"
-  - speaker: 0
-    text: "C\xF3."
+    text: "Chỉ dài hơn một chút thôi."
   - speaker: 1
-    text: "Ch\xECa kh\xF3a?"
+    text: "Đừng nhìn hết cả quãng. Cứ lo đoạn ngay trước mặt cậu trước nhé."
   - speaker: 0
-    text: "...C\xF3."
-  - speaker: 1
-    text: "C\u1EADu v\u1EEBa ki\u1EC3m tra t\xFAi \u0111\xFAng kh\xF4ng?"
-  - speaker: 0
-    text: "Kh\xF4ng."
-  - speaker: 1
-    text: "C\u1EADu v\u1EEBa ki\u1EC3m tra t\xFAi."
-  - speaker: 0
-    text: "\u0110i th\xF4i."
+    text: "…Ừ."

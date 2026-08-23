@@ -9,7 +9,7 @@ summary: Id-based, data-driven audio — gameplay plays sounds by AudioId, never
 
 # Audere — Audio System
 
-> **Last updated:** 2026-08-11
+> **Last updated:** 2026-08-23
 
 ## Principle
 
@@ -47,7 +47,7 @@ Explicit numeric ids grouped by category so blocks stay separated and ids never 
 | Range | Category | Examples |
 |-------|----------|----------|
 | 1000 | UI | `UI_Click = 1001`, `UI_Hover`, `UI_Back` |
-| 2000 | Nilah | `Nilah_Step`, `Nilah_Hurt` |
+| 2000 | Player / legacy Nilah | `Nilah_Step`, `Nilah_Hurt`, `Player_Fall` |
 | 3000 | Timor | `Timor_Meow`, `Timor_Step` |
 | 4000 | Exploration | `Tile_Rotate`, `Tile_Select`, `Tile_Connect` |
 | 5000 | Combat | `Dice_Select`, `Dice_Roll`, `Dice_Hit` |
@@ -72,6 +72,8 @@ auto-incremented enum values.
 ### `AudioService` — the play API
 - `IGameService`; initialized by the Bootstrapper. Lives under `Bootstrap › Services`.
 - `Play(AudioId)` → resolves via catalog → `AudioSource.PlayOneShot(clip, volume)`.
+- `TryResolveSfx(AudioId, out clip, out volume)` dành cho component cần sở hữu và dừng
+  playback riêng, hiện được `DialogueController` dùng cho typewriter loop.
 - Global access via **`AudioService.Instance`**.
 - Its `AudioSource` is **2D** (`spatialBlend = 0`) — Audere's UI/SFX are position-independent.
 - Missing id or missing clip → logs a warning and no-ops (never throws).
@@ -88,10 +90,21 @@ auto-incremented enum values.
 Open `AudioCatalog.asset`, change the `clip` on that entry to the new file. Gameplay code
 (`Play(AudioId.Tile_Rotate)`) stays identical — no code touched.
 
-## Current state / TODO
+## Current state / tuning
 
-- **The catalog ships EMPTY.** Add an `AudioEntry` per `AudioId` and assign real clips when
-  audio assets land. Until then `Play(...)` logs `Audio not found: <id>` and no-ops.
+| AudioId | Clip | Catalog volume | Runtime rule |
+| --- | --- | ---: | --- |
+| `Dialogue_Text` | `Text.mp3` | `0.55` | Loop trên AudioSource riêng; dừng ngay khi text hiện đủ/skip/cancel/close. |
+| `Tile_Pop` | `TilePop.mp3` | `0.16` | Reveal/hide tile, throttle tối thiểu `0.11 s` để tránh chồng peak. |
+| `Player_Fall` | `Fall.mp3` | `0.60` | Phát đúng lúc `PuzzleManager` nhận fall started. |
+| `Bus_Approach` | generated placeholder | `0.72` | Beat trạm xe bus. |
+| `Classroom_Murmur` | generated placeholder | `0.34` | Nhịp lớp học xôn xao. |
+
+Phân tích source ngày 2026-08-23: `Text` peak `-18.1 dBFS`, `TilePop` peak `-2.0 dBFS`,
+`Fall` peak `-11.7 dBFS`. Vì `TilePop` nóng hơn rõ rệt và có thể phát liên tục trong wave,
+volume của nó được đặt thấp nhất và code giới hạn mật độ playback.
+
+- Catalog không còn empty; clip chưa có entry vẫn warning/no-op như trước.
 - **Music not wired yet.** The `Music_*` ids exist, but `AudioService` only fires one-shot
   SFX. When music is needed, add a dedicated **looping** music `AudioSource` + a
   `PlayMusic(AudioId)` / `StopMusic()` API (and later, volume from `GameSettings`).

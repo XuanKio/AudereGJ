@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D1_LEAVING_CHECKLIST
+  m_EditorClassIdentifier: 
+  dialogueId: d1-home-leaving-checklist
+  leftCharacter: 1
+  rightCharacter: 2
+  lines:
+  - speaker: 1
+    text: "Cặp?"
+  - speaker: 0
+    text: "Có."
+  - speaker: 1
+    text: "Điện thoại?"
+  - speaker: 0
+    text: "Có."
+  - speaker: 1
+    text: "Chìa khóa?"
+  - speaker: 0
+    text: "…Có."
+  - speaker: 1
+    text: "Cậu vừa kiểm tra túi lần nữa đúng không?"
+  - speaker: 0
+    text: "Cho chắc thôi."
+  - speaker: 1
+    text: "Chìa khóa vẫn ở đó. Tớ nhìn thấy mà."
+  - speaker: 0
+    text: "Được rồi. Đi thôi."

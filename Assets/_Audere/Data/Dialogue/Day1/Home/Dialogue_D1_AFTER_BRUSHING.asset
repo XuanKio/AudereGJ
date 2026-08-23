@@ -17,14 +17,16 @@ MonoBehaviour:
   rightCharacter: 2
   lines:
   - speaker: 0
-    text: "Xong r\u1ED3i\u2026 v\u1ECB b\u1EA1c h\xE0 l\xE0m t\u1EDB t\u1EC9nh h\u1EB3n."
+    text: "Bạc hà cay quá… nhưng tỉnh thật."
   - speaker: 1
-    text: "\u1EEA, tr\xF4ng c\u1EADu t\u1EC9nh h\u01A1n r\u1ED3i \u0111\u1EA5y."
+    text: "Ít nhất mắt cậu cũng chịu mở rồi."
   - speaker: 0
-    text: "M\u1ED9t ch\xFAt th\xF4i."
+    text: "Tớ vẫn đang mở mà."
   - speaker: 1
-    text: "Th\u1EBF l\xE0 \u0111\u1EE7 r\u1ED3i. Gi\u1EDD \u0103n s\xE1ng nh\xE9. B\u1ED1 c\u1EADu \u0111\u1EC3 b\xE1nh m\xEC trong b\u1EBFp r\u1ED3i \u0111\u1EA5y."
+    text: "Ừ, mở được một nửa. Thế là tiến bộ rồi."
+  - speaker: 1
+    text: "Bố cậu để bánh mì trong bếp đấy. Mình ăn một chút rồi đi."
   - speaker: 0
-    text: "V\u1EABn c\xF2n k\u1ECBp ch\u1EE9?"
+    text: "Vẫn còn kịp chứ?"
   - speaker: 1
-    text: "C\xF2n. M\xECnh c\u1EE9 l\xE0m t\u1EEBng vi\u1EC7c m\u1ED9t th\xF4i."
+    text: "Kịp. Cứ lo bữa sáng trước đã, phần còn lại có tớ nhắc."

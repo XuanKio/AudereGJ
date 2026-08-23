@@ -17,11 +17,11 @@ namespace Audere.Puzzle
 
         [Header("One-Line Tutorial")]
         [SerializeField] private string openingInstruction =
-            "Hãy dùng hết các mảnh đang có để tới bánh mì.";
+            "Dùng hết các mảnh để tới đích.";
         [SerializeField] private string skippedPieceMessage =
-            "Timor — Chưa được đâu, Audere. Mình vẫn còn một mảnh nữa mà. Quay lại và đi hết từng bước nhé.";
+            "Timor — Vẫn còn một mảnh nữa đấy. Mình quay lại, đi từng bước thôi nhé.";
         [SerializeField] private string retryInstruction =
-            "Timor — Không sao. Mình làm lại từ đầu, từng bước một thôi.";
+            "Timor — Không sao. Lần này cứ bắt đầu từ chỗ cậu trước nhé.";
         [Tooltip("Optional non-repeating Timor barks for falls or exhausted-piece failures. The legacy Retry Instruction is used when empty.")]
         [SerializeField] private List<string> attemptFailedMessages = new List<string>();
 

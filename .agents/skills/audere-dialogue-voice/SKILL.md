@@ -10,7 +10,7 @@ Preserve what the project has established while keeping assumptions visibly sepa
 ## Read the relevant references
 
 - Always read [writing-principles.md](references/writing-principles.md) and [story-state.md](references/story-state.md).
-- Read the profile of every participating character: [Audere](references/characters/audere.md) and/or [Timor](references/characters/timor.md).
+- Read the profile of every participating character: [Audere](references/characters/audere.md), [Timor](references/characters/timor.md), [Teacher](references/characters/teacher.md), and/or [Bianca](references/characters/bianca.md).
 - For scenes involving both characters or referring to their bond, read [relationships.md](references/relationships.md).
 - When drafting or reviewing voice, read [dialogue-examples.md](references/dialogue-examples.md). Treat the examples as evidence, not templates to copy.
 
@@ -57,4 +57,3 @@ Before writing or editing dialogue:
 - Preserve the scene-first Story flow and existing data ownership; this skill does not authorize framework or gameplay changes.
 - Do not rewrite nearby dialogue merely to make the new lines stylistically uniform unless the user asks.
 - Do not update this bible as canon merely because a draft was proposed. Update references only after the designer accepts a change as canon or explicitly requests bible maintenance.
-

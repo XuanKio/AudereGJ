@@ -27,7 +27,8 @@ namespace Audere.Puzzle
         [SerializeField] private string placeSecondPieceInstruction = "Đúng hướng rồi. Chuột trái để đặt.";
         [SerializeField] private string firstPieceRejectedInstruction = "Mảnh phải nối từ chỗ Audere đứng.";
         [SerializeField] private string secondPieceRejectedInstruction = "Nối mảnh này vào đoạn đường đã đặt.";
-        [SerializeField, TextArea] private string retryLine = "Không sao. Mình thử lại nhé.";
+        [SerializeField, TextArea] private string retryLine =
+            "Timor — Không sao. Mình bắt đầu lại từ chỗ cậu nhé.";
 
         private Coroutine idleHintRoutine;
         private bool tutorialActive;

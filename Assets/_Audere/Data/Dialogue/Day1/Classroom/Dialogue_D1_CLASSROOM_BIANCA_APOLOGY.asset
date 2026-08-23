@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D1_CLASSROOM_BIANCA_APOLOGY
+  m_EditorClassIdentifier: 
+  dialogueId: d1-classroom-bianca-apology
+  leftCharacter: 1
+  rightCharacter: 4
+  lines:
+  - speaker: 1
+    text: "Xin l\u1ED7i!"
+  - speaker: 1
+    text: "T\u1EDB l\xE0m c\u1EADu gi\u1EADt m\xECnh \xE0?"
+  - speaker: 0
+    text: "Kh\xF4ng\u2026 t\u1EDB kh\xF4ng \u0111\u1EC3 \xFD."
