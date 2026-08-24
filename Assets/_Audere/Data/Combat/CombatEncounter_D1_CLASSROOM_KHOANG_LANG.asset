@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 637e1f99b966b3a45b7a6d876706de0b, type: 3}
+  m_Name: CombatEncounter_D1_CLASSROOM_KHOANG_LANG
+  m_EditorClassIdentifier: 
+  encounterId: d1-classroom-khoang-lang
+  enemyDefinition: {fileID: 11400000, guid: f482e97bd4e139248aeff87075752125, type: 2}
+  tutorialData: {fileID: 11400000, guid: 62d0b950054997043885f2ab6a251f70, type: 2}
+  encounterDuration: 45
+  dicePerBatch: 5
+  batchRespawnDelay: 0.3
+  minimumDiceSpeed: 115
+  maximumDiceSpeed: 185
+  playerHitInvulnerability: 0.55
+  bulletTimePenaltySeconds: 3

@@ -1,4 +1,5 @@
 using Audere.Core;
+using Audere.Combat;
 using Audere.GameplayInput;
 using Audere.Puzzle.PathPieces;
 using UnityEngine;
@@ -18,6 +19,8 @@ namespace Audere.Dialogue
         [SerializeField] private PathPieceHand pathPieceHand;
         [SerializeField] private DialogueController dialogue;
         [SerializeField] private GameplayInputGate inputGate;
+        [SerializeField] private CombatTutorialView combatTutorial;
+        [SerializeField] private CombatRetryView combatRetry;
 
         public static GameplayUIRoot Instance { get; private set; }
         public Canvas GameplayCanvas => gameplayCanvas;
@@ -25,6 +28,8 @@ namespace Audere.Dialogue
         public PathPieceHand PathPieceHand => pathPieceHand;
         public DialogueController Dialogue => dialogue;
         public GameplayInputGate InputGate => inputGate;
+        public CombatTutorialView CombatTutorial => combatTutorial;
+        public CombatRetryView CombatRetry => combatRetry;
 
         private void Awake()
         {
@@ -51,6 +56,10 @@ namespace Audere.Dialogue
 
             if (dialogue != null)
                 dialogue.ForceClose();
+            if (combatTutorial != null)
+                combatTutorial.ForceHide();
+            if (combatRetry != null)
+                combatRetry.ForceHide();
 
             SceneManager.sceneLoaded -= HandleSceneLoaded;
             Instance = null;
@@ -66,6 +75,10 @@ namespace Audere.Dialogue
 
             if (dialogue != null)
                 dialogue.ForceClose();
+            if (combatTutorial != null)
+                combatTutorial.ForceHide();
+            if (combatRetry != null)
+                combatRetry.ForceHide();
 
             ApplyScenePresentation(scene);
         }
@@ -85,6 +98,10 @@ namespace Audere.Dialogue
                 dialogue = GetComponentInChildren<DialogueController>(true);
             if (inputGate == null)
                 inputGate = GetComponentInChildren<GameplayInputGate>(true);
+            if (combatTutorial == null)
+                combatTutorial = GetComponentInChildren<CombatTutorialView>(true);
+            if (combatRetry == null)
+                combatRetry = GetComponentInChildren<CombatRetryView>(true);
         }
 
         private void ApplyScenePresentation(Scene scene)

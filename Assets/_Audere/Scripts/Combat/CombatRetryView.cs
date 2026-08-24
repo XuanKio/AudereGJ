@@ -30,7 +30,7 @@ namespace Audere.Combat
 
         private void OnDisable()
         {
-            HideImmediate();
+            ForceHide();
         }
 
         private void OnDestroy()
@@ -83,6 +83,11 @@ namespace Audere.Combat
             return true;
         }
 
+        public void ForceHide()
+        {
+            HideImmediate();
+        }
+
         private void HandleRetryClicked()
         {
             if (!IsShowing || !retryButton.interactable)
@@ -119,17 +124,28 @@ namespace Audere.Combat
 
             if (messageText == null)
             {
-                Transform child = retryRoot.transform.Find("Retry Message");
+                Transform child = FindDescendant(retryRoot.transform, "Retry Message");
                 if (child != null)
                     messageText = child.GetComponent<TMP_Text>();
             }
 
             if (retryButton == null)
             {
-                Transform child = retryRoot.transform.Find("Retry Button");
+                Transform child = FindDescendant(retryRoot.transform, "Retry Button");
                 if (child != null)
                     retryButton = child.GetComponent<Button>();
             }
+        }
+
+        private static Transform FindDescendant(Transform root, string targetName)
+        {
+            if (root.name == targetName) return root;
+            for (int i = 0; i < root.childCount; i++)
+            {
+                Transform found = FindDescendant(root.GetChild(i), targetName);
+                if (found != null) return found;
+            }
+            return null;
         }
     }
 }

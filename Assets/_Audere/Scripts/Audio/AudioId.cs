@@ -35,7 +35,7 @@ namespace Audere.Audio
         Tile_Pop = 4006,
 
         // Combat - 5000
-        Dice_Select = 5001,
+        Dice_Catch = 5001,
         Dice_Roll = 5002,
         Dice_Hit = 5003,
 

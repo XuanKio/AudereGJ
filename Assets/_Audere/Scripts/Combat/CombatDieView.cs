@@ -23,8 +23,8 @@ namespace Audere.Combat
         [SerializeField] private TMP_Text symbolLabel;
         [FormerlySerializedAs("swordColor")]
         [SerializeField] private Color attackColor = new Color32(168, 59, 68, 255);
-        [FormerlySerializedAs("shieldColor")]
-        [SerializeField] private Color armorColor = new Color32(176, 171, 183, 255);
+        [FormerlySerializedAs("armorColor")]
+        [SerializeField] private Color shieldColor = new Color32(176, 171, 183, 255);
         [FormerlySerializedAs("dangerColor")]
         [SerializeField] private Color healColor = new Color32(216, 192, 151, 255);
         [SerializeField] private Color inactiveColor = new Color32(35, 33, 45, 255);
@@ -57,6 +57,7 @@ namespace Audere.Combat
         private bool captured;
         private bool isLanded;
         private bool tossMotionStarted;
+        private bool rerollInProgress;
         private Quaternion authoredRotation;
         private Vector3 authoredShadowScale;
         private Vector2 authoredFramePosition;
@@ -71,6 +72,7 @@ namespace Audere.Combat
         public RectTransform RectTransform => rectTransform;
         public bool IsCaptured => captured;
         public bool CanInteract => isLanded && !captured;
+        public bool IsRerolling => rerollInProgress;
         public bool IsInAirborneOverlay => airborneParent != null && rectTransform != null && rectTransform.parent == airborneParent;
         public Vector2 MoveVelocity => velocity;
 
@@ -114,6 +116,7 @@ namespace Audere.Combat
             captured = false;
             isLanded = false;
             tossMotionStarted = false;
+            rerollInProgress = false;
             canvasGroup.alpha = 1f;
             canvasGroup.blocksRaycasts = false;
             rectTransform.anchoredPosition = startPosition;
@@ -132,6 +135,37 @@ namespace Audere.Combat
             StartCoroutine(TossAnimation());
         }
 
+        public void SetupReroll(
+            CombatSymbol symbol,
+            CombatRerollLaunchPlan launchPlan,
+            RectTransform motionSpace,
+            Vector2 resumedVelocity)
+        {
+            if (rectTransform == null) Awake();
+            StopAllCoroutines();
+            MoveToPresentationRoot(landedParent);
+            captured = false;
+            isLanded = false;
+            tossMotionStarted = false;
+            rerollInProgress = true;
+            canvasGroup.alpha = 1f;
+            canvasGroup.blocksRaycasts = false;
+            rectTransform.localScale = Vector3.one;
+            rectTransform.localRotation = authoredRotation;
+            velocity = resumedVelocity;
+            angularVelocity = rotateWhileMoving
+                ? UnityEngine.Random.Range(angularSpeedRange.x, angularSpeedRange.y)
+                : 0f;
+            SetSymbol(symbol);
+            ApplyVisualOffset(0f);
+            ApplyVisualScale(Vector3.one);
+            ApplyShadowScale(1f);
+            ApplyAirborneVisual();
+            MoveToPresentationRoot(airborneParent);
+            SetCenterInSpace(rectTransform, motionSpace, launchPlan.StartPosition);
+            StartCoroutine(RerollLaunchAnimation(launchPlan, motionSpace));
+        }
+
         public void SetSymbol(CombatSymbol symbol)
         {
             Symbol = symbol;
@@ -141,12 +175,7 @@ namespace Audere.Combat
             if (symbolLabel != null)
             {
                 symbolLabel.color = normalSymbolColor;
-                symbolLabel.text = symbol switch
-                {
-                    CombatSymbol.Attack => "ATK",
-                    CombatSymbol.Armor => "ARM",
-                    _ => "HEAL",
-                };
+                symbolLabel.text = CombatDiceConstants.GetDefinition(symbol).ShortLabel;
             }
         }
 
@@ -167,6 +196,7 @@ namespace Audere.Combat
         public bool ResolveCollisionWith(CombatDieView other, float bounciness, float separationPadding)
         {
             if (other == null || other == this || captured || other.captured ||
+                rerollInProgress || other.rerollInProgress ||
                 rectTransform == null || other.rectTransform == null ||
                 !gameObject.activeInHierarchy || !other.gameObject.activeInHierarchy)
                 return false;
@@ -267,6 +297,7 @@ namespace Audere.Combat
             StopAllCoroutines();
             isLanded = false;
             tossMotionStarted = false;
+            rerollInProgress = false;
             canvasGroup.blocksRaycasts = false;
             SetSymbol(nextSymbol);
             ApplyVisualOffset(0f);
@@ -274,6 +305,29 @@ namespace Audere.Combat
             ApplyShadowScale(1f);
             MoveToPresentationRoot(airborneParent);
             StartCoroutine(TossAnimation());
+        }
+
+        public void Reroll(
+            CombatSymbol nextSymbol,
+            CombatRerollLaunchPlan launchPlan,
+            RectTransform motionSpace)
+        {
+            if (!CanInteract || motionSpace == null)
+                return;
+
+            StopAllCoroutines();
+            isLanded = false;
+            tossMotionStarted = false;
+            rerollInProgress = true;
+            canvasGroup.blocksRaycasts = false;
+            SetSymbol(nextSymbol);
+            ApplyVisualOffset(0f);
+            ApplyVisualScale(Vector3.one);
+            ApplyShadowScale(1f);
+            ApplyAirborneVisual();
+            MoveToPresentationRoot(airborneParent);
+            SetCenterInSpace(rectTransform, motionSpace, launchPlan.StartPosition);
+            StartCoroutine(RerollLaunchAnimation(launchPlan, motionSpace));
         }
 
         public void PlayCaptured()
@@ -295,6 +349,7 @@ namespace Audere.Combat
             captured = false;
             isLanded = false;
             tossMotionStarted = false;
+            rerollInProgress = false;
             velocity = Vector2.zero;
             angularVelocity = 0f;
 
@@ -364,6 +419,53 @@ namespace Audere.Combat
             ApplyLandedVisual();
             isLanded = true;
             tossMotionStarted = false;
+            rerollInProgress = false;
+            canvasGroup.blocksRaycasts = true;
+        }
+
+        private IEnumerator RerollLaunchAnimation(
+            CombatRerollLaunchPlan launchPlan,
+            RectTransform motionSpace)
+        {
+            float elapsed = 0f;
+            float apexHeight = Mathf.Max(.001f, launchPlan.ApexHeight);
+            while (elapsed < launchPlan.Duration)
+            {
+                float deltaTime = Mathf.Min(Time.unscaledDeltaTime, .05f);
+                elapsed = Mathf.Min(elapsed + deltaTime, launchPlan.Duration);
+
+                SetCenterInSpace(
+                    rectTransform,
+                    motionSpace,
+                    launchPlan.EvaluatePlanarPosition(elapsed));
+
+                float height = launchPlan.EvaluateHeight(elapsed);
+                float heightRatio = Mathf.Clamp01(height / apexHeight);
+                ApplyVisualOffset(height);
+                ApplyVisualScale(Vector3.one * (1f + bodyScaleAtApex * heightRatio));
+                ApplyShadowScale(Mathf.Lerp(1f, shadowScaleAtApex, heightRatio));
+
+                if (rotateWhileMoving)
+                    rectTransform.Rotate(0f, 0f, angularVelocity * deltaTime);
+
+                yield return null;
+            }
+
+            Vector2 landingPosition = launchPlan.LandingPosition;
+            SetCenterInSpace(rectTransform, motionSpace, landingPosition);
+            ApplyVisualOffset(0f);
+            ApplyShadowScale(1f);
+            yield return PlayLandingSquash();
+
+            ApplyVisualOffset(0f);
+            ApplyVisualScale(Vector3.one);
+            ApplyShadowScale(1f);
+            MoveToPresentationRoot(landedParent);
+            SetCenterInSpace(rectTransform, motionSpace, landingPosition);
+            ApplyLandedVisual();
+            isLanded = true;
+            tossMotionStarted = false;
+            rerollInProgress = false;
             canvasGroup.blocksRaycasts = true;
         }
 
@@ -397,7 +499,7 @@ namespace Audere.Combat
             Color symbolColor = Symbol switch
             {
                 CombatSymbol.Attack => attackColor,
-                CombatSymbol.Armor => armorColor,
+                CombatSymbol.Shield => shieldColor,
                 _ => healColor,
             };
 
@@ -458,6 +560,15 @@ namespace Audere.Combat
         {
             Vector3 worldDisplacement = space.TransformVector(new Vector3(displacement.x, displacement.y, 0f));
             target.position += worldDisplacement;
+        }
+
+        private static void SetCenterInSpace(RectTransform target, RectTransform space, Vector2 center)
+        {
+            if (target == null || space == null)
+                return;
+
+            Vector2 currentCenter = GetCenterInSpace(target, space);
+            TranslateInSpace(target, space, center - currentCenter);
         }
 
         private void MoveToPresentationRoot(RectTransform targetRoot)

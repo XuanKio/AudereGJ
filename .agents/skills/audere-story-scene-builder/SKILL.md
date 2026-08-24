@@ -13,8 +13,9 @@ Build the story as visible Unity hierarchy and direct scene references. Preserve
 2. Classify new narrative claims as `Established Canon`, `Strongly Implied`, `Design Intent`, or `Unresolved`. A requested beat remains `Design Intent` until implemented and accepted in the production scene.
 3. For any dialogue, character interaction, bark, or narrative sequence, read and follow `../audere-dialogue-voice/SKILL.md` and its required references before editing.
 4. For any fullscreen or world-mode transition, read and follow `../audere-world-transition-authoring/SKILL.md`; bind a shared transition profile instead of copying a scene timeline.
-5. State the beat's primary story job in one sentence and identify the observable state change that ends it.
-6. Read [scene-authoring-checklist.md](references/scene-authoring-checklist.md) when creating a scene, chaining multiple systems, or transitioning between scenes.
+5. For any actor movement, pose, facing, hop, startle/reaction, shadow, or staging anchor, read and follow `../audere-actor-staging/SKILL.md` and the references it routes to.
+6. State the beat's primary story job in one sentence and identify the observable state change that ends it.
+7. Read [scene-authoring-checklist.md](references/scene-authoring-checklist.md) when creating a scene, chaining multiple systems, or transitioning between scenes.
 
 ## Authoring rules
 

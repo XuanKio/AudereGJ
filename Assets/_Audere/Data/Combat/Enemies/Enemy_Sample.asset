@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ca86d61b03b73f42aa06816f765d42e, type: 3}
+  m_Name: Enemy_Sample
+  m_EditorClassIdentifier: 
+  enemyId: sample-debug-enemy
+  displayName: Sample Enemy
+  actorPrefab: {fileID: 7749722036219598466, guid: ddca1b2f3af32b148aa4f346615fe965, type: 3}
+  phasePolicy: 0
+  sharedMaxHealth: 12
+  phases:
+  - phaseId: sample-phase
+    maxHealth: 12
+    sharedExitThreshold: 0
+    duration: 8
+    moveSet: {fileID: 11400000, guid: 015ad3dc95f40ff44a9e0a2466cfc62a, type: 2}
+    dialogueCues: []

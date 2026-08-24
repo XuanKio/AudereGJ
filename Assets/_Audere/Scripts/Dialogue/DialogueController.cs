@@ -14,6 +14,12 @@ namespace Audere.Dialogue
         Cancelled
     }
 
+    public enum DialoguePlaybackMode
+    {
+        GlobalTimePause = 0,
+        CallerOwnedPause = 1,
+    }
+
     [DisallowMultipleComponent]
     public sealed class DialogueController : MonoBehaviour
     {
@@ -43,6 +49,7 @@ namespace Audere.Dialogue
         private int playRequestVersion;
         private GameplayInputGate inputGate;
         private GameplayInputToken inputToken;
+        private DialoguePlaybackMode playbackMode;
 
         public bool IsPlaying => playbackRoutine != null;
 
@@ -65,12 +72,21 @@ namespace Audere.Dialogue
 
         public bool Play(DialogueData data, bool triggerOnce = true)
         {
-            return Play(data, null, triggerOnce);
+            return Play(data, null, DialoguePlaybackMode.GlobalTimePause, triggerOnce);
         }
 
         public bool Play(
             DialogueData data,
             Action<DialogueResult> onEnded,
+            bool triggerOnce = true)
+        {
+            return Play(data, onEnded, DialoguePlaybackMode.GlobalTimePause, triggerOnce);
+        }
+
+        public bool Play(
+            DialogueData data,
+            Action<DialogueResult> onEnded,
+            DialoguePlaybackMode mode,
             bool triggerOnce = true)
         {
             if (!isActiveAndEnabled)
@@ -118,6 +134,7 @@ namespace Audere.Dialogue
                 playedDialogueIds.Add(data.DialogueId);
 
             activeCompletion = onEnded;
+            playbackMode = mode;
             cancellationRequested = false;
             playbackRoutine = StartCoroutine(PlayRoutine(data, leftCharacter, rightCharacter));
             return true;
@@ -149,9 +166,12 @@ namespace Audere.Dialogue
             DialogueCharacterCatalog.Entry leftCharacter,
             DialogueCharacterCatalog.Entry rightCharacter)
         {
-            timeScaleBeforeDialogue = Time.timeScale;
-            Time.timeScale = 0f;
-            ownsGameplayPause = true;
+            if (playbackMode == DialoguePlaybackMode.GlobalTimePause)
+            {
+                timeScaleBeforeDialogue = Time.timeScale;
+                Time.timeScale = 0f;
+                ownsGameplayPause = true;
+            }
 
             if (dialogueGroup != null)
             {

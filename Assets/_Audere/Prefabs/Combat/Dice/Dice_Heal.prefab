@@ -189,7 +189,7 @@ MonoBehaviour:
   symbolIcon: {fileID: 2858081423134724012}
   symbolLabel: {fileID: 0}
   attackColor: {r: 0.65882355, g: 0.23137255, b: 0.26666668, a: 1}
-  armorColor: {r: 0.6901961, g: 0.67058825, b: 0.7176471, a: 1}
+  shieldColor: {r: 0.6901961, g: 0.67058825, b: 0.7176471, a: 1}
   healColor: {r: 0.84705883, g: 0.7529412, b: 0.5921569, a: 1}
   inactiveColor: {r: 0.13725491, g: 0.12941177, b: 0.1764706, a: 1}
   activeIconColor: {r: 0.84705883, g: 0.7529412, b: 0.5921569, a: 1}

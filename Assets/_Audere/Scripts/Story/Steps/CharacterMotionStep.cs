@@ -27,6 +27,8 @@ namespace Audere.Story.Steps
         [SerializeField] private Transform actor;
         [SerializeField] private Transform targetTransform;
         [SerializeField] private SpriteRenderer actorRenderer;
+        [Tooltip("Grounded presentation that follows the actor across the floor but must not inherit hop height or squash.")]
+        [SerializeField] private Transform groundedShadow;
 
         [Header("Motion")]
         [SerializeField] private CharacterMotionMode motionMode =
@@ -46,12 +48,16 @@ namespace Audere.Story.Steps
         [SerializeField] private bool sourceSpriteFacesLeft = true;
 
         private Vector3 activeBaseScale;
-        private Vector3 activeStartPosition;
-        private bool restoreStartPositionOnCancel;
+        private Vector3 activeGroundPosition;
+        private Vector3 shadowWorldOffset;
+        private Quaternion shadowWorldRotation;
+        private Vector3 shadowWorldScale;
+        private bool shadowPoseCached;
 
         public Transform Actor => actor;
         public Transform TargetTransform => targetTransform;
         public SpriteRenderer ActorRenderer => actorRenderer;
+        public Transform GroundedShadow => groundedShadow;
         public CharacterMotionMode MotionMode => motionMode;
         public float Duration => duration;
         public float ArcHeight => arcHeight;
@@ -73,8 +79,8 @@ namespace Audere.Story.Steps
             Vector3 targetPosition = verticalInPlace ? startPosition : targetTransform.position;
             Vector3 baseScale = actor.localScale;
             activeBaseScale = baseScale;
-            activeStartPosition = startPosition;
-            restoreStartPositionOnCancel = verticalInPlace;
+            activeGroundPosition = startPosition;
+            CacheGroundedShadowPose(startPosition);
             float horizontalTravel = targetPosition.x - startPosition.x;
             ApplyFacing(horizontalTravel);
 
@@ -82,6 +88,8 @@ namespace Audere.Story.Steps
             {
                 actor.position = targetPosition;
                 actor.localScale = baseScale;
+                activeGroundPosition = targetPosition;
+                KeepShadowGrounded(activeGroundPosition);
                 ApplyFinalFacing(horizontalTravel);
                 CompleteStep();
                 yield break;
@@ -92,6 +100,7 @@ namespace Audere.Story.Steps
             {
                 if (actor == null || targetTransform == null)
                 {
+                    RestoreGroundedPose();
                     Debug.LogError(
                         $"[CharacterMotionStep] '{name}' lost an Actor or Target while running.",
                         this);
@@ -104,17 +113,21 @@ namespace Audere.Story.Steps
                 float eased = SmootherStep(progress);
                 float travelPulse = Mathf.Sin(progress * Mathf.PI);
                 targetPosition = verticalInPlace ? startPosition : targetTransform.position;
-                actor.position = Vector3.LerpUnclamped(startPosition, targetPosition, eased) +
+                activeGroundPosition = Vector3.LerpUnclamped(startPosition, targetPosition, eased);
+                actor.position = activeGroundPosition +
                     Vector3.up * (arcHeight * travelPulse);
                 actor.localScale = new Vector3(
                     baseScale.x * (1f - travelStretch * travelPulse * .35f),
                     baseScale.y * (1f + travelStretch * travelPulse),
                     baseScale.z);
+                KeepShadowGrounded(activeGroundPosition);
                 yield return null;
             }
 
-            actor.position = verticalInPlace ? startPosition : targetTransform.position;
+            activeGroundPosition = verticalInPlace ? startPosition : targetTransform.position;
+            actor.position = activeGroundPosition;
             actor.localScale = baseScale;
+            KeepShadowGrounded(activeGroundPosition);
             yield return PlayLanding(baseScale);
             ApplyFinalFacing(horizontalTravel);
             CompleteStep();
@@ -122,11 +135,16 @@ namespace Audere.Story.Steps
 
         protected override void OnCancelled()
         {
+            RestoreGroundedPose();
+        }
+
+        private void RestoreGroundedPose()
+        {
             if (actor != null)
             {
                 actor.localScale = activeBaseScale;
-                if (restoreStartPositionOnCancel)
-                    actor.position = activeStartPosition;
+                actor.position = activeGroundPosition;
+                KeepShadowGrounded(activeGroundPosition);
             }
         }
 
@@ -150,11 +168,71 @@ namespace Audere.Story.Steps
                     baseScale.x * (1f + landingWiden * impact - rebound * .02f),
                     baseScale.y * (1f - landingSquash * impact + rebound * .04f),
                     baseScale.z);
+                KeepShadowGrounded(activeGroundPosition);
                 yield return null;
             }
 
             if (actor != null)
+            {
                 actor.localScale = baseScale;
+                KeepShadowGrounded(activeGroundPosition);
+            }
+        }
+
+        private void CacheGroundedShadowPose(Vector3 groundPosition)
+        {
+            if (groundedShadow == null)
+                groundedShadow = FindGroundedShadow(actor);
+
+            shadowPoseCached = groundedShadow != null;
+            if (!shadowPoseCached)
+                return;
+
+            shadowWorldOffset = groundedShadow.position - groundPosition;
+            shadowWorldRotation = groundedShadow.rotation;
+            shadowWorldScale = groundedShadow.lossyScale;
+        }
+
+        private void KeepShadowGrounded(Vector3 groundPosition)
+        {
+            if (!shadowPoseCached || groundedShadow == null)
+                return;
+
+            groundedShadow.position = groundPosition + shadowWorldOffset;
+            groundedShadow.rotation = shadowWorldRotation;
+
+            Transform shadowParent = groundedShadow.parent;
+            Vector3 parentScale = shadowParent != null
+                ? shadowParent.lossyScale
+                : Vector3.one;
+            groundedShadow.localScale = new Vector3(
+                DivideScale(shadowWorldScale.x, parentScale.x),
+                DivideScale(shadowWorldScale.y, parentScale.y),
+                DivideScale(shadowWorldScale.z, parentScale.z));
+        }
+
+        private static Transform FindGroundedShadow(Transform actorRoot)
+        {
+            if (actorRoot == null)
+                return null;
+
+            Transform[] descendants = actorRoot.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < descendants.Length; i++)
+            {
+                Transform candidate = descendants[i];
+                if (candidate != actorRoot &&
+                    candidate.name.StartsWith("shadow", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
+        private static float DivideScale(float value, float divisor)
+        {
+            return Mathf.Abs(divisor) > Mathf.Epsilon ? value / divisor : value;
         }
 
         private void ApplyFacing(float horizontalTravel)

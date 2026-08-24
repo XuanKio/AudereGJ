@@ -22,7 +22,6 @@ namespace Audere.Combat
         [SerializeField] private RectTransform catchCursor;
         [SerializeField] private CombatCatchCursorView catchCursorView;
         [SerializeField] private CombatPlayerView playerView;
-        [SerializeField] private CombatRetryView retryView;
 
         [Header("Authored Presentation")]
         [FormerlySerializedAs("enemyStatus")]
@@ -33,6 +32,9 @@ namespace Audere.Combat
         [SerializeField] private Image enemyHealthOutline;
         [SerializeField] private Image timerFill;
         [SerializeField] private Image timerDamageFill;
+        [SerializeField] private Transform enemyMount;
+        [Tooltip("Edit-mode staging preview only. Runtime always spawns from CombatEnemyDefinition.")]
+        [SerializeField] private CombatEnemyActor authoredEnemyPreview;
         [SerializeField] private Transform enemyVisual;
         [SerializeField] private Transform vfxRoot;
         [SerializeField] private GameObject enemyScratchVfxPrefab;
@@ -48,10 +50,13 @@ namespace Audere.Combat
 
         [Header("Presentation")]
         [SerializeField] private CombatDieView attackDicePrefab;
-        [SerializeField] private CombatDieView armorDicePrefab;
+        [FormerlySerializedAs("armorDicePrefab")]
+        [SerializeField] private CombatDieView shieldDicePrefab;
         [SerializeField] private CombatDieView healDicePrefab;
         [SerializeField] private CombatBulletView enemyBulletPrefab;
-        [SerializeField] private Vector2 diceSize = new Vector2(72f, 72f);
+        [SerializeField] private Vector2 diceSize = new Vector2(
+            CombatDiceConstants.DefaultVisualSize,
+            CombatDiceConstants.DefaultVisualSize);
         [SerializeField] private Color timerSafeColor = new Color(.50f, .33f, .46f, 1f);
         [SerializeField] private Color timerDangerColor = new Color(.92f, .34f, .31f, 1f);
         [SerializeField] private Color timerDamageColor = new Color(1f, 1f, 1f, .96f);
@@ -70,6 +75,8 @@ namespace Audere.Combat
         private Camera eventCamera;
         private SpriteRenderer[] enemySpriteRenderers;
         private Material[] enemyOriginalMaterials;
+        private Graphic[] enemyGraphics;
+        private Color[] enemyOriginalGraphicColors;
         private Material enemyWhiteFlashMaterial;
         private Coroutine enemyHitRoutine;
         private Coroutine timerDamageRoutine;
@@ -81,18 +88,29 @@ namespace Audere.Combat
         private float currentTimerNormalized = 1f;
         private float timerDamageTargetNormalized = 1f;
         private float enemyHealthDamageTargetNormalized = 1f;
+        private CombatEnemyActor activeEnemyActor;
+        private int activeEnemySessionVersion;
 
         public RectTransform PlayArea => playArea;
         public RectTransform CatchCursor => catchCursor;
-        public CombatRetryView RetryView
+        public RectTransform StunZoneFocusTarget
         {
             get
             {
-                if (retryView == null)
-                    retryView = GetComponent<CombatRetryView>();
-                return retryView;
+                if (stunZoneRoot == null)
+                    return null;
+                for (int i = 0; i < stunZoneRoot.childCount; i++)
+                {
+                    if (stunZoneRoot.GetChild(i) is RectTransform zone && zone.gameObject.activeInHierarchy)
+                        return zone;
+                }
+                return stunZoneRoot;
             }
         }
+        public RectTransform TimerFocusTarget => timerFill != null
+            ? timerFill.rectTransform.parent as RectTransform ?? timerFill.rectTransform
+            : null;
+        public CombatEnemyActor ActiveEnemyActor => activeEnemyActor;
         public bool IsCursorStunned => catchCursorView != null && catchCursorView.IsStunned;
         public Vector2 PlayerPosition
         {
@@ -111,6 +129,8 @@ namespace Audere.Combat
         {
             ResolveReferences();
             eventCamera = Camera.main;
+            if (Application.isPlaying && authoredEnemyPreview != null)
+                authoredEnemyPreview.gameObject.SetActive(false);
             if (enemyVisual != null)
                 enemyAuthoredLocalPosition = enemyVisual.localPosition;
         }
@@ -124,6 +144,36 @@ namespace Audere.Combat
             if (catchCursorView != null) catchCursorView.SetStunned(false, true);
             SetCursorVisible(false);
             UpdateTimer(1f);
+        }
+
+        public CombatEnemyActor SpawnEnemyActor(CombatEnemyActor prefab, int sessionVersion)
+        {
+            ResolveReferences();
+            ClearEnemyActor();
+            if (prefab == null || enemyMount == null)
+                return null;
+
+            activeEnemyActor = Instantiate(prefab, enemyMount);
+            activeEnemyActor.name = prefab.name;
+            activeEnemySessionVersion = sessionVersion;
+            enemyVisual = activeEnemyActor.VisualRoot != null
+                ? activeEnemyActor.VisualRoot
+                : activeEnemyActor.transform;
+            vfxRoot = activeEnemyActor.VfxAnchor;
+            enemyAuthoredLocalPosition = enemyVisual.localPosition;
+            enemySpriteRenderers = null;
+            enemyOriginalMaterials = null;
+            enemyGraphics = activeEnemyActor.Graphics;
+            CaptureEnemyGraphicColors();
+            return activeEnemyActor;
+        }
+
+        public Vector2 WorldToPlayArea(Vector3 worldPosition)
+        {
+            if (playArea == null)
+                return Vector2.zero;
+            Vector3 local = playArea.InverseTransformPoint(worldPosition);
+            return new Vector2(local.x, local.y);
         }
 
         public CombatDieView SpawnDie(CombatSymbol symbol, float speed)
@@ -149,19 +199,30 @@ namespace Audere.Combat
 
         public CombatDieView RerollDie(CombatDieView currentDie, CombatSymbol nextSymbol)
         {
-            if (currentDie == null || currentDie.IsCaptured)
+            if (currentDie == null || !currentDie.CanInteract || playArea == null || catchCursor == null)
                 return currentDie;
 
             if (catchCursorView != null)
                 catchCursorView.PlayRerollFeedback();
 
+            Vector2 diePosition = GetCenterInSpace(currentDie.RectTransform, playArea);
+            Vector2 dieSizeInPlayArea = GetSizeInSpace(currentDie.RectTransform, playArea);
+            Vector2 catcherPosition = GetCenterInSpace(catchCursor, playArea);
+            Vector2 catcherSizeInPlayArea = GetSizeInSpace(catchCursor, playArea);
+            float catcherRadius = Mathf.Min(catcherSizeInPlayArea.x, catcherSizeInPlayArea.y) * .5f;
+            CombatRerollLaunchPlan launchPlan = CombatRerollPhysics.Calculate(
+                playArea.rect,
+                dieSizeInPlayArea,
+                diePosition,
+                catcherPosition,
+                catcherRadius);
+
             if (currentDie.PrefabSymbol == nextSymbol)
             {
-                currentDie.Reroll(nextSymbol);
+                currentDie.Reroll(nextSymbol, launchPlan, playArea);
                 return currentDie;
             }
 
-            Vector2 position = currentDie.RectTransform.anchoredPosition;
             Vector2 velocity = currentDie.MoveVelocity;
             currentDie.ReturnToPool();
 
@@ -174,20 +235,33 @@ namespace Audere.Combat
 
             replacement.ConfigurePresentationRoots(diceRoot, airborneDiceRoot);
             replacement.gameObject.SetActive(true);
-            replacement.Setup(nextSymbol, position, velocity);
+            replacement.SetupReroll(nextSymbol, launchPlan, playArea, velocity);
             return replacement;
         }
 
         public void SpawnEnemyBullet(Vector2 startPosition, Vector2 velocity)
         {
-            ResolveReferences();
-            if (bulletRoot == null) return;
+            SpawnEnemyBullet(enemyBulletPrefab, startPosition, velocity, 0, 0);
+        }
 
-            CombatBulletView bullet = FindPooledBullet();
+        public CombatBulletView SpawnEnemyBullet(
+            CombatBulletView sourcePrefab,
+            Vector2 startPosition,
+            Vector2 velocity,
+            int sessionVersion,
+            int phaseVersion)
+        {
+            ResolveReferences();
+            if (bulletRoot == null)
+                return null;
+
+            CombatBulletView resolvedPrefab = sourcePrefab != null ? sourcePrefab : enemyBulletPrefab;
+            CombatBulletView bullet = FindPooledBullet(resolvedPrefab);
             if (bullet == null)
-                bullet = enemyBulletPrefab != null ? Instantiate(enemyBulletPrefab, bulletRoot) : CreateFallbackBullet();
-            bullet.Setup(startPosition, velocity);
+                bullet = resolvedPrefab != null ? Instantiate(resolvedPrefab, bulletRoot) : CreateFallbackBullet();
+            bullet.Setup(resolvedPrefab, startPosition, velocity, sessionVersion, phaseVersion);
             activeBullets.Add(bullet);
+            return bullet;
         }
 
         public int TickBullets(float deltaTime, float playerInvulnerability)
@@ -212,12 +286,44 @@ namespace Audere.Combat
                     continue;
                 }
 
-                if (!RectTransformsOverlap(bullet.RectTransform, playerView.RectTransform)) continue;
+                if (!bullet.CollisionActive || !RectTransformsOverlap(bullet.RectTransform, playerView.RectTransform)) continue;
                 if (playerView.TryRegisterHit(playerInvulnerability)) registeredHits++;
                 bullet.ReturnToPool();
                 activeBullets.RemoveAt(i);
             }
             return registeredHits;
+        }
+
+        public int DestroyBulletsNearPlayer(float radius)
+        {
+            if (playArea == null || radius <= 0f)
+                return 0;
+
+            Vector2 center = PlayerPosition;
+            int destroyedCount = 0;
+            for (int i = activeBullets.Count - 1; i >= 0; i--)
+            {
+                CombatBulletView bullet = activeBullets[i];
+                if (bullet == null || !bullet.gameObject.activeInHierarchy)
+                {
+                    activeBullets.RemoveAt(i);
+                    continue;
+                }
+
+                RectTransform bulletRect = bullet.RectTransform;
+                Vector3 bulletWorldCenter = bulletRect.TransformPoint(bulletRect.rect.center);
+                Vector3 bulletLocalCenter = playArea.InverseTransformPoint(bulletWorldCenter);
+                float bulletRadius = Mathf.Min(bulletRect.rect.width, bulletRect.rect.height) * .5f;
+                float effectiveRadius = radius + bulletRadius;
+                if (((Vector2)bulletLocalCenter - center).sqrMagnitude > effectiveRadius * effectiveRadius)
+                    continue;
+
+                bullet.ReturnToPool();
+                activeBullets.RemoveAt(i);
+                destroyedCount++;
+            }
+
+            return destroyedCount;
         }
 
         public void ResetPlayer()
@@ -557,18 +663,19 @@ namespace Audere.Combat
             if (numberView == null) numberView = CreateDamageNumber();
             if (numberView == null) return;
 
-            Vector3 worldAnchor = vfxRoot != null
-                ? vfxRoot.position
+            Vector3 worldAnchor = activeEnemyActor != null
+                ? activeEnemyActor.DamageAnchor.position
+                : vfxRoot != null ? vfxRoot.position
                 : enemyVisual != null ? enemyVisual.position : damageNumberRoot.position;
             Vector3 localAnchor = damageNumberRoot.InverseTransformPoint(worldAnchor);
             Vector2 spread = new Vector2(
                 Random.Range(-damageNumberSpawnSpread, damageNumberSpawnSpread),
-                Random.Range(damageNumberSpawnSpread * .35f, damageNumberSpawnSpread));
+                Random.Range(0f, damageNumberSpawnSpread * .55f));
             float horizontalDrift = Random.Range(-damageNumberSpawnSpread, damageNumberSpawnSpread);
 
             numberView.Play(
                 damage,
-                new Vector2(localAnchor.x, localAnchor.y + 54f) + spread,
+                new Vector2(localAnchor.x, localAnchor.y) + spread,
                 damageNumberColor,
                 damageNumberFontSize,
                 damageNumberDuration,
@@ -610,21 +717,28 @@ namespace Audere.Combat
         {
             if (enemyVisual == null) yield break;
 
+            Transform hitTarget = enemyVisual;
+            int hitSessionVersion = activeEnemySessionVersion;
             PrepareEnemyFlash();
             float duration = GetAttackHitFeedbackDuration();
             float elapsed = 0f;
             while (elapsed < duration)
             {
+                if (hitTarget == null || hitTarget != enemyVisual ||
+                    hitSessionVersion != activeEnemySessionVersion)
+                    break;
                 elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsed / duration);
                 float shakeT = Mathf.Clamp01(t / .62f);
                 float shake = Mathf.Sin(shakeT * Mathf.PI * 6f) * (1f - shakeT) * 8f;
-                enemyVisual.localPosition = enemyAuthoredLocalPosition + Vector3.right * shake;
+                hitTarget.localPosition = enemyAuthoredLocalPosition + Vector3.right * shake;
                 SetEnemyWhiteFlash(IsEnemyHitFlashActive(t));
                 yield return null;
             }
             SetEnemyWhiteFlash(false);
-            enemyVisual.localPosition = enemyAuthoredLocalPosition;
+            if (hitTarget != null && hitTarget == enemyVisual &&
+                hitSessionVersion == activeEnemySessionVersion)
+                hitTarget.localPosition = enemyAuthoredLocalPosition;
             enemyHitRoutine = null;
         }
 
@@ -637,6 +751,7 @@ namespace Audere.Combat
         {
             ClearRuntimeDice();
             ClearRuntimeBullets();
+            ClearEnemyActor();
             ClearActiveHitVfx();
             ClearDamageNumbers();
         }
@@ -672,7 +787,60 @@ namespace Audere.Combat
             activeBullets.Clear();
             if (bulletRoot == null) return;
             for (int i = bulletRoot.childCount - 1; i >= 0; i--)
-                bulletRoot.GetChild(i).gameObject.SetActive(false);
+            {
+                CombatBulletView bullet = bulletRoot.GetChild(i).GetComponent<CombatBulletView>();
+                if (bullet != null) bullet.ReturnToPool();
+                else bulletRoot.GetChild(i).gameObject.SetActive(false);
+            }
+        }
+
+        public void ClearRuntimeBullets(int sessionVersion, int phaseVersion = -1)
+        {
+            for (int i = activeBullets.Count - 1; i >= 0; i--)
+            {
+                CombatBulletView bullet = activeBullets[i];
+                if (bullet == null)
+                {
+                    activeBullets.RemoveAt(i);
+                    continue;
+                }
+                if (bullet.OwnerSessionVersion != sessionVersion ||
+                    (phaseVersion >= 0 && bullet.OwnerPhaseVersion != phaseVersion))
+                    continue;
+                bullet.ReturnToPool();
+                activeBullets.RemoveAt(i);
+            }
+        }
+
+        public void SetEnemyHealthVisible(bool visible)
+        {
+            if (enemyHealthSlider != null) enemyHealthSlider.gameObject.SetActive(visible);
+            if (enemyHealthOutline != null) enemyHealthOutline.gameObject.SetActive(visible);
+        }
+
+        public void ClearEnemyActor()
+        {
+            if (enemyHitRoutine != null)
+            {
+                StopCoroutine(enemyHitRoutine);
+                enemyHitRoutine = null;
+            }
+            SetEnemyWhiteFlash(false);
+            if (enemyVisual != null)
+                enemyVisual.localPosition = enemyAuthoredLocalPosition;
+            if (activeEnemyActor != null)
+            {
+                activeEnemyActor.Shutdown();
+                Destroy(activeEnemyActor.gameObject);
+            }
+            activeEnemyActor = null;
+            activeEnemySessionVersion = 0;
+            enemyVisual = null;
+            vfxRoot = null;
+            enemySpriteRenderers = null;
+            enemyOriginalMaterials = null;
+            enemyGraphics = null;
+            enemyOriginalGraphicColors = null;
         }
 
         private CombatDieView FindPooledDie(CombatSymbol symbol)
@@ -686,13 +854,14 @@ namespace Audere.Combat
             return null;
         }
 
-        private CombatBulletView FindPooledBullet()
+        private CombatBulletView FindPooledBullet(CombatBulletView sourcePrefab)
         {
             if (bulletRoot == null) return null;
             for (int i = 0; i < bulletRoot.childCount; i++)
             {
                 CombatBulletView bullet = bulletRoot.GetChild(i).GetComponent<CombatBulletView>();
-                if (bullet != null && !bullet.gameObject.activeSelf) return bullet;
+                if (bullet != null && !bullet.gameObject.activeSelf && bullet.SourcePrefab == sourcePrefab)
+                    return bullet;
             }
             return null;
         }
@@ -702,7 +871,7 @@ namespace Audere.Combat
             return symbol switch
             {
                 CombatSymbol.Attack => attackDicePrefab,
-                CombatSymbol.Armor => armorDicePrefab,
+                CombatSymbol.Shield => shieldDicePrefab,
                 _ => healDicePrefab,
             };
         }
@@ -933,13 +1102,33 @@ namespace Audere.Combat
 
         private void SetEnemyWhiteFlash(bool enabled)
         {
-            if (enemySpriteRenderers == null || enemyOriginalMaterials == null) return;
-            for (int i = 0; i < enemySpriteRenderers.Length; i++)
+            if (enemySpriteRenderers != null && enemyOriginalMaterials != null)
             {
-                if (enemySpriteRenderers[i] != null)
-                    enemySpriteRenderers[i].sharedMaterial = enabled && enemyWhiteFlashMaterial != null
-                        ? enemyWhiteFlashMaterial : enemyOriginalMaterials[i];
+                for (int i = 0; i < enemySpriteRenderers.Length; i++)
+                {
+                    if (enemySpriteRenderers[i] != null)
+                        enemySpriteRenderers[i].sharedMaterial = enabled && enemyWhiteFlashMaterial != null
+                            ? enemyWhiteFlashMaterial : enemyOriginalMaterials[i];
+                }
             }
+
+            if (enemyGraphics == null || enemyOriginalGraphicColors == null) return;
+            for (int i = 0; i < enemyGraphics.Length && i < enemyOriginalGraphicColors.Length; i++)
+            {
+                if (enemyGraphics[i] != null)
+                    enemyGraphics[i].color = enabled
+                        ? Color.Lerp(enemyOriginalGraphicColors[i], new Color(1f, .55f, .62f, 1f), .62f)
+                        : enemyOriginalGraphicColors[i];
+            }
+        }
+
+        private void CaptureEnemyGraphicColors()
+        {
+            if (enemyGraphics == null)
+                return;
+            enemyOriginalGraphicColors = new Color[enemyGraphics.Length];
+            for (int i = 0; i < enemyGraphics.Length; i++)
+                enemyOriginalGraphicColors[i] = enemyGraphics[i] != null ? enemyGraphics[i].color : Color.white;
         }
 
         private IEnumerator PreviewEnemyWhiteFlashRoutine(float duration)
@@ -986,7 +1175,6 @@ namespace Audere.Combat
             if (catchCursorView == null && catchCursor != null)
                 catchCursorView = catchCursor.GetComponent<CombatCatchCursorView>();
             if (playerView == null && playerRoot != null) playerView = playerRoot.GetComponent<CombatPlayerView>();
-            if (retryView == null) retryView = GetComponent<CombatRetryView>();
             if (timerFill == null)
             {
                 Transform child = FindDescendant(transform, "Timer Fill");
@@ -1019,8 +1207,7 @@ namespace Audere.Combat
             }
             if (enemyNameText == null)
                 enemyNameText = ResolveText("Enemy Name");
-            if (enemyVisual == null) enemyVisual = FindDescendant(transform, "Enemy");
-            if (vfxRoot == null) vfxRoot = FindDescendant(transform, "Vfx");
+            if (enemyMount == null) enemyMount = FindDescendant(transform, "Enemy Mount");
             if (damageNumberRoot == null)
                 damageNumberRoot = FindDescendant(transform, "Damage Number Root") as RectTransform;
         }
@@ -1055,6 +1242,29 @@ namespace Audere.Combat
                 if (found != null) return found;
             }
             return null;
+        }
+
+        private static Vector2 GetCenterInSpace(RectTransform target, RectTransform space)
+        {
+            Vector3 worldCenter = target.TransformPoint(target.rect.center);
+            Vector3 localCenter = space.InverseTransformPoint(worldCenter);
+            return new Vector2(localCenter.x, localCenter.y);
+        }
+
+        private static Vector2 GetSizeInSpace(RectTransform target, RectTransform space)
+        {
+            Vector3[] worldCorners = new Vector3[4];
+            target.GetWorldCorners(worldCorners);
+            Vector3 minimum = space.InverseTransformPoint(worldCorners[0]);
+            Vector3 maximum = minimum;
+            for (int i = 1; i < worldCorners.Length; i++)
+            {
+                Vector3 local = space.InverseTransformPoint(worldCorners[i]);
+                minimum = Vector3.Min(minimum, local);
+                maximum = Vector3.Max(maximum, local);
+            }
+
+            return new Vector2(maximum.x - minimum.x, maximum.y - minimum.y);
         }
 
         private static Vector2 RandomPositionInside(Rect rect, Vector2 size)

@@ -10,7 +10,8 @@ namespace Audere.Dialogue
         Audere = 1,
         Timor = 2,
         Teacher = 3,
-        Bianca = 4
+        Bianca = 4,
+        KhoangLang = 5
     }
 
     public enum DialogueSpeakerSide

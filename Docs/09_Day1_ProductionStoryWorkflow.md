@@ -274,8 +274,10 @@ Timor tiến thêm một bước trong việc giành quyền định hướng ph
   nghiêng/zoom nhẹ, wave rộng, scene trôi, radial bend và smear quanh Audere. Combat hiện qua
   lớp distortion đang hạ xuống; kết thúc prototype vẫn fade
   về đúng khung Story trước đó.
-- Enemy, ý nghĩa combat và kết quả narrative chính thức vẫn **Unresolved**. Tên/art prototype
-  không được dùng làm bằng chứng canon.
+- **Design Intent:** prototype kỹ thuật dùng boss display name `Khoảng Lặng`, ba phase và art
+  `PLACEHOLDER`. Tên/placement không tự xác lập ý nghĩa trong truyện.
+- **Unresolved:** ý nghĩa combat, voice/canon dialogue/portrait/art chính thức, tên hoặc ý nghĩa
+  phase, final moveset/balance và kết quả narrative. Prototype không phải bằng chứng canon.
 
 **Relationship movement:** vẫn ở `Protective pre-emption`, nhưng rõ hơn beat trước: Bianca đã
 cho Audere không gian lựa chọn, còn Timor chen vào đúng khoảng trống trước khi cô tự trả lời.
@@ -317,7 +319,7 @@ D1_CLASSROOM_RECESS_BIANCA [StoryEvent]
 ├── 180_TimorIntervenes             [DialogueStep]
 ├── 190_HoldAfterTimor              [WaitStep]
 ├── 200_ClassroomIsConsumed         [FullscreenWorldModeTransitionStep]
-├── 210_PlayCombatPrototype         [CombatStep]
+├── 210_PlayKhoangLangPrototype     [CombatStep]
 ├── 220_ReturnToStory               [WorldModeStep: Story]
 └── 230_HoldAfterCombat             [WaitStep]
 ```
@@ -347,7 +349,8 @@ Assets/_Audere/Data/Dialogue/
 │   └── Classroom/
 │       ├── Dialogue_D1_CLASSROOM_*.asset
 │       ├── Dialogue_D1_CLASSROOM_BIANCA_*.asset
-│       └── Dialogue_D1_TEACHER_*.asset
+│       ├── Dialogue_D1_TEACHER_*.asset
+│       └── Combat/Dialogue_D1_COMBAT_TUTORIAL_*.asset
 └── Samples/
     └── Dialogue_Sample.asset
 ```
@@ -457,8 +460,20 @@ qua scene.
 
 ## 8. Điểm chưa triển khai
 
-- **Implemented prototype:** hand-off kỹ thuật Story → Combat → Story sau câu Timor.
-- **Unresolved:** combat tutorial nội tâm, enemy/boss, ý nghĩa combat và result mapping canon.
+- **Implemented prototype:** hand-off Story → `Khoảng Lặng` prototype ba phase → Story sau câu Timor.
+- **Design Intent:** tên `Khoảng Lặng` và placement ở D1 Classroom phục vụ prototype hiện tại.
+- **Implemented Design Intent:** D1 dùng một `CombatTutorialData` và enemy tutorial một phase riêng
+  (`99 HP`, `120 TIME`). Opening batch luôn có đúng Attack, Shield, Heal; card đầu preview cả ba,
+  nói gọn luật bắt/gieo/TIME, sau đó mới spotlight Stun Zone và giới thiệu từng dice khi người chơi
+  bắt nó. Instruction dùng một dòng cùng font Scene 20 và chỉ đóng bằng click trái/phải. Click đóng
+  card bị consume; trong toàn bộ dialogue/highlight, TIME, dice, projectile và enemy move đều pause.
+  Giữa các cue TIME chạy `0.25x`, damage có safety floor `1 s`, nên phần học không thể vô tình Defeat
+  hoặc hạ boss thật. Sau câu kết của Timor, session tutorial bị shutdown và một session
+  `Enemy_KhoangLang` mới được tạo với `45 s`, phase 1 `2 HP`, dice batch và projectile moveset đầy đủ.
+  Không hiện marker `NHỊP n / 3`; phase chỉ là cấu trúc nội bộ. Exact Timor/Audere wording vẫn là
+  draft production chờ Xuân duyệt, không tự nâng thành Established Canon.
+- **Unresolved:** voice/canon dialogue/art/ý nghĩa của Khoảng Lặng, final moveset, balance và
+  result mapping canon. Khoảng Lặng không có line trong tutorial hiện tại.
 - **Unresolved:** tin nhắn ban đêm, Choice UI và kết quả lựa chọn.
 - **Unresolved:** StoryState, conditional branching, save/checkpoint và resume giữa event.
 - **Unresolved:** Timor có được người khác nhìn/nghe thấy hay không.

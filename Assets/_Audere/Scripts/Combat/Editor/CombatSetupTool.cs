@@ -17,7 +17,7 @@ namespace Audere.EditorTools
         private const string BoardPrefabPath = "Assets/_Audere/Prefabs/Combat/World/CombatBoard.prefab";
         private const string DicePrefabFolder = "Assets/_Audere/Prefabs/Combat/Dice";
         private const string AttackDicePrefabPath = DicePrefabFolder + "/Dice_Attack.prefab";
-        private const string ArmorDicePrefabPath = DicePrefabFolder + "/Dice_Armor.prefab";
+        private const string ShieldDicePrefabPath = DicePrefabFolder + "/Dice_Shield.prefab";
         private const string HealDicePrefabPath = DicePrefabFolder + "/Dice_Heal.prefab";
         private const string BulletPrefabFolder = "Assets/_Audere/Prefabs/Combat/Bullets";
         private const string EnemyBulletPrefabPath = BulletPrefabFolder + "/EnemyBullet.prefab";
@@ -26,10 +26,11 @@ namespace Audere.EditorTools
         private const string StunZoneShaderPath = "Assets/_Audere/Shaders/UIStunZoneDots.shader";
         private const string StunZoneMaterialPath = "Assets/_Audere/Materials/UI_StunZoneDots.mat";
         private const string EncounterPath = "Assets/_Audere/Data/Combat/CombatEncounter_Sample.asset";
+        private const string SampleEnemyPath = "Assets/_Audere/Data/Combat/Enemies/Enemy_Sample.asset";
         private const string FontPath = "Assets/_Audere/AssetGame/Font/MTO-Astro-City SDF.asset";
         private const string DamageNumberFontPath = "Assets/_Audere/AssetGame/Font/deltarune SDF.asset";
         private const string AttackIconPath = "Assets/_Audere/AssetGame/IconDice/attack.aseprite";
-        private const string ArmorIconPath = "Assets/_Audere/AssetGame/IconDice/gaurd.aseprite";
+        private const string ShieldIconPath = "Assets/_Audere/AssetGame/IconDice/gaurd.aseprite";
         private const string HealIconPath = "Assets/_Audere/AssetGame/IconDice/heal.aseprite";
         private const string DiceFramePath = "Assets/_Audere/AssetGame/IconDice/dice (1).aseprite";
         private const string BlockedIconPath = "Assets/_Audere/AssetGame/IconDice/X.aseprite";
@@ -129,7 +130,10 @@ namespace Audere.EditorTools
                 puzzleViewportMask.SetActive(false);
             combatSystems.SetActive(true);
 
-            GameplayUIRoot gameplayUi = Object.FindFirstObjectByType<GameplayUIRoot>(FindObjectsInactive.Include);
+            GameObject gameplayUiRoot = FindRoot(scene, "GameplayUIRoot");
+            GameplayUIRoot gameplayUi = gameplayUiRoot != null
+                ? gameplayUiRoot.GetComponent<GameplayUIRoot>()
+                : null;
             if (gameplayUi != null && gameplayUi.PuzzleUi != null)
                 gameplayUi.PuzzleUi.gameObject.SetActive(false);
 
@@ -180,7 +184,7 @@ namespace Audere.EditorTools
                 return;
             }
 
-            CombatBoardView boardView = Object.FindFirstObjectByType<CombatBoardView>();
+            CombatBoardView boardView = FindCombatBoardView();
             if (boardView != null)
                 boardView.PreviewEnemyWhiteFlash();
         }
@@ -191,10 +195,43 @@ namespace Audere.EditorTools
             FindCombatController()?.DebugApplyDiceEffect(CombatSymbol.Attack);
         }
 
-        [MenuItem("Audere/Combat/Debug/Apply Armor Dice")]
-        public static void DebugApplyArmorDice()
+        [MenuItem("Audere/Combat/Debug/Start Current Encounter")]
+        public static void DebugStartCurrentEncounter()
         {
-            FindCombatController()?.DebugApplyDiceEffect(CombatSymbol.Armor);
+            if (!Application.isPlaying)
+            {
+                Debug.LogWarning("[CombatSetup] Enter Play Mode before starting an encounter.");
+                return;
+            }
+
+            GameObject world = FindRoot(SceneManager.GetActiveScene(), "WORLD");
+            WorldModeController worldMode = world != null
+                ? world.GetComponent<WorldModeController>()
+                : null;
+            worldMode?.ApplyModeImmediate(WorldGameplayMode.Combat);
+
+            CombatController controller = FindCombatController();
+            if (controller == null)
+                return;
+            controller.BeginEncounter();
+            Debug.Log($"[CombatSetup] Started '{controller.CurrentEncounter?.name}' for runtime QA.");
+        }
+
+        [MenuItem("Audere/Combat/Debug/Close Current Dialogue")]
+        public static void DebugCloseCurrentDialogue()
+        {
+            if (!Application.isPlaying)
+            {
+                Debug.LogWarning("[CombatSetup] Enter Play Mode before closing combat dialogue.");
+                return;
+            }
+            GameplayUIRoot.Instance?.Dialogue?.ForceClose();
+        }
+
+        [MenuItem("Audere/Combat/Debug/Apply Shield Dice")]
+        public static void DebugApplyShieldDice()
+        {
+            FindCombatController()?.DebugApplyDiceEffect(CombatSymbol.Shield);
         }
 
         [MenuItem("Audere/Combat/Debug/Apply Heal Dice")]
@@ -232,7 +269,7 @@ namespace Audere.EditorTools
                 return;
             }
 
-            CombatBoardView boardView = Object.FindFirstObjectByType<CombatBoardView>();
+            CombatBoardView boardView = FindCombatBoardView();
             if (boardView == null)
             {
                 Debug.LogError("[CombatSetup] CombatBoardView was not found.");
@@ -249,7 +286,14 @@ namespace Audere.EditorTools
                 Debug.LogWarning("[CombatSetup] Enter Play Mode before using combat debug actions.");
                 return null;
             }
-            CombatController controller = Object.FindFirstObjectByType<CombatController>();
+            Scene scene = SceneManager.GetActiveScene();
+            GameObject systems = FindRoot(scene, "SYSTEMS");
+            Transform combatSystems = systems != null
+                ? FindDirectChild(systems.transform, "Combat Systems")
+                : null;
+            CombatController controller = combatSystems != null
+                ? combatSystems.GetComponentInChildren<CombatController>(true)
+                : null;
             if (controller == null)
                 Debug.LogError("[CombatSetup] CombatController was not found.");
             return controller;
@@ -257,7 +301,10 @@ namespace Audere.EditorTools
 
         private static void SwitchMode(WorldGameplayMode mode)
         {
-            WorldModeController controller = Object.FindFirstObjectByType<WorldModeController>(FindObjectsInactive.Include);
+            GameObject world = FindRoot(SceneManager.GetActiveScene(), "WORLD");
+            WorldModeController controller = world != null
+                ? world.GetComponent<WorldModeController>()
+                : null;
             if (controller == null)
             {
                 Debug.LogError("[CombatSetup] WorldModeController was not found.");
@@ -294,6 +341,17 @@ namespace Audere.EditorTools
             material.SetVector("_Grid", new Vector4(28f, 68f, 0f, 0f));
             material.SetFloat("_DotSize", .12f);
             EditorUtility.SetDirty(material);
+        }
+
+        private static CombatBoardView FindCombatBoardView()
+        {
+            GameObject world = FindRoot(SceneManager.GetActiveScene(), "WORLD");
+            Transform combatRoot = world != null
+                ? FindDirectChild(world.transform, "Combat Root")
+                : null;
+            return combatRoot != null
+                ? combatRoot.GetComponentInChildren<CombatBoardView>(true)
+                : null;
         }
 
         private static CombatCatchCursorView SetupCatchCursorVisual(RectTransform cursor, Image cursorImage)
@@ -399,9 +457,10 @@ namespace Audere.EditorTools
                     feedbackRoot = EnsureStretchRect(playArea, "Feedback FX Root");
                 feedbackRoot.name = "Feedback FX Root";
 
-                Transform enemy = FindDescendant(root.transform, "Enemy");
-                Transform vfxRoot = FindDirectChild(root.transform, "Vfx") ??
-                    FindDescendant(root.transform, "Vfx");
+                Transform enemy = FindDirectChild(root.transform, "Enemy");
+                RectTransform enemyMount = enemy != null
+                    ? FindDirectChild(enemy, "Enemy Mount") as RectTransform
+                    : null;
                 RectTransform damageNumberRoot = EnsureStretchRect(root.transform, "Damage Number Root");
                 damageNumberRoot.SetAsLastSibling();
                 TMP_Text enemyNameText = enemy != null
@@ -481,13 +540,18 @@ namespace Audere.EditorTools
                 SetObject(serialized, "enemyNameText", enemyNameText);
                 SetObject(serialized, "timerFill", timerFill);
                 SetObject(serialized, "timerDamageFill", timerDamageFill);
-                SetObject(serialized, "enemyVisual", enemy);
-                SetObject(serialized, "vfxRoot", vfxRoot);
+                SetObject(serialized, "enemyMount", enemyMount);
+                SetObject(serialized, "enemyVisual", null);
+                SetObject(serialized, "vfxRoot", null);
                 SetObject(serialized, "enemyScratchVfxPrefab", AssetDatabase.LoadAssetAtPath<GameObject>(ScratchVfxPath));
                 SetObject(serialized, "damageNumberRoot", damageNumberRoot);
                 SetObject(serialized, "damageNumberFont", AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(DamageNumberFontPath));
+                serialized.FindProperty("damageNumberFontSize").floatValue = 52f;
+                serialized.FindProperty("damageNumberDuration").floatValue = .68f;
+                serialized.FindProperty("damageNumberRiseDistance").floatValue = 52f;
+                serialized.FindProperty("damageNumberSpawnSpread").floatValue = 10f;
                 SetObject(serialized, "attackDicePrefab", LoadDicePrefab(AttackDicePrefabPath));
-                SetObject(serialized, "armorDicePrefab", LoadDicePrefab(ArmorDicePrefabPath));
+                SetObject(serialized, "shieldDicePrefab", LoadDicePrefab(ShieldDicePrefabPath));
                 SetObject(serialized, "healDicePrefab", LoadDicePrefab(HealDicePrefabPath));
                 SetObject(serialized, "enemyBulletPrefab", LoadBulletPrefab());
                 serialized.ApplyModifiedPropertiesWithoutUndo();
@@ -504,30 +568,30 @@ namespace Audere.EditorTools
         {
             EnsureAssetFolder(DicePrefabFolder);
             Sprite attackIcon = LoadFirstSprite(AttackIconPath);
-            Sprite armorIcon = LoadFirstSprite(ArmorIconPath);
+            Sprite shieldIcon = LoadFirstSprite(ShieldIconPath);
             Sprite healIcon = LoadFirstSprite(HealIconPath);
             Sprite diceFrame = LoadFirstSprite(DiceFramePath);
             SetupDicePrefab(
                 AttackDicePrefabPath,
                 "Dice_Attack",
                 CombatSymbol.Attack,
-                "ATK",
+                CombatDiceConstants.GetDefinition(CombatSymbol.Attack).ShortLabel,
                 attackIcon,
                 diceFrame,
                 new Color32(168, 59, 68, 255));
             SetupDicePrefab(
-                ArmorDicePrefabPath,
-                "Dice_Armor",
-                CombatSymbol.Armor,
-                "ARM",
-                armorIcon,
+                ShieldDicePrefabPath,
+                "Dice_Shield",
+                CombatSymbol.Shield,
+                CombatDiceConstants.GetDefinition(CombatSymbol.Shield).ShortLabel,
+                shieldIcon,
                 diceFrame,
                 new Color32(176, 171, 183, 255));
             SetupDicePrefab(
                 HealDicePrefabPath,
                 "Dice_Heal",
                 CombatSymbol.Heal,
-                "HEAL",
+                CombatDiceConstants.GetDefinition(CombatSymbol.Heal).ShortLabel,
                 healIcon,
                 diceFrame,
                 new Color32(216, 192, 151, 255));
@@ -551,7 +615,9 @@ namespace Audere.EditorTools
             {
                 root.name = prefabName;
                 RectTransform rootRect = GetOrAdd<RectTransform>(root);
-                ConfigureRect(rootRect, Vector2.zero, new Vector2(72f, 72f));
+                ConfigureRect(rootRect, Vector2.zero, new Vector2(
+                    CombatDiceConstants.DefaultVisualSize,
+                    CombatDiceConstants.DefaultVisualSize));
                 Image rootImage = GetOrAdd<Image>(root);
                 rootImage.color = Color.clear;
                 rootImage.raycastTarget = false;
@@ -565,7 +631,9 @@ namespace Audere.EditorTools
                 shadow.SetAsFirstSibling();
 
                 RectTransform frame = EnsureRect(root.transform, "Frame");
-                ConfigureRect(frame, Vector2.zero, new Vector2(72f, 72f));
+                ConfigureRect(frame, Vector2.zero, new Vector2(
+                    CombatDiceConstants.DefaultVisualSize,
+                    CombatDiceConstants.DefaultVisualSize));
                 Image frameImage = GetOrAdd<Image>(frame.gameObject);
                 frameImage.sprite = diceFrame;
                 frameImage.color = Color.white;
@@ -615,7 +683,7 @@ namespace Audere.EditorTools
                 SetObject(serialized, "symbolIcon", iconImage);
                 SetObject(serialized, "symbolLabel", label);
                 serialized.FindProperty("attackColor").colorValue = new Color32(168, 59, 68, 255);
-                serialized.FindProperty("armorColor").colorValue = new Color32(176, 171, 183, 255);
+                serialized.FindProperty("shieldColor").colorValue = new Color32(176, 171, 183, 255);
                 serialized.FindProperty("healColor").colorValue = new Color32(216, 192, 151, 255);
                 serialized.FindProperty("inactiveColor").colorValue = new Color32(35, 33, 45, 255);
                 serialized.FindProperty("activeIconColor").colorValue = activeIconColor;
@@ -756,7 +824,7 @@ namespace Audere.EditorTools
         private static void MigrateLegacyCombatPrefabs()
         {
             MoveAssetIfNeeded(DicePrefabFolder + "/Dice_GreenSword.prefab", AttackDicePrefabPath);
-            MoveAssetIfNeeded(DicePrefabFolder + "/Dice_Shield.prefab", ArmorDicePrefabPath);
+            MoveAssetIfNeeded(DicePrefabFolder + "/Dice_Armor.prefab", ShieldDicePrefabPath);
             MoveAssetIfNeeded(DicePrefabFolder + "/Dice_EnemyAttack.prefab", HealDicePrefabPath);
         }
 
@@ -774,30 +842,17 @@ namespace Audere.EditorTools
         private static void ConfigureEncounter(CombatEncounterData encounter)
         {
             SerializedObject serialized = new SerializedObject(encounter);
-            serialized.FindProperty("enemyMaxHealth").intValue = 12;
+            serialized.FindProperty("enemyDefinition").objectReferenceValue =
+                AssetDatabase.LoadAssetAtPath<CombatEnemyDefinition>(SampleEnemyPath);
             serialized.FindProperty("encounterDuration").floatValue = 40f;
-            serialized.FindProperty("attackDamage").intValue = 1;
-            serialized.FindProperty("armorPerDie").intValue = 1;
-            serialized.FindProperty("healTimeSeconds").floatValue = 3f;
             serialized.FindProperty("dicePerBatch").intValue = 5;
             serialized.FindProperty("batchRespawnDelay").floatValue = .3f;
             serialized.FindProperty("minimumDiceSpeed").floatValue = 115f;
             serialized.FindProperty("maximumDiceSpeed").floatValue = 185f;
-            SerializedProperty weights = serialized.FindProperty("symbolWeights");
-            weights.arraySize = 3;
-            SetSymbolWeight(weights.GetArrayElementAtIndex(0), CombatSymbol.Attack, 5);
-            SetSymbolWeight(weights.GetArrayElementAtIndex(1), CombatSymbol.Armor, 3);
-            SetSymbolWeight(weights.GetArrayElementAtIndex(2), CombatSymbol.Heal, 2);
             serialized.FindProperty("playerHitInvulnerability").floatValue = .55f;
             serialized.FindProperty("bulletTimePenaltySeconds").floatValue = 3f;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(encounter);
-        }
-
-        private static void SetSymbolWeight(SerializedProperty property, CombatSymbol symbol, int weight)
-        {
-            property.FindPropertyRelative("Symbol").enumValueIndex = (int)symbol;
-            property.FindPropertyRelative("Weight").intValue = weight;
         }
 
         private static CombatDieView LoadDicePrefab(string path)

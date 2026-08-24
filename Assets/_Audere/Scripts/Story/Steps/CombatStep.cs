@@ -1,5 +1,6 @@
 using System.Collections;
 using Audere.Combat;
+using Audere.Dialogue;
 using UnityEngine;
 
 namespace Audere.Story.Steps
@@ -74,8 +75,8 @@ namespace Audere.Story.Steps
             }
 
             activeController = combatController;
-            activeRetryView = combatController.BoardView != null
-                ? combatController.BoardView.RetryView
+            activeRetryView = GameplayUIRoot.Instance != null
+                ? GameplayUIRoot.Instance.CombatRetry
                 : null;
 
             if (UsesRetryBehaviour() && activeRetryView == null)
@@ -102,7 +103,7 @@ namespace Audere.Story.Steps
             CombatController controller = activeController;
             bool shouldCancel = ownsCombatSession && controller != null && controller.IsPlaying;
 
-            activeRetryView?.Hide(this);
+            activeRetryView?.ForceHide();
             ClearOwnership();
 
             if (shouldCancel)
@@ -132,7 +133,7 @@ namespace Audere.Story.Steps
                 return;
             }
 
-            activeRetryView?.Hide(this);
+            activeRetryView?.ForceHide();
             isWaitingForRetry = false;
             controller.ResetEncounter();
 
@@ -247,7 +248,7 @@ namespace Audere.Story.Steps
 
         private void FinishWith(CombatResultBehaviour behaviour)
         {
-            activeRetryView?.Hide(this);
+            activeRetryView?.ForceHide();
             ClearOwnership();
 
             switch (behaviour)

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audere Actor Staging"
+  short_description: "Stage expressive grounded actor motion"
+  default_prompt: "Use $audere-actor-staging to stage and verify this Audere character action in Unity."

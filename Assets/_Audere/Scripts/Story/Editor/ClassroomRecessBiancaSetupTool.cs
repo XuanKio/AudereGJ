@@ -24,10 +24,10 @@ namespace Audere.EditorTools
         private const string GrassTilePrefabPath = "Assets/_Audere/Prefabs/Puzzle/Tiles/Grass.prefab";
         private const string CombatBoardPrefabPath =
             "Assets/_Audere/Prefabs/Combat/World/CombatBoard.prefab";
-        private const string SampleEncounterPath =
-            "Assets/_Audere/Data/Combat/CombatEncounter_Sample.asset";
         private const string ClassroomPrototypeEncounterPath =
-            "Assets/_Audere/Data/Combat/CombatEncounter_D1_CLASSROOM_PROTOTYPE.asset";
+            "Assets/_Audere/Data/Combat/CombatEncounter_D1_CLASSROOM_KHOANG_LANG.asset";
+        private const string ClassroomEnemyDefinitionPath =
+            "Assets/_Audere/Data/Combat/Enemies/Enemy_KhoangLang.asset";
         private const string Renderer2DPath = "Assets/Settings/Renderer2D.asset";
         private const string FullscreenTransitionShaderPath =
             "Assets/_Audere/Shaders/FullscreenDreamyDisorientation.shader";
@@ -791,19 +791,18 @@ namespace Audere.EditorTools
                 AssetDatabase.LoadAssetAtPath<CombatEncounterData>(ClassroomPrototypeEncounterPath);
             if (encounter == null)
             {
-                CombatEncounterData sample =
-                    AssetDatabase.LoadAssetAtPath<CombatEncounterData>(SampleEncounterPath);
-                if (sample == null)
-                    throw new MissingReferenceException($"Missing sample encounter at '{SampleEncounterPath}'.");
-                if (!AssetDatabase.CopyAsset(SampleEncounterPath, ClassroomPrototypeEncounterPath))
-                    throw new InvalidOperationException("Could not create the classroom prototype encounter asset.");
-                encounter = AssetDatabase.LoadAssetAtPath<CombatEncounterData>(ClassroomPrototypeEncounterPath);
+                encounter = ScriptableObject.CreateInstance<CombatEncounterData>();
+                AssetDatabase.CreateAsset(encounter, ClassroomPrototypeEncounterPath);
             }
 
+            CombatEnemyDefinition enemy =
+                AssetDatabase.LoadAssetAtPath<CombatEnemyDefinition>(ClassroomEnemyDefinitionPath);
+            if (enemy == null)
+                throw new MissingReferenceException($"Missing enemy definition at '{ClassroomEnemyDefinitionPath}'.");
+
             SerializedObject serialized = new SerializedObject(encounter);
-            serialized.FindProperty("encounterId").stringValue = "d1-classroom-prototype";
-            serialized.FindProperty("enemyDisplayName").stringValue = "PROTOTYPE";
-            serialized.FindProperty("enemyMaxHealth").intValue = 5;
+            serialized.FindProperty("encounterId").stringValue = "d1-classroom-khoang-lang";
+            serialized.FindProperty("enemyDefinition").objectReferenceValue = enemy;
             serialized.FindProperty("encounterDuration").floatValue = 30f;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(encounter);
@@ -1010,6 +1009,7 @@ namespace Audere.EditorTools
             SetObject(serialized, "actor", actor);
             SetObject(serialized, "targetTransform", target);
             SetObject(serialized, "actorRenderer", renderer);
+            SetObject(serialized, "groundedShadow", FindGroundedShadow(actor));
             serialized.FindProperty("motionMode").enumValueIndex = (int)motionMode;
             serialized.FindProperty("duration").floatValue = duration;
             serialized.FindProperty("arcHeight").floatValue = arcHeight;
@@ -1021,6 +1021,25 @@ namespace Audere.EditorTools
             serialized.FindProperty("facingMode").enumValueIndex = (int)facing;
             serialized.FindProperty("sourceSpriteFacesLeft").boolValue = true;
             serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static Transform FindGroundedShadow(Transform actorRoot)
+        {
+            if (actorRoot == null)
+                return null;
+
+            Transform[] descendants = actorRoot.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < descendants.Length; i++)
+            {
+                Transform candidate = descendants[i];
+                if (candidate != actorRoot &&
+                    candidate.name.StartsWith("shadow", StringComparison.OrdinalIgnoreCase))
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
         }
 
         private static void ConfigureDialogue(DialogueStep step, DialogueData data)

@@ -11,7 +11,7 @@ GameplayUIRoot                         Canvas + DontDestroyOnLoad
 ├── PuzzleUI
 │   └── Path Piece Hand UI
 │       └── Cards
-└── DialogueUI
+├── DialogueUI
     ├── Left                          nested Left.prefab
     │   └── DialogueBubble            shared DialogueBubble.prefab
     │       ├── Dialogue Text (TMP)
@@ -20,6 +20,8 @@ GameplayUIRoot                         Canvas + DontDestroyOnLoad
         └── DialogueBubble            shared DialogueBubble.prefab
             ├── Dialogue Text (TMP)
             └── Character Name (TMP)
+├── CombatTutorialUI                  combat instruction; không block raycast
+└── CombatRetryUI                     overlay Canvas order 1200; sibling cuối
 ```
 
 Các prefab chính:
@@ -45,7 +47,7 @@ Assets/_Audere/Prefabs/UI/Dialogue/DialogueBubble.prefab
 Nhân vật được chọn bằng dropdown `DialogueCharacterId`, hiện có:
 
 ```text
-None, Audere, Timor, Teacher, Bianca
+None, Audere, Timor, Teacher, Bianca, KhoangLang
 ```
 
 Tên hiển thị và portrait không nằm trong từng đoạn thoại. Chúng được gắn một lần tại:
@@ -62,6 +64,10 @@ một thiết kế placeholder.
 
 `Bianca` đã có constant và display name để phục vụ production event giờ nghỉ. Portrait chính
 thức vẫn là **Unresolved**; prefab màu hồng hiện tại chỉ là presentation placeholder.
+
+`KhoangLang = 5` là stable technical ID cho hook combat. Catalog có display name
+`Khoảng Lặng` nhưng portrait để trống. Tên/placement là **Design Intent**; voice, canon
+dialogue, ý nghĩa tâm lý và art chính thức vẫn **Unresolved**.
 
 Voice hiện hành của `Teacher` được giữ tại
 `.agents/skills/audere-dialogue-voice/references/characters/teacher.md`: ôn hòa, vui vẻ,
@@ -132,9 +138,23 @@ Player bước vào cell
 → DialogueController hiển thị lần lượt Left/Right
 ```
 
+Playback có hai mode:
+
+- `GlobalTimePause` là mặc định của các overload cũ và giữ hành vi `Time.timeScale = 0`.
+- `CallerOwnedPause` dành cho combat. Dialogue chỉ claim input/display; caller dừng combat-local
+  TIME, move và input. Phase-break đã clear dice/projectile trước; mid-phase giữ nguyên Heart,
+  dice, projectile và remaining move cadence.
+
+Combat tutorial D1 lưu character dialogue tại
+`Assets/_Audere/Data/Dialogue/Day1/Classroom/Combat/Dialogue_D1_COMBAT_TUTORIAL_*.asset`.
+Các asset này chỉ có Audere/Timor; Khoảng Lặng không nói. `CombatDialogueCue` giữ direct
+reference tới asset và phát bằng `CallerOwnedPause`. Câu điều khiển chính xác không nằm trong
+bubble mà hiện trên `CombatTutorialUI` sau khi character dialogue đóng, tránh bắt Timor đọc
+documentation giao diện. Mỗi line production hiện không quá `36` ký tự.
+
 Trong khi phát thoại:
 
-- gameplay pause bằng `Time.timeScale = 0`;
+- gameplay pause bằng `Time.timeScale = 0` ở `GlobalTimePause`; `CallerOwnedPause` không đổi global time;
 - typewriter dùng `Time.unscaledDeltaTime` nên vẫn chạy;
 - hai portrait hiện cùng lúc bằng fade ngắn, không đổi kích thước;
 - trước fade-in, controller đọc speaker của line đầu tiên; người sắp nói sáng ngay từ frame đầu,
@@ -204,7 +224,7 @@ Menu setup bootstrap các asset còn thiếu từ mẫu Left/Right và không gh
 | `DialogueCharacterSlotView.cs` | Portrait, tint người nói/không nói và visibility của slot. |
 | `DialogueBubbleView.cs` | Nội dung bubble, pop-in, rise và pop-out. |
 | `DialogueController.cs` | Điều phối thứ tự character → bubble → typewriter, input và pause. |
-| `GameplayUIRoot.cs` | Singleton root Canvas chứa riêng `PuzzleUI` và `DialogueUI`, persistent giữa gameplay scene. |
+| `GameplayUIRoot.cs` | Singleton root Canvas chứa `PuzzleUI`, `DialogueUI`, direct reference `CombatTutorialUI` và `CombatRetryUI`, persistent giữa gameplay scene. |
 | `DialogueTileBehaviour.cs` | Phát data được gán cho cell khi Player bước vào. |
 | `DialogueTileBehaviourEditor.cs` | Chỉnh direct scene/prefab component; không ghi ngược về `PuzzleData`; có nút mở legacy Map Editor. |
 

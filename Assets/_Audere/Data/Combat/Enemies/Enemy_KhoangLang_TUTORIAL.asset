@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ca86d61b03b73f42aa06816f765d42e, type: 3}
+  m_Name: Enemy_KhoangLang_TUTORIAL
+  m_EditorClassIdentifier: 
+  enemyId: d1-classroom-khoang-lang-tutorial
+  displayName: "Kho\u1EA3ng L\u1EB7ng"
+  actorPrefab: {fileID: 692416596494224280, guid: 985674116d46a934fac1db6dac754fe4, type: 3}
+  phasePolicy: 0
+  sharedMaxHealth: 99
+  phases:
+  - phaseId: tutorial-only-placeholder
+    maxHealth: 99
+    sharedExitThreshold: 0
+    duration: 120
+    moveSet: {fileID: 11400000, guid: 763b58cd6e0707948b39f13bcd20df2d, type: 2}
+    dialogueCues: []

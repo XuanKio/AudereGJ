@@ -111,12 +111,29 @@ Source: production event `D1_CLASSROOM_RECESS_BIANCA` in `30_Classroom` and its 
   is a presentation placeholder and does not establish appearance.
 - **Established implementation state:** after Timor's last line, a shared dreamy distortion
   profile tilts, drifts, bends, and smears the classroom around Audere before revealing the
-  reusable combat prototype, and returns to the same Story presentation after either Victory
-  or Defeat. This
-  establishes the technical hand-off only.
-- **Unresolved:** the enemy, combat's in-world/psychological meaning, canonical outcome,
-  post-combat dialogue, and whether the prototype rules survive into the accepted story.
-  `PROTOTYPE`, placeholder art, and temporary result mapping are not narrative evidence.
+  reusable combat runtime. The current encounter instantiates a three-phase actor prototype
+  named `Khoảng Lặng` and returns to the same Story presentation after either Victory or Defeat.
+  This establishes the technical hand-off only.
+- **Design Intent:** the display name `Khoảng Lặng` and its D1 Classroom placement identify the
+  prototype Xuân currently wants to develop.
+- **Established implementation state:** the prototype now starts with an isolated one-phase tutorial
+  runtime (`99 HP`, `120 TIME`) instead of attaching tutorial cues to the three production phases.
+  Its opening batch contains Attack, Shield, and Heal exactly once; the first HUD beat previews all
+  three, then Timor narrows attention to Stun Zone and each dice rule in turn. Exact controls remain
+  a separate one-line HUD. Dialogue and instruction both pause combat-local TIME, dice, projectile,
+  and enemy move simulation until a left/right click closes the card; that click is consumed. Between
+  cards TIME drains at `0.25x`, with a `1 s` tutorial safety floor. After Timor closes the introduction,
+  the tutorial session is destroyed and a fresh three-phase `Khoảng Lặng` session starts at phase 1,
+  `2 HP`, and `45 s`, with its full projectile moveset and no tutorial cues. Enemy phases remain
+  runtime structure and are not announced with an on-screen `NHỊP n / 3` marker.
+- **Design Intent:** the current Timor/Audere tutorial wording is a production draft requested to
+  make the first combat readable and winnable. Treat the exact lines as pending Xuân's acceptance,
+  not as settled character canon. Timor remains genuinely useful by narrowing attention to one
+  action at a time; the beat does not advance the relationship beyond `Protective pre-emption`.
+- **Unresolved:** the boss's in-world/psychological meaning, voice, canon dialogue, portrait/art,
+  phase meaning/names, final moveset/balance, canonical outcome, post-combat dialogue, and
+  whether the prototype rules survive into accepted story. `PLACEHOLDER` art and temporary
+  result mapping are not narrative evidence.
 
 ## Later story
 

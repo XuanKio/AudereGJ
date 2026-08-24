@@ -1,0 +1,126 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82266736f0432de4fb7de47e3203a0ef, type: 3}
+  m_Name: CombatTutorial_D1_CLASSROOM
+  m_EditorClassIdentifier: 
+  tutorialId: d1-classroom-combat-basics
+  enemyDefinition: {fileID: 11400000, guid: 02c2f98d6c479b0489c10b7b499c0f74, type: 2}
+  playerTime: 120
+  openingDice: 000000000100000002000000
+  cues:
+  - cueId: tutorial-overview
+    oneShotKey: 
+    trigger: 4
+    triggerValue: 0
+    filterBySymbol: 0
+    symbol: 0
+    sequence:
+    - {fileID: 11400000, guid: 3f0ad0b66f0992a4ea0f6e117e9718e5, type: 2}
+    instruction: "TR\xC1I: B\u1EAET \xB7 PH\u1EA2I: GIEO L\u1EA0I \xB7 TIME V\u1EC0
+      0: THUA"
+    instructionDuration: 0
+    tutorialFocus: 4
+    showcasedSymbol: 0
+    isTutorial: 1
+  - cueId: tutorial-stun-zone
+    oneShotKey: 
+    trigger: 3
+    triggerValue: 0
+    filterBySymbol: 0
+    symbol: 0
+    sequence:
+    - {fileID: 11400000, guid: 3d62d6c3acc28b14087a3e32049ee099, type: 2}
+    instruction: "V\xD9NG NHI\u1EC4U \xB7 KH\xD4NG B\u1EAET \u0110\u01AF\u1EE2C \xB7
+      V\u1EAAN GIEO L\u1EA0I \u0110\u01AF\u1EE2C"
+    instructionDuration: 0
+    tutorialFocus: 2
+    showcasedSymbol: 0
+    isTutorial: 1
+  - cueId: tutorial-attack
+    oneShotKey: tutorial-attack
+    trigger: 5
+    triggerValue: 0
+    filterBySymbol: 1
+    symbol: 0
+    sequence:
+    - {fileID: 11400000, guid: e5fb8f1cceb3f024b8c1da7bf31271f1, type: 2}
+    instruction: "T\u1EA4N C\xD4NG \xB7 G\xC2Y 1 S\xC1T TH\u01AF\u01A0NG"
+    instructionDuration: 0
+    tutorialFocus: 3
+    showcasedSymbol: 0
+    isTutorial: 1
+  - cueId: tutorial-shield
+    oneShotKey: tutorial-shield
+    trigger: 5
+    triggerValue: 0
+    filterBySymbol: 1
+    symbol: 1
+    sequence:
+    - {fileID: 11400000, guid: 21b92c67194de9c4b9e4feb92d9a3507, type: 2}
+    instruction: "KHI\xCAN \xB7 D\u1ECCN M\u1ECCI \u0110\u1EA0N TRONG V\xD2NG B\u1EA2O
+      V\u1EC6"
+    instructionDuration: 0
+    tutorialFocus: 3
+    showcasedSymbol: 1
+    isTutorial: 1
+  - cueId: tutorial-heal
+    oneShotKey: tutorial-heal
+    trigger: 5
+    triggerValue: 0
+    filterBySymbol: 1
+    symbol: 2
+    sequence:
+    - {fileID: 11400000, guid: 5f8754d4208d3d14ea40e8cae550e8b0, type: 2}
+    instruction: "H\u1ED2I NH\u1ECAP \xB7 TIME T\u0102NG 3 GI\xC2Y"
+    instructionDuration: 0
+    tutorialFocus: 3
+    showcasedSymbol: 2
+    isTutorial: 1
+  - cueId: tutorial-reroll
+    oneShotKey: 
+    trigger: 6
+    triggerValue: 0
+    filterBySymbol: 0
+    symbol: 0
+    sequence:
+    - {fileID: 11400000, guid: 8a41cd6008da41b418698b80677d73af, type: 2}
+    instruction: "GIEO L\u1EA0I \xB7 M\u1EB6T X\xDAC X\u1EAEC \u0110\xC3 \u0110\u1ED4I"
+    instructionDuration: 0
+    tutorialFocus: 0
+    showcasedSymbol: 0
+    isTutorial: 1
+  - cueId: tutorial-player-hit
+    oneShotKey: 
+    trigger: 8
+    triggerValue: 0
+    filterBySymbol: 0
+    symbol: 0
+    sequence:
+    - {fileID: 11400000, guid: 743f055893fd1c843b7a94a6c5ef214d, type: 2}
+    instruction: "TR\xDANG \u0110\u1EA0N \xB7 TIME GI\u1EA2M 3 GI\xC2Y"
+    instructionDuration: 0
+    tutorialFocus: 1
+    showcasedSymbol: 0
+    isTutorial: 1
+  - cueId: tutorial-intro-complete
+    oneShotKey: tutorial-intro-complete
+    trigger: 9
+    triggerValue: 0
+    filterBySymbol: 0
+    symbol: 0
+    sequence:
+    - {fileID: 11400000, guid: 6b32a08eab818a74fbf4091f3902ef7e, type: 2}
+    instruction: 
+    instructionDuration: 0
+    tutorialFocus: 0
+    showcasedSymbol: 0
+    isTutorial: 1

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D1_COMBAT_TUTORIAL_TIME
+  m_EditorClassIdentifier: 
+  dialogueId: d1-combat-tutorial-time
+  leftCharacter: 1
+  rightCharacter: 2
+  lines:
+  - speaker: 0
+    text: "N\xF3 \u0111ang gi\u1EA3m\u2026"
+  - speaker: 1
+    text: "\u1EEA. \u0110\xF3 l\xE0 nh\u1ECBp c\xF2n l\u1EA1i c\u1EE7a c\u1EADu."
+  - speaker: 1
+    text: "M\xECnh gi\u1EEF n\xF3 tr\xEAn kh\xF4ng nh\xE9."

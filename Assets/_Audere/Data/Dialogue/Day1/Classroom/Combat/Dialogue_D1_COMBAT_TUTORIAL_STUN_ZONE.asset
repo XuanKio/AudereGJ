@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D1_COMBAT_TUTORIAL_STUN_ZONE
+  m_EditorClassIdentifier: 
+  dialogueId: d1-combat-tutorial-stun-zone
+  leftCharacter: 1
+  rightCharacter: 2
+  lines:
+  - speaker: 1
+    text: "V\xF9ng nhi\u1EC5u ch\u1EC9 c\u1EA3n l\xFAc c\u1EADu b\u1EAFt."
+  - speaker: 1
+    text: "\u1EDE \u0111\xF3, m\xECnh v\u1EABn gieo l\u1EA1i \u0111\u01B0\u1EE3c."
