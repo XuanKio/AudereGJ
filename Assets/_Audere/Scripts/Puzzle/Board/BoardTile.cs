@@ -103,6 +103,21 @@ namespace Audere.Puzzle.Board
             return false;
         }
 
+        public bool CanPlayerEnter(GridPlayer player)
+        {
+            CacheBehaviours();
+            foreach (IBoardTileBehaviour behaviour in behaviours)
+            {
+                if (behaviour is IBoardTileTraversalRule rule &&
+                    !rule.CanPlayerEnter(this, player))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public void NotifyPlayerEntered(GridPlayer player)
         {
             foreach (IBoardTileBehaviour behaviour in behaviours)

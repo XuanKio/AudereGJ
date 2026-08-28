@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Audere.Audio;
 using Audere.Dialogue;
 using Audere.Puzzle;
 using UnityEngine;
@@ -14,12 +15,16 @@ namespace Audere.World
         [SerializeField] private GameObject puzzleRoot;
         [SerializeField] private GameObject combatRoot;
         [SerializeField] private GameObject storyRoot;
+        [Tooltip("Scene roots visible in both Story and Puzzle, hidden only during Combat.")]
+        [SerializeField] private GameObject[] storyAndPuzzleRoots;
         [SerializeField] private GameObject puzzleViewportMask;
         [SerializeField] private bool storyUsesPuzzleViewportMask = true;
         [SerializeField] private GameObject combatSystemsRoot;
 
         [Header("Transition")]
         [SerializeField] private CanvasGroup transitionFade;
+        [Tooltip("Disable when authored Story steps own the fade; do not bind unrelated child UI.")]
+        [SerializeField] private bool allowChildFadeFallback = true;
         [SerializeField] private bool revealStartingModeOnStart = true;
         [SerializeField, Min(.01f)] private float fadeOutDuration = .18f;
         [SerializeField, Min(0f)] private float coveredHoldDuration = .05f;
@@ -60,8 +65,30 @@ namespace Audere.World
 
         private void Start()
         {
+            SyncMusicPresentation();
             if (transitionFade != null && revealStartingModeOnStart)
                 transitionRoutine = StartCoroutine(RevealStartingMode());
+        }
+
+        private void LateUpdate() => SyncMusicPresentation();
+
+        private void SyncMusicPresentation()
+        {
+            AudioService audio = AudioService.Instance;
+            if (audio == null) return;
+            audio.TrackScreenFade(transitionFade);
+            var combatController = combatSystemsRoot != null ? combatSystemsRoot.GetComponent<Audere.Combat.CombatController>() : null;
+            AudioId? track = combatController != null && combatController.CurrentEncounter != null
+                ? combatController.CurrentEncounter.Music : (AudioId?)null;
+            audio.SetCombatMusicOwner(this, CurrentMode == WorldGameplayMode.Combat, track);
+        }
+
+        private void OnDisable()
+        {
+            if (transitionRoutine != null) StopCoroutine(transitionRoutine);
+            transitionRoutine = null;
+            IsTransitioning = false;
+            AudioService.Instance?.ReleaseMusicOwner(this);
         }
 
         private void Update()
@@ -102,6 +129,8 @@ namespace Audere.World
             SetActiveIfNeeded(puzzleRoot, puzzleActive);
             SetActiveIfNeeded(combatRoot, combatActive);
             SetActiveIfNeeded(storyRoot, storyActive);
+            if (storyAndPuzzleRoots != null)
+                foreach (GameObject root in storyAndPuzzleRoots) SetActiveIfNeeded(root, !combatActive);
             SetActiveIfNeeded(
                 puzzleViewportMask,
                 puzzleActive || (storyActive && storyUsesPuzzleViewportMask));
@@ -125,6 +154,7 @@ namespace Audere.World
             }
 
             CurrentMode = mode;
+            SyncMusicPresentation();
             ModeChanged?.Invoke(mode);
         }
 
@@ -217,7 +247,7 @@ namespace Audere.World
             }
             if (puzzleCameraFollow == null && worldCamera != null)
                 puzzleCameraFollow = worldCamera.GetComponent<GridCameraFollow2D>();
-            if (transitionFade == null)
+            if (transitionFade == null && allowChildFadeFallback)
                 transitionFade = GetComponentInChildren<CanvasGroup>(true);
 
             ResolveGameplayUi();

@@ -1,0 +1,15 @@
+{
+  "width": 4,
+  "height": 1,
+  "start": [0, 0],
+  "goal": [3, 0],
+  "cells": [[0, 0], [1, 0], [2, 0], [3, 0]],
+  "one_use_cells": [[1, 0]],
+  "pieces": [
+    {"id": "line-2-a", "path": [[0, 0], [1, 0]]},
+    {"id": "line-2-b", "path": [[0, 0], [1, 0]]},
+    {"id": "line-2-c", "path": [[0, 0], [1, 0]]}
+  ],
+  "require_all": true,
+  "max_solutions": 2000
+}

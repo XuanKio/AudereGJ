@@ -2,7 +2,9 @@
 
 ## Evidence boundary
 
-Timor has more dialogue than Audere in the current opening, but only within a morning routine. His later controlling progression is explicit `Design Intent` from Xuân, not yet established by later scenes in the project.
+Timor's morning voice is established as helpful and familiar. The production night-message scene now
+implements the first explicit controlling confrontation as `Design Intent`; it does not retroactively
+make the morning help false or establish every detail of Timor's private motive.
 
 ## Character model
 
@@ -15,6 +17,8 @@ Timor has more dialogue than Audere in the current opening, but only within a mo
 - He notices small changes in her condition and responds positively.
 - He knows Audere's father prepared bread and directs breakfast as the next task.
 - In the breakfast tutorial, his current feedback emphasizes doing every step and trying again.
+- Before the classroom combat hand-off, he asks Audere not to answer Bianca yet and points out that
+  anxiety is answering in her place. After Audere decides to face it herself, he says he will stay.
 
 ### Strongly Implied
 
@@ -28,6 +32,27 @@ Timor has more dialogue than Audere in the current opening, but only within a mo
 - His controlling tendency begins subtly enough to be interpreted as care.
 - Over the story, protection gradually becomes deciding for Audere and restricting her choices.
 - Do not foreshadow this by making him openly cruel, threatening, sinister, or villainous at the start.
+- After Audere manages to answer Bianca, he acknowledges that her hands still tremble and answers
+  her thanks with `Tớ vẫn luôn ở đây mà.` The warmth and reliability are genuine while continuing
+  the dependence pattern; he does not claim the choice or victory as his own.
+- In `D1_HOME_NIGHT_MESSAGE`, Timor first speaks from visible fear: Bianca may only want to use
+  Audere, and an earlier loss could repeat. When Audere distinguishes the situations and says she
+  still wants to answer, his fear becomes anger and explicit control: she must listen, keep her
+  distance, and let him stop the reply. Combat continues that demand rather than introducing an
+  unrelated threat. This is implemented **Design Intent**, not proof that his early care was false
+  or that the combat presentation is literal.
+- The scene-authored statement about Audere losing her mother after the mother trusted someone is
+  **Design Intent** only. Timor may believe it and use it as evidence; its exact truth and causality
+  remain `Unresolved` until the broader family history is locked.
+- After the scripted defeat, Timor returns to a quiet, caring surface. `Thấy chưa` must sound sad
+  and certain, never smug. He treats Audere's exhaustion as proof that stopping is protection, then
+  narrows her reply to three avoidance strategies. This is **Design Intent**: his care remains
+  sincere while the relief he offers now depends on surrendering the answer she wanted to give.
+- On Day 2 morning, Timor knows Audere is slightly afraid of him and says he does not want to
+  frighten her. Do not make this self-awareness resolve the problem: he responds by promising
+  familiar help, then checks breakfast, bag, lock, walking distance, and standing position in
+  increasing detail. When Audere mentions Bianca or the event, he redirects to an immediate
+  safety cue rather than arguing about the subject.
 
 ## Behavioral rules
 
@@ -40,7 +65,8 @@ Timor has more dialogue than Audere in the current opening, but only within a mo
 | Audere makes an error | Wants to restore a predictable route | Removes blame and tells her where to restart | “Không sao”, “thử lại”, then one concrete step |
 | Audere tries an independent choice early | `Design Intent`: protectiveness and unease coexist | May question or pre-empt the choice while sounding helpful | Concern framed as saving her effort or risk |
 | Later protection becomes control | `Design Intent`, timing unresolved | Decides on Audere's behalf and closes alternatives | Same caring vocabulary may remain while agency narrows |
-| Angry or frightened | `Unresolved` | Do not invent menace from future intent | Establish from later accepted scenes |
+| Audere resists during the night-message beat | Fear of losing her becomes anger | Raises his voice, requires obedience, tries to stop the reply | Short imperatives; repeats her name; care language becomes restrictive |
+| Day 2 after the rupture | Knows Audere is wary and wants the familiar bond restored | Softens his tone but monitors each practical step | Acknowledgement followed immediately by a concrete safety instruction |
 
 ## Voice controls
 
@@ -59,7 +85,8 @@ Timor has more dialogue than Audere in the current opening, but only within a mo
 
 ## Avoid
 
-- Early commands such as “Cậu phải nghe lời tớ” or “Đừng tự quyết định.”
+- Commands such as “Cậu phải nghe lời tớ” in morning/classroom setup; the accepted night-message
+  confrontation is the first scoped exception and must be earned by the visible fear → resistance arc.
 - Threats, ominous phrasing, smug manipulation, or obvious villain subtext in Day 1 opening scenes.
 - Turning every click into a Timor comment.
 - Making Timor recite input documentation such as endpoint, preview state, or controller terminology.
@@ -69,4 +96,3 @@ Timor has more dialogue than Audere in the current opening, but only within a mo
 ## Progression guardrail
 
 Keep the surface voice recognizably caring as control increases. The arc becomes disturbing because an initially useful pattern gradually takes away Audere's choices, not because Timor abruptly changes into a different personality.
-

@@ -15,18 +15,30 @@ MonoBehaviour:
   dialogueId: d1-home-after-brushing
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 0
-    text: "Bạc hà cay quá… nhưng tỉnh thật."
+    text: "B\u1EA1c h\xE0 cay qu\xE1\u2026 nh\u01B0ng t\u1EC9nh th\u1EADt."
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Ít nhất mắt cậu cũng chịu mở rồi."
+    text: "\xCDt nh\u1EA5t m\u1EAFt c\u1EADu c\u0169ng ch\u1ECBu m\u1EDF r\u1ED3i."
+    portraitOverride: {fileID: 0}
   - speaker: 0
-    text: "Tớ vẫn đang mở mà."
+    text: "T\u1EDB v\u1EABn \u0111ang m\u1EDF m\xE0."
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Ừ, mở được một nửa. Thế là tiến bộ rồi."
+    text: "\u1EEA, m\u1EDF \u0111\u01B0\u1EE3c m\u1ED9t n\u1EEDa. Th\u1EBF l\xE0
+      ti\u1EBFn b\u1ED9 r\u1ED3i."
+    portraitOverride: {fileID: 188140060781976214, guid: 8b9bf032ca2b2d745b01ed08e5c65d23, type: 3}
   - speaker: 1
-    text: "Bố cậu để bánh mì trong bếp đấy. Mình ăn một chút rồi đi."
+    text: "B\u1ED1 c\u1EADu \u0111\u1EC3 b\xE1nh m\xEC trong b\u1EBFp \u0111\u1EA5y.
+      M\xECnh \u0103n m\u1ED9t ch\xFAt r\u1ED3i \u0111i."
+    portraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   - speaker: 0
-    text: "Vẫn còn kịp chứ?"
+    text: "V\u1EABn c\xF2n k\u1ECBp ch\u1EE9?"
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Kịp. Cứ lo bữa sáng trước đã, phần còn lại có tớ nhắc."
+    text: "K\u1ECBp. C\u1EE9 lo b\u1EEFa s\xE1ng tr\u01B0\u1EDBc \u0111\xE3, ph\u1EA7n
+      c\xF2n l\u1EA1i c\xF3 t\u1EDB nh\u1EAFc."
+    portraitOverride: {fileID: 0}

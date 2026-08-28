@@ -15,10 +15,15 @@ MonoBehaviour:
   dialogueId: d1-classroom-settle
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 1
     text: "V\u1EABn ch\u1ED7 c\u0169."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "\u1ED4n r\u1ED3i."
+    portraitOverride: {fileID: 0}
   - speaker: 0
     text: "\u1EEA."
+    portraitOverride: {fileID: 0}

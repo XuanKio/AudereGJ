@@ -50,7 +50,7 @@ Why it is useful: warm acknowledgement transitions directly into structure; `mì
 
 > “Không sao. Mình quay lại từ đầu và thử từng bước nhé.”
 
-Source: serialized `UseAllPiecesTutorialGuide` text in `Assets/_Audere/Scenes/20_Game.unity`
+Source: serialized `UseAllPiecesTutorialGuide` text in `Assets/_Audere/Scenes/20_D1_Home_Morning.unity`
 
 Why it is useful: removes blame and gives a concrete recovery direction.
 
@@ -80,6 +80,29 @@ and `Dialogue_D1_CLASSROOM_BIANCA_EXIT.asset`
 Why it is useful: Bianca makes a concrete, small invitation and then gives Audere space. She
 does not over-explain Audere, pressure her, or cast herself as a rescuer.
 
+### Timor — fear crossing into restricted agency
+
+> “Nhưng tớ sợ lắm.”
+
+> “Mẹ cậu cũng từng tin người khác.”
+
+> “Nhưng tớ vẫn muốn trả lời.”
+
+> “Cậu phải nghe tớ lần này.”
+
+> “Lần này, để tớ tự trả lời.”
+
+> “Tớ không thể để cậu làm vậy.”
+
+Source: `D1_HOME_NIGHT_MESSAGE` and the authored Timor night-pressure bark assets.
+
+Status: **Design Intent**. Timor begins with a genuine admission of fear, then uses a past loss to
+make a present invitation feel unsafe. Audere does not become suddenly confident; she gives one
+tentative boundary and asks to make this reply herself. Timor's anger appears only after that small
+resistance and becomes an explicit demand for obedience. The progression should still read as fear
+and attachment curdling into control, not a villain changing personality. The mother-history claim,
+combat ontology, and Timor's reliability remain unresolved outside this authored beat.
+
 ## Potentially inconsistent examples
 
 ### Legacy sample naming
@@ -94,7 +117,7 @@ Concern: the speaker slot is Audere, but the line addresses `Nhật Linh`; curre
 
 > “Không được đâu, Audere. Cậu phải làm từng bước một, không được bỏ sót gì cả. Thử lại nhé.”
 
-Source: serialized `UseAllPiecesTutorialGuide` text in `Assets/_Audere/Scenes/20_Game.unity`
+Source: serialized `UseAllPiecesTutorialGuide` text in `Assets/_Audere/Scenes/20_D1_Home_Morning.unity`
 
 Concern: the hard opening and repeated obligation are stronger than the stated Day 1 intent, although the retry ending is gentle. Treat this as implemented text that may need future review, not as the default Timor voice pattern.
 
@@ -112,6 +135,18 @@ Concern: the first establishes washing the face while the follow-up strongly sig
 
 ## Insufficient evidence
 
+### Khoảng Lặng — current placeholder combat pressure
+
+> “Nói gì đi.”
+
+> “Bây giờ trả lời còn kỳ hơn.”
+
+Source: D1 Classroom production combat DialogueData assets marked `PLACEHOLDER`.
+
+Status: **Design Intent**, not a reusable canon voice example. The short repetition currently
+serves combat pacing by crowding Audere's unanswered choice. Do not extrapolate vocabulary,
+personality, ontology, or perception rules from these lines.
+
 There are currently no reliable project examples for:
 
 - Audere carrying a sustained conversation with classmates or unfamiliar people; her current
@@ -119,6 +154,6 @@ There are currently no reliable project examples for:
 - Audere making a meaningful independent choice.
 - Timor under genuine anger, fear, or loss of control.
 - Later-stage Timor restriction or an Audere–Timor confrontation.
-- Combat dialogue, text-message voice, or monologue/internal narration.
+- Accepted final combat voice, text-message voice, or monologue/internal narration.
 
 Do not fabricate “representative examples” for these modes until accepted story content exists.

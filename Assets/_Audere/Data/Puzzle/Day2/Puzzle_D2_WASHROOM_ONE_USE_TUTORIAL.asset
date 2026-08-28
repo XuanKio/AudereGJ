@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 647c0a9bef978874aa749caa2e3e5bbf, type: 3}
+  m_Name: Puzzle_D2_WASHROOM_ONE_USE_TUTORIAL
+  m_EditorClassIdentifier: 
+  puzzleId: d2-washroom-one-use-tutorial
+  boardTiles:
+  - position: {x: 0, y: 0}
+    tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
+  - position: {x: 1, y: 0}
+    tileType: 3
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
+  - position: {x: 2, y: 0}
+    tileType: 0
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
+  - position: {x: 3, y: 0}
+    tileType: 1
+    dialogue: {fileID: 0}
+    triggerDialogueOnce: 0
+  boardCells: []
+  playerStartPosition: {x: 0, y: 0}
+  goalPosition: {x: 3, y: 0}
+  availablePathPieces:
+  - {fileID: 11400000, guid: 3dd3b65ac22be73408734f29b9e3e2a7, type: 2}
+  - {fileID: 11400000, guid: 3dd3b65ac22be73408734f29b9e3e2a7, type: 2}
+  - {fileID: 11400000, guid: 3dd3b65ac22be73408734f29b9e3e2a7, type: 2}
+  requireAllPathPieces: 1

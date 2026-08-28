@@ -1,4 +1,5 @@
 using System.Collections;
+using Audere.Audio;
 using UnityEngine;
 
 namespace Audere.Story.Steps
@@ -128,6 +129,11 @@ namespace Audere.Story.Steps
             actor.position = activeGroundPosition;
             actor.localScale = baseScale;
             KeepShadowGrounded(activeGroundPosition);
+            if (!verticalInPlace &&
+                (activeGroundPosition - startPosition).sqrMagnitude > Mathf.Epsilon)
+            {
+                AudioService.Instance?.Play(AudioId.Actor_Step);
+            }
             yield return PlayLanding(baseScale);
             ApplyFinalFacing(horizontalTravel);
             CompleteStep();

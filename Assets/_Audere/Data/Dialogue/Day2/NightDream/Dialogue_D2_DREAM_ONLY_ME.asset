@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D2_DREAM_ONLY_ME
+  m_EditorClassIdentifier: 
+  dialogueId: d2-dream-only-me
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  rightPortraitOverride: {fileID: -4747829306167941163, guid: cdecd5c621db74b43927eb49d1f04191, type: 3}
+  lines:
+  - speaker: 0
+    text: "Timor\u2026 \u0111\u01B0\u1EDDng \u0111\xE2u r\u1ED3i?"
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "\u0110\u1EEBng nh\xECn ch\u1ED7 \u0111\xF3 n\u1EEFa."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "Nh\xECn t\u1EDB th\xF4i."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "Ch\u1EC9 c\xF3 t\u1EDB gi\xFAp c\u1EADu an to\xE0n th\xF4i."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "Ch\u1EC9 m\xECnh t\u1EDB l\xE0 b\u1EA1n th\u1EADt s\u1EF1 c\u1EE7a c\u1EADu."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 0
+    text: "\u2026\u0110\u1EEBng \u0111i."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "T\u1EDB \u1EDF \u0111\xE2y."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "V\u1EADy c\u1EE9 nghe t\u1EDB, Audere."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

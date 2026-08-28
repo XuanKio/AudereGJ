@@ -99,10 +99,9 @@ namespace Audere.Puzzle.PathPieces
             if (!TryGetPointerInput(out Vector2 pointerScreenPosition, out bool pointerPressedThisFrame))
                 return;
 
-            // Only the hand owns pointer input.  A broad IsPointerOverGameObject()
-            // check also catches decorative HUD graphics and can permanently block
-            // preview movement/placement over the board.
-            if (IsPointerOverHand(pointerScreenPosition))
+            // Interactive UI owns its click, including the retry button.
+            // Decorative HUD graphics must not block placement over the board.
+            if (IsPointerOverInteractiveUi(pointerScreenPosition))
                 return;
 
             if (!TryMovePreviewToScreenPosition(pointerScreenPosition))
@@ -172,12 +171,7 @@ namespace Audere.Puzzle.PathPieces
             origin = player.GridPosition - rotatedEndpointA;
             hasAnchoredOrigin = true;
             previewActive = true;
-            currentResult = PathPlacementValidator.Validate(
-                hand.SelectedPiece,
-                origin,
-                rotation,
-                player.GridPosition,
-                board);
+            currentResult = ValidatePreview();
 
             if (!BuildWorldPreviewPath(
                     hand.SelectedPiece,
@@ -284,12 +278,7 @@ namespace Audere.Puzzle.PathPieces
             PreviewMidpointGridPosition = anchor.EndpointMidpoint;
             cursorToPreviewMidpointDistance = anchor.PointerDistance;
             previewActive = true;
-            currentResult = PathPlacementValidator.Validate(
-                hand.SelectedPiece,
-                origin,
-                rotation,
-                player.GridPosition,
-                board);
+            currentResult = ValidatePreview();
 
             if (!BuildWorldPreviewPath(hand.SelectedPiece, origin, rotation, out float cellWorldSize))
             {
@@ -301,6 +290,21 @@ namespace Audere.Puzzle.PathPieces
             preview.Show(previewWorldPath, cellWorldSize);
             preview.SetState(GetPresentationState(currentResult));
             PreviewChanged?.Invoke(currentResult);
+        }
+
+        private PlacementResult ValidatePreview()
+        {
+            GridPlayer mover = player;
+            if (puzzle.Cooperative != null)
+            {
+                var pair = puzzle.Cooperative;
+                var piece = hand.SelectedPiece;
+                Vector2Int a = origin + GridRotationUtility.Rotate(piece.EndpointA, rotation);
+                Vector2Int b = origin + GridRotationUtility.Rotate(piece.EndpointB, rotation);
+                mover = pair.ActorAtStart(a, false) ?? pair.ActorAtStart(b, false);
+                if (mover == null) return PlacementResult.Invalid("Nối một đầu path vào ô của người chưa tới đích.");
+            }
+            return PathPlacementValidator.Validate(hand.SelectedPiece, origin, rotation, mover.GridPosition, board, mover);
         }
 
         private bool BuildWorldPreviewPath(
@@ -388,7 +392,7 @@ namespace Audere.Puzzle.PathPieces
             return true;
         }
 
-        private bool IsPointerOverHand(Vector2 screenPosition)
+        private bool IsPointerOverInteractiveUi(Vector2 screenPosition)
         {
             if (EventSystem.current == null || hand == null)
                 return false;
@@ -402,7 +406,8 @@ namespace Audere.Puzzle.PathPieces
             foreach (RaycastResult hit in hits)
             {
                 if (hit.gameObject != null &&
-                    hit.gameObject.transform.IsChildOf(hand.transform))
+                    (hit.gameObject.transform.IsChildOf(hand.transform) ||
+                     hit.gameObject.GetComponentInParent<UnityEngine.UI.Selectable>() != null))
                     return true;
             }
 

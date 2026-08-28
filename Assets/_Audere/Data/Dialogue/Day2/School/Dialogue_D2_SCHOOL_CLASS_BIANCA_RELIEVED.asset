@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D2_SCHOOL_CLASS_BIANCA_RELIEVED
+  m_EditorClassIdentifier: 
+  dialogueId: d2-school-class-bianca-relieved
+  leftCharacter: 1
+  rightCharacter: 4
+  leftPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 1
+    text: "\xC0\u2026"
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "T\u1EDB c\u1EE9 t\u01B0\u1EDFng c\u1EADu gi\u1EADn t\u1EDB chuy\u1EC7n
+      g\xEC."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "C\xF3 c\u1EADu \u0111i c\xF9ng th\xEC t\u1ED1t qu\xE1."
+    portraitOverride: {fileID: 0}

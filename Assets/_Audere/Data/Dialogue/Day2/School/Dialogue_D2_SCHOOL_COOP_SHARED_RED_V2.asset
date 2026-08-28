@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D2_SCHOOL_COOP_SHARED_RED_V2
+  m_EditorClassIdentifier: 
+  dialogueId: d2-school-coop-shared-red-v2
+  leftCharacter: 1
+  rightCharacter: 4
+  leftPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 0
+    text: "\u0110\u1EC3 t\u1EDB gi\u1EEF \xF4 \u0111\u1ECF \u0111\u1EA7u ti\xEAn
+      nh\xE9."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "\u1EEA. T\u1EDB qua tr\u01B0\u1EDBc nh\xE9."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D2_SCHOOL_COOP_CHANGE_ROLES
+  m_EditorClassIdentifier: 
+  dialogueId: d2-school-coop-change-roles
+  leftCharacter: 1
+  rightCharacter: 4
+  leftPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 1
+    text: "L\u1EA7n n\xE0y \u0111\u1EC3 t\u1EDB gi\u1EEF. C\u1EADu qua tr\u01B0\u1EDBc
+      \u0111i."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "\u0110\u1EE3i t\u1EDB m\u1ED9t ch\xFAt nh\xE9."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "\u1EEA, t\u1EDB \u0111ang gi\u1EEF m\xE0."
+    portraitOverride: {fileID: 0}

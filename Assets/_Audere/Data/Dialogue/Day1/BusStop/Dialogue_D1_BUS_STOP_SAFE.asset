@@ -15,8 +15,12 @@ MonoBehaviour:
   dialogueId: d1-bus-stop-safe
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: 5003323414229244817, guid: aef14cf774eb96745a1ce7b2b831128f, type: 3}
+  rightPortraitOverride: {fileID: 188140060781976214, guid: 8b9bf032ca2b2d745b01ed08e5c65d23, type: 3}
   lines:
   - speaker: 0
     text: "C\u1EA3m \u01A1n, Timor."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "T\u1EDB \u1EDF \u0111\xE2y m\xE0."
+    portraitOverride: {fileID: 0}

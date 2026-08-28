@@ -8,7 +8,7 @@ namespace Audere.UI
     /// Drives the 10_MainMenu scene. Auto-wires its buttons in code (via the serialized
     /// references) so no persistent OnClick wiring is needed in the Inspector. Scene
     /// transitions go through <see cref="SceneFlow"/>, never a direct SceneManager call,
-    /// keeping the flow: MainMenu -> New Game -> 20_Game.
+    /// keeping the flow: MainMenu -> New Game -> 20_D1_Home_Morning.
     /// </summary>
     public sealed class MainMenuController : MonoBehaviour
     {
@@ -35,7 +35,7 @@ namespace Audere.UI
                 return;
             }
 
-            SceneFlow.Instance.Load(GameScenes.Game);
+            SceneFlow.Instance.Load(GameScenes.Day1HomeMorning);
         }
 
         public void QuitGame()

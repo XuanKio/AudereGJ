@@ -15,20 +15,31 @@ MonoBehaviour:
   dialogueId: d1-home-morning-opening
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 1
-    text: "Audere… dậy thôi. Muộn thật rồi đấy."
+    text: "Audere\u2026 d\u1EADy th\xF4i. Mu\u1ED9n th\u1EADt r\u1ED3i \u0111\u1EA5y."
+    portraitOverride: {fileID: 0}
   - speaker: 0
-    text: "Ừm… cho tớ một phút."
+    text: "\u1EEAm\u2026 cho t\u1EDB m\u1ED9t ph\xFAt."
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Một phút của cậu thường dài lắm."
+    text: "M\u1ED9t ph\xFAt c\u1EE7a c\u1EADu th\u01B0\u1EDDng d\xE0i l\u1EAFm."
+    portraitOverride: {fileID: 188140060781976214, guid: 8b9bf032ca2b2d745b01ed08e5c65d23, type: 3}
   - speaker: 0
-    text: "…Mấy giờ rồi?"
+    text: "\u2026M\u1EA5y gi\u1EDD r\u1ED3i?"
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Vẫn kịp, nếu mình bắt đầu ngay bây giờ. Chưa cần nghĩ tới cả buổi sáng đâu."
+    text: "V\u1EABn k\u1ECBp, n\u1EBFu m\xECnh b\u1EAFt \u0111\u1EA7u ngay b\xE2y
+      gi\u1EDD. Ch\u01B0a c\u1EA7n ngh\u0129 t\u1EDBi c\u1EA3 bu\u1ED5i s\xE1ng \u0111\xE2u."
+    portraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   - speaker: 1
-    text: "Đánh răng trước nhé."
+    text: "\u0110\xE1nh r\u0103ng tr\u01B0\u1EDBc nh\xE9."
+    portraitOverride: {fileID: 0}
   - speaker: 0
-    text: "Ừ… tớ dậy đây."
+    text: "\u1EEA\u2026 t\u1EDB d\u1EADy \u0111\xE2y."
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Tớ đi cùng cậu."
+    text: "T\u1EDB \u0111i c\xF9ng c\u1EADu."
+    portraitOverride: {fileID: 0}

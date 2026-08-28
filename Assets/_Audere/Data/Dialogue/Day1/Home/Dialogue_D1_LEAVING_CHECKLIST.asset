@@ -15,24 +15,38 @@ MonoBehaviour:
   dialogueId: d1-home-leaving-checklist
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 1
-    text: "Cặp?"
+    text: "C\u1EB7p?"
+    portraitOverride: {fileID: 0}
   - speaker: 0
-    text: "Có."
+    text: "C\xF3."
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Điện thoại?"
+    text: "\u0110i\u1EC7n tho\u1EA1i?"
+    portraitOverride: {fileID: 0}
   - speaker: 0
-    text: "Có."
+    text: "C\xF3."
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Chìa khóa?"
+    text: "Ch\xECa kh\xF3a?"
+    portraitOverride: {fileID: 0}
   - speaker: 0
-    text: "…Có."
+    text: "\u2026C\xF3."
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Cậu vừa kiểm tra túi lần nữa đúng không?"
+    text: "C\u1EADu v\u1EEBa ki\u1EC3m tra t\xFAi l\u1EA7n n\u1EEFa \u0111\xFAng
+      kh\xF4ng?"
+    portraitOverride: {fileID: 0}
   - speaker: 0
-    text: "Cho chắc thôi."
+    text: "Cho ch\u1EAFc th\xF4i."
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Chìa khóa vẫn ở đó. Tớ nhìn thấy mà."
+    text: "Ch\xECa kh\xF3a v\u1EABn \u1EDF \u0111\xF3. T\u1EDB nh\xECn th\u1EA5y
+      m\xE0."
+    portraitOverride: {fileID: 0}
   - speaker: 0
-    text: "Được rồi. Đi thôi."
+    text: "\u0110\u01B0\u1EE3c r\u1ED3i. \u0110i th\xF4i."
+    portraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}

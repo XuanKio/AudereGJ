@@ -1,6 +1,6 @@
 # Audere Story System — scene-first hierarchy flow
 
-> **Last updated:** 2026-08-23
+> **Last updated:** 2026-08-26
 
 Story của Audere được author trực tiếp trong scene bằng `StoryDirector → StoryEvent → StoryStep`. Sibling order trong Hierarchy là thứ tự chạy.
 
@@ -11,7 +11,9 @@ Story của Audere được author trực tiếp trong scene bằng `StoryDirect
 - **Established Canon:** một `StoryDirector` chỉ chạy một event chính tại một thời điểm.
 - **Established Canon:** Dialogue, Puzzle và Combat đều có lifecycle callback để Story chờ kết quả.
 - **Design Intent:** `EventId` dành cho debug/save/transition về sau; authoring bình thường dùng direct reference.
-- **Unresolved:** Choice, conditional branching, StoryState, save/checkpoint và graph editor chưa có.
+- **Established implementation state:** choice cục bộ có `StoryChoiceBranchStep`; mỗi lựa chọn chạy
+  một nested `StoryEvent` được bind trực tiếp rồi quay lại flow chung.
+- **Unresolved:** StoryState bền vững, điều kiện xuyên event, save/checkpoint và graph editor chưa có.
 
 ## 2. Hierarchy và thứ tự
 
@@ -45,6 +47,15 @@ STORY [StoryDirector]
 ```
 
 Đổi sibling order là đổi flow. Child inactive được bỏ qua. Step nằm trong group con không được thu thập ngầm.
+
+### Tách logic khỏi presentation
+
+Theo Scene40, gameplay runtime đặt ở root `SYSTEMS`: `Puzzle Systems` và/hoặc
+`Combat Systems` tùy scene. Không đặt controller bên trong board hoặc actor art.
+`WORLD` giữ Puzzle/Story/Combat presentation; `STORY` giữ runner và các step.
+`WorldModeController`/fullscreen controller vẫn ở WORLD như Scene40, bind systems root
+và presentation bằng direct reference. Bật presentation không tự cấp gameplay input.
+Scene120 đã theo cấu trúc này; không tạo hệ thống Puzzle rỗng cho scene không có puzzle.
 
 ## 3. Lifecycle
 
@@ -114,6 +125,12 @@ scene load. Mỗi scene sở hữu `StoryDirector` riêng; source event kết th
 | `SetActiveStep` | Disable list trước, enable list sau; không rollback khi cancel. |
 | `MoveActorStep` | Lerp actor tới direct Transform target; cancel dừng tại chỗ. |
 | `CharacterMotionStep` | Hop/squash/landing và facing cho actor story. `TravelToTarget` dùng cho locomotion; `VerticalInPlace` khóa X/Z và trở về baseline cho phản xạ giật mình. |
+| `SetActorFacingStep` | Lật trực tiếp một actor renderer ở một beat riêng, không tạo hop hoặc dịch root. |
+| `SpriteGroupFadeStep` | Fade một nhóm SpriteRenderer theo authored alpha; reset/cancel không để lại alpha tạm. |
+| `StoryIllustrationStep` | Mở overlay illustration screen-space bằng direct reference và chờ một click dismiss; cancel xóa owner/callback. |
+| `StoryChoiceBranchStep` | Hiện choice text screen-space, chờ một click rồi chạy đúng nested `StoryEvent`; cancel đóng view và cancel branch đang chạy. |
+| `StoryMessageStatusStep` | Fade status tin nhắn ngắn bằng unscaled time, dùng direct CanvasGroup/TMP reference. |
+| `StoryTitleCardStep` | Fade title card screen-space và có thể giữ opaque sau khi event hoàn tất. |
 | `CanvasFadeStep` | Fade một `CanvasGroup` bằng unscaled time; dùng cho source/destination scene transition. |
 | `SceneLoadStep` | Load scene qua `SceneFlow`, không gọi raw `SceneManager.LoadScene`. |
 | `PlayAudioStep` | Phát một `AudioId`; có thể cho phép placeholder/missing service chỉ warning rồi tiếp tục. |
@@ -206,7 +223,7 @@ Các `TEST_*`, `DebugStoryStep`, sample dialogue/encounter và nội dung brains
 
 ## 10. Production flow hiện tại
 
-- `20_Game/STORY` chỉ giữ `D1_HOME_MORNING` và `D1_TO_BUS_STOP`; các `TEST_*` cũ đã được
+- `20_D1_Home_Morning/STORY` chỉ giữ `D1_HOME_MORNING` và `D1_TO_BUS_STOP`; các `TEST_*` cũ đã được
   loại khỏi production scene.
 - Bus-stop goal được giữ làm anchor trong lúc path tile và Puzzle UI biến mất. Sau một nhịp
   yên, SFX xe bus và hai đoạn thoại kết beat trước khi fade sang lớp học.
@@ -228,5 +245,32 @@ Các `TEST_*`, `DebugStoryStep`, sample dialogue/encounter và nội dung brains
   `Assets/_Audere/Prefabs/Story/Characters/Teacher.prefab`; sprite hiện tại vẫn là placeholder
   và được thay trực tiếp trong prefab khi có art chính thức.
 - Các object có hậu tố `PLACEHOLDER` là presentation tạm, không tự xác nhận thiết kế canon.
+- `40_Evening` thay placeholder bằng `D1_HOME_NIGHT_MESSAGE`. Audere và Night Tile được author
+  dưới `WORLD/Story Root`, cùng trục X; Story Root dùng cùng staging space với Scene 30 (`0.25`),
+  Audere dùng scale `1.5`, body/shadow `Player 5/4`, còn tâm Night Tile khớp tâm camera.
+  `PuzzleViewportMask` giữ transform prefab như Scene 20/30. Event dùng direct references theo thứ tự:
+  dialogue → `Message_Arrive` → bật `dauchamthan` → `VerticalInPlace` startle → Audere nhận ra
+  Bianca → ẩn alert → Bianca message → Timor biến một câu trả lời thành chuỗi hậu quả chắc chắn →
+  Audere mất điểm tựa và Timor đóng lựa chọn → `Dreamy Disorientation` → Defeat-only
+  CombatStep → hazard freeze/fade + hậu thoại Defeat → neutral `WorldModeStep` về Story →
+  ba lựa chọn tin nhắn → nested branch → lights out → `Ngày 1 - Kết thúc`. Alert được normalize ẩn trước FadeIn và authoring
+  tool bảo toàn chính scene object/transform do designer đặt.
+  Scene cũng giữ một root prefab `GameplayUIRoot` như Scene 20/30; Bootstrap không sở hữu UI này.
+- Encounter đêm không dùng `SetActiveStep` để giả lifecycle. `CombatController.Play()` vẫn là nơi
+  claim input; `CombatStep` map Victory/Special thành Fail và Defeat thành Complete, nên không có
+  Retry và event chỉ tiếp tục đúng một lần sau scripted defeat.
+- Choice UI của Scene 40 là root Screen Space Overlay `NIGHT MESSAGE UI`, reference resolution
+  `1920×1080`, sorting order `1300`. Text đặt ở vùng thấp giống khu path-piece; idle nhỏ/mờ,
+  pointer hover thêm `> <` và trả lại scale/alpha đầy đủ. `StoryChoiceBranchStep` giữ ba branch
+  thành nested `StoryEvent`, không đưa switch narrative vào `StoryEvent` runner.
 - SFX bus/classroom hiện là clip placeholder được map qua `AudioCatalog`; có thể thay clip tại
   catalog mà không sửa StoryEvent.
+- `50_D2_Home_Morning` sao chép presentation nhà/bến xe nhưng sở hữu StoryEvent
+  `D2_HOME_MORNING → D2_TO_BUS_STOP`, DialogueData Day 2 và ba board scene-authored riêng.
+  Washroom reveal đặt `25_OneUseTileTutorial` trước PuzzleStep; tile đỏ dùng traversal-rule
+  component chung, không có nhánh theo scene hoặc puzzle ID. Scene kết thúc tại bến xe vì
+  destination Day 2 tiếp theo còn `Unresolved` tại checkpoint này; production continuation hiện xem Docs13–15.
+
+## Day3 extension
+
+`90_D2_Home_Awakening → 100_D3_Home_Morning → 110_D3_School_Board → 120_D3_School_Teacher` giữ StoryDirector/Event/direct-step contract. Scene110 dùng ParallelStoryStep để vừa hop vừa thoại, `ChalkDrawingStep` chờ modal drawing completion, rồi `FullscreenPresentationStep` song song `AutoDialogueStep` cho đoạn chóng mặt. Không có narrative switch trong manager, không dùng SetActiveStep để thay combat lifecycle. Chi tiết scene, lời thoại, ownership và QA: [15_Day3_BoardTeacher_StoryWorkflow](15_Day3_BoardTeacher_StoryWorkflow.md).

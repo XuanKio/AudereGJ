@@ -37,6 +37,16 @@ namespace Audere.Combat
         [Tooltip("Every assigned component must implement ICombatEnemyMechanic.")]
         [SerializeField] private MonoBehaviour[] mechanicModules;
 
+        [Header("Idle Visual Float")]
+        [SerializeField] private bool idleFloatEnabled = true;
+        [Tooltip("Vertical amplitude in the visual parent's local units. 1.5 is a subtle UI drift.")]
+        [SerializeField, Range(0f, 6f)] private float idleFloatAmplitude = 1.5f;
+        [SerializeField, Min(1f)] private float idleFloatPeriod = 3.6f;
+
+        private Transform floatingVisual;
+        private float visualRestY;
+        private float floatElapsed;
+        private bool floatPaused;
         private bool initialized;
         private bool shutdown;
 
@@ -53,27 +63,38 @@ namespace Audere.Combat
         {
             if (initialized && !shutdown)
                 return;
+            ResetIdleFloat();
             initialized = true;
             shutdown = false;
+            floatPaused = false;
             ForEachMechanic(mechanic => mechanic.Initialize(context));
         }
 
         public void EnterPhase(CombatPhaseDefinition phase, int phaseIndex)
         {
             if (!shutdown)
+            {
+                floatPaused = false;
                 ForEachMechanic(mechanic => mechanic.OnPhaseEnter(phase, phaseIndex));
+            }
         }
 
         public void ExitPhase(CombatPhaseDefinition phase, int phaseIndex)
         {
             if (!shutdown)
+            {
+                floatPaused = true;
                 ForEachMechanic(mechanic => mechanic.OnPhaseExit(phase, phaseIndex));
+            }
         }
 
         public void SetPaused(bool paused)
         {
             if (!shutdown)
+            {
+                floatPaused = paused;
                 ForEachMechanic(mechanic => mechanic.SetPaused(paused));
+            }
         }
 
         public void Shutdown()
@@ -81,9 +102,52 @@ namespace Audere.Combat
             if (shutdown)
                 return;
             shutdown = true;
+            ResetIdleFloat();
             ForEachMechanic(mechanic => mechanic.Shutdown());
         }
 
+        private void LateUpdate() => TickIdleFloat(Time.deltaTime);
+
+        private void TickIdleFloat(float deltaTime)
+        {
+            if (!initialized || shutdown || !isActiveAndEnabled || !idleFloatEnabled ||
+                visualRoot == null || visualRoot == transform)
+            {
+                ResetIdleFloat();
+                return;
+            }
+
+            if (floatingVisual != visualRoot)
+            {
+                ResetIdleFloat();
+                floatingVisual = visualRoot;
+                visualRestY = visualRoot.localPosition.y;
+            }
+            float period = Mathf.Max(1f, idleFloatPeriod);
+            if (!floatPaused)
+                floatElapsed = Mathf.Repeat(floatElapsed + Mathf.Max(0f, deltaTime), period);
+
+            // Hit feedback owns X; intro owns scale and victory owns alpha.
+            // Reapply only Y after those effects, without accumulating offsets.
+            Vector3 position = floatingVisual.localPosition;
+            position.y = visualRestY + Mathf.Sin(floatElapsed * (Mathf.PI * 2f / period)) *
+                Mathf.Max(0f, idleFloatAmplitude);
+            floatingVisual.localPosition = position;
+        }
+
+        private void ResetIdleFloat()
+        {
+            if (floatingVisual != null)
+            {
+                Vector3 position = floatingVisual.localPosition;
+                position.y = visualRestY;
+                floatingVisual.localPosition = position;
+            }
+            floatingVisual = null;
+            floatElapsed = 0f;
+        }
+
+        private void OnDisable() => ResetIdleFloat();
         private void OnDestroy() => Shutdown();
 
         private void ForEachMechanic(System.Action<ICombatEnemyMechanic> action)

@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6d984a5d5787b34cb9bb63257f5f366, type: 3}
+  m_Name: Move_TeacherFinalPressure
+  m_EditorClassIdentifier: 
+  duration: 7
+  leadInDuration: 0
+  children:
+  - {fileID: 11400000, guid: 885aa518ea9390d4c8859d9934c1d2d9, type: 2}
+  - {fileID: 11400000, guid: 9b1c51db94ab09e4c83b2bd32343c26b, type: 2}

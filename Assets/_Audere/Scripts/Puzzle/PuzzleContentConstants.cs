@@ -11,6 +11,7 @@ namespace Audere.Puzzle
             public const string Grass = "grass";
             public const string Goal = "goal";
             public const string Dialogue = "dialogue";
+            public const string OneUse = "one-use";
         }
 
         public static class Pieces
@@ -32,6 +33,7 @@ namespace Audere.Puzzle
             public const string GrassPrefab = "Assets/_Audere/Prefabs/Puzzle/Tiles/Grass.prefab";
             public const string GoalPrefab = "Assets/_Audere/Prefabs/Puzzle/Tiles/Goal.prefab";
             public const string DialoguePrefab = "Assets/_Audere/Prefabs/Puzzle/Tiles/Dialogue.prefab";
+            public const string OneUsePrefab = "Assets/_Audere/Prefabs/Puzzle/Tiles/OneUse.prefab";
             public const string PlayerPrefab = "Assets/_Audere/Prefabs/Puzzle/Actors/Player.prefab";
             public const string PathPieceSlotArt = "Assets/_Audere/AssetGame/Step Tile/slot.aseprite";
             public const string TileCatalog = "Assets/_Audere/Data/Puzzle/PuzzleTileCatalog.asset";
@@ -44,6 +46,7 @@ namespace Audere.Puzzle
                 PuzzleTileType.Grass => Tiles.Grass,
                 PuzzleTileType.Goal => Tiles.Goal,
                 PuzzleTileType.Dialogue => Tiles.Dialogue,
+                PuzzleTileType.OneUse => Tiles.OneUse,
                 _ => type.ToString().ToLowerInvariant()
             };
         }
@@ -66,7 +69,8 @@ namespace Audere.Puzzle
     {
         Grass = 0,
         Goal = 1,
-        Dialogue = 2
+        Dialogue = 2,
+        OneUse = 3
     }
 
     public enum PathPieceType

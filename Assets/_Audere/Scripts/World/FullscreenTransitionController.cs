@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Audere.Audio;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -56,7 +57,18 @@ namespace Audere.World
             Renderer focusRenderer,
             Action<bool> onEnded)
         {
-            if (!ValidateReferences(profile, modeController, focusRenderer))
+            return PlayInternal(profile, modeController, targetMode, focusRenderer, onEnded, true);
+        }
+
+        public bool PlayPresentation(FullscreenTransitionProfile profile, Renderer focusRenderer, Action<bool> onEnded)
+        {
+            return PlayInternal(profile, null, default, focusRenderer, onEnded, false);
+        }
+
+        private bool PlayInternal(FullscreenTransitionProfile profile, WorldModeController modeController,
+            WorldGameplayMode targetMode, Renderer focusRenderer, Action<bool> onEnded, bool swapMode)
+        {
+            if (!ValidateReferences(profile, modeController, focusRenderer, swapMode))
                 return false;
 
             CancelTransition();
@@ -68,11 +80,12 @@ namespace Audere.World
             int version = ++transitionVersion;
             activeCompletion = onEnded;
             IsTransitioning = true;
+            if (swapMode) AudioService.Instance?.SetMusicDuck(this, 1f);
 
             profile.Apply(runtimeMaterial, 0f);
             rendererFeature.SetActive(true);
             transitionRoutine = StartCoroutine(
-                RunTransition(version, profile, modeController, targetMode));
+                RunTransition(version, profile, modeController, targetMode, swapMode));
             return true;
         }
 
@@ -100,7 +113,7 @@ namespace Audere.World
             int version,
             FullscreenTransitionProfile profile,
             WorldModeController modeController,
-            WorldGameplayMode targetMode)
+            WorldGameplayMode targetMode, bool swapMode)
         {
             float duration = profile.Duration;
             float swapTime = profile.ModeSwapTime;
@@ -110,8 +123,9 @@ namespace Audere.World
             while (elapsed < duration)
             {
                 elapsed += Time.unscaledDeltaTime;
+                if (swapMode) AudioService.Instance?.SetMusicDuck(this, EvaluateMusicGain(elapsed, swapTime));
 
-                if (!modeSwapped && elapsed >= swapTime)
+                if (swapMode && !modeSwapped && elapsed >= swapTime)
                 {
                     // Always render the profile's fully-covered swap state before revealing
                     // the target presentation, including after an unusually long frame.
@@ -129,7 +143,7 @@ namespace Audere.World
                     yield break;
             }
 
-            if (!modeSwapped)
+            if (swapMode && !modeSwapped)
                 modeController.ApplyModeImmediate(targetMode);
 
             profile.Apply(runtimeMaterial, duration);
@@ -145,9 +159,9 @@ namespace Audere.World
         private bool ValidateReferences(
             FullscreenTransitionProfile profile,
             WorldModeController modeController,
-            Renderer focusRenderer)
+            Renderer focusRenderer, bool swapMode)
         {
-            if (modeController == null || profile == null || worldCamera == null || rendererFeature == null)
+            if ((swapMode && modeController == null) || profile == null || worldCamera == null || rendererFeature == null)
             {
                 Debug.LogError(
                     "[FullscreenTransition] Assign profile, camera, mode controller, and renderer feature.",
@@ -169,7 +183,7 @@ namespace Audere.World
                 return false;
             }
 
-            if (!isActiveAndEnabled || !modeController.isActiveAndEnabled)
+            if (!isActiveAndEnabled || (swapMode && !modeController.isActiveAndEnabled))
             {
                 Debug.LogError(
                     "[FullscreenTransition] Both transition and world mode controllers must be active.",
@@ -217,6 +231,7 @@ namespace Audere.World
 
         private void ResetPresentation()
         {
+            AudioService.Instance?.ReleaseMusicOwner(this);
             if (rendererFeature != null)
             {
                 rendererFeature.SetActive(false);
@@ -238,6 +253,12 @@ namespace Audere.World
             runtimeMaterial = null;
             originalFeatureMaterial = null;
             activeProfile = null;
+        }
+
+        // Fade down with the source, then hold silence until the entire shader has finished.
+        public static float EvaluateMusicGain(float elapsed, float swapTime)
+        {
+            return 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / Mathf.Max(.01f, swapTime)));
         }
     }
 }

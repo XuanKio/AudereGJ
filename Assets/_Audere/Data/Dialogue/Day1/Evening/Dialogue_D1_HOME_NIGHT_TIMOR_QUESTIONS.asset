@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D1_HOME_NIGHT_TIMOR_QUESTIONS
+  m_EditorClassIdentifier: 
+  dialogueId: d1-home-night-timor-questions
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+  rightPortraitOverride: {fileID: 1802169272185732355, guid: 056875fa18e556d4cb0aba789bc44c9f, type: 3}
+  lines:
+  - speaker: 1
+    text: "Audere... c\u1EADu kh\xF4ng th\u1EA5y s\u1EE3 \xE0?"
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "S\u1EE3 g\xEC?"
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "N\u1EBFu Bianca ch\u1EC9 t\xECm c\u1EADu"
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "v\xEC mu\u1ED1n nh\u1EDD v\u1EA3 th\xEC sao?"
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "T\u1EDB ngh\u0129 c\u1EADu \u1EA5y ch\u1EC9 \u0111ang h\u1ECFi th\xF4i."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "T\u1EDB c\u0169ng mu\u1ED1n tin nh\u01B0 v\u1EADy."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "Nh\u01B0ng t\u1EDB s\u1EE3 l\u1EAFm."
+    portraitOverride: {fileID: -4747829306167941163, guid: cdecd5c621db74b43927eb49d1f04191, type: 3}
+  - speaker: 1
+    text: "M\u1EB9 c\u1EADu c\u0169ng t\u1EEBng tin ng\u01B0\u1EDDi kh\xE1c."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "R\u1ED3i c\u1EADu \u0111\xE3 m\u1EA5t b\xE0 \u1EA5y."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "Timor... chuy\u1EC7n \u0111\xF3 kh\xF4ng gi\u1ED1ng nhau."
+    portraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  - speaker: 0
+    text: "Bianca ch\u1EC9 nh\u1EAFn cho t\u1EDB th\xF4i."
+    portraitOverride: {fileID: 0}

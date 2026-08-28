@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D1_TIMOR_NIGHT_PRESSURE_DEFEAT
+  m_EditorClassIdentifier: 
+  dialogueId: d1-timor-night-pressure-defeat
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
+  rightPortraitOverride: {fileID: 4335302707972937840, guid: 5d2b3fc096225e44a80f7c7be67ca463, type: 3}
+  lines:
+  - speaker: 0
+    text: "\u2026"
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "Th\u1EA5y ch\u01B0a."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "C\u1EADu m\u1EC7t r\u1ED3i."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "H\xF4m nay c\u1EADu \u0111\xE3 c\u1ED1 \u0111\u1EE7 nhi\u1EC1u r\u1ED3i."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "\u2026\u1EEA."
+    portraitOverride: {fileID: 0}

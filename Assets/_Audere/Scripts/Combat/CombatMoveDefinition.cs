@@ -5,7 +5,9 @@ namespace Audere.Combat
     public abstract class CombatMoveDefinition : ScriptableObject
     {
         [SerializeField, Min(.01f)] private float duration = 4f;
+        [SerializeField, Min(0f)] private float leadInDuration;
         public float Duration => duration;
+        public float LeadInDuration => Mathf.Max(0f, leadInDuration);
         public virtual bool Validate(out string error)
         {
             if (duration <= 0f)

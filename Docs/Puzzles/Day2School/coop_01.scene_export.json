@@ -1,0 +1,128 @@
+{
+  "id": "PZ_D2_COOP_01",
+  "width": 4,
+  "height": 3,
+  "actors": [
+    {
+      "id": "Audere",
+      "start": [
+        0,
+        1
+      ],
+      "goal": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "Bianca",
+      "start": [
+        1,
+        0
+      ],
+      "goal": [
+        2,
+        2
+      ]
+    }
+  ],
+  "cells": [
+    [
+      1,
+      0
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      2,
+      1
+    ],
+    [
+      3,
+      1
+    ],
+    [
+      2,
+      2
+    ]
+  ],
+  "cooperative_red_cells": [
+    [
+      1,
+      1
+    ]
+  ],
+  "one_use_cells": [],
+  "pieces": [
+    {
+      "id": "line-2",
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "l-corner-3",
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "line-3",
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "line-2",
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    }
+  ],
+  "require_all": true,
+  "allow_shared_cells": true,
+  "lock_arrived_actors": true,
+  "source_scene": "Assets/_Audere/Scenes/60_D2_School_Morning.unity"
+}

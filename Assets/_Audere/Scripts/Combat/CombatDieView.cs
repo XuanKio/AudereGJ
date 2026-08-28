@@ -135,6 +135,17 @@ namespace Audere.Combat
             StartCoroutine(TossAnimation());
         }
 
+        public void SetupStationaryChoice(CombatSymbol symbol, Vector2 position)
+        {
+            Setup(symbol, position, Vector2.zero);
+            StopAllCoroutines();
+            MoveToPresentationRoot(landedParent);
+            rectTransform.anchoredPosition = position;
+            isLanded = true;
+            tossMotionStarted = false;
+            ApplyLandedVisual();
+        }
+
         public void SetupReroll(
             CombatSymbol symbol,
             CombatRerollLaunchPlan launchPlan,

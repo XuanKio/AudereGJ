@@ -15,12 +15,18 @@ MonoBehaviour:
   dialogueId: d1-classroom-bianca-invitation
   leftCharacter: 1
   rightCharacter: 4
+  leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  rightPortraitOverride: {fileID: 7503800403365798388, guid: 03f69c0d5de4d5b4982fff343666a5cb, type: 3}
   lines:
   - speaker: 1
     text: "T\u1EDB \u0111ang ph\u1EE5 ph\u1EA7n trang tr\xED."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "B\u1ECDn t\u1EDB c\xF2n thi\u1EBFu ng\u01B0\u1EDDi l\xE0m b\u1EA3ng."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "C\u1EADu c\xF3 mu\u1ED1n l\xE0m c\xF9ng kh\xF4ng?"
+    portraitOverride: {fileID: 7203529753858926249, guid: 5a29a2e57d0d13b42b26519f3b021631, type: 3}
   - speaker: 1
     text: "Ch\u1EC9 m\u1ED9t ch\xFAt th\xF4i."
+    portraitOverride: {fileID: 0}

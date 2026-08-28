@@ -8,6 +8,9 @@
   asks once, waits, and explicitly leaves Audere room to decline.
 - **Design Intent:** Bianca is an ordinary classmate interaction, not a rescuer or a person
   who immediately understands Audere's inner life.
+- **Design Intent:** when Audere later accepts, Bianca treats it as a normal agreement: she checks
+  that Audere means the board task, says `Được`, and continues to the signup sheet. She does not
+  cheer, hug, over-praise, or enlarge the emotional meaning of the answer.
 - **Unresolved:** age, history, wider friendships, personal stakes, portrait, final art, and
   behavior outside this short classroom beat.
 
@@ -30,4 +33,3 @@ gọi tên
 ```
 
 This pattern is evidence for the current beat, not a mandatory template for every Bianca scene.
-

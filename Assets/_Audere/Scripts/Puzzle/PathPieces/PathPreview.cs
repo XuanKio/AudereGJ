@@ -56,6 +56,7 @@ namespace Audere.Puzzle.PathPieces
         private readonly List<SpriteRenderer> connectorPool = new List<SpriteRenderer>();
         private readonly List<Vector3> targetConnectorPositions = new List<Vector3>();
         private readonly List<float> pathDistances = new List<float>();
+        private readonly List<float> connectorDistances = new List<float>();
         private Vector3 targetEndpointA;
         private Vector3 targetEndpointB;
         private float targetEndpointSize;
@@ -139,12 +140,55 @@ namespace Audere.Puzzle.PathPieces
                 0,
                 maximumConnectorCount);
 
+            connectorDistances.Clear();
             for (int index = 0; index < connectorCount; index++)
             {
                 float normalized = (index + 1f) / (connectorCount + 1f);
                 float distance = Mathf.Lerp(usableStart, usableEnd, normalized);
-                targetConnectorPositions.Add(SamplePolyline(worldPoints, distance));
+                connectorDistances.Add(distance);
             }
+
+            // A uniformly sampled polyline can miss an exact 90-degree vertex and make an L
+            // piece look rounded or diagonal. Snap the nearest sample to every authored bend;
+            // if there is room, add a dedicated corner sample instead.
+            for (int index = 1; index < pathDistances.Count - 1; index++)
+            {
+                float cornerDistance = pathDistances[index];
+                if (cornerDistance <= usableStart || cornerDistance >= usableEnd)
+                    continue;
+
+                int nearestIndex = FindNearestDistanceIndex(connectorDistances, cornerDistance);
+                if (nearestIndex >= 0 &&
+                    Mathf.Abs(connectorDistances[nearestIndex] - cornerDistance) <= preferredSpacing * .55f)
+                {
+                    connectorDistances[nearestIndex] = cornerDistance;
+                }
+                else if (connectorDistances.Count < maximumConnectorCount)
+                {
+                    connectorDistances.Add(cornerDistance);
+                }
+            }
+
+            connectorDistances.Sort();
+            foreach (float distance in connectorDistances)
+                targetConnectorPositions.Add(SamplePolyline(worldPoints, distance));
+        }
+
+        private static int FindNearestDistanceIndex(IReadOnlyList<float> distances, float target)
+        {
+            int nearestIndex = -1;
+            float nearestDelta = float.PositiveInfinity;
+            for (int index = 0; index < distances.Count; index++)
+            {
+                float delta = Mathf.Abs(distances[index] - target);
+                if (delta >= nearestDelta)
+                    continue;
+
+                nearestDelta = delta;
+                nearestIndex = index;
+            }
+
+            return nearestIndex;
         }
 
         private Vector3 SamplePolyline(IReadOnlyList<Vector3> points, float distance)
@@ -191,6 +235,9 @@ namespace Audere.Puzzle.PathPieces
         public void Clear()
         {
             targetAlpha = 0f;
+            // Show and drop/cancel can happen before the first LateUpdate.
+            // In that case there is no initialized fade to finish hiding the endpoints.
+            if (!positionsInitialized) SetVisible(false);
         }
 
         private void LateUpdate()

@@ -21,6 +21,8 @@ MonoBehaviour:
     oneShotKey: 
     trigger: 4
     triggerValue: 0
+    triggerMove: {fileID: 0}
+    triggerCueId: 
     filterBySymbol: 0
     symbol: 0
     sequence:
@@ -31,10 +33,18 @@ MonoBehaviour:
     tutorialFocus: 4
     showcasedSymbol: 0
     isTutorial: 1
+    presentation: 0
+    minimumLineDuration: 1.4
+    charactersPerSecond: 20
+    interLineGap: 0.18
+    playLoseRhythmOnComplete: 0
+    requiredBeforeVictory: 0
   - cueId: tutorial-stun-zone
     oneShotKey: 
     trigger: 3
     triggerValue: 0
+    triggerMove: {fileID: 0}
+    triggerCueId: 
     filterBySymbol: 0
     symbol: 0
     sequence:
@@ -45,10 +55,18 @@ MonoBehaviour:
     tutorialFocus: 2
     showcasedSymbol: 0
     isTutorial: 1
+    presentation: 0
+    minimumLineDuration: 1.4
+    charactersPerSecond: 20
+    interLineGap: 0.18
+    playLoseRhythmOnComplete: 0
+    requiredBeforeVictory: 0
   - cueId: tutorial-attack
     oneShotKey: tutorial-attack
     trigger: 5
     triggerValue: 0
+    triggerMove: {fileID: 0}
+    triggerCueId: 
     filterBySymbol: 1
     symbol: 0
     sequence:
@@ -58,10 +76,18 @@ MonoBehaviour:
     tutorialFocus: 3
     showcasedSymbol: 0
     isTutorial: 1
+    presentation: 0
+    minimumLineDuration: 1.4
+    charactersPerSecond: 20
+    interLineGap: 0.18
+    playLoseRhythmOnComplete: 0
+    requiredBeforeVictory: 0
   - cueId: tutorial-shield
     oneShotKey: tutorial-shield
     trigger: 5
     triggerValue: 0
+    triggerMove: {fileID: 0}
+    triggerCueId: 
     filterBySymbol: 1
     symbol: 1
     sequence:
@@ -72,10 +98,18 @@ MonoBehaviour:
     tutorialFocus: 3
     showcasedSymbol: 1
     isTutorial: 1
+    presentation: 0
+    minimumLineDuration: 1.4
+    charactersPerSecond: 20
+    interLineGap: 0.18
+    playLoseRhythmOnComplete: 0
+    requiredBeforeVictory: 0
   - cueId: tutorial-heal
     oneShotKey: tutorial-heal
     trigger: 5
     triggerValue: 0
+    triggerMove: {fileID: 0}
+    triggerCueId: 
     filterBySymbol: 1
     symbol: 2
     sequence:
@@ -85,10 +119,18 @@ MonoBehaviour:
     tutorialFocus: 3
     showcasedSymbol: 2
     isTutorial: 1
+    presentation: 0
+    minimumLineDuration: 1.4
+    charactersPerSecond: 20
+    interLineGap: 0.18
+    playLoseRhythmOnComplete: 0
+    requiredBeforeVictory: 0
   - cueId: tutorial-reroll
     oneShotKey: 
     trigger: 6
     triggerValue: 0
+    triggerMove: {fileID: 0}
+    triggerCueId: 
     filterBySymbol: 0
     symbol: 0
     sequence:
@@ -98,10 +140,18 @@ MonoBehaviour:
     tutorialFocus: 0
     showcasedSymbol: 0
     isTutorial: 1
+    presentation: 0
+    minimumLineDuration: 1.4
+    charactersPerSecond: 20
+    interLineGap: 0.18
+    playLoseRhythmOnComplete: 0
+    requiredBeforeVictory: 0
   - cueId: tutorial-player-hit
     oneShotKey: 
     trigger: 8
     triggerValue: 0
+    triggerMove: {fileID: 0}
+    triggerCueId: 
     filterBySymbol: 0
     symbol: 0
     sequence:
@@ -111,10 +161,18 @@ MonoBehaviour:
     tutorialFocus: 1
     showcasedSymbol: 0
     isTutorial: 1
+    presentation: 0
+    minimumLineDuration: 1.4
+    charactersPerSecond: 20
+    interLineGap: 0.18
+    playLoseRhythmOnComplete: 0
+    requiredBeforeVictory: 0
   - cueId: tutorial-intro-complete
     oneShotKey: tutorial-intro-complete
     trigger: 9
     triggerValue: 0
+    triggerMove: {fileID: 0}
+    triggerCueId: 
     filterBySymbol: 0
     symbol: 0
     sequence:
@@ -124,3 +182,9 @@ MonoBehaviour:
     tutorialFocus: 0
     showcasedSymbol: 0
     isTutorial: 1
+    presentation: 0
+    minimumLineDuration: 1.4
+    charactersPerSecond: 20
+    interLineGap: 0.18
+    playLoseRhythmOnComplete: 0
+    requiredBeforeVictory: 0

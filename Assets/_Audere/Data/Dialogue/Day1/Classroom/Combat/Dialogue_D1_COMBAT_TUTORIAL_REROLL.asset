@@ -15,8 +15,12 @@ MonoBehaviour:
   dialogueId: d1-combat-tutorial-reroll
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 1
     text: "Kh\xF4ng ph\u1EA3i m\u1EB7t c\u1EADu c\u1EA7n \xE0?"
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "Gieo l\u1EA1i n\xF3. M\xECnh c\xF2n c\xE1ch kh\xE1c."
+    portraitOverride: {fileID: 0}

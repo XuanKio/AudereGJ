@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5969311483032585958}
   - component: {fileID: 220568594666675442}
+  - component: {fileID: 399956678478422331}
   m_Layer: 0
   m_Name: Bianca
   m_TagString: Untagged
@@ -76,7 +77,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1687369679
   m_SortingLayer: 1
-  m_SortingOrder: 6
+  m_SortingOrder: 5
   m_Sprite: {fileID: 5855123267800106774, guid: a17dd213ca3edbf428da68fdaec2ad31, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -88,6 +89,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!210 &399956678478422331
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6589731310235104834}
+  m_Enabled: 1
+  m_SortingLayerID: 1687369679
+  m_SortingLayer: 1
+  m_SortingOrder: 5
+  m_SortAtRoot: 0
 --- !u!1001 &6642889647717240447
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -107,6 +120,10 @@ PrefabInstance:
     - target: {fileID: 3626916397498700004, guid: 625eb063c3314854580d4410c2a7bb1f, type: 3}
       propertyPath: m_SortingLayer
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: 625eb063c3314854580d4410c2a7bb1f, type: 3}
+      propertyPath: m_SortingOrder
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3626916397498700004, guid: 625eb063c3314854580d4410c2a7bb1f, type: 3}
       propertyPath: m_SortingLayerID

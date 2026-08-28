@@ -15,8 +15,12 @@ MonoBehaviour:
   dialogueId: d1-combat-tutorial-attack
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+  rightPortraitOverride: {fileID: 188140060781976214, guid: 8b9bf032ca2b2d745b01ed08e5c65d23, type: 3}
   lines:
   - speaker: 0
     text: "T\u1EDB c\xF3 th\u1EC3 l\xE0m n\xF3 y\u1EBFu \u0111i\u2026"
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "\u1EEA. T\u1EEBng ch\xFAt m\u1ED9t."
+    portraitOverride: {fileID: 0}

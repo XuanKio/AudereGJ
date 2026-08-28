@@ -9,7 +9,19 @@ namespace Audere.Core
     {
         public const string Bootstrap = "00_Bootstrap";
         public const string MainMenu  = "10_MainMenu";
-        public const string Game      = "20_Game";
+        public const string Day1HomeMorning = "20_D1_Home_Morning";
         public const string Classroom = "30_Classroom";
+        public const string Evening   = "40_Evening";
+        public const string Day2HomeMorning = "50_D2_Home_Morning";
+        public const string Day2SchoolMorning = "60_D2_School_Morning";
+        public const string Day2HomeNight = "70_D2_Home_Night";
+        public const string Day2Dream = "80_D2_Dream";
+        public const string Day2HomeAwakening = "90_D2_Home_Awakening";
+        public const string Day3HomeMorning = "100_D3_Home_Morning";
+        public const string Day3SchoolBoard = "110_D3_School_Board";
+        public const string Day3SchoolTeacher = "120_D3_School_Teacher";
+
+        // Compatibility alias for older call sites and serialized defaults.
+        public const string Game = Day1HomeMorning;
     }
 }

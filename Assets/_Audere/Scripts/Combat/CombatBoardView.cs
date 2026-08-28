@@ -11,9 +11,12 @@ namespace Audere.Combat
     public sealed class CombatBoardView : MonoBehaviour
     {
         [Header("Shared Battle Box")]
+        [SerializeField] private RectTransform battleBoxFrame;
         [SerializeField] private RectTransform playArea;
         [SerializeField] private RectTransform stunZoneRoot;
+        [SerializeField] private CombatStunZoneView[] stunZones;
         [SerializeField] private RectTransform bulletRoot;
+        [SerializeField] private RectTransform laserRoot;
         [SerializeField] private RectTransform diceRoot;
         [SerializeField] private RectTransform airborneDiceRoot;
         [SerializeField] private RectTransform playerRoot;
@@ -33,11 +36,16 @@ namespace Audere.Combat
         [SerializeField] private Image timerFill;
         [SerializeField] private Image timerDamageFill;
         [SerializeField] private Transform enemyMount;
-        [Tooltip("Edit-mode staging preview only. Runtime always spawns from CombatEnemyDefinition.")]
-        [SerializeField] private CombatEnemyActor authoredEnemyPreview;
+        [FormerlySerializedAs("authoredEnemyPreview")]
+        [Tooltip("Scene-authored enemy actor. Runtime uses this exact instance so per-scene visual overrides stay intact.")]
+        [SerializeField] private CombatEnemyActor authoredEnemyActor;
         [SerializeField] private Transform enemyVisual;
         [SerializeField] private Transform vfxRoot;
         [SerializeField] private GameObject enemyScratchVfxPrefab;
+        [Tooltip("Aseprite SpriteRenderer pixels must be converted to Combat Canvas units.")]
+        [SerializeField, Min(1f)] private float enemyScratchVfxUiScale = 300f;
+        [SerializeField] private CombatAnxietyTextFieldView anxietyTextField;
+        [SerializeField] private RectTransform combatViewport;
 
         [Header("Enemy Damage Number")]
         [SerializeField] private RectTransform damageNumberRoot;
@@ -69,7 +77,16 @@ namespace Audere.Combat
         [SerializeField, Range(0f, .15f)] private float damageShakeStrength = .045f;
         [SerializeField, Min(1f)] private float damageShakeFrequency = 38f;
 
+        [Header("Attack Sound Cadence")]
+        [Tooltip("Coalesce simultaneous/rapid bullets; does not change projectile timing.")]
+        [SerializeField, Min(.01f)] private float bulletSoundMinimumInterval = .25f;
+        [SerializeField, Min(.01f)] private float laserSoundMinimumInterval = .12f;
+        private CombatVolleyAudio attackAudio;
+        private CombatVolleyAudio AttackAudio => attackAudio ??= new CombatVolleyAudio(transform);
+        public void SetAttackAudioPaused(bool paused) => attackAudio?.SetPaused(paused);
+
         private readonly List<CombatBulletView> activeBullets = new List<CombatBulletView>();
+        private readonly List<CombatLaserView> activeLasers = new List<CombatLaserView>();
         private readonly List<GameObject> activeHitVfx = new List<GameObject>();
         private readonly List<CombatDamageNumberView> damageNumberPool = new List<CombatDamageNumberView>();
         private Camera eventCamera;
@@ -90,6 +107,17 @@ namespace Audere.Combat
         private float enemyHealthDamageTargetNormalized = 1f;
         private CombatEnemyActor activeEnemyActor;
         private int activeEnemySessionVersion;
+        private bool playerConstraintActive;
+        private Vector2 playerConstraintCenter;
+        private float playerConstraintRadius;
+        private object verticalControlOwner;
+        private bool battleBoxLayoutCaptured;
+        private Vector2 battleBoxAuthoredPosition;
+        private Vector2 battleBoxAuthoredSize;
+        private Vector2 airborneDiceAuthoredPosition;
+        private Vector2 airborneDiceAuthoredSize;
+        private float battleBoxWidthFraction = 1f;
+        private float battleBoxNormalizedX;
 
         public RectTransform PlayArea => playArea;
         public RectTransform CatchCursor => catchCursor;
@@ -97,6 +125,20 @@ namespace Audere.Combat
         {
             get
             {
+                ResolveStunZones();
+                if (stunZones != null)
+                {
+                    for (int i = 0; i < stunZones.Length; i++)
+                    {
+                        if (stunZones[i] != null && stunZones[i].IsVisible)
+                            return stunZones[i].RectTransform;
+                    }
+                    for (int i = 0; i < stunZones.Length; i++)
+                    {
+                        if (stunZones[i] != null)
+                            return stunZones[i].RectTransform;
+                    }
+                }
                 if (stunZoneRoot == null)
                     return null;
                 for (int i = 0; i < stunZoneRoot.childCount; i++)
@@ -112,6 +154,8 @@ namespace Audere.Combat
             : null;
         public CombatEnemyActor ActiveEnemyActor => activeEnemyActor;
         public bool IsCursorStunned => catchCursorView != null && catchCursorView.IsStunned;
+        public float BattleBoxWidthFraction => battleBoxWidthFraction;
+        public float BattleBoxNormalizedX => battleBoxNormalizedX;
         public Vector2 PlayerPosition
         {
             get
@@ -128,19 +172,66 @@ namespace Audere.Combat
         private void Awake()
         {
             ResolveReferences();
+            CaptureBattleBoxLayout();
             eventCamera = Camera.main;
-            if (Application.isPlaying && authoredEnemyPreview != null)
-                authoredEnemyPreview.gameObject.SetActive(false);
+            SyncCombatViewportToCamera();
+            if (Application.isPlaying && authoredEnemyActor != null)
+                authoredEnemyActor.gameObject.SetActive(false);
             if (enemyVisual != null)
                 enemyAuthoredLocalPosition = enemyVisual.localPosition;
         }
 
+        private void LateUpdate()
+        {
+            SyncCombatViewportToCamera();
+        }
+
+        private void SyncCombatViewportToCamera()
+        {
+            if (combatViewport == null)
+                return;
+
+            Camera camera = eventCamera != null ? eventCamera : Camera.main;
+            if (camera == null || !camera.orthographic)
+                return;
+
+            RectTransform boardRect = transform as RectTransform;
+            if (boardRect == null)
+                return;
+
+            float planeDistance = Vector3.Dot(
+                boardRect.position - camera.transform.position,
+                camera.transform.forward);
+            if (planeDistance <= 0f)
+                return;
+
+            Vector3 bottomLeft = camera.ViewportToWorldPoint(new Vector3(0f, 0f, planeDistance));
+            Vector3 topRight = camera.ViewportToWorldPoint(new Vector3(1f, 1f, planeDistance));
+            Vector3 localMin = boardRect.InverseTransformPoint(bottomLeft);
+            Vector3 localMax = boardRect.InverseTransformPoint(topRight);
+            Vector2 size = new Vector2(
+                Mathf.Abs(localMax.x - localMin.x),
+                Mathf.Abs(localMax.y - localMin.y));
+            if (size.x <= 0f || size.y <= 0f)
+                return;
+
+            combatViewport.anchorMin = combatViewport.anchorMax = new Vector2(.5f, .5f);
+            combatViewport.pivot = new Vector2(.5f, .5f);
+            combatViewport.anchoredPosition = new Vector2(
+                (localMin.x + localMax.x) * .5f,
+                (localMin.y + localMax.y) * .5f);
+            combatViewport.sizeDelta = size;
+        }
+
+
         public void PrepareEncounter(string enemyName)
         {
             ResolveReferences();
+            ResetBattleBoxLayout();
             ResetPlayerDamageFeedback();
             ResetEnemyHealth();
             SetEnemyName(enemyName);
+            HideStunZones();
             if (catchCursorView != null) catchCursorView.SetStunned(false, true);
             SetCursorVisible(false);
             UpdateTimer(1f);
@@ -150,16 +241,30 @@ namespace Audere.Combat
         {
             ResolveReferences();
             ClearEnemyActor();
-            if (prefab == null || enemyMount == null)
+            if (enemyMount == null)
                 return null;
 
-            activeEnemyActor = Instantiate(prefab, enemyMount);
-            activeEnemyActor.name = prefab.name;
+            if (authoredEnemyActor != null)
+            {
+                activeEnemyActor = authoredEnemyActor;
+                activeEnemyActor.gameObject.SetActive(true);
+            }
+            else
+            {
+                if (prefab == null)
+                    return null;
+
+                activeEnemyActor = Instantiate(prefab, enemyMount);
+                activeEnemyActor.name = prefab.name;
+                Debug.LogWarning(
+                    $"[CombatBoardView] '{name}' has no scene-authored enemy actor. " +
+                    $"Using runtime fallback '{prefab.name}'. Author the actor under Enemy Mount to keep visual overrides editable in the scene.",
+                    this);
+            }
             activeEnemySessionVersion = sessionVersion;
             enemyVisual = activeEnemyActor.VisualRoot != null
                 ? activeEnemyActor.VisualRoot
                 : activeEnemyActor.transform;
-            vfxRoot = activeEnemyActor.VfxAnchor;
             enemyAuthoredLocalPosition = enemyVisual.localPosition;
             enemySpriteRenderers = null;
             enemyOriginalMaterials = null;
@@ -194,6 +299,31 @@ namespace Audere.Combat
             Vector2 direction = Random.insideUnitCircle.normalized;
             if (direction.sqrMagnitude < .1f) direction = Vector2.right;
             die.Setup(symbol, RandomPositionInside(playArea.rect, diceSize), direction * speed);
+            return die;
+        }
+
+        public CombatDieView SpawnDie(CombatScriptedDieSpawn spawn, float baseSpeed)
+        {
+            ResolveReferences();
+            if (playArea == null || diceRoot == null)
+                return null;
+
+            CombatDieView die = FindPooledDie(spawn.Symbol);
+            if (die == null)
+            {
+                CombatDieView prefab = GetDicePrefab(spawn.Symbol);
+                die = prefab != null ? Instantiate(prefab, diceRoot) : CreateFallbackDie(spawn.Symbol);
+            }
+
+            Rect rect = playArea.rect;
+            Vector2 inset = diceSize * .5f;
+            Vector2 normalized = spawn.NormalizedPosition;
+            Vector2 position = new Vector2(
+                Mathf.Lerp(rect.xMin + inset.x, rect.xMax - inset.x, normalized.x),
+                Mathf.Lerp(rect.yMin + inset.y, rect.yMax - inset.y, normalized.y));
+            die.ConfigurePresentationRoots(diceRoot, airborneDiceRoot);
+            die.gameObject.SetActive(true);
+            die.Setup(spawn.Symbol, position, spawn.NormalizedDirection * baseSpeed * spawn.SpeedMultiplier);
             return die;
         }
 
@@ -251,6 +381,17 @@ namespace Audere.Combat
             int sessionVersion,
             int phaseVersion)
         {
+            return SpawnEnemyBullet(sourcePrefab, startPosition, velocity, sessionVersion, phaseVersion, 0f);
+        }
+
+        public CombatBulletView SpawnEnemyBullet(
+            CombatBulletView sourcePrefab,
+            Vector2 startPosition,
+            Vector2 velocity,
+            int sessionVersion,
+            int phaseVersion,
+            float telegraphDelay)
+        {
             ResolveReferences();
             if (bulletRoot == null)
                 return null;
@@ -259,15 +400,49 @@ namespace Audere.Combat
             CombatBulletView bullet = FindPooledBullet(resolvedPrefab);
             if (bullet == null)
                 bullet = resolvedPrefab != null ? Instantiate(resolvedPrefab, bulletRoot) : CreateFallbackBullet();
-            bullet.Setup(resolvedPrefab, startPosition, velocity, sessionVersion, phaseVersion);
+            bullet.Setup(resolvedPrefab, startPosition, velocity, sessionVersion, phaseVersion, telegraphDelay);
             activeBullets.Add(bullet);
+            if (bullet.CollisionActive) AttackAudio.PlayBullet(bulletSoundMinimumInterval, sessionVersion, phaseVersion);
             return bullet;
+        }
+
+        public CombatLaserView SpawnEnemyLaser(
+            Vector2 startPosition,
+            Vector2 endPosition,
+            Vector2 size,
+            float rotationDegrees,
+            float telegraphDuration,
+            float activeDuration,
+            int sessionVersion,
+            int phaseVersion)
+        {
+            ResolveReferences();
+            if (laserRoot == null)
+                return null;
+
+            CombatLaserView laser = FindPooledLaser();
+            if (laser == null)
+                laser = CreateLaser();
+            laser.Setup(
+                startPosition,
+                endPosition,
+                size,
+                rotationDegrees,
+                telegraphDuration,
+                activeDuration,
+                sessionVersion,
+                phaseVersion);
+            activeLasers.Add(laser);
+            if (laser.CollisionActive) AttackAudio.PlayLaser(laserSoundMinimumInterval, sessionVersion, phaseVersion);
+            return laser;
         }
 
         public int TickBullets(float deltaTime, float playerInvulnerability)
         {
             if (playArea == null || playerView == null) return 0;
 
+            AttackAudio.SetPaused(deltaTime <= 0f);
+            AttackAudio.Advance(deltaTime);
             int registeredHits = 0;
             Rect playRect = playArea.rect;
             for (int i = activeBullets.Count - 1; i >= 0; i--)
@@ -279,7 +454,10 @@ namespace Audere.Combat
                     continue;
                 }
 
-                if (!bullet.TickMovement(playRect, deltaTime))
+                bool wasActive = bullet.CollisionActive;
+                bool alive = bullet.TickMovement(playRect, deltaTime);
+                if (!wasActive && bullet.CollisionActive) AttackAudio.PlayBullet(bulletSoundMinimumInterval, bullet.OwnerSessionVersion, bullet.OwnerPhaseVersion);
+                if (!alive)
                 {
                     bullet.ReturnToPool();
                     activeBullets.RemoveAt(i);
@@ -290,6 +468,30 @@ namespace Audere.Combat
                 if (playerView.TryRegisterHit(playerInvulnerability)) registeredHits++;
                 bullet.ReturnToPool();
                 activeBullets.RemoveAt(i);
+            }
+
+            for (int i = activeLasers.Count - 1; i >= 0; i--)
+            {
+                CombatLaserView laser = activeLasers[i];
+                if (laser == null || !laser.gameObject.activeInHierarchy)
+                {
+                    activeLasers.RemoveAt(i);
+                    continue;
+                }
+
+                bool wasActive = laser.CollisionActive;
+                bool alive = laser.Tick(deltaTime);
+                if (!wasActive && laser.CollisionActive) AttackAudio.PlayLaser(laserSoundMinimumInterval, laser.OwnerSessionVersion, laser.OwnerPhaseVersion);
+                if (!alive)
+                {
+                    laser.ReturnToPool();
+                    activeLasers.RemoveAt(i);
+                    continue;
+                }
+
+                if (laser.CollisionActive && RectTransformsOverlap(laser.RectTransform, playerView.RectTransform) &&
+                    playerView.TryRegisterHit(playerInvulnerability))
+                    registeredHits++;
             }
             return registeredHits;
         }
@@ -323,7 +525,44 @@ namespace Audere.Combat
                 destroyedCount++;
             }
 
+            for (int i = activeLasers.Count - 1; i >= 0; i--)
+            {
+                CombatLaserView laser = activeLasers[i];
+                if (laser == null || !laser.gameObject.activeInHierarchy)
+                {
+                    activeLasers.RemoveAt(i);
+                    continue;
+                }
+                if (!IsRectWithinRadius(laser.RectTransform, center, radius))
+                    continue;
+
+                laser.ReturnToPool();
+                activeLasers.RemoveAt(i);
+                destroyedCount++;
+            }
+
             return destroyedCount;
+        }
+
+        private bool IsRectWithinRadius(RectTransform target, Vector2 center, float radius)
+        {
+            if (target == null || playArea == null)
+                return false;
+
+            Vector3[] corners = new Vector3[4];
+            target.GetWorldCorners(corners);
+            Vector2 minimum = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+            Vector2 maximum = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+            for (int index = 0; index < corners.Length; index++)
+            {
+                Vector3 local = playArea.InverseTransformPoint(corners[index]);
+                minimum = Vector2.Min(minimum, local);
+                maximum = Vector2.Max(maximum, local);
+            }
+            Vector2 closest = new Vector2(
+                Mathf.Clamp(center.x, minimum.x, maximum.x),
+                Mathf.Clamp(center.y, minimum.y, maximum.y));
+            return (closest - center).sqrMagnitude <= radius * radius;
         }
 
         public void ResetPlayer()
@@ -340,6 +579,24 @@ namespace Audere.Combat
                 playerView.TickVisual(deltaTime);
         }
 
+        public void PlayPlayerLoseRhythm(float duration = .3f)
+        {
+            if (playerView != null)
+                playerView.PlayLoseRhythm(duration);
+        }
+
+        public void ShowAnxietyText(IReadOnlyList<string> lines, int sessionVersion)
+        {
+            ResolveReferences();
+            anxietyTextField?.SetSpiralTarget(enemyMount);
+            anxietyTextField?.Show(lines, sessionVersion);
+        }
+
+        public void TickAnxietyText(float deltaTime)
+        {
+            anxietyTextField?.Tick(deltaTime);
+        }
+
         public void UpdateCursor(Vector2 screenPosition)
         {
             if (playArea == null || catchCursor == null) return;
@@ -347,14 +604,204 @@ namespace Audere.Combat
             if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
                     playArea, screenPosition, eventCamera, out Vector2 localPoint)) return;
 
-            Vector2 half = catchCursor.rect.size * .5f;
-            Rect bounds = playArea.rect;
-            localPoint.x = Mathf.Clamp(localPoint.x, bounds.xMin + half.x, bounds.xMax - half.x);
-            localPoint.y = Mathf.Clamp(localPoint.y, bounds.yMin + half.y, bounds.yMax - half.y);
+            localPoint = ClampCursorToBattleBox(localPoint);
+            if (verticalControlOwner != null) localPoint.y = catchCursor.anchoredPosition.y;
             catchCursor.anchoredPosition = localPoint;
             SetCursorVisible(true);
             if (catchCursorView != null)
                 catchCursorView.SetStunned(OverlapsActiveStunZone(catchCursor));
+        }
+
+        public void SetPlayerConstraint(Vector2 center, float radius)
+        {
+            playerConstraintActive = true;
+            playerConstraintCenter = center;
+            playerConstraintRadius = Mathf.Max(0f, radius);
+            if (catchCursor == null)
+                return;
+            Vector2 offset = catchCursor.anchoredPosition - center;
+            if (offset.sqrMagnitude > playerConstraintRadius * playerConstraintRadius)
+                catchCursor.anchoredPosition = center + offset.normalized * playerConstraintRadius;
+        }
+
+        public bool HasPlayerConstraint => playerConstraintActive;
+        public Vector2 PlayerConstraintCenter => playerConstraintCenter;
+        public float PlayerConstraintRadius => playerConstraintRadius;
+
+        public void ClearPlayerConstraint()
+        {
+            verticalControlOwner = null;
+            playerConstraintActive = false;
+            playerConstraintCenter = Vector2.zero;
+            playerConstraintRadius = 0f;
+        }
+
+        public bool HasVerticalPlayerControl => verticalControlOwner != null;
+        public void SetVerticalPlayerControl(object owner, float normalizedY, float speed, float activeDeltaTime)
+        {
+            if (owner == null || playArea == null || catchCursor == null ||
+                (verticalControlOwner != null && !ReferenceEquals(verticalControlOwner, owner))) return;
+            verticalControlOwner = owner;
+            Rect bounds = playArea.rect;
+            float half = catchCursor.rect.height * .5f;
+            float target = Mathf.Lerp(bounds.yMin + half, bounds.yMax - half, Mathf.Clamp01(normalizedY));
+            Vector2 p = catchCursor.anchoredPosition;
+            p.y = Mathf.MoveTowards(p.y, target, Mathf.Max(0f, speed) * Mathf.Max(0f, activeDeltaTime));
+            catchCursor.anchoredPosition = p;
+        }
+        public void ReleaseVerticalPlayerControl(object owner)
+        {
+            if (ReferenceEquals(verticalControlOwner, owner)) verticalControlOwner = null;
+        }
+
+        public void SetStunZonePresentation(
+            int slot,
+            Vector2 normalizedCenter,
+            Vector2 normalizedSize,
+            float alpha,
+            bool blocking)
+        {
+            ResolveReferences();
+            ResolveStunZones();
+            if (playArea == null || stunZones == null || slot < 0 || slot >= stunZones.Length)
+                return;
+
+            CombatStunZoneView zone = stunZones[slot];
+            if (zone == null)
+                return;
+
+            Rect bounds = playArea.rect;
+            normalizedCenter = new Vector2(
+                Mathf.Clamp01(normalizedCenter.x),
+                Mathf.Clamp01(normalizedCenter.y));
+            normalizedSize = new Vector2(
+                Mathf.Clamp(normalizedSize.x, .02f, 1f),
+                Mathf.Clamp(normalizedSize.y, .02f, 1f));
+            Vector2 position = new Vector2(
+                Mathf.Lerp(bounds.xMin, bounds.xMax, normalizedCenter.x),
+                Mathf.Lerp(bounds.yMin, bounds.yMax, normalizedCenter.y));
+            Vector2 size = new Vector2(
+                bounds.width * normalizedSize.x,
+                bounds.height * normalizedSize.y);
+            zone.SetPresentation(position, size, alpha, blocking);
+            catchCursorView?.SetStunned(OverlapsActiveStunZone(catchCursor));
+        }
+
+        public void ShowTutorialStunZone()
+        {
+            ResolveStunZones();
+            if (stunZones == null || stunZones.Length == 0)
+                return;
+            for (int i = 0; i < stunZones.Length; i++)
+            {
+                if (stunZones[i] == null)
+                    continue;
+                if (i == 0)
+                    stunZones[i].ShowAuthored(true);
+                else
+                    stunZones[i].ForceHide();
+            }
+        }
+
+        public void HideStunZones()
+        {
+            ResolveStunZones();
+            if (stunZones != null)
+            {
+                for (int i = 0; i < stunZones.Length; i++)
+                    stunZones[i]?.ForceHide();
+            }
+            catchCursorView?.SetStunned(false, true);
+        }
+
+        public void SetBattleBoxHorizontalLayout(float widthFraction, float normalizedX)
+        {
+            ResolveReferences();
+            CaptureBattleBoxLayout();
+            if (playArea == null)
+                return;
+
+            Vector3 cursorWorldPosition = catchCursor != null
+                ? catchCursor.TransformPoint(catchCursor.rect.center)
+                : Vector3.zero;
+            battleBoxWidthFraction = Mathf.Clamp(widthFraction, .25f, 1f);
+            battleBoxNormalizedX = Mathf.Clamp(normalizedX, -1f, 1f);
+            float width = battleBoxAuthoredSize.x * battleBoxWidthFraction;
+            float frameWidth = battleBoxFrame != null
+                ? battleBoxFrame.rect.width
+                : battleBoxAuthoredSize.x;
+            float frameCenterX = battleBoxFrame != null
+                ? battleBoxFrame.anchoredPosition.x
+                : battleBoxAuthoredPosition.x;
+            float maximumOffset = Mathf.Max(0f, (frameWidth - width) * .5f);
+            float centerX = frameCenterX + battleBoxNormalizedX * maximumOffset;
+
+            playArea.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+            playArea.anchoredPosition = new Vector2(centerX, battleBoxAuthoredPosition.y);
+            if (airborneDiceRoot != null)
+            {
+                airborneDiceRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, width);
+                airborneDiceRoot.anchoredPosition = new Vector2(centerX, airborneDiceAuthoredPosition.y);
+            }
+
+            if (catchCursor != null)
+            {
+                Vector3 local = playArea.InverseTransformPoint(cursorWorldPosition);
+                catchCursor.anchoredPosition = ClampCursorToBattleBox(new Vector2(local.x, local.y));
+                catchCursorView?.SetStunned(OverlapsActiveStunZone(catchCursor));
+            }
+        }
+
+        public void ResetBattleBoxLayout()
+        {
+            CaptureBattleBoxLayout();
+            battleBoxWidthFraction = 1f;
+            battleBoxNormalizedX = 0f;
+            if (playArea != null)
+            {
+                playArea.sizeDelta = battleBoxAuthoredSize;
+                playArea.anchoredPosition = battleBoxAuthoredPosition;
+            }
+            if (airborneDiceRoot != null)
+            {
+                airborneDiceRoot.sizeDelta = airborneDiceAuthoredSize;
+                airborneDiceRoot.anchoredPosition = airborneDiceAuthoredPosition;
+            }
+        }
+
+        private Vector2 ClampCursorToBattleBox(Vector2 localPoint)
+        {
+            if (playArea == null || catchCursor == null)
+                return localPoint;
+            Vector2 half = catchCursor.rect.size * .5f;
+            Rect bounds = playArea.rect;
+            localPoint.x = Mathf.Clamp(localPoint.x, bounds.xMin + half.x, bounds.xMax - half.x);
+            localPoint.y = Mathf.Clamp(localPoint.y, bounds.yMin + half.y, bounds.yMax - half.y);
+            if (!playerConstraintActive)
+                return localPoint;
+            Vector2 constraintOffset = localPoint - playerConstraintCenter;
+            float radius = Mathf.Max(0f, playerConstraintRadius);
+            if (constraintOffset.sqrMagnitude > radius * radius)
+                localPoint = playerConstraintCenter + constraintOffset.normalized * radius;
+            return localPoint;
+        }
+
+        private void CaptureBattleBoxLayout()
+        {
+            if (battleBoxLayoutCaptured)
+                return;
+            ResolveReferences();
+            if (playArea == null)
+                return;
+            battleBoxAuthoredPosition = playArea.anchoredPosition;
+            battleBoxAuthoredSize = playArea.sizeDelta;
+            airborneDiceAuthoredPosition = airborneDiceRoot != null
+                ? airborneDiceRoot.anchoredPosition
+                : Vector2.zero;
+            airborneDiceAuthoredSize = airborneDiceRoot != null
+                ? airborneDiceRoot.sizeDelta
+                : Vector2.zero;
+            battleBoxLayoutCaptured = true;
         }
 
         public bool CursorOverlaps(CombatDieView die)
@@ -373,6 +820,18 @@ namespace Audere.Combat
         {
             if (stunZoneRoot == null || target == null || !stunZoneRoot.gameObject.activeInHierarchy)
                 return false;
+            ResolveStunZones();
+            if (stunZones != null && stunZones.Length > 0)
+            {
+                for (int i = 0; i < stunZones.Length; i++)
+                {
+                    CombatStunZoneView zone = stunZones[i];
+                    if (zone != null && zone.IsBlocking && zone.RectTransform.gameObject.activeInHierarchy &&
+                        CircleOverlapsRectTransform(target, zone.RectTransform))
+                        return true;
+                }
+                return false;
+            }
             for (int i = 0; i < stunZoneRoot.childCount; i++)
             {
                 if (stunZoneRoot.GetChild(i) is RectTransform zone && zone.gameObject.activeInHierarchy &&
@@ -749,6 +1208,11 @@ namespace Audere.Combat
 
         public void ClearCombatRuntime()
         {
+            SetMechanicHint(null);
+            ClearPlayerConstraint();
+            ResetBattleBoxLayout();
+            HideStunZones();
+            anxietyTextField?.ForceHide();
             ClearRuntimeDice();
             ClearRuntimeBullets();
             ClearEnemyActor();
@@ -784,18 +1248,65 @@ namespace Audere.Combat
 
         public void ClearRuntimeBullets()
         {
+            attackAudio?.Reset();
             activeBullets.Clear();
-            if (bulletRoot == null) return;
-            for (int i = bulletRoot.childCount - 1; i >= 0; i--)
+            if (bulletRoot != null)
             {
-                CombatBulletView bullet = bulletRoot.GetChild(i).GetComponent<CombatBulletView>();
-                if (bullet != null) bullet.ReturnToPool();
-                else bulletRoot.GetChild(i).gameObject.SetActive(false);
+                for (int i = bulletRoot.childCount - 1; i >= 0; i--)
+                {
+                    CombatBulletView bullet = bulletRoot.GetChild(i).GetComponent<CombatBulletView>();
+                    if (bullet != null) bullet.ReturnToPool();
+                    else bulletRoot.GetChild(i).gameObject.SetActive(false);
+                }
             }
+            activeLasers.Clear();
+            if (laserRoot != null)
+            {
+                for (int i = laserRoot.childCount - 1; i >= 0; i--)
+                {
+                    CombatLaserView laser = laserRoot.GetChild(i).GetComponent<CombatLaserView>();
+                    if (laser != null) laser.ReturnToPool();
+                    else laserRoot.GetChild(i).gameObject.SetActive(false);
+                }
+            }
+        }
+
+        public IEnumerator FadeRuntimeHazards(float duration)
+        {
+            attackAudio?.Reset();
+            duration = Mathf.Max(0f, duration);
+            for (int index = 0; index < activeBullets.Count; index++)
+                activeBullets[index]?.BeginPresentationFade();
+            for (int index = 0; index < activeLasers.Count; index++)
+                activeLasers[index]?.BeginPresentationFade();
+
+            if (duration > Mathf.Epsilon)
+            {
+                float elapsed = 0f;
+                while (elapsed < duration)
+                {
+                    elapsed += Time.unscaledDeltaTime;
+                    float visibility = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+                    SetHazardPresentationVisibility(visibility);
+                    yield return null;
+                }
+            }
+
+            SetHazardPresentationVisibility(0f);
+            ClearRuntimeBullets();
+        }
+
+        private void SetHazardPresentationVisibility(float visibility)
+        {
+            for (int index = 0; index < activeBullets.Count; index++)
+                activeBullets[index]?.SetPresentationFade(visibility);
+            for (int index = 0; index < activeLasers.Count; index++)
+                activeLasers[index]?.SetPresentationFade(visibility);
         }
 
         public void ClearRuntimeBullets(int sessionVersion, int phaseVersion = -1)
         {
+            attackAudio?.Reset(sessionVersion, phaseVersion);
             for (int i = activeBullets.Count - 1; i >= 0; i--)
             {
                 CombatBulletView bullet = activeBullets[i];
@@ -810,6 +1321,20 @@ namespace Audere.Combat
                 bullet.ReturnToPool();
                 activeBullets.RemoveAt(i);
             }
+            for (int i = activeLasers.Count - 1; i >= 0; i--)
+            {
+                CombatLaserView laser = activeLasers[i];
+                if (laser == null)
+                {
+                    activeLasers.RemoveAt(i);
+                    continue;
+                }
+                if (laser.OwnerSessionVersion != sessionVersion ||
+                    (phaseVersion >= 0 && laser.OwnerPhaseVersion != phaseVersion))
+                    continue;
+                laser.ReturnToPool();
+                activeLasers.RemoveAt(i);
+            }
         }
 
         public void SetEnemyHealthVisible(bool visible)
@@ -818,8 +1343,57 @@ namespace Audere.Combat
             if (enemyHealthOutline != null) enemyHealthOutline.gameObject.SetActive(visible);
         }
 
+        [SerializeField] private TMP_Text mechanicHint;
+        public void SetMechanicHint(string text)
+        {
+            if (mechanicHint == null) return;
+            mechanicHint.text = text;
+            mechanicHint.gameObject.SetActive(!string.IsNullOrEmpty(text));
+        }
+
+        private CanvasGroup enemyFadeGroup;
+        private float enemyFadeStartAlpha;
+
+        public IEnumerator FadeEnemyPresentation(float duration)
+        {
+            if (enemyVisual == null) yield break;
+            if (enemyHitRoutine != null) StopCoroutine(enemyHitRoutine);
+            enemyHitRoutine = null;
+            SetEnemyWhiteFlash(false);
+            enemyFadeGroup = enemyVisual.GetComponent<CanvasGroup>();
+            if (enemyFadeGroup == null) enemyFadeGroup = enemyVisual.gameObject.AddComponent<CanvasGroup>();
+            enemyFadeStartAlpha = enemyFadeGroup.alpha;
+            float elapsed = 0f;
+            while (elapsed < duration && enemyFadeGroup != null)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                enemyFadeGroup.alpha = enemyFadeStartAlpha * (1f - Mathf.SmoothStep(0f, 1f, elapsed / duration));
+                yield return null;
+            }
+            if (enemyFadeGroup != null) enemyFadeGroup.alpha = 0f;
+        }
+
+        private void RestoreEnemyFade()
+        {
+            if (enemyFadeGroup != null) enemyFadeGroup.alpha = enemyFadeStartAlpha;
+            enemyFadeGroup = null;
+        }
+
+        public CombatDieView SpawnChoiceDie(CombatSymbol symbol, Vector2 normalizedPosition)
+        {
+            CombatDieView die = SpawnDie(symbol, 0f);
+            if (die == null || playArea == null) return die;
+            Rect rect = playArea.rect;
+            Vector2 inset = diceSize * .5f;
+            die.SetupStationaryChoice(symbol, new Vector2(
+                Mathf.Lerp(rect.xMin + inset.x, rect.xMax - inset.x, normalizedPosition.x),
+                Mathf.Lerp(rect.yMin + inset.y, rect.yMax - inset.y, normalizedPosition.y)));
+            return die;
+        }
+
         public void ClearEnemyActor()
         {
+            RestoreEnemyFade();
             if (enemyHitRoutine != null)
             {
                 StopCoroutine(enemyHitRoutine);
@@ -831,12 +1405,14 @@ namespace Audere.Combat
             if (activeEnemyActor != null)
             {
                 activeEnemyActor.Shutdown();
-                Destroy(activeEnemyActor.gameObject);
+                if (activeEnemyActor == authoredEnemyActor)
+                    activeEnemyActor.gameObject.SetActive(false);
+                else
+                    Destroy(activeEnemyActor.gameObject);
             }
             activeEnemyActor = null;
             activeEnemySessionVersion = 0;
             enemyVisual = null;
-            vfxRoot = null;
             enemySpriteRenderers = null;
             enemyOriginalMaterials = null;
             enemyGraphics = null;
@@ -862,6 +1438,18 @@ namespace Audere.Combat
                 CombatBulletView bullet = bulletRoot.GetChild(i).GetComponent<CombatBulletView>();
                 if (bullet != null && !bullet.gameObject.activeSelf && bullet.SourcePrefab == sourcePrefab)
                     return bullet;
+            }
+            return null;
+        }
+
+        private CombatLaserView FindPooledLaser()
+        {
+            if (laserRoot == null) return null;
+            for (int i = 0; i < laserRoot.childCount; i++)
+            {
+                CombatLaserView laser = laserRoot.GetChild(i).GetComponent<CombatLaserView>();
+                if (laser != null && !laser.gameObject.activeSelf)
+                    return laser;
             }
             return null;
         }
@@ -915,6 +1503,21 @@ namespace Audere.Combat
             image.color = new Color(.86f, .36f, .48f, 1f);
             image.raycastTarget = false;
             return bulletObject.GetComponent<CombatBulletView>();
+        }
+
+        private CombatLaserView CreateLaser()
+        {
+            GameObject laserObject = new GameObject(
+                "Enemy Laser",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(CombatLaserView));
+            RectTransform rect = laserObject.GetComponent<RectTransform>();
+            rect.SetParent(laserRoot, false);
+            rect.anchorMin = rect.anchorMax = new Vector2(.5f, .5f);
+            rect.pivot = new Vector2(.5f, .5f);
+            return laserObject.GetComponent<CombatLaserView>();
         }
 
         private CombatDamageNumberView FindPooledDamageNumber()
@@ -980,13 +1583,7 @@ namespace Audere.Combat
         {
             GameObject instance = Instantiate(enemyScratchVfxPrefab, vfxRoot);
             instance.name = "Scratch Hit VFX";
-            Transform instanceTransform = instance.transform;
-            instanceTransform.localPosition = Vector3.zero;
-            instanceTransform.localRotation = Quaternion.identity;
-            instanceTransform.localScale = Vector3.one;
             activeHitVfx.Add(instance);
-
-            CenterScratchOnVfxAnchor(instance);
 
             Animator animator = instance.GetComponentInChildren<Animator>(true);
             if (animator != null)
@@ -996,6 +1593,7 @@ namespace Audere.Combat
                 animator.Update(0f);
             }
 
+            ConfigureAttackHitVfxInstance(instance);
             float duration = GetAttackHitFeedbackDuration(animator);
             yield return new WaitForSecondsRealtime(duration);
             activeHitVfx.Remove(instance);
@@ -1022,6 +1620,20 @@ namespace Audere.Combat
             return longestClip > 0f ? Mathf.Max(.05f, longestClip) : fallbackDuration;
         }
 
+        private void ConfigureAttackHitVfxInstance(GameObject instance)
+        {
+            if (instance == null || vfxRoot == null)
+                return;
+
+            Transform instanceTransform = instance.transform;
+            instanceTransform.localPosition = Vector3.zero;
+            instanceTransform.localRotation = Quaternion.identity;
+            // The Aseprite asset uses 100 pixels per SpriteRenderer unit while the
+            // combat presentation is authored in Canvas pixels.
+            instanceTransform.localScale = Vector3.one * Mathf.Max(1f, enemyScratchVfxUiScale);
+            CenterScratchOnVfxAnchor(instance);
+        }
+
         private static bool IsEnemyHitFlashActive(float normalizedTime)
         {
             return normalizedTime <= .13f ||
@@ -1044,8 +1656,13 @@ namespace Audere.Combat
             offset.z = 0f;
             instance.transform.position += offset;
 
-            int sortingLayerId = scratchRenderers[0].sortingLayerID;
-            int sortingOrder = scratchRenderers[0].sortingOrder;
+            Canvas combatCanvas = vfxRoot.GetComponentInParent<Canvas>();
+            int sortingLayerId = combatCanvas != null
+                ? combatCanvas.sortingLayerID
+                : scratchRenderers[0].sortingLayerID;
+            int sortingOrder = combatCanvas != null
+                ? combatCanvas.sortingOrder + 1
+                : scratchRenderers[0].sortingOrder;
             if (enemyVisual != null)
             {
                 SpriteRenderer[] renderers = enemyVisual.GetComponentsInChildren<SpriteRenderer>(true);
@@ -1061,6 +1678,14 @@ namespace Audere.Combat
             {
                 scratchRenderers[i].sortingLayerID = sortingLayerId;
                 scratchRenderers[i].sortingOrder = sortingOrder + i;
+            }
+
+            UnityEngine.Rendering.SortingGroup[] sortingGroups =
+                instance.GetComponentsInChildren<UnityEngine.Rendering.SortingGroup>(true);
+            for (int i = 0; i < sortingGroups.Length; i++)
+            {
+                sortingGroups[i].sortingLayerID = sortingLayerId;
+                sortingGroups[i].sortingOrder = sortingOrder;
             }
         }
 
@@ -1141,6 +1766,8 @@ namespace Audere.Combat
 
         private void OnDisable()
         {
+            attackAudio?.Reset();
+            RestoreEnemyFade();
             if (enemyHitRoutine != null) StopCoroutine(enemyHitRoutine);
             enemyHitRoutine = null;
             if (timerDamageRoutine != null) StopCoroutine(timerDamageRoutine);
@@ -1154,18 +1781,24 @@ namespace Audere.Combat
             ClearDamageNumbers();
             SetEnemyWhiteFlash(false);
             if (enemyVisual != null) enemyVisual.localPosition = enemyAuthoredLocalPosition;
+            ResetBattleBoxLayout();
+            HideStunZones();
         }
 
         private void OnDestroy()
         {
+            attackAudio?.Reset();
             if (enemyWhiteFlashMaterial != null) Destroy(enemyWhiteFlashMaterial);
         }
 
         private void ResolveReferences()
         {
+            battleBoxFrame = ResolveRect(battleBoxFrame, "Frame");
             playArea = ResolveRect(playArea, "Dice Field", "Play Area");
             stunZoneRoot = ResolveRect(stunZoneRoot, "Stun Zone Root", "Hazard Zone Root");
+            ResolveStunZones();
             bulletRoot = ResolveRect(bulletRoot, "Bullet Root");
+            laserRoot = ResolveRect(laserRoot, "Laser Root");
             diceRoot = ResolveRect(diceRoot, "Dice Root");
             airborneDiceRoot = ResolveRect(airborneDiceRoot, "Airborne Dice Overlay");
             playerRoot = ResolveRect(playerRoot, "Audere Heart Root", "Player Root");
@@ -1208,8 +1841,28 @@ namespace Audere.Combat
             if (enemyNameText == null)
                 enemyNameText = ResolveText("Enemy Name");
             if (enemyMount == null) enemyMount = FindDescendant(transform, "Enemy Mount");
+            if (combatViewport == null) combatViewport = FindDescendant(transform, "Combat Viewport") as RectTransform;
+            if (vfxRoot == null) vfxRoot = FindDescendant(transform, "VFX");
+            if (enemyMount is RectTransform enemyMountRect &&
+                vfxRoot is RectTransform vfxRootRect &&
+                enemyMountRect.parent == vfxRootRect.parent)
+            {
+                vfxRootRect.anchorMin = enemyMountRect.anchorMin;
+                vfxRootRect.anchorMax = enemyMountRect.anchorMax;
+                vfxRootRect.pivot = enemyMountRect.pivot;
+                vfxRootRect.anchoredPosition = enemyMountRect.anchoredPosition;
+                vfxRootRect.sizeDelta = enemyMountRect.sizeDelta;
+                vfxRootRect.localRotation = Quaternion.identity;
+                vfxRootRect.localScale = Vector3.one;
+            }
             if (damageNumberRoot == null)
                 damageNumberRoot = FindDescendant(transform, "Damage Number Root") as RectTransform;
+        }
+
+        private void ResolveStunZones()
+        {
+            if ((stunZones == null || stunZones.Length == 0) && stunZoneRoot != null)
+                stunZones = stunZoneRoot.GetComponentsInChildren<CombatStunZoneView>(true);
         }
 
         private RectTransform ResolveRect(RectTransform current, params string[] names)
@@ -1275,14 +1928,7 @@ namespace Audere.Combat
 
         private static bool RectTransformsOverlap(RectTransform a, RectTransform b)
         {
-            if (a == null || b == null) return false;
-            Vector3[] aCorners = new Vector3[4];
-            Vector3[] bCorners = new Vector3[4];
-            a.GetWorldCorners(aCorners);
-            b.GetWorldCorners(bCorners);
-            Rect aRect = Rect.MinMaxRect(aCorners[0].x, aCorners[0].y, aCorners[2].x, aCorners[2].y);
-            Rect bRect = Rect.MinMaxRect(bCorners[0].x, bCorners[0].y, bCorners[2].x, bCorners[2].y);
-            return aRect.Overlaps(bRect, true);
+            return CombatRectCollision.Overlaps(a, b);
         }
 
         private static bool CircleOverlapsRectTransform(RectTransform circle, RectTransform target)

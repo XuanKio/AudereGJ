@@ -1,4 +1,9 @@
 using UnityEngine;
+using UnityEngine.Serialization;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Audere.Core
 {
@@ -20,8 +25,13 @@ namespace Audere.Core
                  "Sibling order under this root defines initialization order.")]
         [SerializeField] private Transform servicesRoot;
 
-        [Tooltip("First scene loaded once all services are initialized.")]
-        [SerializeField] private string firstScene = GameScenes.MainMenu;
+#if UNITY_EDITOR
+        [Tooltip("First scene loaded once all services are initialized. Drag a scene asset here; its build-safe path is stored automatically.")]
+        [SerializeField] private SceneAsset firstSceneAsset;
+#endif
+
+        [FormerlySerializedAs("firstScene")]
+        [SerializeField, HideInInspector] private string firstScenePath = GameScenes.MainMenu;
 
         private void Awake()
         {
@@ -37,8 +47,24 @@ namespace Audere.Core
                 return;
             }
 
-            SceneFlow.Instance.Load(firstScene);
+            if (string.IsNullOrWhiteSpace(firstScenePath))
+            {
+                Debug.LogError("[Bootstrapper] First Scene is not assigned. Select one from the Bootstrapper dropdown.");
+                return;
+            }
+
+            SceneFlow.Instance.Load(firstScenePath);
         }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (firstSceneAsset == null)
+                return;
+
+            firstScenePath = AssetDatabase.GetAssetPath(firstSceneAsset);
+        }
+#endif
 
         private void InitializeServices()
         {

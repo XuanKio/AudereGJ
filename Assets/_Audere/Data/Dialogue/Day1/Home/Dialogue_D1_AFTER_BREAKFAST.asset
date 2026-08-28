@@ -15,14 +15,23 @@ MonoBehaviour:
   dialogueId: d1-home-after-breakfast
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 0
-    text: "Xong rồi."
+    text: "Xong r\u1ED3i."
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Ừ. Còn mỗi việc bước ra khỏi cửa thôi."
+    text: "\u1EEA. C\xF2n m\u1ED7i vi\u1EC7c b\u01B0\u1EDBc ra kh\u1ECFi c\u1EEDa
+      th\xF4i."
+    portraitOverride: {fileID: 0}
   - speaker: 0
-    text: "Ra khỏi nhà mới là phần khó."
+    text: "Ra kh\u1ECFi nh\xE0 m\u1EDBi l\xE0 ph\u1EA7n kh\xF3."
+    portraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
   - speaker: 1
-    text: "Tớ biết."
+    text: "T\u1EDB bi\u1EBFt."
+    portraitOverride: {fileID: 0}
   - speaker: 1
-    text: "Nên mình không nghĩ xa. Kiểm tra đồ trước nhé."
+    text: "N\xEAn m\xECnh kh\xF4ng ngh\u0129 xa. Ki\u1EC3m tra \u0111\u1ED3 tr\u01B0\u1EDBc
+      nh\xE9."
+    portraitOverride: {fileID: 0}

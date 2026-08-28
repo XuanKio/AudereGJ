@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2976170847993873284}
   - component: {fileID: 4229325711688743780}
   - component: {fileID: 7994228972335057628}
+  - component: {fileID: 772850959401687565}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -122,6 +123,18 @@ MonoBehaviour:
     outwardCells: 1.25
     dropCells: 1.5
   fallEndScale: 0.08
+--- !u!210 &772850959401687565
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 469119396550497501}
+  m_Enabled: 1
+  m_SortingLayerID: 1687369679
+  m_SortingLayer: 1
+  m_SortingOrder: 5
+  m_SortAtRoot: 0
 --- !u!1001 &2267303155463402180
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -141,6 +154,10 @@ PrefabInstance:
     - target: {fileID: 3626916397498700004, guid: 625eb063c3314854580d4410c2a7bb1f, type: 3}
       propertyPath: m_SortingLayer
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3626916397498700004, guid: 625eb063c3314854580d4410c2a7bb1f, type: 3}
+      propertyPath: m_SortingOrder
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3626916397498700004, guid: 625eb063c3314854580d4410c2a7bb1f, type: 3}
       propertyPath: m_SortingLayerID

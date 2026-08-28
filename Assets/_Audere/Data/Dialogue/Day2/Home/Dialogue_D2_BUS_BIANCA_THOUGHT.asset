@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D2_BUS_BIANCA_THOUGHT
+  m_EditorClassIdentifier: 
+  dialogueId: d2-bus-bianca-thought
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 0
+    text: "Kh\xF4ng bi\u1EBFt Bianca \u0111ang ngh\u0129 g\xEC."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "\u0110\u1EEBng \u0111i s\xE1t ng\u01B0\u1EDDi kia."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "T\u1EDB ch\u1EC9 \u0111ang ngh\u0129 v\u1EC1 tin nh\u1EAFn."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "T\u1EDB bi\u1EBFt."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "Nh\xECn \u0111\u01B0\u1EDDng tr\u01B0\u1EDBc \u0111\xE3."
+    portraitOverride: {fileID: 0}

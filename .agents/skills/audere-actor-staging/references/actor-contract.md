@@ -15,6 +15,17 @@ An actor used by story staging needs these direct references:
 
 Current Audere, Bianca, and Teacher prefabs place the SpriteRenderer on the actor root and use a child named `shadow (1)`. Do not rely on that name for new production authoring; the serialized reference is the contract.
 
+## Sorting contract
+
+- The actor body `SpriteRenderer` uses Sorting Layer `Player`, Order in Layer `5`.
+- The grounded shadow `SpriteRenderer` uses Sorting Layer `Player`, Order in Layer `4`.
+- Apply the contract on the reusable actor prefab. Scene instances should inherit it instead of
+  carrying character-specific sorting overrides.
+- A new actor may use different art, scale, pivot, or shadow offset, but must keep this `5/4`
+  body-to-shadow relationship unless a separate documented presentation system owns its sorting.
+- Do not raise one actor to Order `6` merely to resolve overlap. Resolve intentional overlap through
+  staging position or a separate, explicitly scoped presentation action.
+
 ## Ground versus visible motion
 
 Treat every actor pose as two related trajectories:

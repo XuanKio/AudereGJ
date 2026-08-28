@@ -59,6 +59,12 @@ namespace Audere.Puzzle.Board
         public bool ContainsCell(Vector2Int gridPosition) => tilesByPosition.ContainsKey(gridPosition);
         public bool HasTile(Vector2Int gridPosition) => ContainsCell(gridPosition);
 
+        public bool CanPlayerEnter(Vector2Int gridPosition, GridPlayer player = null)
+        {
+            return TryGetTile(gridPosition, out BoardTile tile) &&
+                   tile.CanPlayerEnter(player);
+        }
+
         public bool TryGetTile(Vector2Int gridPosition, out BoardTile tile)
         {
             return tilesByPosition.TryGetValue(gridPosition, out tile);

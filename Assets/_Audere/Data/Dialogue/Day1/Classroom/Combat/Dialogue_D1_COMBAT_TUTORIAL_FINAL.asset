@@ -15,11 +15,25 @@ MonoBehaviour:
   dialogueId: d1-combat-tutorial-final
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
-  - speaker: 1
-    text: "V\u1EADy l\xE0 ph\u1EA7n l\xE0m quen xong r\u1ED3i."
-  - speaker: 1
-    text: "Gi\u1EDD m\xECnh c\xF9ng \u0111\xE1nh b\u1EA1i n\u1ED7i lo \u0111\xF3
-      nh\xE9."
   - speaker: 0
-    text: "\u2026\u1EEA."
+    text: "C\xE0ng im\u2026 n\xF3 c\xE0ng l\u1EDBn."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "\u1EEA."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "\u0110\u1EEBng c\u1ED1 ngh\u0129 h\u1EBFt m\u1ECDi chuy\u1EC7n sau \u0111\xF3."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "Ch\u1EC9 gi\u1EEF l\u1EA1i c\xE2u c\u1EADu th\u1EADt s\u1EF1 mu\u1ED1n
+      n\xF3i."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "T\u1EDB mu\u1ED1n th\u1EED."
+    portraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+  - speaker: 1
+    text: "V\u1EADy \u0111\u1EEBng \u0111\u1EC3 m\u1EA5t c\xE2u \u0111\xF3."
+    portraitOverride: {fileID: 0}

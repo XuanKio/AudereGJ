@@ -24,6 +24,11 @@ namespace Audere.Audio
             BuildLookup();
         }
 
+        private void OnValidate()
+        {
+            BuildLookup();
+        }
+
         private void BuildLookup()
         {
             lookup = new Dictionary<AudioId, AudioEntry>();

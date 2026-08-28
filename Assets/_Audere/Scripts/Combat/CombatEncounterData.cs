@@ -1,8 +1,21 @@
+using System;
+using Audere.Dialogue;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace Audere.Combat
 {
+    [Serializable]
+    public sealed class CombatDefeatPresentation
+    {
+        [SerializeField] private DialogueData dialogue;
+        [SerializeField, Min(0f)] private float hazardFadeDuration = .55f;
+
+        public DialogueData Dialogue => dialogue;
+        public float HazardFadeDuration => Mathf.Max(0f, hazardFadeDuration);
+        public bool IsConfigured => dialogue != null && dialogue.HasLines;
+    }
+
     [CreateAssetMenu(menuName = "Audere/Combat/Encounter Data", fileName = "CombatEncounter_New")]
     public sealed class CombatEncounterData : ScriptableObject
     {
@@ -11,8 +24,17 @@ namespace Audere.Combat
         [SerializeField] private CombatEnemyDefinition enemyDefinition;
         [SerializeField] private CombatTutorialData tutorialData;
 
+        [Header("Music")]
+        [SerializeField] private Audere.Audio.AudioId music = Audere.Audio.AudioId.Music_Combat;
+        public Audere.Audio.AudioId Music => music;
+
         [Header("Win / Lose")]
         [SerializeField, Min(1f)] private float encounterDuration = 40f;
+        [SerializeField] private CombatEncounterOutcomeRules outcomeRules = new CombatEncounterOutcomeRules();
+        [SerializeField] private CombatDefeatPresentation defeatPresentation = new CombatDefeatPresentation();
+
+        [SerializeField, Min(0f)] private float victoryFadeDuration;
+        public float VictoryFadeDuration => Mathf.Max(0f, victoryFadeDuration);
 
         [Header("Continuous Dice Batches")]
         [FormerlySerializedAs("dicePerWave")]
@@ -33,6 +55,11 @@ namespace Audere.Combat
         public bool HasTutorial => tutorialData != null;
         public string EnemyDisplayName => enemyDefinition != null ? enemyDefinition.DisplayName : string.Empty;
         public float EncounterDuration => encounterDuration;
+        public CombatEncounterOutcomeRules OutcomeRules => outcomeRules ??= new CombatEncounterOutcomeRules();
+        public CombatDefeatPresentation DefeatPresentation => defeatPresentation;
+        [Tooltip("Zero leaves the shared dice rules unrestricted. Includes already caught Attack dice; rerolls cannot bypass the batch budget.")]
+        [SerializeField, Min(0)] private int maximumAttacksPerBatch;
+        public int MaximumAttacksPerBatch => Mathf.Max(0, maximumAttacksPerBatch);
         public int DicePerBatch => dicePerBatch;
         public float BatchRespawnDelay => batchRespawnDelay;
         public float MinimumDiceSpeed => minimumDiceSpeed;
@@ -51,6 +78,8 @@ namespace Audere.Combat
                 Debug.LogError($"[CombatEncounterData] '{name}' requires a stable Encounter ID.", this);
             if (enemyDefinition == null)
                 Debug.LogError($"[CombatEncounterData] '{name}' requires an Enemy Definition.", this);
+            if (outcomeRules == null)
+                Debug.LogError($"[CombatEncounterData] '{name}' requires Outcome Rules.", this);
             if (tutorialData != null && !tutorialData.Validate(out string tutorialError))
                 Debug.LogError($"[CombatEncounterData] '{name}' has invalid tutorial data: {tutorialError}", this);
         }

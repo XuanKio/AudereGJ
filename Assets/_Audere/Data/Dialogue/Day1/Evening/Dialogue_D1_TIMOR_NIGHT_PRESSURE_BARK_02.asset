@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D1_TIMOR_NIGHT_PRESSURE_BARK_02
+  m_EditorClassIdentifier: 
+  dialogueId: d1-timor-night-pressure-bark-02
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  rightPortraitOverride: {fileID: 1802169272185732355, guid: 056875fa18e556d4cb0aba789bc44c9f, type: 3}
+  lines:
+  - speaker: 1
+    text: "V\u1EADy th\xEC \u0111\u1EE9ng y\xEAn."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "\u0110\u1EEBng b\u01B0\u1EDBc ra kh\u1ECFi ch\u1ED7 t\u1EDB ch\u1EC9."
+    portraitOverride: {fileID: 0}

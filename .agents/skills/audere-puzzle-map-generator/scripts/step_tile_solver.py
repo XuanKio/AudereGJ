@@ -38,7 +38,12 @@ def rotate(point: Point, quarter_turns: int) -> Point:
     return ((x, y), (-y, x), (-x, -y), (y, -x))[quarter_turns % 4]
 
 
-def placements(piece: Piece, player: Point, cells: set[Point]) -> Iterable[Move]:
+def placements(
+    piece: Piece,
+    player: Point,
+    cells: set[Point],
+    consumed_one_use: frozenset[Point],
+) -> Iterable[Move]:
     seen: set[tuple[Point, ...]] = set()
     for rotation in range(4):
         local = tuple(rotate(point, rotation) for point in piece.path)
@@ -51,11 +56,25 @@ def placements(piece: Piece, player: Point, cells: set[Point]) -> Iterable[Move]
             if absolute in seen:
                 continue
             seen.add(absolute)
-            if absolute[0] == player and all(point in cells for point in absolute[1:]):
+            if (
+                absolute[0] == player
+                and all(point in cells for point in absolute[1:])
+                and all(point not in consumed_one_use for point in absolute[1:])
+            ):
                 yield Move(piece.piece_id, piece.source_index, rotation * 90, absolute)
 
 
-def validate_spec(spec: dict) -> tuple[int, int, Point, Point, set[Point], list[Piece], bool, int]:
+def validate_spec(spec: dict) -> tuple[
+    int,
+    int,
+    Point,
+    Point,
+    set[Point],
+    set[Point],
+    list[Piece],
+    bool,
+    int,
+]:
     width = int(spec["width"])
     height = int(spec["height"])
     if width <= 0 or height <= 0:
@@ -72,6 +91,11 @@ def validate_spec(spec: dict) -> tuple[int, int, Point, Point, set[Point], list[
     if outside:
         raise ValueError(f"cells outside board bounds: {outside}")
 
+    one_use_cells = {tuple(map(int, value)) for value in spec.get("one_use_cells", [])}
+    invalid_one_use = sorted(one_use_cells - cells)
+    if invalid_one_use:
+        raise ValueError(f"one_use_cells missing from cells: {invalid_one_use}")
+
     pieces: list[Piece] = []
     for index, raw in enumerate(spec["pieces"]):
         path = tuple(tuple(map(int, point)) for point in raw["path"])
@@ -83,11 +107,21 @@ def validate_spec(spec: dict) -> tuple[int, int, Point, Point, set[Point], list[
 
     require_all = bool(spec.get("require_all", True))
     max_solutions = max(1, int(spec.get("max_solutions", 2000)))
-    return width, height, start, goal, cells, pieces, require_all, max_solutions
+    return width, height, start, goal, cells, one_use_cells, pieces, require_all, max_solutions
 
 
 def solve(spec: dict) -> dict:
-    width, height, start, goal, cells, pieces, require_all, max_solutions = validate_spec(spec)
+    (
+        width,
+        height,
+        start,
+        goal,
+        cells,
+        one_use_cells,
+        pieces,
+        require_all,
+        max_solutions,
+    ) = validate_spec(spec)
     solutions: list[tuple[Move, ...]] = []
     valid_first: set[Move] = set()
     winning_first: set[Move] = set()
@@ -95,7 +129,12 @@ def solve(spec: dict) -> dict:
     premature_goal_hits = 0
     truncated = False
 
-    def visit(player: Point, remaining: tuple[Piece, ...], route: tuple[Move, ...]) -> bool:
+    def visit(
+        player: Point,
+        remaining: tuple[Piece, ...],
+        route: tuple[Move, ...],
+        consumed_one_use: frozenset[Point],
+    ) -> bool:
         nonlocal dead_end_states, premature_goal_hits, truncated
         if len(solutions) >= max_solutions:
             truncated = True
@@ -113,8 +152,11 @@ def solve(spec: dict) -> dict:
         solved_below = False
         for slot, piece in enumerate(remaining):
             next_remaining = remaining[:slot] + remaining[slot + 1 :]
-            for move in placements(piece, player, cells):
+            for move in placements(piece, player, cells, consumed_one_use):
                 progressed = True
+                next_consumed = consumed_one_use.union(
+                    point for point in move.path[1:] if point in one_use_cells
+                )
                 if not route:
                     valid_first.add(move)
                 if move.end == goal and next_remaining and require_all:
@@ -129,12 +171,18 @@ def solve(spec: dict) -> dict:
                         truncated = True
                         return True
                     continue
-                solved_below = visit(move.end, next_remaining, route + (move,)) or solved_below
+                solved_below = visit(
+                    move.end,
+                    next_remaining,
+                    route + (move,),
+                    frozenset(next_consumed),
+                ) or solved_below
         if not progressed:
             dead_end_states += 1
         return solved_below
 
-    visit(start, tuple(pieces), tuple())
+    initial_consumed = frozenset({start} if start in one_use_cells else set())
+    visit(start, tuple(pieces), tuple(), initial_consumed)
 
     total_steps = sum(len(piece.path) - 1 for piece in pieces)
     displacement_parity = (abs(goal[0] - start[0]) + abs(goal[1] - start[1])) % 2
@@ -162,17 +210,35 @@ def solve(spec: dict) -> dict:
         "premature_goal_hit_count": premature_goal_hits,
         "sample_trap_first_moves": [move_json(move) for move in sorted(trap_first, key=repr)[:10]],
         "sample_solutions": [[move_json(move) for move in solution] for solution in solutions[:10]],
-        "board": render_board(width, height, cells, start, goal),
+        "one_use_cell_count": len(one_use_cells),
+        "board": render_board(width, height, cells, one_use_cells, start, goal),
     }
 
 
-def render_board(width: int, height: int, cells: set[Point], start: Point, goal: Point) -> str:
+def render_board(
+    width: int,
+    height: int,
+    cells: set[Point],
+    one_use_cells: set[Point],
+    start: Point,
+    goal: Point,
+) -> str:
     rows: list[str] = []
     for y in range(height - 1, -1, -1):
         row: list[str] = []
         for x in range(width):
             point = (x, y)
-            row.append("S" if point == start else "G" if point == goal else "#" if point in cells else ".")
+            row.append(
+                "S"
+                if point == start
+                else "G"
+                if point == goal
+                else "R"
+                if point in one_use_cells
+                else "#"
+                if point in cells
+                else "."
+            )
         rows.append(f"{y:>2} " + " ".join(row))
     rows.append("   " + " ".join(str(x % 10) for x in range(width)))
     return "\n".join(rows)

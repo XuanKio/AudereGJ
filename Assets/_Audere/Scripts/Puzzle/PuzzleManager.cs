@@ -28,6 +28,11 @@ namespace Audere.Puzzle
         [SerializeField] private bool retryWhenOutOfPieces;
         [SerializeField, Min(0f)] private float failedAttemptResetDelay = .8f;
 
+        [SerializeField] private CooperativePuzzleSession cooperative;
+        private GridPlayer activePlayer;
+        public GridPlayer ActivePlayer => activePlayer != null ? activePlayer : player;
+        public CooperativePuzzleSession Cooperative => cooperative;
+
         public State CurrentState { get; private set; }
         public PuzzleData PuzzleData => puzzleData;
         public BoardManager Board => board;
@@ -43,6 +48,12 @@ namespace Audere.Puzzle
         public event Action GoalReachedWithPiecesRemaining;
         public event Action<PlacementResult> PlacementResolved;
         private bool completionLocked;
+
+        // Cancellation during scene teardown must only release ownership. The UI
+        // or shared actor may already have been destroyed by Unity at that point.
+        public bool CanNormalize => board != null && playerStart != null && player != null &&
+            (hand != null || (GameplayUIRoot.Instance != null && GameplayUIRoot.Instance.PathPieceHand != null)) &&
+            (placement != null || (runtime != null && runtime.Placement != null));
 
         private void Awake()
         {
@@ -69,6 +80,7 @@ namespace Audere.Puzzle
         public bool ResetToInitialState(bool showPlayerAtStart)
         {
             StopAllCoroutines();
+            cooperative?.EndAttempt();
             ResolveGameplayUiReferences();
             ResolveRuntimeReferences();
 
@@ -119,6 +131,8 @@ namespace Audere.Puzzle
             if (!player.gameObject.activeSelf)
                 player.gameObject.SetActive(true);
             player.SetPosition(startPosition, board.GridSpace.CellToWorldCenter(startPosition));
+            activePlayer = player;
+            if (cooperative != null && !cooperative.PlacePartnerAtStart()) return false;
             PuzzleStopped?.Invoke();
             return true;
         }
@@ -134,6 +148,7 @@ namespace Audere.Puzzle
         public bool ResetPuzzle(bool resumePlaying)
         {
             StopAllCoroutines();
+            cooperative?.EndAttempt();
             ResolveGameplayUiReferences();
             ResolveRuntimeReferences();
 
@@ -146,7 +161,9 @@ namespace Audere.Puzzle
                 return false;
             }
 
-            board.RegisterExistingTiles();
+            // A retry/fall is a fresh authored attempt. Traversal-only state such
+            // as OneUse consumption must never leak into the next attempt.
+            board.ResetSceneAuthoredState();
             if (board.GridSpace == null || board.GridPositions.Count == 0)
             {
                 Debug.LogError(
@@ -176,6 +193,13 @@ namespace Audere.Puzzle
             player.SetPosition(
                 startPosition,
                 board.GridSpace.CellToWorldCenter(startPosition));
+            activePlayer = player;
+            if (cooperative != null && !cooperative.PlacePartnerAtStart())
+            {
+                Debug.LogError("[PuzzleManager] Cooperative partner needs an authored start tile.", this);
+                CurrentState = State.Idle;
+                return false;
+            }
             hand.Setup(puzzleData != null ? puzzleData.AvailablePathPieces : null);
             // Placement may have been disabled in an older scene revision.  It
             // must be active for its Update loop to keep the world preview under
@@ -188,6 +212,7 @@ namespace Audere.Puzzle
             if (resumePlaying)
             {
                 board.NotifyPlayerEntered(startPosition, player);
+                cooperative?.BeginAttempt();
                 SetHudMessage("Chọn một mảnh đường.");
                 PuzzleStarted?.Invoke();
             }
@@ -202,6 +227,7 @@ namespace Audere.Puzzle
         public void StopPuzzle()
         {
             StopAllCoroutines();
+            cooperative?.EndAttempt();
             if (placement != null)
                 placement.Cancel();
             CurrentState = State.Idle;
@@ -235,6 +261,15 @@ namespace Audere.Puzzle
         public void SubmitPlacement(PlacementResult result)
         {
             if (CurrentState != State.Playing || completionLocked) return;
+            if (cooperative != null)
+            {
+                var gate = GameplayUIRoot.Instance != null ? GameplayUIRoot.Instance.InputGate : null;
+                if (gate == null || !gate.Allows(Audere.GameplayInput.GameplayInputMode.Puzzle) ||
+                    !result.CanCommit || hand.SelectedPiece == null || result.GridPath == null || result.GridPath.Count < 2) return;
+                GridPlayer mover = cooperative.ActorAtStart(result.GridPath[0], true);
+                if (mover == null) return;
+                activePlayer = mover;
+            }
             StartCoroutine(ExecutePlacement(result));
         }
 
@@ -243,19 +278,24 @@ namespace Audere.Puzzle
             CurrentState = State.Traversing;
             placement.HidePreview();
             SetHudMessage(string.Empty);
-            yield return player.Traverse(result.GridPath, board, HandleFallStarted);
-            hand.ConsumeSelected();
+            GridPlayer moving = ActivePlayer;
+            // Reserve this card before moving; changing a UI selection cannot consume another actor's next card.
+            if (cooperative != null) hand.ConsumeSelected();
+            yield return moving.Traverse(result.GridPath, board, HandleFallStarted);
+            if (cooperative == null) hand.ConsumeSelected();
 
-            if (player.FellDuringTraversal)
+            if (moving.FellDuringTraversal)
             {
                 yield return new WaitForSeconds(fallResetDelay);
                 ResetPuzzle(true);
                 yield break;
             }
 
-            bool reachedGoal =
-                board.TryGetTile(player.GridPosition, out BoardTile destinationTile) &&
-                destinationTile.IsLevelGoal;
+            if (cooperative != null) yield return cooperative.ResolveLanding(moving);
+
+            bool reachedGoal = cooperative != null
+                ? cooperative.BothAtGoals
+                : board.TryGetTile(player.GridPosition, out BoardTile destinationTile) && destinationTile.IsLevelGoal;
             bool mustUseRemainingPieces =
                 puzzleData != null &&
                 puzzleData.RequireAllPathPieces &&
@@ -280,6 +320,7 @@ namespace Audere.Puzzle
                 CurrentState = State.Completed;
                 placement.Cancel();
                 SetHudMessage(string.Empty);
+                cooperative?.EndAttempt();
                 PuzzleCompleted?.Invoke();
             }
             else if (!hand.HasPieces)

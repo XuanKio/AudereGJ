@@ -15,8 +15,12 @@ MonoBehaviour:
   dialogueId: d1-classroom-redirect
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: 5003323414229244817, guid: aef14cf774eb96745a1ce7b2b831128f, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 1
     text: "\u1EEAm\u2026 th\xEDch th\xEC c\u0169ng \u0111\xE2u c\xF3 sao."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "Nh\u01B0ng m\xECnh ch\u01B0a c\u1EA7n ghi t\xEAn ngay \u0111\xE2u."
+    portraitOverride: {fileID: 1802169272185732355, guid: 056875fa18e556d4cb0aba789bc44c9f, type: 3}

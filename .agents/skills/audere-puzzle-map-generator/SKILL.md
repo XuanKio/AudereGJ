@@ -16,7 +16,7 @@ Design a readable StepTile puzzle, prove it is solvable under the project's actu
 - Keep exactly one shared Player per location. A level prefab owns only its `PlayerStart`; never add or hide a level-specific Player during a puzzle chain.
 - Prefer existing `PathPieceData` assets. Create a new piece only when no existing shape can satisfy the requested design.
 - Treat user-facing row and column numbers as one-based when stated that way: Unity coordinate is `(column - 1, row - 1)`. Preserve an explicitly supplied Unity coordinate such as Player `(0,0)`.
-- For a chained transition, the previous Goal world position and the next PlayerStart world position must match. Keep the current Goal tile as the visible hand-off anchor during intervening dialogue, then hide the superseded level when the next board begins revealing.
+- Sequential puzzles always form one continuous route: the previous Goal world position and the next PlayerStart world position must match exactly. This is mandatory across StoryEvents and location beats, not an optional presentation flourish. Keep the current Goal tile as the visible hand-off anchor during intervening dialogue, then hide the superseded level when the next board begins revealing.
 - Do not put the shared Player in a `SetActiveStep` disable list between puzzle events. Reposition the existing Player at the next `PlayerStart` without an inactive frame.
 - After moving a level root to an anchor, refresh board registration before sorting reveal order or starting gameplay. The first revealed tile must overlap the next `PlayerStart`.
 
@@ -40,6 +40,7 @@ Design a readable StepTile puzzle, prove it is solvable under the project's actu
   "start": [0, 0],
   "goal": [6, 0],
   "cells": [[0, 0], [1, 0], [2, 0]],
+  "one_use_cells": [[1, 0]],
   "pieces": [
     {"id": "line-3", "path": [[0, 0], [1, 0], [2, 0]]}
   ],
@@ -55,6 +56,10 @@ $spec | python .agents/skills/audere-puzzle-map-generator/scripts/step_tile_solv
 ```
 
 The report includes solution count, valid first moves, first moves that belong to a solution, dead-end states, premature Goal hits, an ASCII board, and sample solutions. A nonzero exit code means the spec is malformed or unsolved.
+
+`one_use_cells` is optional. A listed cell may be entered once per attempt; after the
+player leaves, later moves cannot enter it again. The solver renders these cells as `R`
+and carries their consumed state across every supplied path piece.
 
 ## Handoff
 

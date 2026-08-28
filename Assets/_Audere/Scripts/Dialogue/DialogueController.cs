@@ -18,6 +18,7 @@ namespace Audere.Dialogue
     {
         GlobalTimePause = 0,
         CallerOwnedPause = 1,
+        AutoAdvanceNoInput = 2,
     }
 
     [DisallowMultipleComponent]
@@ -50,6 +51,9 @@ namespace Audere.Dialogue
         private GameplayInputGate inputGate;
         private GameplayInputToken inputToken;
         private DialoguePlaybackMode playbackMode;
+        private float autoMinimumLineDuration;
+        private float autoCharactersPerSecond;
+        private float autoInterLineGap;
 
         public bool IsPlaying => playbackRoutine != null;
 
@@ -89,6 +93,36 @@ namespace Audere.Dialogue
             DialoguePlaybackMode mode,
             bool triggerOnce = true)
         {
+            return PlayInternal(data, onEnded, mode, triggerOnce, 0f, 0f, 0f);
+        }
+
+        public bool PlayAuto(
+            DialogueData data,
+            Action<DialogueResult> onEnded,
+            float minimumLineDuration,
+            float autoAdvanceCharactersPerSecond,
+            float interLineGap,
+            bool triggerOnce = false)
+        {
+            return PlayInternal(
+                data,
+                onEnded,
+                DialoguePlaybackMode.AutoAdvanceNoInput,
+                triggerOnce,
+                Mathf.Max(.1f, minimumLineDuration),
+                Mathf.Max(1f, autoAdvanceCharactersPerSecond),
+                Mathf.Max(0f, interLineGap));
+        }
+
+        private bool PlayInternal(
+            DialogueData data,
+            Action<DialogueResult> onEnded,
+            DialoguePlaybackMode mode,
+            bool triggerOnce,
+            float minimumLineDuration,
+            float autoAdvanceCharactersPerSecond,
+            float interLineGap)
+        {
             if (!isActiveAndEnabled)
             {
                 Debug.LogError("[DialogueController] Enable the controller before calling Play.", this);
@@ -104,8 +138,11 @@ namespace Audere.Dialogue
             if (triggerOnce && playedDialogueIds.Contains(data.DialogueId))
                 return false;
 
-            if (!TryResolveCharacter(data.LeftCharacter, out DialogueCharacterCatalog.Entry leftCharacter) ||
-                !TryResolveCharacter(data.RightCharacter, out DialogueCharacterCatalog.Entry rightCharacter))
+            bool mirrorForAudere = ShouldMirrorForAudere(data);
+            DialogueCharacterId displayLeft = mirrorForAudere ? data.RightCharacter : data.LeftCharacter;
+            DialogueCharacterId displayRight = mirrorForAudere ? data.LeftCharacter : data.RightCharacter;
+            if (!TryResolveCharacter(displayLeft, out DialogueCharacterCatalog.Entry leftCharacter) ||
+                !TryResolveCharacter(displayRight, out DialogueCharacterCatalog.Entry rightCharacter))
                 return false;
 
             int requestVersion = ++playRequestVersion;
@@ -116,27 +153,33 @@ namespace Audere.Dialogue
             if (requestVersion != playRequestVersion)
                 return false;
 
-            GameplayInputGate gate = ResolveInputGate();
-            if (gate == null)
+            if (mode != DialoguePlaybackMode.AutoAdvanceNoInput)
             {
-                Debug.LogError("[DialogueController] GameplayInputGate is not available.", this);
-                return false;
+                GameplayInputGate gate = ResolveInputGate();
+                if (gate == null)
+                {
+                    Debug.LogError("[DialogueController] GameplayInputGate is not available.", this);
+                    return false;
+                }
+
+                GameplayInputToken token = gate.PushMode(this, GameplayInputMode.Dialogue);
+                if (!token.IsValid)
+                    return false;
+
+                inputGate = gate;
+                inputToken = token;
             }
-
-            GameplayInputToken token = gate.PushMode(this, GameplayInputMode.Dialogue);
-            if (!token.IsValid)
-                return false;
-
-            inputGate = gate;
-            inputToken = token;
 
             if (triggerOnce)
                 playedDialogueIds.Add(data.DialogueId);
 
             activeCompletion = onEnded;
             playbackMode = mode;
+            autoMinimumLineDuration = minimumLineDuration;
+            autoCharactersPerSecond = autoAdvanceCharactersPerSecond;
+            autoInterLineGap = interLineGap;
             cancellationRequested = false;
-            playbackRoutine = StartCoroutine(PlayRoutine(data, leftCharacter, rightCharacter));
+            playbackRoutine = StartCoroutine(PlayRoutine(data, leftCharacter, rightCharacter, mirrorForAudere));
             return true;
         }
 
@@ -164,7 +207,8 @@ namespace Audere.Dialogue
         private IEnumerator PlayRoutine(
             DialogueData data,
             DialogueCharacterCatalog.Entry leftCharacter,
-            DialogueCharacterCatalog.Entry rightCharacter)
+            DialogueCharacterCatalog.Entry rightCharacter,
+            bool mirrorForAudere)
         {
             if (playbackMode == DialoguePlaybackMode.GlobalTimePause)
             {
@@ -176,17 +220,26 @@ namespace Audere.Dialogue
             if (dialogueGroup != null)
             {
                 dialogueGroup.alpha = 1f;
-                dialogueGroup.interactable = true;
-                dialogueGroup.blocksRaycasts = true;
+                bool takesInput = playbackMode != DialoguePlaybackMode.AutoAdvanceNoInput;
+                dialogueGroup.interactable = takesInput;
+                dialogueGroup.blocksRaycasts = takesInput;
             }
 
-            DialogueSpeakerSide firstSpeaker = data.Lines[0].Speaker;
+            DialogueSpeakerSide firstSpeaker = DisplaySide(data.Lines[0].Speaker, mirrorForAudere);
+            Sprite leftPortrait = mirrorForAudere
+                ? data.RightPortraitOverride
+                : data.LeftPortraitOverride;
+            Sprite rightPortrait = mirrorForAudere
+                ? data.LeftPortraitOverride
+                : data.RightPortraitOverride;
             leftSlot.PrepareForEntrance(
                 leftCharacter,
-                firstSpeaker == DialogueSpeakerSide.Left);
+                firstSpeaker == DialogueSpeakerSide.Left,
+                leftPortrait);
             rightSlot.PrepareForEntrance(
                 rightCharacter,
-                firstSpeaker == DialogueSpeakerSide.Right);
+                firstSpeaker == DialogueSpeakerSide.Right,
+                rightPortrait);
 
             yield return AnimateCharactersIn();
 
@@ -200,12 +253,31 @@ namespace Audere.Dialogue
                 if (currentBubble != null)
                     yield return currentBubble.PopOut();
 
-                DialogueCharacterSlotView speakingSlot = line.Speaker == DialogueSpeakerSide.Left
+                DialogueSpeakerSide displaySpeaker = DisplaySide(line.Speaker, mirrorForAudere);
+                DialogueCharacterSlotView speakingSlot = displaySpeaker == DialogueSpeakerSide.Left
                     ? leftSlot
                     : rightSlot;
 
-                leftSlot.SetPresentation(leftCharacter, line.Speaker == DialogueSpeakerSide.Left, line.Text);
-                rightSlot.SetPresentation(rightCharacter, line.Speaker == DialogueSpeakerSide.Right, line.Text);
+                if (line.PortraitOverride != null)
+                {
+                    if (displaySpeaker == DialogueSpeakerSide.Left)
+                        leftPortrait = line.PortraitOverride;
+                    else
+                        rightPortrait = line.PortraitOverride;
+                }
+
+                leftSlot.SetPresentation(
+                    leftCharacter,
+                    displaySpeaker == DialogueSpeakerSide.Left,
+                    line.Text,
+                    leftPortrait,
+                    displaySpeaker == DialogueSpeakerSide.Left && line.GlitchPortraitTransition);
+                rightSlot.SetPresentation(
+                    rightCharacter,
+                    displaySpeaker == DialogueSpeakerSide.Right,
+                    line.Text,
+                    rightPortrait,
+                    displaySpeaker == DialogueSpeakerSide.Right && line.GlitchPortraitTransition);
 
                 TMP_Text text = speakingSlot.Bubble != null ? speakingSlot.Bubble.DialogueText : null;
                 if (bubbleDelay > 0f)
@@ -221,13 +293,30 @@ namespace Audere.Dialogue
                     break;
 
                 if (text != null)
-                    yield return TypeLine(text);
+                    yield return TypeLine(
+                        text,
+                        playbackMode == DialoguePlaybackMode.AutoAdvanceNoInput
+                            ? autoCharactersPerSecond
+                            : charactersPerSecond);
 
                 if (CancelPressed())
                     break;
 
-                while (!AdvancePressed() && !CancelPressed())
-                    yield return null;
+                if (playbackMode == DialoguePlaybackMode.AutoAdvanceNoInput)
+                {
+                    float typedDuration = text != null
+                        ? text.textInfo.characterCount / Mathf.Max(1f, autoCharactersPerSecond)
+                        : 0f;
+                    float totalDuration = Mathf.Max(autoMinimumLineDuration, typedDuration + .55f);
+                    yield return WaitUnscaled(Mathf.Max(0f, totalDuration - typedDuration));
+                    if (autoInterLineGap > 0f)
+                        yield return WaitUnscaled(autoInterLineGap);
+                }
+                else
+                {
+                    while (!AdvancePressed() && !CancelPressed())
+                        yield return null;
+                }
 
                 if (CancelPressed())
                     break;
@@ -278,7 +367,7 @@ namespace Audere.Dialogue
             return 1f - Mathf.Pow(1f - value, 3f);
         }
 
-        private IEnumerator TypeLine(TMP_Text text)
+        private IEnumerator TypeLine(TMP_Text text, float speed)
         {
             text.maxVisibleCharacters = 0;
             text.ForceMeshUpdate();
@@ -302,7 +391,7 @@ namespace Audere.Dialogue
                     yield break;
                 }
 
-                visibleCharacters += charactersPerSecond * Time.unscaledDeltaTime;
+                visibleCharacters += Mathf.Max(1f, speed) * Time.unscaledDeltaTime;
                 text.maxVisibleCharacters = Mathf.Min(characterCount, Mathf.FloorToInt(visibleCharacters));
                 yield return null;
             }
@@ -446,6 +535,22 @@ namespace Audere.Dialogue
                 cancellationRequested = true;
 
             return cancellationRequested;
+        }
+
+        private static bool ShouldMirrorForAudere(DialogueData data)
+        {
+            return data != null &&
+                   data.RightCharacter == DialogueCharacterId.Audere &&
+                   data.LeftCharacter != DialogueCharacterId.Audere;
+        }
+
+        private static DialogueSpeakerSide DisplaySide(DialogueSpeakerSide authoredSide, bool mirror)
+        {
+            if (!mirror)
+                return authoredSide;
+            return authoredSide == DialogueSpeakerSide.Left
+                ? DialogueSpeakerSide.Right
+                : DialogueSpeakerSide.Left;
         }
     }
 }

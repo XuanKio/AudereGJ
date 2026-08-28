@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D2_SCHOOL_COOP_TIMOR_START
+  m_EditorClassIdentifier: 
+  dialogueId: d2-school-coop-timor-start
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 1
+    text: "\u0110\u1EC3 Bianca \u0111i tr\u01B0\u1EDBc."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "Ch\u1EDD c\xF4 \u1EA5y m\u1EDF \u0111\u01B0\u1EDDng r\u1ED3i c\u1EADu
+      theo sau."
+    portraitOverride: {fileID: 0}

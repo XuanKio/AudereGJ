@@ -28,6 +28,14 @@ Tài liệu này ghi lại cách biểu đạt chuyển động nhân vật tron
 - Mọi step giữ direct reference tới actor, target và renderer; không tìm actor toàn cục ở runtime.
 - Khi thay placeholder bằng animation thật, giữ nguyên vị trí kết thúc và thời điểm step báo
   `Completed` để các dialogue/action kế tiếp không đổi nhịp.
+- Mọi actor body dùng Sorting Layer `Player`, Order in Layer `5`; grounded shadow dùng cùng
+  Sorting Layer `Player`, Order in Layer `4`. Author quy tắc này trên prefab để Scene 30 và các
+  scene sau chỉ kế thừa, không tạo override riêng cho từng nhân vật.
+- COOP dùng `SortingGroup` trên root prefab Player/Bianca để xếp **toàn bộ actor**: tile phía
+  trên vẽ sau (group 5), tile phía dưới vẽ trước (group 6). `GridPlayer.GroundSortY` lấy Y của
+  bàn chân trên sàn, trừ offset pivot và không cộng độ cao hop; cùng hàng giữ tie ổn định.
+  Order nội bộ body/shadow vẫn 5/4. `CooperativePuzzleSession` sở hữu thay đổi group trong
+  attempt và reset về authored order khi kết thúc/cancel; story ngoài COOP không bị ép Y-sort.
 
 ## 3. Motion beat dùng lại
 
@@ -36,6 +44,8 @@ Tài liệu này ghi lại cách biểu đạt chuyển động nhân vật tron
 | `TileHop` | Nhân vật story đi từng tile | Hop tới target; `0.32s`, arc `0.075` world, landing `0.10s`; hướng nhìn theo chiều đi | Established implementation |
 | `StartleHop` | Giật mình tại chỗ | `VerticalInPlace`: khóa X/Z, chỉ Y tăng theo arc rồi trở về standing baseline (bàn chân ở tâm tile); `0.19s`, arc `0.09`, landing `0.10s`; đổi hướng sau cú hop | Established implementation, visual là placeholder |
 | `Nudge` | Nhích gần rất nhẹ | `MoveActorStep` ngắn khoảng `0.14s`, không thêm bounce lớn | Established implementation |
+| `TurnAway` | Quay đi trước khi rời cảnh | `SetActorFacingStep` đổi `flipX` ở một StoryStep riêng, không tạo displacement | Established implementation |
+| `LeaveFade` | Nhân vật mờ khỏi cảnh sau locomotion | `SpriteGroupFadeStep` tách khỏi hop; lưu authored alpha của body/shadow và có reset step cho replay | Established implementation |
 | `LeanInterest` | Audere bị thu hút bởi một lựa chọn | Nhích nhẹ về phía đối tượng quan tâm rồi có thể quay lại anchor | Established implementation |
 
 `StartleHop` không phải cú nhảy vui mừng. Silhouette cần đọc là phản xạ ngắn: bật lên một

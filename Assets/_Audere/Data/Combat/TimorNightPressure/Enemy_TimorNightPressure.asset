@@ -1,0 +1,394 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ca86d61b03b73f42aa06816f765d42e, type: 3}
+  m_Name: Enemy_TimorNightPressure
+  m_EditorClassIdentifier: 
+  enemyId: d1-evening-timor-night-pressure
+  displayName: Timor
+  actorPrefab: {fileID: 692416596494224280, guid: 578c45c2bb9ba0b44b7e71574f442be9, type: 3}
+  phasePolicy: 3
+  sharedMaxHealth: 36
+  phases:
+  - phaseId: night-pressure-01
+    maxHealth: 36
+    sharedExitThreshold: 0
+    duration: 6
+    moveSet: {fileID: 11400000, guid: a64fe542192b34f4f9c6224bde0790af, type: 2}
+    dialogueCues:
+    - cueId: timor-night-pressure-01
+      oneShotKey: timor-night-pressure-01
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 6fcedadd6a2cf944ea791ed6680dac7b, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.15
+      charactersPerSecond: 24
+      interLineGap: 0.12
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 11400000, guid: abe674ba8bddba048ac9acaedae769a6, type: 2}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    allowsPlayerDefeat: 0
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: night-pressure-02
+    maxHealth: 36
+    sharedExitThreshold: 0
+    duration: 6
+    moveSet: {fileID: 11400000, guid: 69e789a753f4b91468a602353c8df0b6, type: 2}
+    dialogueCues:
+    - cueId: timor-night-pressure-02
+      oneShotKey: timor-night-pressure-02
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 7bedae127394fc3418744bfcff6cce52, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.15
+      charactersPerSecond: 24
+      interLineGap: 0.12
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 11400000, guid: e8f978614109b9648bc0398add910db7, type: 2}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    allowsPlayerDefeat: 0
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: night-pressure-03
+    maxHealth: 36
+    sharedExitThreshold: 0
+    duration: 6
+    moveSet: {fileID: 11400000, guid: 911a34158c0db8f4bbfdd8d06a98b3af, type: 2}
+    dialogueCues:
+    - cueId: timor-night-pressure-03
+      oneShotKey: timor-night-pressure-03
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: d6712ab65ad74534099ad4faaa593a7c, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.15
+      charactersPerSecond: 24
+      interLineGap: 0.12
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 11400000, guid: 297d786740086a143929430b5111e7d3, type: 2}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    allowsPlayerDefeat: 0
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: night-pressure-04
+    maxHealth: 36
+    sharedExitThreshold: 0
+    duration: 6
+    moveSet: {fileID: 11400000, guid: 4c62fde6037ab984aaeb18f0ebcac27a, type: 2}
+    dialogueCues:
+    - cueId: timor-night-pressure-04
+      oneShotKey: timor-night-pressure-04
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 72d71e0614c36d940859997a383ac7f1, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.15
+      charactersPerSecond: 24
+      interLineGap: 0.12
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 11400000, guid: e2358b0511d30c245a7cfc0a360be8be, type: 2}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    allowsPlayerDefeat: 0
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: night-pressure-05
+    maxHealth: 36
+    sharedExitThreshold: 0
+    duration: 6
+    moveSet: {fileID: 11400000, guid: 83eb6ada4a2f7134a9110ea705d52719, type: 2}
+    dialogueCues:
+    - cueId: timor-night-pressure-05
+      oneShotKey: timor-night-pressure-05
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: edc6d395fec409848a517669d4407507, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.15
+      charactersPerSecond: 24
+      interLineGap: 0.12
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 11400000, guid: 590c846e1dec952419b74ad64d6a48d8, type: 2}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    allowsPlayerDefeat: 0
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: night-pressure-06
+    maxHealth: 36
+    sharedExitThreshold: 0
+    duration: 6
+    moveSet: {fileID: 11400000, guid: b54ecc2b40c762f43b2db7edf8e4ee6c, type: 2}
+    dialogueCues:
+    - cueId: timor-night-pressure-06
+      oneShotKey: timor-night-pressure-06
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: ac89ba57248caa748b7fe4e6b2ff71fa, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.15
+      charactersPerSecond: 24
+      interLineGap: 0.12
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 11400000, guid: 313f976d29f7673489428c5d40dcc4e9, type: 2}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    allowsPlayerDefeat: 0
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: night-pressure-07
+    maxHealth: 36
+    sharedExitThreshold: 0
+    duration: 6
+    moveSet: {fileID: 11400000, guid: a40b6d868b02baa45b99f8fad96b804d, type: 2}
+    dialogueCues:
+    - cueId: timor-night-pressure-07
+      oneShotKey: timor-night-pressure-07
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: c0e0a27495a1013429e45d7352853599, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.15
+      charactersPerSecond: 24
+      interLineGap: 0.12
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 11400000, guid: 0126d4e081027ee43af8c4744134886c, type: 2}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    allowsPlayerDefeat: 0
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: night-pressure-08
+    maxHealth: 36
+    sharedExitThreshold: 0
+    duration: 6
+    moveSet: {fileID: 11400000, guid: f5a5ef2d66cc22c44b2fe85e3001ff41, type: 2}
+    dialogueCues:
+    - cueId: timor-night-pressure-08
+      oneShotKey: timor-night-pressure-08
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 283757f9cc6924046afa9c70cfedd151, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.15
+      charactersPerSecond: 24
+      interLineGap: 0.12
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 11400000, guid: e33b3add0ce86ac4a8d6a26f0b5adf43, type: 2}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    allowsPlayerDefeat: 0
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: night-pressure-09
+    maxHealth: 36
+    sharedExitThreshold: 0
+    duration: 6
+    moveSet: {fileID: 11400000, guid: af5a5c892fdbbbe4cb683cec670ed4ac, type: 2}
+    dialogueCues:
+    - cueId: timor-night-pressure-09
+      oneShotKey: timor-night-pressure-09
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 324038abfdb23794d9b1787f5ead610a, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.15
+      charactersPerSecond: 24
+      interLineGap: 0.12
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 11400000, guid: 17b602a8539b02f4ba5e03e157d5e402, type: 2}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    allowsPlayerDefeat: 0
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: night-pressure-10
+    maxHealth: 36
+    sharedExitThreshold: 0
+    duration: 6
+    moveSet: {fileID: 11400000, guid: 405cca47dde17244db4d41ee6c79f811, type: 2}
+    dialogueCues:
+    - cueId: timor-night-pressure-10
+      oneShotKey: timor-night-pressure-10
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 04f2f171c88df214fb95de86a696e9df, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.15
+      charactersPerSecond: 24
+      interLineGap: 0.12
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 11400000, guid: f4f689e229ef6df40bb4996eda29fa22, type: 2}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    allowsPlayerDefeat: 0
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: night-pressure-11
+    maxHealth: 36
+    sharedExitThreshold: 0
+    duration: 30
+    moveSet: {fileID: 11400000, guid: 97db09d14a836cd43baef4e80b40b984, type: 2}
+    dialogueCues:
+    - cueId: timor-night-pressure-11
+      oneShotKey: timor-night-pressure-11
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: bf20c0dbe65d1b24fbf5ec2159175f1c, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.15
+      charactersPerSecond: 24
+      interLineGap: 0.12
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 1
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 1
+    spawnDice: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 30

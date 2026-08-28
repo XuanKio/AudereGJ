@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D1_TIMOR_NIGHT_PRESSURE_BARK_07
+  m_EditorClassIdentifier: 
+  dialogueId: d1-timor-night-pressure-bark-07
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  rightPortraitOverride: {fileID: 4635894209233862288, guid: 402a6704a07a4bc49a4c347dd1722afe, type: 3}
+  lines:
+  - speaker: 1
+    text: "T\u1EDB \u0111\xE3 \u1EDF \u0111\xE2y khi ch\u1EB3ng c\xF2n ai."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "Sao c\u1EADu l\u1EA1i kh\xF4ng tin t\u1EDB?"
+    portraitOverride: {fileID: 0}

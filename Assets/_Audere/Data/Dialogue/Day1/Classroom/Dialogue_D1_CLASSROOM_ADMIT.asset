@@ -15,6 +15,9 @@ MonoBehaviour:
   dialogueId: d1-classroom-admit
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: 5003323414229244817, guid: aef14cf774eb96745a1ce7b2b831128f, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 0
     text: "Ch\u1EAFc l\xE0 c\xF3."
+    portraitOverride: {fileID: 0}

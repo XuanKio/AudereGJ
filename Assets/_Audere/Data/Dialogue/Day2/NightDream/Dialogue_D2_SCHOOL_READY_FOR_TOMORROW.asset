@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D2_SCHOOL_READY_FOR_TOMORROW
+  m_EditorClassIdentifier: 
+  dialogueId: d2-school-ready-for-tomorrow
+  leftCharacter: 1
+  rightCharacter: 4
+  leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 1
+    text: "V\u1EADy l\xE0 \u0111\u1ED3 cho ng\xE0y mai \u0111\u1EE7 r\u1ED3i."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "Mai b\u1ECDn m\xECnh trang tr\xED b\u1EA3ng nh\xE9."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "R\u1ED3i chu\u1EA9n b\u1ECB n\u1ED1t v\u1EDBi c\u1EA3 l\u1EDBp."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 0
+    text: "\u2026V\u1EDBi m\u1ECDi ng\u01B0\u1EDDi n\u1EEFa \xE0?"
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "\u1EEA. Chia nhau l\xE0m th\xF4i."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 0
+    text: "Ph\u1EA7n b\u1EA3ng\u2026 t\u1EDB v\u1EABn mu\u1ED1n l\xE0m."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "\u1EEA, mai l\xE0m ti\u1EBFp."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

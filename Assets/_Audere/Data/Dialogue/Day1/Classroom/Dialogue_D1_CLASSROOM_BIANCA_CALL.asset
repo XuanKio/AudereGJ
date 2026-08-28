@@ -15,6 +15,9 @@ MonoBehaviour:
   dialogueId: d1-classroom-bianca-call
   leftCharacter: 1
   rightCharacter: 4
+  leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
+  rightPortraitOverride: {fileID: 7503800403365798388, guid: 03f69c0d5de4d5b4982fff343666a5cb, type: 3}
   lines:
   - speaker: 1
     text: Audere?
+    portraitOverride: {fileID: 0}

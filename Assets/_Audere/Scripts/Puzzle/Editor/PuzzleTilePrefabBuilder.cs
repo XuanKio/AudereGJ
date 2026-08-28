@@ -21,7 +21,8 @@ namespace Audere.Puzzle.Editor
 
             BoardTile grassPrefab = BuildGrassPrefab();
             BoardTile goalPrefab = BuildGoalPrefab();
-            PuzzleTileCatalog catalog = BuildCatalog(grassPrefab, goalPrefab);
+            BoardTile oneUsePrefab = BuildOneUsePrefab();
+            PuzzleTileCatalog catalog = BuildCatalog(grassPrefab, goalPrefab, oneUsePrefab);
             AssignCatalogToOpenScenes(catalog);
 
             AssetDatabase.SaveAssets();
@@ -118,7 +119,56 @@ namespace Audere.Puzzle.Editor
             }
         }
 
-        private static PuzzleTileCatalog BuildCatalog(BoardTile grassPrefab, BoardTile goalPrefab)
+        private static BoardTile BuildOneUsePrefab()
+        {
+            BoardTile existing = AssetDatabase.LoadAssetAtPath<BoardTile>(
+                PuzzleContentConstants.AssetPaths.OneUsePrefab);
+            if (existing != null)
+                return existing;
+
+            Sprite grassSprite = AssetDatabase.LoadAllAssetsAtPath(GrassSourcePath)
+                .OfType<Sprite>()
+                .FirstOrDefault();
+            if (grassSprite == null)
+                throw new System.InvalidOperationException($"No Sprite found in {GrassSourcePath}.");
+
+            GameObject root = new GameObject("OneUse");
+            try
+            {
+                SpriteRenderer renderer = root.AddComponent<SpriteRenderer>();
+                renderer.sprite = grassSprite;
+                renderer.color = new Color32(196, 73, 88, 255);
+                renderer.sortingOrder = 0;
+
+                OneUseTileBehaviour behaviour = root.AddComponent<OneUseTileBehaviour>();
+                SerializedObject serializedBehaviour = new SerializedObject(behaviour);
+                serializedBehaviour.FindProperty("tileRenderer").objectReferenceValue = renderer;
+                serializedBehaviour.ApplyModifiedPropertiesWithoutUndo();
+
+                BoardTile tile = root.AddComponent<BoardTile>();
+                SerializedObject serializedTile = new SerializedObject(tile);
+                serializedTile.FindProperty("tileType").enumValueIndex = (int)PuzzleTileType.OneUse;
+                serializedTile.FindProperty("spriteRenderer").objectReferenceValue = renderer;
+                serializedTile.ApplyModifiedPropertiesWithoutUndo();
+
+                GameObject savedPrefab = PrefabUtility.SaveAsPrefabAsset(
+                    root,
+                    PuzzleContentConstants.AssetPaths.OneUsePrefab);
+                if (savedPrefab == null)
+                    throw new System.InvalidOperationException("Unity could not save OneUse.prefab.");
+
+                return savedPrefab.GetComponent<BoardTile>();
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        private static PuzzleTileCatalog BuildCatalog(
+            BoardTile grassPrefab,
+            BoardTile goalPrefab,
+            BoardTile oneUsePrefab)
         {
             PuzzleTileCatalog catalog = AssetDatabase.LoadAssetAtPath<PuzzleTileCatalog>(
                 PuzzleContentConstants.AssetPaths.TileCatalog);
@@ -133,6 +183,7 @@ namespace Audere.Puzzle.Editor
             SerializedProperty entries = serializedCatalog.FindProperty("entries");
             AddOrUpdateEntry(entries, PuzzleTileType.Grass, grassPrefab);
             AddOrUpdateEntry(entries, PuzzleTileType.Goal, goalPrefab);
+            AddOrUpdateEntry(entries, PuzzleTileType.OneUse, oneUsePrefab);
             serializedCatalog.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(catalog);
             return catalog;

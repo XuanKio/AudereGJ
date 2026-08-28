@@ -18,7 +18,7 @@ MonoBehaviour:
     portrait: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
   - character: 2
     displayName: Timor
-    portrait: {fileID: 1651829463544687908, guid: 28d3115c877f4b54198a2715eef13e33, type: 3}
+    portrait: {fileID: 188140060781976214, guid: 8b9bf032ca2b2d745b01ed08e5c65d23, type: 3}
   - character: 3
     displayName: "C\xF4 gi\xE1o"
     portrait: {fileID: -8234531690603157784, guid: 991479b1422f0004c825ea3362e68224, type: 3}
@@ -27,4 +27,4 @@ MonoBehaviour:
     portrait: {fileID: 7503800403365798388, guid: 03f69c0d5de4d5b4982fff343666a5cb, type: 3}
   - character: 5
     displayName: "Kho\u1EA3ng L\u1EB7ng"
-    portrait: {fileID: 0}
+    portrait: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}

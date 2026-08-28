@@ -15,6 +15,9 @@ MonoBehaviour:
   dialogueId: d1-classroom-bianca-exit
   leftCharacter: 1
   rightCharacter: 4
+  leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  rightPortraitOverride: {fileID: 7203529753858926249, guid: 5a29a2e57d0d13b42b26519f3b021631, type: 3}
   lines:
   - speaker: 1
     text: "Kh\xF4ng ti\u1EC7n c\u0169ng kh\xF4ng sao."
+    portraitOverride: {fileID: 0}

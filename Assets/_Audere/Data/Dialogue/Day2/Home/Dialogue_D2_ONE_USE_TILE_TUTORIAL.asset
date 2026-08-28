@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D2_ONE_USE_TILE_TUTORIAL
+  m_EditorClassIdentifier: 
+  dialogueId: d2-one-use-tile-tutorial
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 1
+    text: "\xD4 \u0111\u1ECF ch\u1EC9 \u0111\u1EE9ng \u0111\u01B0\u1EE3c m\u1ED9t
+      l\u1EA7n."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "R\u1EDDi kh\u1ECFi n\xF3 r\u1ED3i s\u1EBD kh\xF4ng quay l\u1EA1i \u0111\u01B0\u1EE3c."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "...T\u1EDB hi\u1EC3u."
+    portraitOverride: {fileID: 0}

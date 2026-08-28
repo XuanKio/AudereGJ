@@ -157,7 +157,18 @@ namespace Audere.EditorTools
 
                 renderer.color = new Color(.88f, .70f, .78f, 1f);
                 renderer.flipX = false;
-                renderer.sortingOrder = 6;
+                renderer.sortingLayerName = "Player";
+                renderer.sortingOrder = 5;
+                SpriteRenderer[] actorRenderers =
+                    contents.GetComponentsInChildren<SpriteRenderer>(true);
+                for (int index = 0; index < actorRenderers.Length; index++)
+                {
+                    SpriteRenderer candidate = actorRenderers[index];
+                    if (candidate == null || candidate == renderer)
+                        continue;
+                    candidate.sortingLayerName = "Player";
+                    candidate.sortingOrder = 4;
+                }
                 PrefabUtility.SaveAsPrefabAsset(contents, BiancaPrefabPath);
             }
             finally
@@ -233,9 +244,18 @@ namespace Audere.EditorTools
                 Timor = ConfigureDialogue(
                     "Dialogue_D1_CLASSROOM_TIMOR_INTERVENES",
                     "d1-classroom-timor-intervenes",
-                    new DialogueLine(DialogueSpeakerSide.Right, "Đừng trả lời vội."),
-                    new DialogueLine(DialogueSpeakerSide.Right, "Nhìn tớ này."),
-                    new DialogueLine(DialogueSpeakerSide.Right, "Tớ sẽ giúp cậu."),
+                    new[]
+                    {
+                        new DialogueLine(DialogueSpeakerSide.Left, "Tay tớ cứ run."),
+                        new DialogueLine(DialogueSpeakerSide.Left, "Tớ muốn trả lời…"),
+                        new DialogueLine(DialogueSpeakerSide.Left, "Nhưng trong đầu chỉ bảo: trốn đi."),
+                        new DialogueLine(DialogueSpeakerSide.Right, "Đừng trả lời vội."),
+                        new DialogueLine(DialogueSpeakerSide.Right, "Nhìn tớ này."),
+                        new DialogueLine(DialogueSpeakerSide.Right, "Nỗi lo đang trả lời thay cậu."),
+                        new DialogueLine(DialogueSpeakerSide.Left, "…Tớ không muốn nó chọn thay nữa."),
+                        new DialogueLine(DialogueSpeakerSide.Left, "Tớ phải tự đối diện với nó."),
+                        new DialogueLine(DialogueSpeakerSide.Right, "Ừ. Tớ sẽ ở đây."),
+                    },
                     DialogueCharacterId.Timor),
             };
         }
@@ -333,15 +353,19 @@ namespace Audere.EditorTools
 
             SerializedObject serialized = new SerializedObject(asset);
             serialized.FindProperty("dialogueId").stringValue = dialogueId;
+            // Project-wide presentation contract: Audere stays on the Left and the
+            // current counterpart stays on the Right.
             serialized.FindProperty("leftCharacter").enumValueIndex =
                 (int)DialogueCharacterId.Audere;
-            serialized.FindProperty("rightCharacter").enumValueIndex = (int)rightCharacter;
+            serialized.FindProperty("rightCharacter").enumValueIndex =
+                (int)rightCharacter;
             SerializedProperty serializedLines = serialized.FindProperty("lines");
             serializedLines.arraySize = lines.Length;
             for (int index = 0; index < lines.Length; index++)
             {
                 SerializedProperty target = serializedLines.GetArrayElementAtIndex(index);
-                target.FindPropertyRelative("speaker").enumValueIndex = (int)lines[index].Speaker;
+                target.FindPropertyRelative("speaker").enumValueIndex =
+                    (int)lines[index].Speaker;
                 target.FindPropertyRelative("text").stringValue = lines[index].Text;
                 if (lines[index].Text.Length > RecommendedDialogueCharacters)
                 {
@@ -803,7 +827,7 @@ namespace Audere.EditorTools
             SerializedObject serialized = new SerializedObject(encounter);
             serialized.FindProperty("encounterId").stringValue = "d1-classroom-khoang-lang";
             serialized.FindProperty("enemyDefinition").objectReferenceValue = enemy;
-            serialized.FindProperty("encounterDuration").floatValue = 30f;
+            serialized.FindProperty("encounterDuration").floatValue = 45f;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(encounter);
             return encounter;
@@ -1090,7 +1114,7 @@ namespace Audere.EditorTools
             serialized.FindProperty("victoryBehaviour").enumValueIndex =
                 (int)CombatResultBehaviour.Complete;
             serialized.FindProperty("defeatBehaviour").enumValueIndex =
-                (int)CombatResultBehaviour.Complete;
+                (int)CombatResultBehaviour.Retry;
             serialized.FindProperty("specialBehaviour").enumValueIndex =
                 (int)CombatResultBehaviour.Complete;
             serialized.ApplyModifiedPropertiesWithoutUndo();

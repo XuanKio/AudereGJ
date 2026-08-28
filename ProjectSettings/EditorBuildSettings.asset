@@ -12,11 +12,38 @@ EditorBuildSettings:
     path: Assets/_Audere/Scenes/10_MainMenu.unity
     guid: 130bfefa0eedc7e479fd97d7fe97c0ae
   - enabled: 1
-    path: Assets/_Audere/Scenes/20_Game.unity
+    path: Assets/_Audere/Scenes/20_D1_Home_Morning.unity
     guid: d7666dfee816cee489b73d4afcb17903
   - enabled: 1
     path: Assets/_Audere/Scenes/30_Classroom.unity
     guid: 2ad532a41e235184e850d0f79a39a51f
+  - enabled: 1
+    path: Assets/_Audere/Scenes/40_Evening.unity
+    guid: 89e315eac9f54714783b38bcbdaefeff
+  - enabled: 1
+    path: Assets/_Audere/Scenes/50_D2_Home_Morning.unity
+    guid: 8045dbd1c3dfc074eac8f9e731a98bdc
+  - enabled: 1
+    path: Assets/_Audere/Scenes/60_D2_School_Morning.unity
+    guid: c48d3a7111b841241b766dcfd68b672b
+  - enabled: 1
+    path: Assets/_Audere/Scenes/70_D2_Home_Night.unity
+    guid: b8aac04753b654b4e931bb44b2357f7f
+  - enabled: 1
+    path: Assets/_Audere/Scenes/80_D2_Dream.unity
+    guid: c02fa2aa6cb3690439b69550a59a1fe3
+  - enabled: 1
+    path: Assets/_Audere/Scenes/90_D2_Home_Awakening.unity
+    guid: f7d3b7987f6442e4c82df395003784ee
+  - enabled: 1
+    path: Assets/_Audere/Scenes/100_D3_Home_Morning.unity
+    guid: 6179e66cbed8b1848bd072dd8686d618
+  - enabled: 1
+    path: Assets/_Audere/Scenes/110_D3_School_Board.unity
+    guid: 54f03194907436b418d088c4f11842a0
+  - enabled: 1
+    path: Assets/_Audere/Scenes/120_D3_School_Teacher.unity
+    guid: 7955fcd5d443c324d8c596969d8b86dc
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

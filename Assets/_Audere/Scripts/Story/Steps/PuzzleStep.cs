@@ -109,8 +109,8 @@ namespace Audere.Story.Steps
                 controller.Cancel();
             }
 
-            if (Application.isPlaying)
-                normalizeOnCancel?.NormalizeNow();
+            if (isActiveAndEnabled && normalizeOnCancel != null)
+                normalizeOnCancel.NormalizeAfterCancel();
         }
 
         private void HandlePuzzleEnded(int session, PuzzleController controller, PuzzleResult result)

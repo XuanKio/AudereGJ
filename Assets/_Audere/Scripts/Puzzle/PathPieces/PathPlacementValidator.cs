@@ -11,7 +11,8 @@ namespace Audere.Puzzle.PathPieces
             Vector2Int origin,
             GridRotation rotation,
             Vector2Int playerPosition,
-            BoardManager board)
+            BoardManager board,
+            GridPlayer mover = null)
         {
             if (piece == null)
                 return PlacementResult.Invalid("No path piece selected.");
@@ -40,7 +41,7 @@ namespace Audere.Puzzle.PathPieces
             int firstMissingTileIndex = -1;
             for (int index = 1; index < absolutePath.Count; index++)
             {
-                if (board.ContainsCell(absolutePath[index]))
+                if (board.CanPlayerEnter(absolutePath[index], mover))
                     continue;
 
                 firstMissingTileIndex = index;

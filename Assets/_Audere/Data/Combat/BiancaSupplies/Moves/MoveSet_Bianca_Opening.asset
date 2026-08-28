@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 967723d69e90a4d499f2dff45bf25f11, type: 3}
+  m_Name: MoveSet_Bianca_Opening
+  m_EditorClassIdentifier: 
+  selectionPolicy: 0
+  entries:
+  - move: {fileID: 11400000, guid: 554092ff05236bf45a43c86ee3f8e715, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: c0e0c9df73a5a4948aecf4e46ebed82b, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 92979181f141cb04184a859bbc222651, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 8939a601046c1b64bab6c1b6e69a7502, type: 2}
+    weight: 1

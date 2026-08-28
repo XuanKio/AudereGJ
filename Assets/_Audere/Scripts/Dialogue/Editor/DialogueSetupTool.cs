@@ -148,11 +148,11 @@ namespace Audere.Dialogue.Editor
 
             SerializedProperty lines = serializedData.FindProperty("lines");
             lines.arraySize = 3;
-            ConfigureLine(lines.GetArrayElementAtIndex(0), DialogueSpeakerSide.Left,
+            ConfigureLine(lines.GetArrayElementAtIndex(0), DialogueSpeakerSide.Right,
                 "Nhật Linh ơi, có con cừu đang ăn cỏ kìa!");
-            ConfigureLine(lines.GetArrayElementAtIndex(1), DialogueSpeakerSide.Right,
+            ConfigureLine(lines.GetArrayElementAtIndex(1), DialogueSpeakerSide.Left,
                 "Mình thấy rồi. Cẩn thận đừng làm nó sợ nhé.");
-            ConfigureLine(lines.GetArrayElementAtIndex(2), DialogueSpeakerSide.Left,
+            ConfigureLine(lines.GetArrayElementAtIndex(2), DialogueSpeakerSide.Right,
                 "Ừ, chúng mình đi tiếp thôi!");
             serializedData.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(data);

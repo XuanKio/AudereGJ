@@ -18,21 +18,93 @@ MonoBehaviour:
   phasePolicy: 0
   sharedMaxHealth: 6
   phases:
-  - phaseId: phase-1-placeholder
-    maxHealth: 2
-    sharedExitThreshold: 4
-    duration: 8
-    moveSet: {fileID: 11400000, guid: 763b58cd6e0707948b39f13bcd20df2d, type: 2}
-    dialogueCues: []
-  - phaseId: phase-2-placeholder
-    maxHealth: 2
-    sharedExitThreshold: 2
-    duration: 8
-    moveSet: {fileID: 11400000, guid: 66c485523ccc9714cbe898a8d54246de, type: 2}
-    dialogueCues: []
-  - phaseId: phase-3-placeholder
-    maxHealth: 2
+  - phaseId: main-placeholder
+    maxHealth: 6
     sharedExitThreshold: 0
     duration: 8
-    moveSet: {fileID: 11400000, guid: f42dd60839b99e147993d5e18475df33, type: 2}
-    dialogueCues: []
+    moveSet: {fileID: 11400000, guid: 9b55ed69918671b4ba1d56f1ded1ecce, type: 2}
+    dialogueCues:
+    - cueId: khoang-lang-opening
+      oneShotKey: khoang-lang-opening
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 01efb1bdd30585440ad93d0c85bb321e, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.4
+      charactersPerSecond: 20
+      interLineGap: 0.18
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+    - cueId: khoang-lang-side-sweep
+      oneShotKey: khoang-lang-side-sweep
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: 8b154af9c35a5c549995b44fb9d695b7, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 9be37c79ac36f9c43bd6e1bff5cba1f6, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.4
+      charactersPerSecond: 20
+      interLineGap: 0.18
+      playLoseRhythmOnComplete: 1
+      requiredBeforeVictory: 0
+    - cueId: audere-timor-anchor
+      oneShotKey: audere-timor-anchor
+      trigger: 11
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: khoang-lang-side-sweep
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: b88538cdd35cff64088e212ca1083b47, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 0
+      minimumLineDuration: 1.4
+      charactersPerSecond: 20
+      interLineGap: 0.18
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 1
+    - cueId: khoang-lang-anxiety-field
+      oneShotKey: khoang-lang-anxiety-field
+      trigger: 2
+      triggerValue: 2
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 8a46e4b9bf3fd1142b9f8c0a69fc41b7, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 2
+      minimumLineDuration: 1.4
+      charactersPerSecond: 20
+      interLineGap: 0.18
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0

@@ -1,4 +1,5 @@
 using System.Collections;
+using Audere.Audio;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -45,14 +46,37 @@ namespace Audere.Core
             }
 
             IsBusy = true;
+            AudioService audio = AudioService.Instance;
+            audio?.SetMusicDuck(this, 0f);
             Debug.Log($"[SceneFlow] Loading '{sceneName}'...");
 
-            AsyncOperation op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
-            while (op != null && !op.isDone)
+            try
+            {
+                AsyncOperation op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+                while (op != null && !op.isDone)
+                    yield return null;
+                // Target Awake/Start registers its cover before releasing the load's silence.
                 yield return null;
+                Debug.Log($"[SceneFlow] Loaded '{sceneName}'.");
+            }
+            finally
+            {
+                audio?.ReleaseMusicOwner(this);
+                IsBusy = false;
+            }
+        }
 
-            Debug.Log($"[SceneFlow] Loaded '{sceneName}'.");
+        private void OnDisable()
+        {
+            StopAllCoroutines();
+            AudioService.Instance?.ReleaseMusicOwner(this);
             IsBusy = false;
+        }
+
+        private void OnDestroy()
+        {
+            AudioService.Instance?.ReleaseMusicOwner(this);
+            if (Instance == this) Instance = null;
         }
     }
 }

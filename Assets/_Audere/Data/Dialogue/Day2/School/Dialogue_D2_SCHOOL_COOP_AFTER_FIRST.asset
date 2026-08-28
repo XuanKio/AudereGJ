@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D2_SCHOOL_COOP_AFTER_FIRST
+  m_EditorClassIdentifier: 
+  dialogueId: d2-school-coop-after-first
+  leftCharacter: 1
+  rightCharacter: 4
+  leftPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 1
+    text: "Qua \u0111\u01B0\u1EE3c \u0111o\u1EA1n n\xE0y r\u1ED3i."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "\u1EEA. M\xECnh \u0111i ti\u1EBFp nh\xE9."
+    portraitOverride: {fileID: 0}

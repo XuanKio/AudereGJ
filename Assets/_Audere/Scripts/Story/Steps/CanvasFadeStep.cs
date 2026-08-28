@@ -1,4 +1,5 @@
 using System.Collections;
+using Audere.Audio;
 using UnityEngine;
 
 namespace Audere.Story.Steps
@@ -11,6 +12,12 @@ namespace Audere.Story.Steps
         [SerializeField, Min(0f)] private float duration = .45f;
         [SerializeField] private bool useUnscaledTime = true;
 
+        private void Awake()
+        {
+            // Register authored black covers before a delayed StoryEvent starts.
+            AudioService.Instance?.TrackScreenFade(canvasGroup);
+        }
+
         protected override IEnumerator Execute()
         {
             if (canvasGroup == null)
@@ -20,6 +27,7 @@ namespace Audere.Story.Steps
                 yield break;
             }
 
+            AudioService.Instance?.TrackScreenFade(canvasGroup);
             float startAlpha = canvasGroup.alpha;
             canvasGroup.interactable = false;
             if (targetAlpha > startAlpha)

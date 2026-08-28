@@ -15,10 +15,15 @@ MonoBehaviour:
   dialogueId: d1-combat-tutorial-overview
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 1
     text: "C\xF3 ba lo\u1EA1i c\u1EADu c\u1EA7n nh\u1EDB."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "T\u1EA5n c\xF4ng, khi\xEAn v\xE0 h\u1ED3i nh\u1ECBp."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "TIME v\u1EC1 0 l\xE0 m\xECnh ph\u1EA3i d\u1EEBng."
+    portraitOverride: {fileID: 0}

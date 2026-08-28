@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6d984a5d5787b34cb9bb63257f5f366, type: 3}
+  m_Name: Move_Bianca_6
+  m_EditorClassIdentifier: 
+  duration: 6.6
+  leadInDuration: 2.2
+  children:
+  - {fileID: 11400000, guid: b99a52a169a39e8499268513bf4ddee5, type: 2}
+  - {fileID: 11400000, guid: 3cd55b9c54d9b634090b1719f7517a71, type: 2}

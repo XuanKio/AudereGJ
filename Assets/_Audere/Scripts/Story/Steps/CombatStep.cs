@@ -56,6 +56,16 @@ namespace Audere.Story.Steps
                 yield break;
             }
 
+            if (defeatBehaviour == CombatResultBehaviour.Retry &&
+                !combatEncounterData.OutcomeRules.ShowRetryOnDefeat)
+            {
+                Debug.LogError(
+                    $"[CombatStep] '{name}' requests Retry but encounter '{combatEncounterData.name}' disables Retry on Defeat.",
+                    this);
+                FailStep();
+                yield break;
+            }
+
             if (!combatController.isActiveAndEnabled)
             {
                 Debug.LogError(

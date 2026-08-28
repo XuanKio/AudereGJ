@@ -19,6 +19,8 @@ Stage actors as readable story performances while keeping their world position, 
 - `Actor` represents the character's authored world pose. `Target Transform` represents the destination or ground pose; do not hardcode destination vectors in a StoryStep.
 - A hop has two simultaneous paths: the actor follows the visible arc, while the grounded shadow follows only the ground projection. An in-place reaction must leave the shadow at the same world pose.
 - Assign `CharacterMotionStep.Grounded Shadow` directly in production scenes. Runtime name fallback exists only for legacy compatibility.
+- Every story/puzzle actor body renderer uses Sorting Layer `Player`, Order in Layer `5`;
+  its grounded shadow renderer uses the same Sorting Layer `Player`, Order in Layer `4`.
 - The shadow must not inherit actor hop height, landing squash, horizontal flip, or cancellation residue. Keep its authored world rotation, scale, color, alpha, and material unchanged during actor staging.
 - Actor staging must not recolor, tint, fade, highlight, or otherwise restyle the tile beneath an actor. The shadow and floor tile remain visually basic and authored; communicate reactions through body position, facing, arc, and timing.
 - If Xuân explicitly requests a separate shadow or environment visual effect, author it as its own presentation action with clear ownership. Never hide that effect inside an actor movement or reaction step.

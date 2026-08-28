@@ -15,8 +15,12 @@ MonoBehaviour:
   dialogueId: d1-combat-tutorial-shield
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 0
     text: "\u0110\u1EA1n bi\u1EBFn m\u1EA5t r\u1ED3i\u2026"
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "M\u1EB7t khi\xEAn cho c\u1EADu m\u1ED9t kho\u1EA3ng th\u1EDF."
+    portraitOverride: {fileID: 0}

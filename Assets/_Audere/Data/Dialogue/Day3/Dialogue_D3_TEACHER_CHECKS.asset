@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D3_TEACHER_CHECKS
+  m_EditorClassIdentifier: 
+  dialogueId: d3-teacher-checks
+  leftCharacter: 1
+  rightCharacter: 3
+  leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 1
+    text: "Audere, em t\u1EC9nh r\u1ED3i \xE0?"
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "C\u1EE9 n\u1EB1m ngh\u1EC9 th\xEAm m\u1ED9t ch\xFAt nh\xE9."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "C\xF4 \u1EDF \u0111\xE2y. Kh\xF4ng c\u1EA7n v\u1ED9i."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 0
+    text: "D\u1EA1\u2026 em xin l\u1ED7i."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "Kh\xF4ng sao \u0111\xE2u. Em c\u1EE9 ngh\u1EC9 \u0111\xE3."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

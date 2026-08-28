@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D1_HOME_NIGHT_CONCLUSION
+  m_EditorClassIdentifier: 
+  dialogueId: d1-home-night-conclusion
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  rightPortraitOverride: {fileID: -4747829306167941163, guid: cdecd5c621db74b43927eb49d1f04191, type: 3}
+  lines:
+  - speaker: 1
+    text: "C\u1EADu kh\xF4ng bi\u1EBFt c\xF4 \u1EA5y mu\u1ED1n g\xEC \u0111\xE2u."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "T\u1EDB c\xF3 th\u1EC3 h\u1ECFi l\u1EA1i."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "R\u1ED3i n\u1EBFu c\xF4 \u1EA5y ti\u1EBFp t\u1EE5c nh\u1EDD th\xEC sao?"
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "N\u1EBFu nhi\u1EC1u qu\xE1... t\u1EDB s\u1EBD n\xF3i l\xE0 kh\xF4ng."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: Audere.
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "T\u1EDB bi\u1EBFt c\u1EADu \u0111ang lo."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "Nh\u01B0ng t\u1EDB v\u1EABn mu\u1ED1n tr\u1EA3 l\u1EDDi."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "Kh\xF4ng \u0111\u01B0\u1EE3c \u0111\xE2u, Audere."
+    portraitOverride: {fileID: 4635894209233862288, guid: 402a6704a07a4bc49a4c347dd1722afe, type: 3}
+  - speaker: 1
+    text: "T\u1EDB \u0111\xE3 th\u1EA5y chuy\u1EC7n g\xEC x\u1EA3y ra r\u1ED3i."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "Timor, \u0111\u1EEBng lo."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "\u0110\u1EEBng b\u1EA3o t\u1EDB \u0111\u1EEBng lo!"
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "C\u1EADu ph\u1EA3i nghe t\u1EDB l\u1EA7n n\xE0y."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "Tin t\u1EDB \u0111i."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "Gi\u1EEF kho\u1EA3ng c\xE1ch v\u1EDBi c\xF4 \u1EA5y."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "...T\u1EDB kh\xF4ng mu\u1ED1n."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: Audere.
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "L\u1EA7n n\xE0y, \u0111\u1EC3 t\u1EDB t\u1EF1 tr\u1EA3 l\u1EDDi."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "T\u1EDB kh\xF4ng th\u1EC3 \u0111\u1EC3 c\u1EADu l\xE0m v\u1EADy."
+    portraitOverride: {fileID: 0}

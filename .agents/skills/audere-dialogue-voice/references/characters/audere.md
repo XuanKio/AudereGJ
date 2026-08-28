@@ -2,7 +2,10 @@
 
 ## Evidence boundary
 
-The current project contains only a short Day 1 morning exchange and a short post-bathroom exchange for Audere. Her long-term characterization is therefore mostly `Design Intent`; details such as age, appearance in-world, broader history, school relationships, humor, and later arc state remain `Unresolved`.
+The current project contains Day 1 morning, classroom announcement, and Bianca recess exchanges for
+Audere. Her long-term characterization is still mostly `Design Intent`; details such as age,
+appearance in-world, broader history, school relationships, humor, and later arc state remain
+`Unresolved`.
 
 ## Character model
 
@@ -12,6 +15,9 @@ The current project contains only a short Day 1 morning exchange and a short pos
 - She accepts Timor's concrete direction to go wash up and allows him to accompany her.
 - After the bathroom task, she reports that the mint taste wakes her up, but immediately minimizes the improvement when Timor notices it.
 - She asks where breakfast is rather than independently stating the next action.
+- When Bianca leaves room for an answer during recess, Audere notices her trembling hands and
+  the impulse to flee. She says she does not want that impulse choosing for her and decides to
+  face it herself before the combat hand-off.
 
 ### Strongly Implied
 
@@ -24,6 +30,17 @@ The current project contains only a short Day 1 morning exchange and a short pos
 - Audere should not speak like someone clinically analyzing her own mental state.
 - Emotion appears through avoidance, hesitation, small decisions, confirmation-seeking, and omissions.
 - Her movement from dependence toward self-directed choice must be gradual; one scene cannot make her suddenly confident.
+- After the first classroom combat Victory, her hands still tremble. She answers Bianca with the
+  concrete sentence `Tớ muốn thử`, then chooses to write her own name. The success is acting while
+  fear remains, not becoming socially confident or cured.
+- In the night-message pressure beat, she initially defends small concrete possibilities: Bianca
+  is only asking, helping together could be enjoyable, and she could answer or learn gradually.
+  As Timor supplies more consequences, her replies shorten until she can no longer tell which
+  consequence she fears. This is implemented **Design Intent**, not a general clinical statement.
+- On Day 2 morning, she admits only `...Một chút` when Timor asks whether she is afraid of him.
+  She tries small boundaries such as `Tớ tự làm được`, `Tớ kiểm tra rồi`, and `...Timor`, but
+  complies after he narrows the instruction. Her thoughts about Bianca and the school event return
+  in short concrete lines and are interrupted rather than developed.
 
 ## Behavioral rules
 
@@ -62,5 +79,6 @@ The current project contains only a short Day 1 morning exchange and a short pos
 
 ## Current arc movement
 
-At the available Day 1 opening, Audere primarily receives structure from Timor. The supported next movement is a small independent choice or a slightly clearer answer, not complete independence or open resistance.
-
+At the current Day 2 implementation, Audere still primarily receives structure from Timor. The
+night rupture has made her wary enough to name a little fear and hesitate before obeying, but she
+does not yet sustain a refusal. This is recognition of cost, not independence or open resistance.

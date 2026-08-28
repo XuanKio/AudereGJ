@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91f6ea410c3eedb42bafa61c90c7e26a, type: 3}
+  m_Name: DiceBatch_TimorNightPressure_03
+  m_EditorClassIdentifier: 
+  spawnDelay: 1.1
+  dice:
+  - symbol: 0
+    normalizedPosition: {x: 0.16, y: 0.78}
+    normalizedDirection: {x: 0.7719303, y: -0.6357072}
+    speedMultiplier: 0.78
+  - symbol: 1
+    normalizedPosition: {x: 0.84, y: 0.72}
+    normalizedDirection: {x: -0.8395701, y: -0.54325134}
+    speedMultiplier: 0.85999995
+  - symbol: 2
+    normalizedPosition: {x: 0.18, y: 0.2}
+    normalizedDirection: {x: 0.7295372, y: 0.6839411}
+    speedMultiplier: 0.93999994

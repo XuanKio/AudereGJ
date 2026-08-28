@@ -1,6 +1,6 @@
 # Audere–Timor Relationship
 
-## Current relationship: Day 1 morning through classroom announcement
+## Current relationship: Day 1 through Day 2 home morning
 
 ### Established Canon
 
@@ -12,7 +12,8 @@
 - In class, Timor closes the decoration option before Audere acts; Audere yields and returns
   to her seat.
 - During recess, Bianca gives Audere room to accept or decline a small invitation. Before
-  Audere answers, Timor asks her to wait, look at him, and let him help.
+  Audere answers, Timor asks her to wait and look at him. Audere then names the concrete signs
+  of wanting to flee and chooses to face the anxiety herself; Timor says he will stay.
 
 ### Strongly Implied
 
@@ -58,13 +59,31 @@ These are qualitative writing bands, not numerical game state.
   Audere likes the task, then frames postponing the sign-up as rest after a nonstop morning.
   The lost choice still sounds like care.
 - The Bianca beat strengthens the same band: an ordinary classmate leaves a genuine pause,
-  and Timor steps into that pause before Audere can form her own response.
+  and Timor steps into that pause before Audere can answer. The beat also gives Audere a small
+  supported agency gain: she, not Timor, states the decision to face what is stopping her.
+- The post-combat continuation keeps this band: Audere gives Bianca her own answer and writes her
+  own name while still trembling, then thanks Timor for being present. Timor's reassurance remains
+  valuable and deepens trust, but the moment does not establish independence from him.
+- The implemented night-message beat now crosses from the upper edge of this band into the first
+  explicit `Restricted agency` conflict. Timor begins afraid and cites Audere's mother as proof that
+  trust is dangerous. Audere recognizes his worry but says she still wants to answer. Timor then
+  raises his voice, tells her she must listen, and says he cannot allow the reply. The scripted-defeat
+  encounter continues this attempt to contain her choice. This movement is **Design Intent**; the
+  exact family history, later recognition, and consequences remain `Unresolved`.
 
 ### 3. Restricted agency — Design Intent
 
 - Timor treats Audere's independent choice as danger to be contained.
 - Audere starts recognizing that relief has a cost.
 - Resistance should begin with small refusals or delayed compliance, not an instant decisive break.
+- The implemented night ending enters this band: after combat exhausts Audere, Timor reframes the
+  loss as evidence, restores his familiar soothing voice, and offers only refusal, delay, or silence.
+  The player chooses the form of withdrawal, but the earlier option to answer Bianca has disappeared.
+- The Day 2 home morning continues this band without another outburst. Audere admits she is a
+  little afraid of Timor; he knows and softens his voice, but immediately resumes directing each
+  task. Re-checking the bag and lock, choosing walking distance, and selecting the safest place to
+  stand make ordinary care increasingly exhaustive. Audere notices the cost through `...Timor`
+  and repeated pauses, not through an open break.
 
 ### 4. Open conflict — Unresolved
 

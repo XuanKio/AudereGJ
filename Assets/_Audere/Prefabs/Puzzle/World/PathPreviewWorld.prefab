@@ -54,10 +54,10 @@ MonoBehaviour:
   connectorTemplate: {fileID: 7323293085967286414}
   endpointSprite: {fileID: -7229646230898672557, guid: 5826bb178ed23674c947d484d7cdb422, type: 3}
   connectorSprite: {fileID: -998410569971287069, guid: ef044398ee454ec439ac28a85e256d92, type: 3}
-  endpointScaleToBoardTile: 0.86
-  connectorScaleToBoardTile: 0.2
-  connectorSpacingToBoardTile: 0.32
-  endpointClearanceToBoardTile: 0.06
+  endpointScaleToBoardTile: 0.82
+  connectorScaleToBoardTile: 0.22
+  connectorSpacingToBoardTile: 0.28
+  endpointClearanceToBoardTile: 0.05
   maximumConnectorCount: 32
   sortingOrder: 3
   positionSharpness: 20

@@ -12,6 +12,8 @@ namespace Audere.Combat.Editor
     {
         private const string EnemyPath = "Assets/_Audere/Data/Combat/Enemies/Enemy_KhoangLang.asset";
         private const string TutorialEnemyPath = "Assets/_Audere/Data/Combat/Enemies/Enemy_KhoangLang_TUTORIAL.asset";
+        private const string TutorialMoveSetPath =
+            "Assets/_Audere/Data/Combat/Moves/MoveSet_KhoangLang_P1_AimedFan.asset";
         private const string TutorialDataPath = "Assets/_Audere/Data/Combat/Tutorials/CombatTutorial_D1_CLASSROOM.asset";
         private const string EncounterPath = "Assets/_Audere/Data/Combat/CombatEncounter_D1_CLASSROOM_KHOANG_LANG.asset";
         private const string UiPrefabPath = "Assets/_Audere/Prefabs/UI/GameplayUIRoot.prefab";
@@ -108,9 +110,12 @@ namespace Audere.Combat.Editor
                 R("Ừ. Mình vẫn tiếp tục được."));
             DialogueData final = EnsureDialogue(
                 "FINAL", "d1-combat-tutorial-final",
-                R("Vậy là phần làm quen xong rồi."),
-                R("Giờ mình cùng đánh bại nỗi lo đó nhé."),
-                L("…Ừ."));
+                L("Càng im… nó càng lớn."),
+                R("Ừ."),
+                R("Đừng cố nghĩ hết mọi chuyện sau đó."),
+                R("Chỉ giữ lại câu cậu thật sự muốn nói."),
+                L("Tớ muốn thử."),
+                R("Vậy đừng để mất câu đó."));
 
             CombatEnemyDefinition enemy = AssetDatabase.LoadAssetAtPath<CombatEnemyDefinition>(EnemyPath);
             if (enemy == null)
@@ -120,12 +125,18 @@ namespace Audere.Combat.Editor
 
             SerializedObject productionEnemy = new SerializedObject(enemy);
             SerializedProperty productionPhases = productionEnemy.FindProperty("phases");
-            if (productionPhases.arraySize != 3)
-                throw new InvalidOperationException("D1 Classroom tutorial expects the authored three-phase prototype.");
-            for (int i = 0; i < productionPhases.arraySize; i++)
-                productionPhases.GetArrayElementAtIndex(i).FindPropertyRelative("dialogueCues").arraySize = 0;
+            if (productionPhases.arraySize != 1 || enemy.GetPhase(0).MaxHealth != 6)
+                throw new InvalidOperationException("D1 Classroom production combat expects one authored 6 HP phase.");
+            // Production combat owns its narrative cues. Reapplying the isolated
+            // tutorial must never erase authored boss dialogue or story beats.
             productionEnemy.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(enemy);
+
+            CombatMoveSet tutorialMoveSet = AssetDatabase.LoadAssetAtPath<CombatMoveSet>(TutorialMoveSetPath);
+            if (tutorialMoveSet == null)
+                throw new InvalidOperationException($"Missing tutorial moveset at '{TutorialMoveSetPath}'.");
+            if (!tutorialMoveSet.Validate(out string tutorialMoveSetError))
+                throw new InvalidOperationException(tutorialMoveSetError);
 
             CombatEnemyDefinition tutorialEnemy = LoadOrCreate<CombatEnemyDefinition>(TutorialEnemyPath);
             SerializedObject tutorialEnemySerialized = new SerializedObject(tutorialEnemy);
@@ -141,7 +152,9 @@ namespace Audere.Combat.Editor
             tutorialPhase.FindPropertyRelative("maxHealth").intValue = 99;
             tutorialPhase.FindPropertyRelative("sharedExitThreshold").intValue = 0;
             tutorialPhase.FindPropertyRelative("duration").floatValue = 120f;
-            tutorialPhase.FindPropertyRelative("moveSet").objectReferenceValue = enemy.GetPhase(0).MoveSet;
+            // Keep the learning round predictable even though the production phase
+            // loops all authored projectile patterns.
+            tutorialPhase.FindPropertyRelative("moveSet").objectReferenceValue = tutorialMoveSet;
             tutorialPhase.FindPropertyRelative("dialogueCues").arraySize = 0;
             tutorialEnemySerialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(tutorialEnemy);
@@ -249,7 +262,8 @@ namespace Audere.Combat.Editor
             for (int i = 0; i < lineSpecs.Length; i++)
             {
                 SerializedProperty line = lines.GetArrayElementAtIndex(i);
-                line.FindPropertyRelative("speaker").enumValueIndex = (int)lineSpecs[i].Speaker;
+                line.FindPropertyRelative("speaker").enumValueIndex =
+                    (int)lineSpecs[i].Speaker;
                 line.FindPropertyRelative("text").stringValue = lineSpecs[i].Text;
             }
             serialized.ApplyModifiedPropertiesWithoutUndo();

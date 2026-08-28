@@ -14,10 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   encounterId: combat-sample
   enemyDefinition: {fileID: 11400000, guid: de256cc1e9233604397d21be3b514d8f, type: 2}
+  tutorialData: {fileID: 0}
+  music: 9003
   encounterDuration: 40
+  outcomeRules:
+    allowedOutcomes: 7
+    playerDefeatGate: 0
+    showRetryOnDefeat: 1
+  defeatPresentation:
+    dialogue: {fileID: 0}
+    hazardFadeDuration: 0.55
+  victoryFadeDuration: 0
   dicePerBatch: 5
   batchRespawnDelay: 0.3
   minimumDiceSpeed: 115
   maximumDiceSpeed: 185
   playerHitInvulnerability: 0.55
   bulletTimePenaltySeconds: 3
+  maximumAttacksPerBatch: 0

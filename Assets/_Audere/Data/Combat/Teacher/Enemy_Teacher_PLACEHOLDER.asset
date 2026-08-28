@@ -1,0 +1,137 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ca86d61b03b73f42aa06816f765d42e, type: 3}
+  m_Name: Enemy_Teacher_PLACEHOLDER
+  m_EditorClassIdentifier: 
+  enemyId: d3-teacher-perceived-pressure
+  displayName: "C\xF4 gi\xE1o"
+  actorPrefab: {fileID: 6203938331374984877, guid: 6db0f4902ca560a45a3bf835520ef3d5, type: 3}
+  phasePolicy: 1
+  sharedMaxHealth: 12
+  phases:
+  - phaseId: chalk-corridor
+    maxHealth: 12
+    sharedExitThreshold: 8
+    duration: 0
+    moveSet: {fileID: 11400000, guid: 6fbed8de38f7d2643bd22f5c0287d0a9, type: 2}
+    dialogueCues:
+    - cueId: d3-teacher-resistance-0
+      oneShotKey: d3-teacher-resistance-0
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 700ec32e331cbf841a16357465abdd5e, type: 2}
+      - {fileID: 11400000, guid: fa18c9156ac559c459541e62630d3bcd, type: 2}
+      - {fileID: 11400000, guid: b85d8e4596d181341bac8ee635eb81f2, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.4
+      charactersPerSecond: 30
+      interLineGap: 0.12
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 0
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: forced-rhythm
+    maxHealth: 12
+    sharedExitThreshold: 4
+    duration: 0
+    moveSet: {fileID: 11400000, guid: 3096b2fc93e96a446985ee86da9967b8, type: 2}
+    dialogueCues:
+    - cueId: d3-teacher-resistance-1
+      oneShotKey: d3-teacher-resistance-1
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 700ec32e331cbf841a16357465abdd5e, type: 2}
+      - {fileID: 11400000, guid: 8200f989741963d418e99aeb17dffb1c, type: 2}
+      - {fileID: 11400000, guid: 6e8bcb2d1f7d6214494a04acf9d8d5c3, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.4
+      charactersPerSecond: 30
+      interLineGap: 0.12
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 0
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: overlapping-pressure
+    maxHealth: 12
+    sharedExitThreshold: 0
+    duration: 0
+    moveSet: {fileID: 11400000, guid: bab9c6639d39ff340a154d376a1b7012, type: 2}
+    dialogueCues:
+    - cueId: d3-teacher-resistance-2
+      oneShotKey: d3-teacher-resistance-2
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 700ec32e331cbf841a16357465abdd5e, type: 2}
+      - {fileID: 11400000, guid: a8a02c6234989d1438de4f962b0cbad6, type: 2}
+      - {fileID: 11400000, guid: 7c22f1c7a87c97849ac25943bfa49f0a, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.4
+      charactersPerSecond: 30
+      interLineGap: 0.12
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 1
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 0
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0

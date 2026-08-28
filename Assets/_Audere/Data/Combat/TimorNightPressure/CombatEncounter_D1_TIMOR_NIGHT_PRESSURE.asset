@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 637e1f99b966b3a45b7a6d876706de0b, type: 3}
+  m_Name: CombatEncounter_D1_TIMOR_NIGHT_PRESSURE
+  m_EditorClassIdentifier: 
+  encounterId: d1-timor-night-pressure
+  enemyDefinition: {fileID: 11400000, guid: 04f6a22ea9434f3439ee3219a04b3b42, type: 2}
+  tutorialData: {fileID: 0}
+  music: 9004
+  encounterDuration: 66
+  outcomeRules:
+    allowedOutcomes: 2
+    playerDefeatGate: 1
+    showRetryOnDefeat: 0
+  defeatPresentation:
+    dialogue: {fileID: 11400000, guid: 85824f34cce666645b204ac685643faf, type: 2}
+    hazardFadeDuration: 0.62
+  victoryFadeDuration: 0
+  dicePerBatch: 3
+  batchRespawnDelay: 0.18
+  minimumDiceSpeed: 105
+  maximumDiceSpeed: 132
+  playerHitInvulnerability: 0.7
+  bulletTimePenaltySeconds: 3
+  maximumAttacksPerBatch: 0

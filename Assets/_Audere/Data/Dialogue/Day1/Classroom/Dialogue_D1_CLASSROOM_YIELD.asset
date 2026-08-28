@@ -15,6 +15,9 @@ MonoBehaviour:
   dialogueId: d1-classroom-yield
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 0
     text: "\u2026\u1EEAm."
+    portraitOverride: {fileID: 0}

@@ -26,7 +26,7 @@ namespace Audere.Combat.Editor
         private const string ClassroomEncounter = "Assets/_Audere/Data/Combat/CombatEncounter_D1_CLASSROOM_KHOANG_LANG.asset";
         private const string SampleEncounter = "Assets/_Audere/Data/Combat/CombatEncounter_Sample.asset";
 
-        [MenuItem("Audere/Combat/Setup Multi-Phase Enemy Prototype")]
+        [MenuItem("Audere/Combat/Setup Enemy Prototype")]
         public static void Setup()
         {
             EnsureFolder("Assets/_Audere/Data/Combat", "Enemies");
@@ -49,16 +49,17 @@ namespace Audere.Combat.Editor
                 "Move_Rain", bullet, LinearProjectileSpawnMode.RandomTop,
                 LinearProjectileTargetMode.Down, 8f, .72f, 3, 155f, 16f, 42f);
 
-            CombatMoveSet aimedSet = CreateMoveSet("MoveSet_KhoangLang_P1_AimedFan", aimed);
-            CombatMoveSet sweepSet = CreateMoveSet("MoveSet_KhoangLang_P2_SideSweep", sweep);
-            CombatMoveSet rainSet = CreateMoveSet("MoveSet_KhoangLang_P3_Rain", rain);
+            CreateMoveSet("MoveSet_KhoangLang_P1_AimedFan", aimed);
+            CreateMoveSet("MoveSet_KhoangLang_P2_SideSweep", sweep);
+            CreateMoveSet("MoveSet_KhoangLang_P3_Rain", rain);
+            CombatMoveSet khoangLangSet = CreateMoveSet("MoveSet_KhoangLang_Main", aimed, sweep, rain);
             CombatMoveSet sampleSet = CreateMoveSet("MoveSet_Sample_DebugCycle", aimed, sweep, rain);
 
             CombatEnemyDefinition khoangLang = CreateEnemy(
                 "Enemy_KhoangLang", "d1-classroom-khoang-lang", "Khoảng Lặng", actor,
                 CombatPhasePolicy.PerPhaseHealth,
-                new[] { "phase-1-placeholder", "phase-2-placeholder", "phase-3-placeholder" },
-                new[] { aimedSet, sweepSet, rainSet }, new[] { 2, 2, 2 });
+                new[] { "main-placeholder" },
+                new[] { khoangLangSet }, new[] { 6 });
             CombatEnemyDefinition sample = CreateEnemy(
                 "Enemy_Sample", "sample-debug-enemy", "Sample Enemy", sampleActor,
                 CombatPhasePolicy.PerPhaseHealth,
@@ -69,10 +70,11 @@ namespace Audere.Combat.Editor
             AddKhoangLangCatalogEntry();
             MigrateScenes(actor, sampleActor);
             CombatTutorialAuthoring.ApplyD1ClassroomTutorial();
+            CombatNarrativePolishAuthoring.ApplyD1CombatNarrativePolish();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             CombatEnemyDefinitionValidator.ValidateAll();
-            Debug.Log("[CombatEnemyPrototypeAuthoring] Multi-phase prototype, Retry overlay and scenes migrated.");
+            Debug.Log("[CombatEnemyPrototypeAuthoring] Single-phase prototype, Retry overlay and scenes migrated.");
         }
 
         private static TMP_FontAsset MigrateBoardAndCreateActor()
@@ -107,6 +109,20 @@ namespace Audere.Combat.Editor
                 mount.sizeDelta = new Vector2(360f, 240f);
                 mount.SetSiblingIndex(0);
 
+                Transform existingVfxRoot = enemyContainer.Find("VFX");
+                GameObject vfxObject = existingVfxRoot != null
+                    ? existingVfxRoot.gameObject
+                    : new GameObject("VFX", typeof(RectTransform));
+                RectTransform vfxRoot = vfxObject.GetComponent<RectTransform>();
+                vfxRoot.SetParent(enemyContainer, false);
+                vfxRoot.anchorMin = mount.anchorMin;
+                vfxRoot.anchorMax = mount.anchorMax;
+                vfxRoot.pivot = mount.pivot;
+                vfxRoot.anchoredPosition = mount.anchoredPosition;
+                vfxRoot.sizeDelta = mount.sizeDelta;
+                vfxRoot.localRotation = Quaternion.identity;
+                vfxRoot.localScale = Vector3.one;
+                vfxRoot.SetSiblingIndex(mount.GetSiblingIndex() + 1);
                 RectTransform nameRoot = enemyContainer.Find("Name") as RectTransform;
                 RectTransform nameBackground = nameRoot != null ? nameRoot.Find("Image") as RectTransform : null;
                 TMP_Text enemyName = nameRoot != null ? nameRoot.Find("Enemy Name")?.GetComponent<TMP_Text>() : null;
@@ -148,7 +164,8 @@ namespace Audere.Combat.Editor
                 SerializedObject serialized = new SerializedObject(view);
                 serialized.FindProperty("enemyMount").objectReferenceValue = mount;
                 serialized.FindProperty("enemyVisual").objectReferenceValue = null;
-                serialized.FindProperty("vfxRoot").objectReferenceValue = null;
+                serialized.FindProperty("vfxRoot").objectReferenceValue = vfxRoot;
+                serialized.FindProperty("enemyScratchVfxUiScale").floatValue = 300f;
                 serialized.FindProperty("damageNumberFontSize").floatValue = 52f;
                 serialized.FindProperty("damageNumberDuration").floatValue = .68f;
                 serialized.FindProperty("damageNumberRiseDistance").floatValue = 52f;
@@ -416,24 +433,24 @@ namespace Audere.Combat.Editor
             Transform story = scene.GetRootGameObjects().First(go => go.name == "STORY").transform;
             Transform step = story.Find("D1_CLASSROOM_RECESS_BIANCA/210_PlayCombatPrototype");
             if (step != null) step.name = "210_PlayKhoangLangPrototype";
-            BindEnemyAuthoringPreview(scene, classroomActor);
+            BindEnemySceneActor(scene, classroomActor);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
 
-            UnityEngine.SceneManagement.Scene sampleScene = EditorSceneManager.OpenScene("Assets/_Audere/Scenes/20_Game.unity", OpenSceneMode.Single);
-            BindEnemyAuthoringPreview(sampleScene, sampleActor);
+            UnityEngine.SceneManagement.Scene sampleScene = EditorSceneManager.OpenScene("Assets/_Audere/Scenes/20_D1_Home_Morning.unity", OpenSceneMode.Single);
+            BindEnemySceneActor(sampleScene, sampleActor);
             EditorSceneManager.MarkSceneDirty(sampleScene);
             EditorSceneManager.SaveScene(sampleScene);
             if (!string.IsNullOrEmpty(activePath) && activePath != sampleScene.path)
                 EditorSceneManager.OpenScene(activePath, OpenSceneMode.Single);
         }
 
-        private static void BindEnemyAuthoringPreview(
+        public static void BindEnemySceneActor(
             UnityEngine.SceneManagement.Scene scene,
             CombatEnemyActor actorPrefab)
         {
             if (actorPrefab == null)
-                throw new MissingReferenceException($"Scene '{scene.name}' has no enemy actor prefab for its preview.");
+                throw new MissingReferenceException($"Scene '{scene.name}' has no enemy actor prefab for scene authoring.");
 
             CombatBoardView board = scene.GetRootGameObjects()
                 .SelectMany(root => root.GetComponentsInChildren<CombatBoardView>(true))
@@ -442,7 +459,7 @@ namespace Audere.Combat.Editor
             {
                 Debug.LogWarning(
                     $"[CombatEnemyPrototypeAuthoring] Scene '{scene.name}' creates its board at runtime; " +
-                    "the EnemyDefinition still references its dedicated actor prefab, so no edit-mode preview was added.");
+                    "the EnemyDefinition still references its dedicated actor prefab, so no scene-authored actor was added.");
                 return;
             }
 
@@ -451,20 +468,35 @@ namespace Audere.Combat.Editor
             if (mount == null)
                 throw new MissingReferenceException($"CombatBoardView in '{scene.name}' has no Enemy Mount.");
 
+            GameObject sceneActor = null;
+            string actorPrefabPath = AssetDatabase.GetAssetPath(actorPrefab.gameObject);
             for (int i = mount.childCount - 1; i >= 0; i--)
             {
                 Transform child = mount.GetChild(i);
-                if (child.name.EndsWith("__AUTHORING_PREVIEW", StringComparison.Ordinal))
+                CombatEnemyActor childActor = child.GetComponent<CombatEnemyActor>();
+                if (childActor == null)
+                    continue;
+
+                string childPrefabPath = PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(child.gameObject);
+                if (sceneActor == null && childPrefabPath == actorPrefabPath)
+                {
+                    sceneActor = child.gameObject;
+                    continue;
+                }
+
+                if (child.name.EndsWith("__AUTHORING_PREVIEW", StringComparison.Ordinal) ||
+                    child.name.EndsWith("__SCENE_AUTHORED", StringComparison.Ordinal))
                     UnityEngine.Object.DestroyImmediate(child.gameObject);
             }
 
-            GameObject preview = (GameObject)PrefabUtility.InstantiatePrefab(actorPrefab.gameObject, scene);
-            preview.name = actorPrefab.name + "__AUTHORING_PREVIEW";
-            preview.transform.SetParent(mount, false);
-            preview.SetActive(true);
+            if (sceneActor == null)
+                sceneActor = (GameObject)PrefabUtility.InstantiatePrefab(actorPrefab.gameObject, scene);
+            sceneActor.name = actorPrefab.name + "__SCENE_AUTHORED";
+            sceneActor.transform.SetParent(mount, false);
+            sceneActor.SetActive(true);
             boardSerialized.Update();
-            boardSerialized.FindProperty("authoredEnemyPreview").objectReferenceValue =
-                preview.GetComponent<CombatEnemyActor>();
+            boardSerialized.FindProperty("authoredEnemyActor").objectReferenceValue =
+                sceneActor.GetComponent<CombatEnemyActor>();
             boardSerialized.ApplyModifiedPropertiesWithoutUndo();
         }
 

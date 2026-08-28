@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Audere.Audio;
 using Audere.Puzzle.Tweening;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Audere.Puzzle
 {
@@ -52,12 +54,46 @@ namespace Audere.Puzzle
         private Quaternion shadowRestWorldRotation;
         private Vector3 shadowRestWorldScale;
         private bool shadowStartsActive;
+        private bool motionActive;
+        private Vector3 motionGroundPosition;
+        private SortingGroup depthGroup;
+        private int authoredDepthOrder;
+        public bool IsMoving => motionActive;
+        public float GroundSortY => (motionActive ? motionGroundPosition.y : transform.position.y) - GetVisualOffset().y;
+        public Vector2Int MotionTargetCell { get; private set; }
+
+        public void SetStandingPresentation(Vector3 offset, int sortingOrder)
+        {
+            if (depthGroup != null) depthGroup.sortingOrder = sortingOrder;
+            if (motionActive || gridSpace == null) return;
+            Vector3 destination = gridSpace.CellToWorldCenter(GridPosition) + GetVisualOffset() + offset;
+            transform.position = Vector3.MoveTowards(transform.position, destination, .7f * Time.unscaledDeltaTime);
+            KeepShadowGrounded(transform.position);
+        }
+
+        public void ResetDepthOrder()
+        {
+            if (depthGroup != null) depthGroup.sortingOrder = authoredDepthOrder;
+        }
+
+        public void CancelMotion()
+        {
+            if (!motionActive) return;
+            bool facing = spriteRenderer != null && spriteRenderer.flipX;
+            transform.position = motionGroundPosition;
+            RestoreVisualState();
+            if (spriteRenderer != null) spriteRenderer.flipX = facing;
+            KeepShadowGrounded(motionGroundPosition);
+            motionActive = false;
+        }
         public Vector2Int GridPosition { get; private set; }
         public bool FellDuringTraversal { get; private set; }
 
         private void Awake()
         {
             spriteRenderer = GetComponent<SpriteRenderer>();
+            depthGroup = GetComponent<SortingGroup>();
+            if (depthGroup != null) authoredDepthOrder = depthGroup.sortingOrder;
             if (spriteRenderer == null)
             {
                 Debug.LogError("[GridPlayer] Player prefab needs a SpriteRenderer.", this);
@@ -74,6 +110,7 @@ namespace Audere.Puzzle
 
         public void SetPosition(Vector2Int gridPosition, Vector3 worldPosition)
         {
+            motionActive = false;
             GridPosition = gridPosition;
             FellDuringTraversal = false;
             transform.position = worldPosition + GetVisualOffset();
@@ -86,14 +123,18 @@ namespace Audere.Puzzle
             Action onFallStarted = null)
         {
             FellDuringTraversal = false;
+            motionActive = true;
+            motionGroundPosition = transform.position;
 
             for (int index = 1; index < path.Count; index++)
             {
                 Vector2Int previousGridPosition = GridPosition;
                 Vector3 start = transform.position;
-                Vector3 destination = board.GridSpace.CellToWorldCenter(path[index]) +
-                    GetVisualOffset(board.GridSpace);
-                bool destinationHasTile = board.HasTile(path[index]);
+                MotionTargetCell = path[index];
+                var pair = board.GetComponent<CooperativePuzzleSession>();
+                Vector3 destination = board.GridSpace.CellToWorldCenter(path[index]) + GetVisualOffset(board.GridSpace) +
+                    (pair != null ? pair.ArrivalOffset(this, path[index]) : Vector3.zero);
+                bool destinationHasTile = board.CanPlayerEnter(path[index], this);
                 float elapsed = 0f;
 
                 UpdateFacing(start, destination);
@@ -107,6 +148,7 @@ namespace Audere.Puzzle
                     GridPosition = path[index];
                     onFallStarted?.Invoke();
                     yield return PlayFall(start, destination);
+                    motionActive = false;
                     yield break;
                 }
 
@@ -132,8 +174,10 @@ namespace Audere.Puzzle
                 KeepShadowGrounded(destination);
                 GridPosition = path[index];
                 board.NotifyPlayerEntered(GridPosition, this);
+                AudioService.Instance?.Play(AudioId.Actor_Step);
                 yield return PlayLandingResponse();
             }
+            motionActive = false;
         }
 
         private IEnumerator PlayLandingResponse()
@@ -221,10 +265,12 @@ namespace Audere.Puzzle
 
         private void RestoreVisualState()
         {
+            ResetDepthOrder();
             if (spriteRenderer != null)
             {
                 spriteRenderer.enabled = true;
                 spriteRenderer.color = prefabColor;
+                spriteRenderer.sortingOrder = 5;
                 // The source sprite faces left. Start facing right by mirroring it.
                 spriteRenderer.flipX = true;
             }
@@ -305,6 +351,7 @@ namespace Audere.Puzzle
 
         private void KeepShadowGrounded(Vector3 playerGroundPosition)
         {
+            motionGroundPosition = playerGroundPosition;
             if (groundedShadow == null || !groundedShadow.gameObject.activeSelf)
                 return;
 
@@ -332,5 +379,12 @@ namespace Audere.Puzzle
             return value * value * value * (value * (value * 6f - 15f) + 10f);
         }
     }
+
+
+
+
+
+
+
 
 }

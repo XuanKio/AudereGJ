@@ -1,6 +1,6 @@
 # Audere Puzzle Gameplay — kiến trúc StepTile scene-first
 
-> **Last updated:** 2026-08-22 · **Unity:** 6000.0.79f1
+> **Last updated:** 2026-08-27 · **Unity:** 6000.0.79f1
 
 Tài liệu này là nguồn hướng dẫn hiện hành để dựng, nối và kiểm thử puzzle StepTile.
 
@@ -104,6 +104,18 @@ puzzleController.ResetPuzzle();
 ```
 
 `PuzzleController.Play()` mới cấp claim `GameplayInputMode.Puzzle`. Chỉ đổi `WorldMode` hoặc chỉ bật level root không làm puzzle nhận input.
+
+### Shared Path Preview presentation
+
+Path Piece trong thanh chọn dưới UI giữ presentation cũ: card `128 × 128 px`, gap `24 px`,
+node `14 px` và logical spacing `24 px`. Không thay đổi presentation card khi chỉ polish
+preview đang bám con trỏ trên board.
+
+World `PathPreview` dùng sprite cursor ở hai endpoint và các connector sprite nhỏ chạy theo
+polyline. Endpoint bằng `0.82` cell, connector bằng `0.22` cell và spacing bằng `0.28` cell.
+Với L-corner, runtime snap một connector đúng vào authored vertex; các connector còn lại vẫn
+được chia đều theo chiều dài. Vì vậy góc đọc thành hai đoạn vuông góc thay vì một đường chéo,
+trong khi `PathPieceData` và hình card lựa chọn không đổi.
 
 ## 5. Dựng một map mới
 
@@ -253,6 +265,10 @@ Puzzle complete/cancel/disable → None
 
 Session cũ chỉ release token do chính nó tạo. Không dùng một biến mode global để callback cũ có thể tắt input của lượt replay mới.
 
+`PuzzleStep` và `BoardTileTransitionStep` gọi `NormalizeAfterCancel()` khi hủy trong scene còn sống. Hàm này kiểm tra reference của toàn bộ chuỗi trước khi reset. Khi step/scene đang bị disable hoặc UI/Player đã bị hủy, chỉ cleanup ownership; không gọi normalize để dựng lại board. `NormalizeNow()` trong flow chuẩn vẫn báo lỗi nếu authoring thiếu reference.
+
+Time Scale mặc định của project phải là `1`. Không dùng giá trị `0` lưu trong TimeManager để pause story; dialogue giữ và trả lại giá trị trước pause. Traversal dùng scaled time nên giá trị mặc định `0` sẽ làm puzzle đứng giữa bước đi.
+
 ## 11. Checklist QA cho mỗi puzzle
 
 - [ ] Board/Goal/PlayerStart nhìn thấy và chỉnh được trong Prefab Mode.
@@ -277,3 +293,11 @@ Session cũ chỉ release token do chính nó tạo. Không dùng một biến m
 - Không tạo blocked tile chỉ để ô không đi được trông tối.
 - Không dùng global `FindFirstObjectByType` để nối reference level nếu Inspector/child scope giải quyết được.
 - Không dùng `SetActiveStep` để Play Puzzle/Combat hoặc tắt shared Player trong một puzzle chain.
+
+
+## 13. Red tile exhaustion and reset — 2026-08-28
+
+- `OneUseTileBehaviour` keeps its floor visible while occupied, then disables every tile renderer immediately on departure. It no longer leaves an alpha/scale remnant in any scene using the shared behaviour.
+- `CooperativeRedTileBehaviour` keeps a tile visible while either carrier occupies it. With no holder and at least one spent visit, the tile can no longer be entered and its renderers turn off completely. Each actor still gets only one visit; a second visitor needs the first to hold the tile.
+- Hidden tiles remain registered as authored `BoardTile` objects so reset can restore them. `BoardTile.ResetToAuthoredState` restores every renderer, authored color and scale; behaviour callbacks clear the visit/occupancy flags. No replacement tile is spawned.
+- Co-op completion requires both actor-specific arrival flags and an empty shared hand. Falling or exhausting the hand first resets the whole attempt automatically; no Retry/actor-switch UI is added.

@@ -15,10 +15,20 @@ MonoBehaviour:
   encounterId: d1-classroom-khoang-lang
   enemyDefinition: {fileID: 11400000, guid: f482e97bd4e139248aeff87075752125, type: 2}
   tutorialData: {fileID: 11400000, guid: 62d0b950054997043885f2ab6a251f70, type: 2}
+  music: 9003
   encounterDuration: 45
+  outcomeRules:
+    allowedOutcomes: 7
+    playerDefeatGate: 0
+    showRetryOnDefeat: 1
+  defeatPresentation:
+    dialogue: {fileID: 0}
+    hazardFadeDuration: 0.55
+  victoryFadeDuration: 0
   dicePerBatch: 5
   batchRespawnDelay: 0.3
   minimumDiceSpeed: 115
   maximumDiceSpeed: 185
   playerHitInvulnerability: 0.55
   bulletTimePenaltySeconds: 3
+  maximumAttacksPerBatch: 0

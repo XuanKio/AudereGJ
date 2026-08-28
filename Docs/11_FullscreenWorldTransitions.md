@@ -1,6 +1,6 @@
 # Audere Fullscreen World Transitions
 
-> **Last updated:** 2026-08-23
+> **Last updated:** 2026-08-28
 
 Tài liệu này định nghĩa runtime contract cho transition giữa các world presentation. Việc
 chọn transition theo story job và registry scene nằm tại
@@ -125,6 +125,20 @@ render ít nhất một frame trước khi tiếp tục cleanup.
 
 ## 7. Authoring và QA
 
+### BGM dùng chung
+
+Từ 2026-08-28, `AudioService` giảm BGM theo tiến độ từ đầu transition tới `ModeSwapTime`,
+giữ im đến khi fullscreen effect hoàn tất, rồi phục hồi nhạc theo presentation đích.
+Đổi vào Combat chọn `Music_Combat` (slot trống hiện tại = im lặng); quay về Story/Puzzle
+chọn `Music_Exploration`. Cancel giải phóng owner audio riêng và để step khôi phục source
+mode; không ghi đè âm lượng Settings. Neutral fade và scene-load có cover/owner riêng,
+nên một transition kết thúc không thể mở nhạc khi màn đen khác vẫn còn.
+
+Đây là contract BGM bên ngoài shader profile; không thêm cue, low-pass hay timeline riêng
+trong scene. Chi tiết setup và giới hạn QA nằm ở `Docs/03_AudioSystem.md`.
+
+### Setup và checklist hình ảnh
+
 Setup idempotent riêng cho Scene 30:
 
 ```text
@@ -143,3 +157,9 @@ Checklist:
 - Combat chưa claim input trước khi fullscreen step Complete.
 - Cancel trước/sau swap và replay đều trả state sạch.
 - C#/shader compile sạch; Console 0 error; scene không missing script/reference.
+
+## Presentation-only use: Day3 fatigue
+
+`FullscreenTransitionController.PlayPresentation(profile, focusRenderer, onEnded)` dùng shared material/profile nhưng **không gọi WorldModeController** và không claim music duck. `FullscreenPresentationStep` sở hữu callback/cancel; normal completion và cancellation đều disable feature/reset runtime material. Public mode-transition API không đổi.
+
+Consumer: Scene110, `170_TheRoomDriftsWhileBiancaCalls/WorldSway`, profile `WorldTransition_FatigueSway.asset` (4.4s, tiny tilt/zoom/wave/drift, không veil). Bianca gọi qua PlayAuto ở parallel branch; scene chỉ load khi cả hai branch xong. Scene120 vào combat vẫn dùng Dreamy Disorientation chung, về Story dùng neutral fade. Catalog trong skill ghi riêng hai mục để không lấy profile choáng không-che-màn làm mode swap. Xem [Day3 workflow](15_Day3_BoardTeacher_StoryWorkflow.md).

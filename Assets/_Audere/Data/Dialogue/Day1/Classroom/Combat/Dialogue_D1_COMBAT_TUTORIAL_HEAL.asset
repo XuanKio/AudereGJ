@@ -15,8 +15,12 @@ MonoBehaviour:
   dialogueId: d1-combat-tutorial-heal
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: 5003323414229244817, guid: aef14cf774eb96745a1ce7b2b831128f, type: 3}
+  rightPortraitOverride: {fileID: 188140060781976214, guid: 8b9bf032ca2b2d745b01ed08e5c65d23, type: 3}
   lines:
   - speaker: 0
     text: "T\u1EDB c\xF3 th\xEAm th\u1EDDi gian\u2026"
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "\u1EEA. M\xECnh v\u1EABn ti\u1EBFp t\u1EE5c \u0111\u01B0\u1EE3c."
+    portraitOverride: {fileID: 0}

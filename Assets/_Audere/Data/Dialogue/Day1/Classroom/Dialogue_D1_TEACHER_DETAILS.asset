@@ -15,18 +15,27 @@ MonoBehaviour:
   dialogueId: d1-teacher-details
   leftCharacter: 1
   rightCharacter: 3
+  leftPortraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+  rightPortraitOverride: {fileID: -716470509588480020, guid: 613b52ba40ae3de40a31f29c3c9b4a2f, type: 3}
   lines:
   - speaker: 1
     text: "Trang tr\xED, \u0111\u1ED3 \u0103n, tr\xF2 ch\u01A1i\u2026"
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "L\u1EDBp m\xECnh s\u1EBD c\xF9ng chu\u1EA9n b\u1ECB."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "C\xE1c em c\u1EE9 ch\u1ECDn ph\u1EA7n m\xECnh th\xEDch."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "L\xE1t n\u1EEFa ghi t\xEAn v\xE0o danh s\xE1ch nh\xE9."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "M\u1ED7i ng\u01B0\u1EDDi m\u1ED9t vi\u1EC7c v\u1EEBa s\u1EE9c l\xE0 \u0111\u01B0\u1EE3c."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "Kh\xF4ng c\u1EA7n v\u1ED9i \u0111\xE2u."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "G\xF3p m\u1ED9t ch\xFAt \u0111\u1EC3 c\xF9ng vui l\xE0 \u0111\u1EE7."
+    portraitOverride: {fileID: 0}

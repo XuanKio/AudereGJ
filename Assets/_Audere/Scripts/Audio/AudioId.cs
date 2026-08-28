@@ -19,7 +19,9 @@ namespace Audere.Audio
 
         // Nilah - 2000
         Nilah_Step = 2001,
+        // Legacy name kept for existing serialized/content references.
         Nilah_Hurt = 2002,
+        Player_Hurt = Nilah_Hurt,
         Player_Fall = 2003,
 
         // Timor - 3000
@@ -33,15 +35,22 @@ namespace Audere.Audio
         Bus_Approach = 4004,
         Classroom_Murmur = 4005,
         Tile_Pop = 4006,
+        Actor_Step = 4007,
+        School_Bell = 4008,
+        Message_Arrive = 4009,
 
         // Combat - 5000
         Dice_Catch = 5001,
         Dice_Roll = 5002,
         Dice_Hit = 5003,
+        Enemy_Hurt = 5004,
+        Enemy_BulletVolley = 5005,
+        Enemy_LaserVolley = 5006,
 
         // Music - 9000
         Music_MainMenu = 9001,
         Music_Exploration = 9002,
         Music_Combat = 9003,
+        Music_TimorCombat = 9004,
     }
 }

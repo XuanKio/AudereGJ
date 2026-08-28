@@ -15,10 +15,15 @@ MonoBehaviour:
   dialogueId: d1-teacher-opening
   leftCharacter: 1
   rightCharacter: 3
+  leftPortraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+  rightPortraitOverride: {fileID: -8234531690603157784, guid: 991479b1422f0004c825ea3362e68224, type: 3}
   lines:
   - speaker: 1
     text: "C\u1EA3 l\u1EDBp \u1ED5n \u0111\u1ECBnh ch\u1ED7 ng\u1ED3i nh\xE9."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "M\xECnh b\u1EAFt \u0111\u1EA7u th\xF4i."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "Tr\u01B0\u1EDBc h\u1EBFt, c\xF4 c\xF3 m\u1ED9t chuy\u1EC7n vui."
+    portraitOverride: {fileID: -716470509588480020, guid: 613b52ba40ae3de40a31f29c3c9b4a2f, type: 3}

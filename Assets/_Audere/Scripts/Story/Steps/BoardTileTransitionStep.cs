@@ -222,8 +222,8 @@ namespace Audere.Story.Steps
 
             ClearActiveVisualState();
             RestoreRevealVisualStates();
-            if (Application.isPlaying)
-                normalizeOnCancel?.NormalizeNow();
+            if (isActiveAndEnabled && normalizeOnCancel != null)
+                normalizeOnCancel.NormalizeAfterCancel();
         }
 
         private IEnumerator AnimateHide(

@@ -26,6 +26,16 @@ namespace Audere.Puzzle.Board
         void ResetToAuthoredState();
     }
 
+    /// <summary>
+    /// Optional rule queried immediately before the player enters a tile.
+    /// Tile-specific traversal state stays on the tile prefab instead of leaking
+    /// into GridPlayer or the puzzle manager.
+    /// </summary>
+    public interface IBoardTileTraversalRule
+    {
+        bool CanPlayerEnter(BoardTile tile, GridPlayer player);
+    }
+
     /// <summary>Marker implemented by a prefab behaviour when that tile completes a level.</summary>
     public interface ILevelGoalTile { }
 }

@@ -1,0 +1,594 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ca86d61b03b73f42aa06816f765d42e, type: 3}
+  m_Name: Enemy_BiancaSupplies_PLACEHOLDER
+  m_EditorClassIdentifier: 
+  enemyId: d2-bianca-perceived-judgement
+  displayName: Bianca
+  actorPrefab: {fileID: 3076063008388383328, guid: bb39e8d445f20d543ab58b7566c98b6e, type: 3}
+  phasePolicy: 1
+  sharedMaxHealth: 10
+  phases:
+  - phaseId: judgement-opening
+    maxHealth: 10
+    sharedExitThreshold: 6
+    duration: 8
+    moveSet: {fileID: 11400000, guid: 5ba7a7f9e584bc443adb1e4c6d76c493, type: 2}
+    dialogueCues:
+    - cueId: judgement-opening-wave-0
+      oneShotKey: judgement-opening-wave-0
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: 554092ff05236bf45a43c86ee3f8e715, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: 9a0d02ce9422c274f946f16cf0d91164, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: judgement-opening-wave-1
+      oneShotKey: judgement-opening-wave-1
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: c0e0c9df73a5a4948aecf4e46ebed82b, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: d95b501e2636a0043ae62362cb5c356d, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: judgement-opening-wave-2
+      oneShotKey: judgement-opening-wave-2
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: 92979181f141cb04184a859bbc222651, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: 9fd025813b4bdc94b89a121cc854bda7, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: judgement-opening-wave-3
+      oneShotKey: judgement-opening-wave-3
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: 8939a601046c1b64bab6c1b6e69a7502, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: 047e7913109ac654a8a301e9044996e6, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: judgement-opening-resist-0
+      oneShotKey: judgement-opening-resist-0
+      trigger: 5
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 1
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 7c0d96b4c8bd2d042a7637ab7b036216, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: judgement-opening-resist-1
+      oneShotKey: judgement-opening-resist-1
+      trigger: 5
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 1
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 2e1797d84f967f5429966abe20ddd599, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: wrong-box
+    maxHealth: 10
+    sharedExitThreshold: 6
+    duration: 8
+    moveSet: {fileID: 11400000, guid: 9173d2e33f6258a4dbd89cf3b74aaac8, type: 2}
+    dialogueCues:
+    - cueId: wrong-box-start
+      oneShotKey: wrong-box-start
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: 61e738a69bb92154f9db7e98fd4912e1, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 1
+    spawnDice: 0
+    advanceOnMoveComplete: 1
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: judgement-pressure
+    maxHealth: 10
+    sharedExitThreshold: 2
+    duration: 8
+    moveSet: {fileID: 11400000, guid: 5bbdf35843ccc544b95375ea3485ba0f, type: 2}
+    dialogueCues:
+    - cueId: judgement-pressure-wave-0
+      oneShotKey: judgement-pressure-wave-0
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: 797d1ca8727988a479dc888fb7c0129f, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: 9fd025813b4bdc94b89a121cc854bda7, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: judgement-pressure-wave-1
+      oneShotKey: judgement-pressure-wave-1
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: e124c1fe65a7cd34380b627697de7104, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: 047e7913109ac654a8a301e9044996e6, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: judgement-pressure-wave-2
+      oneShotKey: judgement-pressure-wave-2
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: 487d4f8bbccd6944fbe9804ba9795a09, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: 9a0d02ce9422c274f946f16cf0d91164, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: judgement-pressure-wave-3
+      oneShotKey: judgement-pressure-wave-3
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: d32426e80707d78469d73eddf61f897d, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: d95b501e2636a0043ae62362cb5c356d, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: judgement-pressure-resist-0
+      oneShotKey: judgement-pressure-resist-0
+      trigger: 5
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 1
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 2e1797d84f967f5429966abe20ddd599, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: judgement-pressure-resist-1
+      oneShotKey: judgement-pressure-resist-1
+      trigger: 5
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 1
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 597d6d36cc8d1ce40a4da1106327e384, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: returning-thoughts
+    maxHealth: 10
+    sharedExitThreshold: 2
+    duration: 8
+    moveSet: {fileID: 11400000, guid: e9b927e6cc73bc9498d22e2640f8f9b0, type: 2}
+    dialogueCues:
+    - cueId: returning-thoughts-start
+      oneShotKey: returning-thoughts-start
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: 0d77a7bc0023dd244b6b5e2a96c91957, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 1
+    spawnDice: 0
+    advanceOnMoveComplete: 1
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+  - phaseId: ask-for-yourself
+    maxHealth: 10
+    sharedExitThreshold: 0
+    duration: 8
+    moveSet: {fileID: 11400000, guid: 69fb4e70025f342419776e3ed9ddba31, type: 2}
+    dialogueCues:
+    - cueId: ask-for-yourself-wave-0
+      oneShotKey: ask-for-yourself-wave-0
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: d32426e80707d78469d73eddf61f897d, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: 9a0d02ce9422c274f946f16cf0d91164, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: ask-for-yourself-wave-1
+      oneShotKey: ask-for-yourself-wave-1
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: 487d4f8bbccd6944fbe9804ba9795a09, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: d95b501e2636a0043ae62362cb5c356d, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: ask-for-yourself-wave-2
+      oneShotKey: ask-for-yourself-wave-2
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: e124c1fe65a7cd34380b627697de7104, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: 9fd025813b4bdc94b89a121cc854bda7, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: ask-for-yourself-wave-3
+      oneShotKey: ask-for-yourself-wave-3
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: 797d1ca8727988a479dc888fb7c0129f, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 285d52aaa173ea046a70cebc38086bf2, type: 2}
+      - {fileID: 11400000, guid: 047e7913109ac654a8a301e9044996e6, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: ask-for-yourself-resist-0
+      oneShotKey: ask-for-yourself-resist-0
+      trigger: 5
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 1
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 597d6d36cc8d1ce40a4da1106327e384, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: ask-for-yourself-resist-1
+      oneShotKey: ask-for-yourself-resist-1
+      trigger: 5
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 1
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 597d6d36cc8d1ce40a4da1106327e384, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 0.9
+      charactersPerSecond: 32
+      interLineGap: 0.06
+      repeatOnTrigger: 1
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0

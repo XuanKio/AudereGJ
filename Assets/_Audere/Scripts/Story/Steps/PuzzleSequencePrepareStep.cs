@@ -59,5 +59,23 @@ namespace Audere.Story.Steps
                 startingPuzzle.SetBoardTilesVisible(false);
             return true;
         }
+
+        public void NormalizeAfterCancel()
+        {
+            // Do not resurrect boards/actors while OnDisable is tearing down the
+            // scene. Explicit cancellation in a live scene still restores a retry.
+            if (!Application.isPlaying || !isActiveAndEnabled || !gameObject.scene.isLoaded ||
+                !CanNormalize(startingPuzzle))
+                return;
+
+            var levels = puzzleRootCoordinator != null ? puzzleRootCoordinator.Puzzles : followingPuzzles;
+            foreach (var level in levels)
+                if (!CanNormalize(level) || level.IsPlaying)
+                    return;
+            NormalizeNow();
+        }
+
+        private static bool CanNormalize(PuzzleController level) => level != null &&
+            level.PuzzleRoot != null && level.Puzzle != null && level.Puzzle.CanNormalize;
     }
 }

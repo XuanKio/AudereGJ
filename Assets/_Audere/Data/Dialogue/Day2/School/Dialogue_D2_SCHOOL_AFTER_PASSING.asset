@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D2_SCHOOL_AFTER_PASSING
+  m_EditorClassIdentifier: 
+  dialogueId: d2-school-after-passing
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 0
+    text: "C\u1EADu \u1EA5y kh\xF4ng nh\u1EAFc chuy\u1EC7n t\u1ED1i qua."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "V\u1EADy th\xEC c\u1EADu \u0111\u1EE1 ph\u1EA3i lo r\u1ED3i."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "\u1EEAm\u2026"
+    portraitOverride: {fileID: 0}

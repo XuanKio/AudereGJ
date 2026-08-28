@@ -15,10 +15,15 @@ MonoBehaviour:
   dialogueId: d1-bus-stop-arrival
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: 5003323414229244817, guid: aef14cf774eb96745a1ce7b2b831128f, type: 3}
+  rightPortraitOverride: {fileID: 188140060781976214, guid: 8b9bf032ca2b2d745b01ed08e5c65d23, type: 3}
   lines:
   - speaker: 0
     text: "K\u1ECBp r\u1ED3i\u2026"
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "\u1EEA. T\u1EDB \u0111\xE3 b\u1EA3o m\xE0."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "C\u1EE9 t\u1EEBng vi\u1EC7c m\u1ED9t th\xF4i."
+    portraitOverride: {fileID: 0}

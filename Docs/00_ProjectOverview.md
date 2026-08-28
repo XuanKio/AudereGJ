@@ -36,13 +36,15 @@ Asset/sample/debug content không tự trở thành canon. Xem quy tắc tại [
 | [`07_StorySystem_SceneFirst.md`](07_StorySystem_SceneFirst.md) | StoryDirector/Event/Step, hierarchy order, chaining và integration Dialogue/Puzzle/Combat. |
 | [`08_VisualPalette.md`](08_VisualPalette.md) | Shared camera fallback, PuzzleViewportMask, transition cover và ranh giới với màu UI/location-specific. |
 | [`09_Day1_ProductionStoryWorkflow.md`](09_Day1_ProductionStoryWorkflow.md) | Current Day 1 canon, exact production event hierarchy và workflow dựng beat/scene tiếp theo. |
+| [`14_Day2_NightDream_StoryWorkflow.md`](14_Day2_NightDream_StoryWorkflow.md) | Scene60 closure → Day2 home question → 15-cell Dream → awakening; staging, assets and QA. |
+| [`15_Day3_BoardTeacher_StoryWorkflow.md`](15_Day3_BoardTeacher_StoryWorkflow.md) | Day2 ending → Day3 home/school, chalk drawing, fatigue sway and 12HP teacher-pressure encounter; bindings and QA. |
 
 ## Architecture at a glance
 
 ```
 Unity Start → 00_Bootstrap → Bootstrapper
                               ├─ init services (IGameService): SceneFlow, AudioService
-                              └─ SceneFlow.Load → 10_MainMenu → [New Game] → 20_Game → 30_Classroom
+                              └─ SceneFlow.Load → 10_MainMenu → [New Game] → 20_D1_Home_Morning → 30_Classroom
 ```
 
 The Bootstrapper is a thin entry point; every real capability is its own service under a
@@ -63,7 +65,7 @@ D:\PJ\AudereGJ\
 │   │   ├── Dialogue/        Dialogue data + persistent UI   (Audere.Dialogue)
 │   │   ├── Input/           Owner-safe gameplay input gate  (Audere.GameplayInput)
 │   │   └── Story/           Scene-first story runner        (Audere.Story)
-│   ├── Scenes/              00_Bootstrap, 10_MainMenu, 20_Game, 30_Classroom (+ SampleScene leftover)
+│   ├── Scenes/              00_Bootstrap, 10_MainMenu, 20_D1_Home_Morning, 30_Classroom, 40_Evening, 50_D2_Home_Morning
 │   ├── Data/                Audio, Puzzle và Dialogue ScriptableObjects
 │   ├── Audio/               Raw audio assets (empty)
 │   ├── Prefabs/             Puzzle, world và UI prefabs
@@ -88,7 +90,7 @@ imported third-party assets).
 ### UI — `Scripts/UI/` (`Audere.UI`)
 | Script | Responsibility | Status |
 |--------|----------------|--------|
-| `MainMenuController.cs` | Auto-wires serialized `Button` refs in code. New Game → `SceneFlow.Load(GameScenes.Game)`. | Active |
+| `MainMenuController.cs` | Auto-wires serialized `Button` refs in code. New Game → `SceneFlow.Load(GameScenes.Day1HomeMorning)`. | Active |
 
 ### Audio — `Scripts/Audio/` (`Audere.Audio`)
 | Script | Responsibility | Status |
@@ -145,7 +147,7 @@ imported third-party assets).
 | Planned | Why deferred |
 |---------|--------------|
 | `SaveManager` (auto-save) | Save format depends on the not-yet-defined runtime data model. |
-| `GameSettings` (volumes/quality/controls) | After `20_Game` core loop exists; will feed `AudioService`. |
+| `GameSettings` (volumes/quality/controls) | After the home-morning core loop exists; will feed `AudioService`. |
 | Music playback | `Music_*` ids exist; only one-shot SFX wired today. |
 
 ## Decision log
@@ -155,7 +157,7 @@ imported third-party assets).
 | 2026-08-11 | Bootstrap = single entry point; services under `Bootstrap › Services`, init order = sibling order. | Scales without editing Bootstrapper; avoids a God-Object entry point. |
 | 2026-08-11 | Scene transitions only via `SceneFlow`; names via `GameScenes`. | Single choke-point + SSOT; no code/Build-Settings drift. |
 | 2026-08-11 | Audio id-based: `AudioId` enum → `AudioCatalog` (SO) → clip; explicit permanent numeric ids. | Decouples gameplay from file names; designer swaps sounds in one asset; ids stable across reordering. |
-| 2026-08-11 | `20_Game` before `GameSettings`; `SaveManager` = auto-save, deferred. | Core loop first; save needs the data model locked down. |
+| 2026-08-11 | Home-morning gameplay before `GameSettings`; `SaveManager` = auto-save, deferred. | Core loop first; save needs the data model locked down. |
 | 2026-08-11 | Docs live in repo-root `Docs/` (outside `Assets/`). | Keeps docs out of Unity's asset import (no `.meta` clutter); standard repo convention. |
 | 2026-08-15 | Gameplay UI dùng prefab `GameplayUIRoot` độc lập và persistent; Main Menu giữ UI riêng. | Không gắn UI vào Player; tránh mất UI khi đổi gameplay scene và tránh kéo UI gameplay vào Main Menu. |
 | 2026-08-16 | Gộp gameplay HUD và dialogue vào một Canvas `GameplayUIRoot`, chia child `PuzzleUI`/`DialogueUI`. | Tránh hai root Canvas trùng trách nhiệm; UI gameplay giữ xuyên scene và scene mới chỉ cần rebind systems. |
@@ -178,7 +180,7 @@ imported third-party assets).
 | 2026-08-22 | Một location chỉ có một Player/PuzzleRuntime/PathPreview/PlacedPathRoot dùng chung; từng `PZ_*` chỉ giữ level content. | Tránh duplicate preview/path/player và lỗi state khi đổi puzzle. |
 | 2026-08-22 | Puzzle hand-off dùng Goal trước làm world anchor cho PlayerStart sau; Player không bị tắt giữa event. | Giữ chuyển cảnh liền mạch và tránh nháy/lệch tile. |
 | 2026-08-22 | Story author bằng `StoryDirector → StoryEvent → direct-child StoryStep`, sibling order là execution order. | Flow đọc/chỉnh trực tiếp trong Hierarchy và không hardcode story trong manager. |
-| 2026-08-23 | Production story chuyển `20_Game → 30_Classroom` qua fade + `SceneLoadStep`; mỗi scene có StoryDirector riêng. | Direct StoryEvent reference không sống qua Single scene load; flow vẫn đọc được tại từng Hierarchy và đi qua SceneFlow. |
+| 2026-08-23 | Production story chuyển `20_D1_Home_Morning → 30_Classroom` qua fade + `SceneLoadStep`; mỗi scene có StoryDirector riêng. | Direct StoryEvent reference không sống qua Single scene load; flow vẫn đọc được tại từng Hierarchy và đi qua SceneFlow. |
 | 2026-08-23 | Placeholder classroom actors/art được đặt tên rõ; Teacher id có catalog entry nhưng portrait để trống. | Cho phép dựng và kiểm tra staging mà không tự biến art tạm hoặc suy luận nhân vật thành canon. |
 | 2026-08-23 | Classroom staging chỉ giữ Audere trái / Teacher phải, cân giữa cùng baseline; Teacher dùng prefab riêng. Dialogue entrance resolve first speaker trước fade. | Tập trung beat vào hai nhân vật, dễ thay art Teacher tại một chỗ và loại nháy active-state của cả hai portrait khi bắt đầu thoại. |
 | 2026-08-23 | Production camera fallback dùng `#160D1C`; `PuzzleViewportMask` dùng `#0D0918` từ prefab; transition cover dùng đen. Main Menu giữ màu UI xanh riêng nhưng camera vẫn dùng fallback chung. | Tránh đổi tông/lóe skybox giữa scene, đồng thời không xóa màu ngữ cảnh của UI và location art. |

@@ -15,8 +15,12 @@ MonoBehaviour:
   dialogueId: d1-teacher-event
   leftCharacter: 1
   rightCharacter: 3
+  leftPortraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+  rightPortraitOverride: {fileID: -716470509588480020, guid: 613b52ba40ae3de40a31f29c3c9b4a2f, type: 3}
   lines:
   - speaker: 1
     text: "Cu\u1ED1i n\u0103m nay, l\u1EDBp m\xECnh s\u1EBD li\xEAn hoan."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "M\u1ED9t bu\u1ED5i nho nh\u1ECF th\xF4i."
+    portraitOverride: {fileID: 0}

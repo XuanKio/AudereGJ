@@ -2,7 +2,7 @@
 
 > **Last verified:** 2026-08-23  
 > **Unity:** 6000.0.79f1  
-> **Production scenes:** `20_Game`, `30_Classroom`
+> **Production scenes:** `20_D1_Home_Morning`, `30_Classroom`
 
 Tài liệu này là bản handoff tổng hợp cho story production hiện tại: game đang kể tới đâu,
 Hierarchy chạy thế nào, dữ liệu nằm ở đâu và quy trình chuẩn để dựng beat tiếp theo.
@@ -37,7 +37,7 @@ Các scene đều đã được bật trong Build Settings:
 → khởi tạo SceneFlow + AudioService và giữ chúng bằng DontDestroyOnLoad
 → 10_MainMenu (build 1)
 → New Game
-→ 20_Game (build 2)
+→ 20_D1_Home_Morning (build 2)
    ├── D1_HOME_MORNING
    └── D1_TO_BUS_STOP
 → fade đen + SceneLoadStep
@@ -87,7 +87,7 @@ Input chỉ được cấp khi controller gameplay thực sự `Play()`. `WorldM
 
 ### 4.1 D1_HOME_MORNING — routine buổi sáng
 
-**Scene:** `20_Game`  
+**Scene:** `20_D1_Home_Morning`  
 **Event:** `D1_HOME_MORNING`  
 **Auto-next:** `D1_TO_BUS_STOP`
 
@@ -144,7 +144,7 @@ PZ_D1_WASHROOM
 
 ### 4.2 D1_TO_BUS_STOP — đi tới trạm xe
 
-**Scene:** `20_Game`  
+**Scene:** `20_D1_Home_Morning`  
 **Event:** `D1_TO_BUS_STOP`  
 **Next scene:** `30_Classroom`
 
@@ -255,10 +255,11 @@ của cô vẫn là **Unresolved**.
 
 **Scene:** `30_Classroom`  
 **Event:** `D1_CLASSROOM_RECESS_BIANCA`  
-**Auto-next:** tắt; event dừng sau khi combat prototype trả presentation về Story.
+**Auto-next:** tắt; sau Victory, event tự hoàn tất phần hậu combat rồi load `40_Evening` qua
+`SceneLoadStep`. Defeat giữ event tại CombatStep bằng Retry UI.
 
-**Primary story job:** đặt một lời mời xã hội nhỏ và có đường lui trước Audere, rồi cho thấy
-Timor tiến thêm một bước trong việc giành quyền định hướng phản ứng của cô.
+**Primary story job:** đặt một lời mời xã hội nhỏ và có đường lui trước Audere, cho cô tự giành lại
+một câu trả lời sau khi đối diện nỗi lo, rồi khép Day 1 lớp học bằng một lựa chọn nhỏ đã được thực hiện.
 
 **Established Canon:**
 
@@ -269,19 +270,36 @@ Timor tiến thêm một bước trong việc giành quyền định hướng ph
 - Audere bật lên một nhịp giật mình tại chỗ rồi quay sang phải nhìn Bianca.
 - Bianca xin lỗi, nói mình đang phụ trang trí và mời Audere cùng làm bảng một chút.
 - Bianca không thúc ép; cô chủ động mở đường lui: “Không tiện cũng không sao.”
-- Audere im lặng. Timor bảo cô đừng trả lời vội, nhìn cậu và để cậu giúp.
+- Sau khoảng lặng của Bianca, Audere nhận ra tay mình run. Cô muốn trả lời nhưng trong đầu chỉ
+  bật lên ý nghĩ “trốn đi”.
+- Timor bảo cô đừng trả lời vội, nhìn cậu, rồi chỉ ra nỗi lo đang trả lời thay cô. Audere nói
+  mình không muốn nó chọn thay nữa và tự quyết định sẽ đối diện với nó; Timor ở lại bên cô.
 - Sequence giữ một nhịp sau câu của Timor rồi dùng shared profile `Dreamy Disorientation`:
   nghiêng/zoom nhẹ, wave rộng, scene trôi, radial bend và smear quanh Audere. Combat hiện qua
   lớp distortion đang hạ xuống; kết thúc prototype vẫn fade
   về đúng khung Story trước đó.
-- **Design Intent:** prototype kỹ thuật dùng boss display name `Khoảng Lặng`, ba phase và art
-  `PLACEHOLDER`. Tên/placement không tự xác lập ý nghĩa trong truyện.
+- **Design Intent:** prototype kỹ thuật dùng boss display name `Khoảng Lặng`, một phase `6 HP`
+  và art `PLACEHOLDER`. Ba pattern Aimed Fan, Side Sweep, Rain chạy trong cùng phase. Tên/placement
+  và framing nỗi lo không tự xác lập ontology cuối cùng của boss.
 - **Unresolved:** ý nghĩa combat, voice/canon dialogue/portrait/art chính thức, tên hoặc ý nghĩa
   phase, final moveset/balance và kết quả narrative. Prototype không phải bằng chứng canon.
 
-**Relationship movement:** vẫn ở `Protective pre-emption`, nhưng rõ hơn beat trước: Bianca đã
-cho Audere không gian lựa chọn, còn Timor chen vào đúng khoảng trống trước khi cô tự trả lời.
-Cậu vẫn dùng ngôn ngữ giúp đỡ, không chuyển đột ngột sang đối đầu công khai.
+**Implemented Design Intent sau Victory:** Audere trả lời `Tớ muốn thử.` nhưng không hết run.
+Bianca chỉ xác nhận đây là phần làm bảng, lùi ngắn sang phải về đúng tâm tile rồi nói `Được`;
+không reo, ôm hoặc biến lời đồng ý thành một khoảnh khắc cứu rỗi. Audere tự ghi tên. Overlay
+screen-space làm tối classroom, hiện `RegistrationSheet_PLACEHOLDER` màu trắng cùng caption
+`Phiếu đăng ký hoàn thành`, và chỉ đóng khi người chơi click.
+
+Bianca quay sang phải, hop qua ba anchor cách nhau đúng một tile; tile phía trước hiện trước khi
+cô tới và tile phía sau mờ đi. `CharacterMotionStep` giữ shadow trên ground projection; fade actor
+là `SpriteGroupFadeStep` riêng, không giấu trong motion. Sau khi Bianca rời đi, Audere thừa nhận tay
+vẫn run nhưng mình đã nói được, rồi cảm ơn Timor. `School_Bell` phát trước neutral fade `0.85 s`;
+fade che kín scene trước khi `SceneFlow` load `40_Evening`.
+
+**Relationship movement:** vẫn ở `Protective pre-emption`: Bianca đã cho Audere không gian lựa
+chọn, còn Timor chen vào đúng khoảng trống và bảo cô chưa trả lời. Tuy vậy, beat mới trả lại cho
+Audere một bước agency nhỏ: chính cô nói mình không muốn nỗi lo chọn thay và quyết định đối diện.
+Timor giữ vai trò định hướng rồi ở bên cạnh, không tuyên bố chiến đấu thay cô.
 
 **Presentation contract:** standing anchor ở giữa bàn chân của Audere, Teacher và Bianca
 trùng tâm tile tương ứng. Không căn bằng pivot giữa thân của sprite. `TileHop` được phép đổi X/Y để tới tile kế; riêng
@@ -297,6 +315,7 @@ Hierarchy đã xác nhận:
 D1_CLASSROOM_RECESS_BIANCA [StoryEvent]
 ├── 00_FadeToRecess                  [CanvasFadeStep]
 ├── 05_NormalizeRecess              [SetActiveStep]
+├── 06_ResetBiancaVisibility        [SpriteGroupFadeStep: instant restore]
 ├── 08_PlaceAudereAtSeat            [MoveActorStep]
 ├── 10_PlaceBiancaAtStart           [MoveActorStep]
 ├── 15_FadeInRecess                 [CanvasFadeStep]
@@ -321,13 +340,130 @@ D1_CLASSROOM_RECESS_BIANCA [StoryEvent]
 ├── 200_ClassroomIsConsumed         [FullscreenWorldModeTransitionStep]
 ├── 210_PlayKhoangLangPrototype     [CombatStep]
 ├── 220_ReturnToStory               [WorldModeStep: Story]
-└── 230_HoldAfterCombat             [WaitStep]
+├── 230_HoldAfterCombat             [WaitStep]
+├── 240_AudereAnswersBianca         [DialogueStep]
+├── 250_BiancaSettlesRight          [MoveActorStep]
+├── 260_BiancaAccepts               [DialogueStep]
+├── 270_SignupExchange              [DialogueStep]
+├── 280_ShowRegistrationSheet       [StoryIllustrationStep]
+├── 290_BiancaTurnsAway             [SetActorFacingStep]
+├── 300_RevealDepartureTile1        [BoardTileTransitionStep]
+├── 310_BiancaHopsDeparture1        [CharacterMotionStep]
+├── 320_HideDecorationTile          [BoardTileTransitionStep]
+├── 330_RevealDepartureTile2        [BoardTileTransitionStep]
+├── 340_BiancaHopsDeparture2        [CharacterMotionStep]
+├── 350_HideDepartureTile1          [BoardTileTransitionStep]
+├── 360_RevealDepartureTile3        [BoardTileTransitionStep]
+├── 370_BiancaHopsDeparture3        [CharacterMotionStep]
+├── 380_HideDepartureTile2          [BoardTileTransitionStep]
+├── 390_BiancaFadesOut              [SpriteGroupFadeStep]
+├── 400_HideDepartureTile3          [BoardTileTransitionStep]
+├── 410_AudereThanksTimor           [DialogueStep]
+├── 420_PlaySchoolBell              [PlayAudioStep]
+├── 430_FadeToEvening               [CanvasFadeStep]
+└── 440_LoadEvening                 [SceneLoadStep]
 ```
 
 Bianca đang dùng prefab `Bianca_PLACEHOLDER`; portrait và art chính thức là **Unresolved**.
 Motion contract và cách thay Animator sau này nằm tại `Docs/10_CharacterExpressionAndMotion.md`.
 Fullscreen shader, timeline, cancel và replay contract nằm tại
 `Docs/11_FullscreenWorldTransitions.md`.
+
+### 4.5 D1_HOME_NIGHT_MESSAGE — lời mời thứ hai và scripted defeat
+
+**Scene:** `40_Evening`
+
+**Event:** `D1_HOME_NIGHT_MESSAGE`
+**Primary story job:** cho thấy khi Audere muốn tự trả lời một lời mời bình thường, nỗi sợ mất cô
+khiến Timor chuyển từ cảnh báo sang bắt cô phải nghe lời; combat là hành động khóa lựa chọn đó.
+
+```text
+00_NormalizeMessageAlert
+→ 10_FadeIn
+→ 20_AudereAfterLongDay
+→ 30_PlayMessageArrival
+→ 35_HoldForMessage
+→ 40_ShowMessageAlert           [dauchamthan]
+→ 45_HoldMessageAlert
+→ 50_AudereStartles             [VerticalInPlace: 0.19 s, arc 0.09]
+→ 55_HoldAfterStartle
+→ 60_AudereRecognizesBianca     [“Bianca nhắn cho tớ này.”]
+→ 65_HideMessageAlert
+→ 70_BiancaNightMessage
+→ 80_TimorQuestionsHer
+→ 90_KeepSilence
+→ 100_AudereAndTimorConclude
+→ 110_HoldBeforePressure
+→ 120_EnterNightPressure        [Dreamy Disorientation]
+→ 130_PlayTimorNightPressure    [Defeat-only CombatStep]
+→ 140_ReturnToEvening           [neutral fade]
+→ 145_HoldAfterReturn
+→ 150_TimorNarrowsTheReply
+→ 160_ChooseBiancaReply         [3 nested StoryEvent branches]
+→ 170_HoldAfterReply
+→ 180_LightsOut
+→ 190_DayOneEnds                [“Ngày 1 - Kết thúc”]
+```
+
+Night Tile nằm đúng tâm camera; Audere cùng trục X với tile và dùng staging scale giống Scene 30.
+Body giữ sorting order `5`, shadow `4`. `dauchamthan` là child presentation của Audere, mặc định
+ẩn và dùng `Player/6`; authoring tool bảo toàn transform/art đã đặt trong scene. `MessCome.mp3`
+được map bằng stable `AudioId.Message_Arrive`, sau đó alert hiện, Audere giật mình theo Y, nhận ra
+Bianca và chỉ khi ấy nội dung tin nhắn mới mở. Audere luôn ở dialogue slot trái; Bianca/Timor ở phải.
+
+Nhịp trước combat phải giữ quan hệ nhân-quả nhìn thấy được:
+
+```text
+Bianca đưa một lời mời bình thường
+→ Timor lo Bianca chỉ tìm Audere để nhờ vả
+→ nỗi sợ hiện ra trực tiếp và Timor viện chuyện mẹ Audere như bằng chứng
+→ Audere tách hai chuyện ra và nói cô vẫn muốn trả lời
+→ Timor chuyển từ khuyên sang cấm, rồi yêu cầu Audere phải nghe lời
+→ Audere miễn cưỡng nhưng nói “Lần này, để tớ tự trả lời.”
+→ Timor đáp “Tớ không thể để cậu làm vậy.”
+→ Dreamy Disorientation biến việc ngăn Audere trả lời thành combat
+```
+
+Combat dùng policy `CapturedDiceBatchSequence`: phase 1–10 mỗi phase đúng một batch Attack,
+Shield, Heal và chỉ tiến khi cả ba được catch cùng bark bắt buộc đã resolve. Timor có `36 shared
+HP`; damage vẫn có feedback nhưng không tạo Victory. Player bắt đầu `66 TIME`, không thể Defeat
+trước phase 11. Finale không có dice, nâng TIME còn lại lên floor `30 s`, kéo Heart mềm về tâm,
+đợi hai câu cuối tự chạy xong rồi volley thật mới được phép kết liễu. Encounter chỉ cho Defeat và
+tắt Retry; CombatStep map Defeat thành Complete, Victory/Special thành Fail.
+
+TIME về `0` không trả Story ngay. Bullet/laser dừng collision và vận tốc, fade `0.62 s`, enemy
+actor Timor còn lại trên board trong đoạn `Audere: … → Timor: Thấy chưa → ... → Audere: …Ừ`.
+Portrait Sad và nhịp câu ngắn giữ `Thấy chưa` như một kết luận lo buồn, không phải chiến thắng.
+Sau callback dialogue, runtime mới cleanup và neutral fade đưa cảnh về phòng.
+
+Trong phòng, Timor nói `Không cần ép mình` rồi thu lựa chọn của Audere về “câu dễ nhất”. Choice UI
+ở vùng path-piece có ba dòng; idle mờ/nhỏ, hover thêm `> <` và sáng/đủ scale. Ba nested branch:
+
+1. Tránh hẳn: Timor xác nhận ngày mai không phải lo; `Đã gửi` hiện trước câu `…Ừ` của Audere.
+2. Trì hoãn: `Đã gửi`, Timor bảo để mai nếu thấy ổn thì tính tiếp.
+3. Không trả lời: giữ im lặng lâu hơn, Timor coi im lặng là câu trả lời; Audere vẫn hỏi Bianca sẽ
+   nghĩ gì, nhưng Timor khép lại bằng `Ngày mai rồi tính` và `Nghỉ thôi`.
+
+Mọi branch quay lại cùng `LightsOut`; overlay đen sau đó hiện `Ngày 1 - Kết thúc`. Branch là flow
+cục bộ trong scene, chưa tạo StoryState/save flag xuyên scene.
+
+Mười một bark tăng sức ép theo bốn tầng: (1) bảo vệ và yêu cầu đứng yên; (2) phủ nhận khả năng Audere
+tự đặt giới hạn; (3) biến lựa chọn khác Timor thành không tin hoặc bỏ rơi Timor; (4) khóa câu trả lời.
+Audere vẫn có các câu ngắn ở slot trái để người chơi nghe được sự chống lại của cô. Nhịp 2 là laser
+dọc board, nhịp 8 là laser quét, nhịp 10 là laser con lắc; tất cả telegraph trước khi có collision.
+Projectile nằm dưới mask inset của board nên không vẽ đè lên viền.
+
+Portrait Timor là presentation của DialogueUI, không phải enemy sprite. Question bắt đầu bằng
+`TimorLolang`, chuyển sang `TimorLoLangKhongVui` khi Timor thừa nhận sợ; conclusion chuyển sang
+`TimorTucGian` tại `Không được đâu, Audere`. Bark 1–3 dùng Worried, 4–6 dùng WorriedUneasy,
+7–10 dùng Angry và bark 11 dùng Sad. Enemy prefab vẫn giữ visual placeholder riêng.
+
+**Design Intent:** đây là điểm đầu tiên Timor mất bình tĩnh vì Audere không làm theo. Cậu vẫn tin
+mình đang bảo vệ cô, nhưng nỗi sợ chuyển thành cấm đoán và bắt phục tùng. Chi tiết mẹ Audere từng
+tin người khác rồi Audere mất bà đang được dùng theo yêu cầu của scene này ở mức `Design Intent`,
+chưa tự động trở thành `Established Canon` cho các scene khác. Đây là vòng lo cụ thể của Audere,
+không phải mô tả lâm sàng áp cho mọi người có rối loạn lo âu. **Unresolved:** ontology combat,
+final art của phòng, final moveset/balance và nghĩa tâm lý cuối cùng.
 
 ## 5. DialogueData production
 
@@ -346,11 +482,14 @@ Assets/_Audere/Data/Dialogue/
 │   │   ├── Dialogue_D1_BUS_STOP_APPROACH.asset
 │   │   ├── Dialogue_D1_BUS_STOP_ARRIVAL.asset
 │   │   └── Dialogue_D1_BUS_STOP_SAFE.asset
-│   └── Classroom/
-│       ├── Dialogue_D1_CLASSROOM_*.asset
-│       ├── Dialogue_D1_CLASSROOM_BIANCA_*.asset
-│       ├── Dialogue_D1_TEACHER_*.asset
-│       └── Combat/Dialogue_D1_COMBAT_TUTORIAL_*.asset
+│   ├── Classroom/
+│   │   ├── Dialogue_D1_CLASSROOM_*.asset
+│   │   ├── Dialogue_D1_CLASSROOM_BIANCA_*.asset
+│   │   ├── Dialogue_D1_TEACHER_*.asset
+│   │   └── Combat/Dialogue_D1_COMBAT_TUTORIAL_*.asset
+│   └── Evening/
+│       ├── Dialogue_D1_HOME_NIGHT_*.asset
+│       └── Dialogue_D1_TIMOR_NIGHT_PRESSURE_BARK_*.asset
 └── Samples/
     └── Dialogue_Sample.asset
 ```
@@ -460,7 +599,8 @@ qua scene.
 
 ## 8. Điểm chưa triển khai
 
-- **Implemented prototype:** hand-off Story → `Khoảng Lặng` prototype ba phase → Story sau câu Timor.
+- **Implemented prototype:** hand-off Story → `Khoảng Lặng` prototype một phase `6 HP` → Story
+  sau câu Timor.
 - **Design Intent:** tên `Khoảng Lặng` và placement ở D1 Classroom phục vụ prototype hiện tại.
 - **Implemented Design Intent:** D1 dùng một `CombatTutorialData` và enemy tutorial một phase riêng
   (`99 HP`, `120 TIME`). Opening batch luôn có đúng Attack, Shield, Heal; card đầu preview cả ba,
@@ -469,12 +609,28 @@ qua scene.
   card bị consume; trong toàn bộ dialogue/highlight, TIME, dice, projectile và enemy move đều pause.
   Giữa các cue TIME chạy `0.25x`, damage có safety floor `1 s`, nên phần học không thể vô tình Defeat
   hoặc hạ boss thật. Sau câu kết của Timor, session tutorial bị shutdown và một session
-  `Enemy_KhoangLang` mới được tạo với `45 s`, phase 1 `2 HP`, dice batch và projectile moveset đầy đủ.
-  Không hiện marker `NHỊP n / 3`; phase chỉ là cấu trúc nội bộ. Exact Timor/Audere wording vẫn là
-  draft production chờ Xuân duyệt, không tự nâng thành Established Canon.
-- **Unresolved:** voice/canon dialogue/art/ý nghĩa của Khoảng Lặng, final moveset, balance và
-  result mapping canon. Khoảng Lặng không có line trong tutorial hiện tại.
-- **Unresolved:** tin nhắn ban đêm, Choice UI và kết quả lựa chọn.
+  `Enemy_KhoangLang` mới được tạo với `45 s`, một phase `6 HP`, dice batch và moveset luân phiên
+  Aimed Fan → converging Side Sweep → Rain. Không hiện phase marker.
+- **Implemented Design Intent:** đoạn kết tutorial được thay bằng nhịp Audere giữ câu
+  `Tớ muốn thử`. Trong combat thật, Khoảng Lặng dùng DialogueUI chuẩn tự chạy ở Aimed Fan/Side
+  Sweep mà không khóa input; Audere luôn ở trái và Khoảng Lặng ở phải. Sau Side Sweep, Heart
+  wobble nhẹ rồi dialogue Audere–Timor pause combat-local; ở `2 HP`, text lo lắng phủ dày background
+  với ghost-smear và wobble mềm tới khi session dọn. Chỉ đòn lethal sớm mới bị
+  giữ ở `1 HP` tới khi dialogue bắt buộc resolve, nên encounter vẫn là một phase.
+- **Design Intent:** exact Khoảng Lặng wording và portrait Audere tái sử dụng là content
+  `PLACEHOLDER` đã được production-wire theo yêu cầu của Xuân, chưa phải voice/portrait canon.
+- **Unresolved:** ontology, final voice/dialogue/art/ý nghĩa của Khoảng Lặng, final moveset,
+  balance và branch outcome ngoài Victory/Retry hiện tại.
+- **Implemented Design Intent:** Victory tiếp tục bằng câu trả lời nhỏ với Bianca, registration
+  overlay click-to-dismiss, ba hop rời lớp, dialogue Audere–Timor, School Bell và neutral fade sang
+  scene build-listed `40_Evening`.
+- **Implemented Design Intent:** `40_Evening` có `D1_HOME_NIGHT_MESSAGE`, Night Tile ở tâm camera
+  và actor staging đồng tỷ lệ Scene 30 (`Story Root 0.25`, Audere `1.5`, body/shadow `Player 5/4`),
+  message sound, Bianca text, Audere startle, Timor exchange và encounter scripted-defeat 11 nhịp.
+  Defeat là result duy nhất; hazard freeze/fade và hậu thoại resolve trước neutral fade. Trong
+  phòng, choice UI ba nhánh dẫn tới lights out và `Ngày 1 - Kết thúc`; không có Retry.
+- **Unresolved:** art thật của phiếu đăng ký, room art buổi tối, combat ontology và kết quả
+  narrative dài hạn của ba lựa chọn.
 - **Unresolved:** StoryState, conditional branching, save/checkpoint và resume giữa event.
 - **Unresolved:** Timor có được người khác nhìn/nghe thấy hay không.
 - **Unresolved:** tên riêng/portrait chính thức của Teacher; portrait/art chính thức của Bianca
@@ -492,8 +648,9 @@ qua scene.
 | Character expression/motion contract | `Docs/10_CharacterExpressionAndMotion.md` |
 | Bootstrap và scene loading | `Docs/02_Bootstrap.md` |
 | Voice/canon ledger | `.agents/skills/audere-dialogue-voice/references/` |
-| Production scene sáng Day 1 | `Assets/_Audere/Scenes/20_Game.unity` |
+| Production scene sáng Day 1 | `Assets/_Audere/Scenes/20_D1_Home_Morning.unity` |
 | Production scene lớp học | `Assets/_Audere/Scenes/30_Classroom.unity` |
+| Production scene buổi tối | `Assets/_Audere/Scenes/40_Evening.unity` |
 
 Khi production scene và tài liệu này khác nhau, kiểm tra `DialogueData` và Hierarchy hiện tại
 trước; sau khi QA, cập nhật lại doc thay vì đoán flow từ tên file.

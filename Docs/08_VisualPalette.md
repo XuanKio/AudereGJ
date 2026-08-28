@@ -67,7 +67,7 @@ dùng `CameraFallback` làm nền; phần ngoài dùng `ViewportOutside`.
 
 ## 5. Transition overlay
 
-- `20_Game/WORLD/World Transition Overlay/Transition Fade` dùng `TransitionCover`.
+- `20_D1_Home_Morning/WORLD/World Transition Overlay/Transition Fade` dùng `TransitionCover`.
 - `30_Classroom/Scene Transition Overlay/Fade` dùng `TransitionCover`.
 - Alpha presentation thuộc `CanvasGroup` hoặc `CanvasFadeStep`; không sửa alpha gốc của
   `Image` để tạo biến thể màu.
@@ -79,7 +79,7 @@ dùng `CameraFallback` làm nền; phần ngoài dùng `ViewportOutside`.
 |-------|-----------------|----------|---------|
 | `00_Bootstrap` | Không có camera | Không | Chuyển ngay sang Main Menu. |
 | `10_MainMenu` | `CameraFallback`, Solid Color | Không | UI giữ palette navy/blue riêng. |
-| `20_Game` | `CameraFallback`, Solid Color | `ViewportOutside` từ prefab | Nguồn tham chiếu gameplay hiện tại. |
+| `20_D1_Home_Morning` | `CameraFallback`, Solid Color | `ViewportOutside` từ prefab | Nguồn tham chiếu gameplay hiện tại. |
 | `30_Classroom` | `CameraFallback`, Solid Color | `ViewportOutside` từ prefab | Khung có cùng tỷ lệ màn hình với scene 20. |
 
 ## 7. Checklist khi thêm scene

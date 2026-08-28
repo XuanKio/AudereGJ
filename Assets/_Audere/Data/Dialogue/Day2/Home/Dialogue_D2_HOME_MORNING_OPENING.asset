@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D2_HOME_MORNING_OPENING
+  m_EditorClassIdentifier: 
+  dialogueId: d2-home-morning-opening
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 0
+    text: "...Ch\xE0o bu\u1ED5i s\xE1ng."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "Ch\xE0o c\u1EADu."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "C\u1EADu v\u1EABn c\xF2n s\u1EE3 t\u1EDB \xE0?"
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "...M\u1ED9t ch\xFAt."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "T\u1EDB bi\u1EBFt."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "T\u1EDB kh\xF4ng mu\u1ED1n l\xE0m c\u1EADu s\u1EE3."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "\u0110\u1EC3 t\u1EDB gi\xFAp nh\u01B0 m\u1ECDi h\xF4m nh\xE9."
+    portraitOverride: {fileID: 0}
+  - speaker: 1
+    text: "\u0110\xE1nh r\u0103ng tr\u01B0\u1EDBc th\xF4i."
+    portraitOverride: {fileID: 0}
+  - speaker: 0
+    text: "...\u1EEA."
+    portraitOverride: {fileID: 0}

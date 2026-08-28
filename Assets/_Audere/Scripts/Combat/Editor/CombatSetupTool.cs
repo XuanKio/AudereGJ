@@ -13,7 +13,7 @@ namespace Audere.EditorTools
 {
     public static class CombatSetupTool
     {
-        private const string ScenePath = "Assets/_Audere/Scenes/20_Game.unity";
+        private const string ScenePath = "Assets/_Audere/Scenes/20_D1_Home_Morning.unity";
         private const string BoardPrefabPath = "Assets/_Audere/Prefabs/Combat/World/CombatBoard.prefab";
         private const string DicePrefabFolder = "Assets/_Audere/Prefabs/Combat/Dice";
         private const string AttackDicePrefabPath = DicePrefabFolder + "/Dice_Attack.prefab";
@@ -21,6 +21,7 @@ namespace Audere.EditorTools
         private const string HealDicePrefabPath = DicePrefabFolder + "/Dice_Heal.prefab";
         private const string BulletPrefabFolder = "Assets/_Audere/Prefabs/Combat/Bullets";
         private const string EnemyBulletPrefabPath = BulletPrefabFolder + "/EnemyBullet.prefab";
+        private const string EnemyBulletSpritePath = "Assets/_Audere/AssetGame/Item/dan.aseprite";
         private const string PlayerPrefabFolder = "Assets/_Audere/Prefabs/Combat/Player";
         private const string HeartVisualPrefabPath = PlayerPrefabFolder + "/HeartVisual.prefab";
         private const string StunZoneShaderPath = "Assets/_Audere/Shaders/UIStunZoneDots.shader";
@@ -58,6 +59,7 @@ namespace Audere.EditorTools
             SetupHeartVisualPrefab();
             SetupStunZoneMaterial();
             SetupBoardPrefab();
+            SetupStunZoneViewOnBoardPrefab();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
@@ -145,6 +147,51 @@ namespace Audere.EditorTools
             Debug.Log("[CombatSetup] WORLD mode coordinator and data-driven combat foundation are ready.");
         }
 
+        [MenuItem("Audere/Combat/Setup Stun Zone Mechanic View")]
+        public static void SetupStunZoneMechanicView()
+        {
+            if (Application.isPlaying)
+            {
+                Debug.LogWarning("[CombatSetup] Stop Play Mode before authoring the Stun Zone view.");
+                return;
+            }
+
+            SetupStunZoneViewOnBoardPrefab();
+            AssetDatabase.SaveAssets();
+            Debug.Log("[CombatSetup] Stun Zone view is bound to CombatBoard and hidden by default.");
+        }
+
+        private static void SetupStunZoneViewOnBoardPrefab()
+        {
+            GameObject root = PrefabUtility.LoadPrefabContents(BoardPrefabPath);
+            try
+            {
+                CombatBoardView boardView = root.GetComponent<CombatBoardView>();
+                Transform stunRoot = FindDescendant(root.transform, "Stun Zone Root");
+                Transform zoneTransform = stunRoot != null ? FindDirectChild(stunRoot, "Stun Zone") : null;
+                if (boardView == null || zoneTransform == null)
+                    throw new MissingReferenceException(
+                        $"'{BoardPrefabPath}' requires CombatBoardView/Stun Zone Root/Stun Zone.");
+
+                CanvasGroup group = GetOrAdd<CanvasGroup>(zoneTransform.gameObject);
+                group.alpha = 0f;
+                group.interactable = false;
+                group.blocksRaycasts = false;
+                CombatStunZoneView zoneView = GetOrAdd<CombatStunZoneView>(zoneTransform.gameObject);
+
+                SerializedObject serialized = new SerializedObject(boardView);
+                SerializedProperty zones = serialized.FindProperty("stunZones");
+                zones.arraySize = 1;
+                zones.GetArrayElementAtIndex(0).objectReferenceValue = zoneView;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, BoardPrefabPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
         private static GameObject MovePuzzleViewportMaskToCamera(Transform puzzleRoot, Camera mainCamera)
         {
             if (mainCamera == null)
@@ -173,6 +220,12 @@ namespace Audere.EditorTools
         public static void DebugSwitchToCombat()
         {
             SwitchMode(WorldGameplayMode.Combat);
+        }
+
+        [MenuItem("Audere/Combat/Debug/Switch To Story")]
+        public static void DebugSwitchToStory()
+        {
+            SwitchMode(WorldGameplayMode.Story);
         }
 
         [MenuItem("Audere/Combat/Debug/Preview Enemy White Flash")]
@@ -413,6 +466,10 @@ namespace Audere.EditorTools
                 if (playArea == null)
                     throw new MissingReferenceException("CombatBoard needs a Play Area child.");
                 playArea.name = "Dice Field";
+                RectTransform battleBoxFrame = FindDirectChild(root.transform, "Frame") as RectTransform ??
+                    FindDescendant(root.transform, "Frame") as RectTransform;
+                if (battleBoxFrame == null)
+                    throw new MissingReferenceException("CombatBoard needs a Frame child around Dice Field.");
 
                 Transform stunRoot = FindDescendant(playArea, "Stun Zone Root") ??
                     FindDescendant(playArea, "Hazard Zone Root");
@@ -461,6 +518,22 @@ namespace Audere.EditorTools
                 RectTransform enemyMount = enemy != null
                     ? FindDirectChild(enemy, "Enemy Mount") as RectTransform
                     : null;
+                RectTransform vfxRoot = enemy != null
+                    ? FindDirectChild(enemy, "VFX") as RectTransform
+                    : null;
+                if (vfxRoot == null && enemy != null)
+                    vfxRoot = EnsureRect(enemy, "VFX");
+                if (vfxRoot != null && enemyMount != null)
+                {
+                    vfxRoot.anchorMin = enemyMount.anchorMin;
+                    vfxRoot.anchorMax = enemyMount.anchorMax;
+                    vfxRoot.pivot = enemyMount.pivot;
+                    vfxRoot.anchoredPosition = enemyMount.anchoredPosition;
+                    vfxRoot.sizeDelta = enemyMount.sizeDelta;
+                    vfxRoot.localRotation = Quaternion.identity;
+                    vfxRoot.localScale = Vector3.one;
+                    vfxRoot.SetSiblingIndex(enemyMount.GetSiblingIndex() + 1);
+                }
                 RectTransform damageNumberRoot = EnsureStretchRect(root.transform, "Damage Number Root");
                 damageNumberRoot.SetAsLastSibling();
                 TMP_Text enemyNameText = enemy != null
@@ -526,6 +599,7 @@ namespace Audere.EditorTools
 
                 CombatBoardView boardView = root.GetComponent<CombatBoardView>();
                 SerializedObject serialized = new SerializedObject(boardView);
+                SetObject(serialized, "battleBoxFrame", battleBoxFrame);
                 SetObject(serialized, "playArea", playArea);
                 SetObject(serialized, "stunZoneRoot", stunRoot);
                 SetObject(serialized, "bulletRoot", bulletRoot);
@@ -542,8 +616,9 @@ namespace Audere.EditorTools
                 SetObject(serialized, "timerDamageFill", timerDamageFill);
                 SetObject(serialized, "enemyMount", enemyMount);
                 SetObject(serialized, "enemyVisual", null);
-                SetObject(serialized, "vfxRoot", null);
+                SetObject(serialized, "vfxRoot", vfxRoot);
                 SetObject(serialized, "enemyScratchVfxPrefab", AssetDatabase.LoadAssetAtPath<GameObject>(ScratchVfxPath));
+                serialized.FindProperty("enemyScratchVfxUiScale").floatValue = 300f;
                 SetObject(serialized, "damageNumberRoot", damageNumberRoot);
                 SetObject(serialized, "damageNumberFont", AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(DamageNumberFontPath));
                 serialized.FindProperty("damageNumberFontSize").floatValue = 52f;
@@ -738,17 +813,20 @@ namespace Audere.EditorTools
             {
                 root.name = "EnemyBullet";
                 RectTransform rootRect = GetOrAdd<RectTransform>(root);
-                ConfigureRect(rootRect, Vector2.zero, new Vector2(18f, 18f));
-                Image frame = GetOrAdd<Image>(root);
-                frame.color = new Color(.30f, .20f, .34f, 1f);
-                frame.raycastTarget = false;
-                rootRect.localRotation = Quaternion.Euler(0f, 0f, 45f);
+                ConfigureRect(rootRect, Vector2.zero, new Vector2(24f, 24f));
+                rootRect.localRotation = Quaternion.identity;
 
-                RectTransform core = EnsureRect(root.transform, "Core");
-                ConfigureRect(core, Vector2.zero, new Vector2(10f, 10f));
-                Image coreImage = GetOrAdd<Image>(core.gameObject);
-                coreImage.color = new Color(.93f, .38f, .50f, 1f);
-                coreImage.raycastTarget = false;
+                Image image = GetOrAdd<Image>(root);
+                image.sprite = LoadFirstSprite(EnemyBulletSpritePath);
+                image.type = Image.Type.Simple;
+                image.preserveAspect = true;
+                image.color = Color.white;
+                image.raycastTarget = false;
+
+                Transform legacyCore = FindDirectChild(root.transform, "Core");
+                if (legacyCore != null)
+                    Object.DestroyImmediate(legacyCore.gameObject);
+
                 GetOrAdd<CombatBulletView>(root);
                 PrefabUtility.SaveAsPrefabAsset(root, EnemyBulletPrefabPath);
             }

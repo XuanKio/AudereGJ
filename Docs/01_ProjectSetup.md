@@ -39,9 +39,9 @@ Full list: `Packages/manifest.json`.
    [Bootstrapper] Initialized 2 service(s).
    [SceneFlow] Loading '10_MainMenu'... → Loaded
    ```
-   The MainMenu shows the **AUDERE** title + a **New Game** button → loads `20_Game`.
+   The MainMenu shows the **AUDERE** title + a **New Game** button → loads `20_D1_Home_Morning`.
 
-> Always start from `00_Bootstrap`. Entering Play from `10_MainMenu`/`20_Game` directly
+> Always start from `00_Bootstrap`. Entering Play from `10_MainMenu`/`20_D1_Home_Morning` directly
 > means the services (SceneFlow, AudioService) were never initialized — `*.Instance` will
 > be null and those scenes will log errors.
 
@@ -53,8 +53,10 @@ Scenes, in order (must match `Audere.Core.GameScenes`):
 |-------|-------|
 | 0 | `Assets/_Audere/Scenes/00_Bootstrap.unity` |
 | 1 | `Assets/_Audere/Scenes/10_MainMenu.unity` |
-| 2 | `Assets/_Audere/Scenes/20_Game.unity` |
+| 2 | `Assets/_Audere/Scenes/20_D1_Home_Morning.unity` |
 | 3 | `Assets/_Audere/Scenes/30_Classroom.unity` |
+| 4 | `Assets/_Audere/Scenes/40_Evening.unity` |
+| 5 | `Assets/_Audere/Scenes/50_D2_Home_Morning.unity` |
 
 `SampleScene.unity` is a Unity template leftover and is intentionally **not** in Build Settings.
 

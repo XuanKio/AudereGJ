@@ -5,6 +5,7 @@ Run the checks relevant to the changed actor action. Do not rely on the final fr
 ## References and hierarchy
 
 - Actor, Target Transform, Actor Renderer, and Grounded Shadow are direct serialized references.
+- Actor renderer is on Sorting Layer `Player`, Order `5`; grounded shadow is on `Player`, Order `4`.
 - The target is an authored scene anchor with the expected baseline and Z plane.
 - No duplicate motion owner is active on the actor.
 - The StoryStep is a direct child in the intended sibling order and is active when it should run.

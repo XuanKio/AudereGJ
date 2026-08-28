@@ -22,6 +22,12 @@ Use the four labels defined in `SKILL.md` whenever evidence quality matters. A p
 
 ## Dialogue bubble readability
 
+- In every scene and every two-character dialogue that includes Audere, author Audere in the
+  `Left` slot and the counterpart in the `Right` slot. Lines spoken by Audere therefore use
+  `Left`; lines spoken by Timor, Teacher, Bianca, Khoảng Lặng, or another counterpart use `Right`.
+- Do not infer emotional dominance, alignment, or canon relationship meaning from this fixed UI
+  placement. It is a presentation contract for consistency.
+
 - Treat one `DialogueData.Line` as one readable speech beat, not a paragraph that relies on
   TMP auto-wrap.
 - For the current dialogue prefab, aim for at most `42` visible characters including spaces.

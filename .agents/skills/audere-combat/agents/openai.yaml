@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audere Combat"
+  short_description: "Author and verify Audere combat systems"
+  default_prompt: "Use $audere-combat to author or review this Audere combat change safely."

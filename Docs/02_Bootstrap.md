@@ -41,6 +41,7 @@ Bootstrap            (Bootstrapper)          ← DontDestroyOnLoad root
 └── Services         (servicesRoot)
     ├── SceneFlow    (SceneFlow    : IGameService)
     └── AudioService (AudioService : IGameService, + AudioSource, catalog ref)
+        └── MusicSource (dedicated 2D looping AudioSource; direct service reference)
 ```
 
 - The whole `Bootstrap` root is `DontDestroyOnLoad`, so every service survives the
@@ -63,9 +64,9 @@ Bootstrapper.Start()  → SceneFlow.Load("10_MainMenu")
 10_MainMenu
    ↓  (New Game button → MainMenuController.NewGame)
    ↓
-SceneFlow.Load("20_Game")
+SceneFlow.Load("20_D1_Home_Morning")
    ↓
-20_Game
+20_D1_Home_Morning
 ```
 
 ## Scenes (Build Settings order)
@@ -74,8 +75,10 @@ SceneFlow.Load("20_Game")
 |-------|----------------|----------------------------------------------|
 | 0     | `00_Bootstrap` | Entry point. Inits services, loads MainMenu. |
 | 1     | `10_MainMenu`  | Title + New Game button.                     |
-| 2     | `20_Game`      | Day 1 morning StepTile sequence.              |
+| 2     | `20_D1_Home_Morning` | Day 1 home-morning StepTile sequence.   |
 | 3     | `30_Classroom` | Day 1 classroom announcement sequence.        |
+| 4     | `40_Evening` | Day 1 night message and pressure sequence.       |
+| 5     | `50_D2_Home_Morning` | Day 2 home/bus-stop StepTile sequence.  |
 
 Scene names are centralized in `Audere.Core.GameScenes` — reference those constants,
 never magic strings. Keep them in sync with Build Settings.
@@ -89,10 +92,12 @@ never magic strings. Keep them in sync with Build Settings.
   (`InputSystemUIInputModule`), `Canvas` (overlay, scale-with-screen 1920×1080) › `Title`
   (TMP "AUDERE"), `NewGameButton` (Image+Button) › `Label` (TMP), `MainMenu`
   (MainMenuController → `newGameButton`).
-- **20_Game** — scene-first Day 1 morning and bus-stop puzzle flow under `STORY`.
+- **20_D1_Home_Morning** — scene-first Day 1 morning and bus-stop puzzle flow under `STORY`.
 - **30_Classroom** — classroom staging, local `StoryDirector`, transition overlay and
   `D1_CLASSROOM_ANNOUNCEMENT`. It also contains a `GameplayUIRoot` prefab instance as a
   safe direct-entry fallback; the persistent instance destroys the duplicate in normal flow.
+- **50_D2_Home_Morning** — reuses the authored home presentation with harder compact
+  boards and the shared red OneUse tile; the next Day 2 destination is unresolved.
 
 ## Scripts
 
@@ -103,7 +108,7 @@ never magic strings. Keep them in sync with Build Settings.
 - `SceneFlow` — `Load(sceneName)` async Single-mode load; `IsBusy` guard. All scene
   transitions go through here. Global access via `SceneFlow.Instance`.
 - `MainMenuController` (`Audere.UI`) — auto-wires its buttons in code (serialized `Button`
-  refs, `AddListener` in `Awake`); New Game → `SceneFlow.Load(GameScenes.Game)`.
+  refs, `AddListener` in `Awake`); New Game → `SceneFlow.Load(GameScenes.Day1HomeMorning)`.
 
 ## Extending
 
@@ -123,7 +128,7 @@ start of the destination event. Do not connect `StoryEvent` references across sc
 
 ## Deferred (documented now, NOT built yet)
 
-**Order:** build **`20_Game` first**, before `GameSettings`.
+**Order:** build **`20_D1_Home_Morning` first**, before `GameSettings`.
 
 ### GameSettings — LATER
 Global settings service (audio volumes, quality, controls). When added, `AudioService`

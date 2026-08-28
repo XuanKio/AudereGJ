@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D3_BIANCA_PRAISE
+  m_EditorClassIdentifier: 
+  dialogueId: d3-bianca-praise
+  leftCharacter: 1
+  rightCharacter: 4
+  leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 1
+    text: "\u0110\u1EB9p qu\xE1!"
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "C\u1EADu v\u1EBD n\xE9t n\xE0y kh\xE9o th\u1EADt \u0111\u1EA5y."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "B\u1EA3ng l\u1EDBp m\xECnh s\xE1ng h\u1EB3n l\xEAn r\u1ED3i."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 0
+    text: "\u2026\u1EEA."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

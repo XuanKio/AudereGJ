@@ -15,8 +15,12 @@ MonoBehaviour:
   dialogueId: d1-combat-tutorial-stun-zone
   leftCharacter: 1
   rightCharacter: 2
+  leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 1
     text: "V\xF9ng nhi\u1EC5u ch\u1EC9 c\u1EA3n l\xFAc c\u1EADu b\u1EAFt."
+    portraitOverride: {fileID: 0}
   - speaker: 1
     text: "\u1EDE \u0111\xF3, m\xECnh v\u1EABn gieo l\u1EA1i \u0111\u01B0\u1EE3c."
+    portraitOverride: {fileID: 0}

@@ -50,13 +50,24 @@ Nhân vật được chọn bằng dropdown `DialogueCharacterId`, hiện có:
 None, Audere, Timor, Teacher, Bianca, KhoangLang
 ```
 
-Tên hiển thị và portrait không nằm trong từng đoạn thoại. Chúng được gắn một lần tại:
+Tên hiển thị và portrait mặc định được gắn một lần tại:
 
 ```text
 Assets/_Audere/Data/Dialogue/DialogueCharacterCatalog.asset
 ```
 
-Khi tạo `DialogueData`, designer chỉ cần chọn `Left Character` và `Right Character`; runtime tự lấy `Display Name` và `Portrait` từ catalog.
+Khi tạo `DialogueData`, designer chọn `Left Character` và `Right Character`; runtime tự lấy
+`Display Name` và portrait mặc định từ catalog. Một scene cần biểu cảm riêng có thể author
+`Left/Right Portrait Override`; từng line cũng có `Portrait Override` để đổi nét mặt từ line đó
+trở đi. Override chỉ thay ảnh, không tạo character ID hay tên mới.
+
+### Quy ước vị trí Audere
+
+- Trong mọi scene và mọi đoạn thoại có Audere, **Audere luôn ở slot trái**.
+- Slot phải luôn là đối tượng đang nói chuyện với Audere: Timor, Teacher, Bianca, Khoảng Lặng…
+- `Speaker` vẫn chỉ vị trí hiển thị: lời Audere là `Left`, lời của đối tượng là `Right`.
+- `DialogueController` tự mirror các asset legacy đang author Audere ở phải để presentation không
+  bị lệch, nhưng asset mới và tool authoring phải ghi đúng contract trái/phải ngay từ đầu.
 
 Hiện `Audere` và `Timor` đã có portrait. `Teacher` đã có constant và display name `Cô giáo`,
 nhưng portrait/art cụ thể vẫn là **Unresolved** nên catalog đang để trống thay vì tự canon hóa
@@ -66,8 +77,9 @@ một thiết kế placeholder.
 thức vẫn là **Unresolved**; prefab màu hồng hiện tại chỉ là presentation placeholder.
 
 `KhoangLang = 5` là stable technical ID cho hook combat. Catalog có display name
-`Khoảng Lặng` nhưng portrait để trống. Tên/placement là **Design Intent**; voice, canon
-dialogue, ý nghĩa tâm lý và art chính thức vẫn **Unresolved**.
+`Khoảng Lặng` và tạm tái dùng portrait Audere theo yêu cầu prototype. Tên/placement và portrait
+placeholder là **Design Intent**; voice, canon dialogue, ý nghĩa tâm lý và art chính thức vẫn
+**Unresolved**.
 
 Voice hiện hành của `Teacher` được giữ tại
 `.agents/skills/audere-dialogue-voice/references/characters/teacher.md`: ôn hòa, vui vẻ,
@@ -107,7 +119,9 @@ Mỗi asset gồm:
 
 - `Dialogue Id`: id ổn định dùng cho `Trigger Once`;
 - `Left Character` và `Right Character`: dropdown constant nhân vật;
-- `Lines`: danh sách theo thứ tự, mỗi dòng chỉ chọn `Speaker` (`Left` hoặc `Right`) và nhập `Text`.
+- `Left/Right Portrait Override`: optional ảnh mở đầu riêng cho đoạn thoại;
+- `Lines`: danh sách theo thứ tự, mỗi dòng chọn `Speaker`, nhập `Text`, và optional
+  `Portrait Override` áp dụng cho speaker từ line đó trở đi.
 
 ### Quy tắc độ dài bubble
 
@@ -126,7 +140,8 @@ Sample:
 Assets/_Audere/Data/Dialogue/Samples/Dialogue_Sample.asset
 ```
 
-Như vậy tên/ảnh không bị lặp trong từng line và một character có thể đổi portrait/tên tại một nơi duy nhất.
+Thông thường để override trống để dùng catalog. Chỉ author override khi biểu cảm là một beat có chủ
+đích; runtime giữ portrait override gần nhất của từng slot cho tới khi dialogue kết thúc.
 
 ## 4. Runtime flow
 
@@ -138,19 +153,45 @@ Player bước vào cell
 → DialogueController hiển thị lần lượt Left/Right
 ```
 
-Playback có hai mode:
+Playback có ba mode:
 
 - `GlobalTimePause` là mặc định của các overload cũ và giữ hành vi `Time.timeScale = 0`.
 - `CallerOwnedPause` dành cho combat. Dialogue chỉ claim input/display; caller dừng combat-local
   TIME, move và input. Phase-break đã clear dice/projectile trước; mid-phase giữ nguyên Heart,
   dice, projectile và remaining move cadence.
+- `AutoAdvanceNoInput` dùng chính `DialogueUI` chuẩn cho câu nói tự chạy trong combat: không pause,
+  không claim input, không block raycast và tự chuyển line theo thời lượng authored.
 
 Combat tutorial D1 lưu character dialogue tại
 `Assets/_Audere/Data/Dialogue/Day1/Classroom/Combat/Dialogue_D1_COMBAT_TUTORIAL_*.asset`.
-Các asset này chỉ có Audere/Timor; Khoảng Lặng không nói. `CombatDialogueCue` giữ direct
-reference tới asset và phát bằng `CallerOwnedPause`. Câu điều khiển chính xác không nằm trong
-bubble mà hiện trên `CombatTutorialUI` sau khi character dialogue đóng, tránh bắt Timor đọc
-documentation giao diện. Mỗi line production hiện không quá `36` ký tự.
+Các asset tutorial chỉ có Audere/Timor. `CombatDialogueCue` giữ direct reference và phát bằng
+`CallerOwnedPause`. Câu điều khiển chính xác không nằm trong bubble mà hiện trên
+`CombatTutorialUI` sau khi character dialogue đóng, tránh bắt Timor đọc documentation giao diện.
+
+Combat thật không có bark panel riêng. Khoảng Lặng phát bằng chính `DialogueController` và cặp
+`Left.prefab`/`Right.prefab`: Audere ở trái, Khoảng Lặng ở phải. Mode `AutoAdvanceNoInput` tự chạy
+line, không block raycast và không claim `GameplayInputMode.Dialogue`; TIME, projectile, dice và
+combat input tiếp tục chạy.
+Modal Audere–Timor giữa trận vẫn dùng `DialogueController`/`CallerOwnedPause`, nên caller giữ
+nguyên Heart, dice, projectile và move cadence rồi resume. `BackgroundTextField` chỉ lấy raw line
+từ `DialogueData` làm ambient presentation, không hiển thị portrait/name và không nhận input.
+Mỗi line production hiện tuân thủ budget tối đa `42` ký tự.
+
+Post-combat D1 tiếp tục giữ cùng contract: Audere ở `Left`, Bianca/Timor ở `Right`. Các asset tại
+`Day1/Classroom/PostCombat` tách ở đúng điểm có staging. `StoryIllustrationStep` không phải dialogue:
+nó mở `StoryRegistrationOverlay`, chặn click phía dưới và chờ đúng một click rồi mới trả flow cho
+StoryEvent; cancel gọi `ForceHide` và không giữ callback cũ.
+
+`D1_HOME_NIGHT_MESSAGE` giữ đúng contract này: Audere luôn ở `Left`, Bianca/Timor ở `Right`.
+Story dialogue dùng playback click bình thường; mười một bark Timor dùng `AutoAdvanceNoInput`,
+không claim Dialogue input và không pause combat. Cue phase 1–10 là
+`RequiredBeforePhaseAdvance`; hai line phase 11 là `RequiredBeforePlayerDefeat`, nên callback
+auto-dialogue phải resolve đúng session/phase trước khi progression hoặc lethal gate mở.
+Pre-combat không cắt thẳng từ lời mời sang combat: Audere đưa ra cách hiểu bình thường của tin nhắn,
+Timor mở rộng một câu trả lời thành kỳ vọng của Bianca, cả lớp chờ đợi, lỗi bị ghi nhớ và chuỗi câu
+hỏi không dừng. Trong bark 2/3/6/7/9, Audere tiếp tục nêu một khả năng tích cực ngắn ở `Left`; Timor
+ngay sau đó bẻ nó thành nghĩa vụ hoặc hậu quả xấu ở `Right`. Đây là narrative pacing trong
+`DialogueData`, không phải logic combat theo enemy ID.
 
 Trong khi phát thoại:
 
