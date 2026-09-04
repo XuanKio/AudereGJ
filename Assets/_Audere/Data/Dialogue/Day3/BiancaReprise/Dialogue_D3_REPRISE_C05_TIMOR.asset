@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D3_REPRISE_C05_TIMOR
+  m_EditorClassIdentifier: 
+  dialogueId: D3_REPRISE_C05_TIMOR
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
+  rightPortraitOverride: {fileID: -4747829306167941163, guid: cdecd5c621db74b43927eb49d1f04191, type: 3}
+  lines:
+  - speaker: 1
+    text: "C\u1EADu \u0111\xE2u bi\u1EBFt c\xF4 \u1EA5y \u0111ang ngh\u0129 g\xEC\u2026"
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

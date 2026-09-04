@@ -8,7 +8,7 @@ using UnityEngine.UI;
 namespace Audere.Combat
 {
     [DisallowMultipleComponent]
-    public sealed class CombatBoardView : MonoBehaviour
+    public sealed partial class CombatBoardView : MonoBehaviour
     {
         [Header("Shared Battle Box")]
         [SerializeField] private RectTransform battleBoxFrame;
@@ -106,6 +106,7 @@ namespace Audere.Combat
         private float timerDamageTargetNormalized = 1f;
         private float enemyHealthDamageTargetNormalized = 1f;
         private CombatEnemyActor activeEnemyActor;
+        private Canvas boardCanvas;
         private int activeEnemySessionVersion;
         private bool playerConstraintActive;
         private Vector2 playerConstraintCenter;
@@ -153,9 +154,24 @@ namespace Audere.Combat
             ? timerFill.rectTransform.parent as RectTransform ?? timerFill.rectTransform
             : null;
         public CombatEnemyActor ActiveEnemyActor => activeEnemyActor;
+        public bool IsEncounterPresentationVisible => boardCanvas != null && boardCanvas.enabled;
         public bool IsCursorStunned => catchCursorView != null && catchCursorView.IsStunned;
         public float BattleBoxWidthFraction => battleBoxWidthFraction;
         public float BattleBoxNormalizedX => battleBoxNormalizedX;
+        public Vector2 CatchZoneCenter => playArea != null && catchCursor != null
+            ? GetCenterInSpace(catchCursor, playArea) : PlayerPosition;
+        public float CatchZoneRadius
+        {
+            get
+            {
+                if (playArea == null || catchCursor == null) return 0f;
+                Vector3 x = playArea.InverseTransformVector(catchCursor.TransformVector(
+                    Vector3.right * catchCursor.rect.width * .5f));
+                Vector3 y = playArea.InverseTransformVector(catchCursor.TransformVector(
+                    Vector3.up * catchCursor.rect.height * .5f));
+                return Mathf.Min(x.magnitude, y.magnitude);
+            }
+        }
         public Vector2 PlayerPosition
         {
             get
@@ -172,6 +188,8 @@ namespace Audere.Combat
         private void Awake()
         {
             ResolveReferences();
+            boardCanvas = GetComponent<Canvas>();
+            SetEncounterPresentationVisible(false);
             CaptureBattleBoxLayout();
             eventCamera = Camera.main;
             SyncCombatViewportToCamera();
@@ -235,6 +253,25 @@ namespace Audere.Combat
             if (catchCursorView != null) catchCursorView.SetStunned(false, true);
             SetCursorVisible(false);
             UpdateTimer(1f);
+        }
+
+        public void SetEncounterPresentationVisible(bool visible)
+        {
+            if (boardCanvas == null)
+                boardCanvas = GetComponent<Canvas>();
+            if (boardCanvas != null)
+                boardCanvas.enabled = visible;
+        }
+
+        public void BindAuthoredEnemyActor(CombatEnemyActor actor)
+        {
+            if (activeEnemyActor != null)
+                throw new System.InvalidOperationException("Reset the combat session before changing its authored actor.");
+            if (actor == null || enemyMount == null || !actor.transform.IsChildOf(enemyMount))
+                throw new System.ArgumentException("The actor must be authored under this board's Enemy Mount.");
+            if (authoredEnemyActor != null) authoredEnemyActor.gameObject.SetActive(false);
+            authoredEnemyActor = actor;
+            authoredEnemyActor.gameObject.SetActive(false);
         }
 
         public CombatEnemyActor SpawnEnemyActor(CombatEnemyActor prefab, int sessionVersion)
@@ -400,9 +437,10 @@ namespace Audere.Combat
             CombatBulletView bullet = FindPooledBullet(resolvedPrefab);
             if (bullet == null)
                 bullet = resolvedPrefab != null ? Instantiate(resolvedPrefab, bulletRoot) : CreateFallbackBullet();
+            bullet.transform.SetParent(bulletRoot, false);
             bullet.Setup(resolvedPrefab, startPosition, velocity, sessionVersion, phaseVersion, telegraphDelay);
             activeBullets.Add(bullet);
-            if (bullet.CollisionActive) AttackAudio.PlayBullet(bulletSoundMinimumInterval, sessionVersion, phaseVersion);
+            if (bullet.AttackActive) AttackAudio.PlayBullet(bulletSoundMinimumInterval, sessionVersion, phaseVersion);
             return bullet;
         }
 
@@ -441,8 +479,11 @@ namespace Audere.Combat
         {
             if (playArea == null || playerView == null) return 0;
 
+            SyncExteriorProjectileRoot();
+            TickStunTrails(deltaTime);
             AttackAudio.SetPaused(deltaTime <= 0f);
             AttackAudio.Advance(deltaTime);
+            forcedMovementGrace = Mathf.Max(0f, forcedMovementGrace - Mathf.Max(0f, deltaTime));
             int registeredHits = 0;
             Rect playRect = playArea.rect;
             for (int i = activeBullets.Count - 1; i >= 0; i--)
@@ -454,9 +495,9 @@ namespace Audere.Combat
                     continue;
                 }
 
-                bool wasActive = bullet.CollisionActive;
+                bool wasActive = bullet.AttackActive;
                 bool alive = bullet.TickMovement(playRect, deltaTime);
-                if (!wasActive && bullet.CollisionActive) AttackAudio.PlayBullet(bulletSoundMinimumInterval, bullet.OwnerSessionVersion, bullet.OwnerPhaseVersion);
+                if (!wasActive && bullet.AttackActive) AttackAudio.PlayBullet(bulletSoundMinimumInterval, bullet.OwnerSessionVersion, bullet.OwnerPhaseVersion);
                 if (!alive)
                 {
                     bullet.ReturnToPool();
@@ -464,7 +505,9 @@ namespace Audere.Combat
                     continue;
                 }
 
-                if (!bullet.CollisionActive || !RectTransformsOverlap(bullet.RectTransform, playerView.RectTransform)) continue;
+                if ((HasForcedMovementProtection && !bullet.BypassesForcedMovementProtection) ||
+                    !bullet.CollisionActive ||
+                    !RectTransformsOverlap(bullet.RectTransform, playerView.RectTransform)) continue;
                 if (playerView.TryRegisterHit(playerInvulnerability)) registeredHits++;
                 bullet.ReturnToPool();
                 activeBullets.RemoveAt(i);
@@ -489,10 +532,12 @@ namespace Audere.Combat
                     continue;
                 }
 
-                if (laser.CollisionActive && RectTransformsOverlap(laser.RectTransform, playerView.RectTransform) &&
+                if (laser.CollisionActive &&
+                    RectTransformsOverlap(laser.RectTransform, playerView.RectTransform) &&
                     playerView.TryRegisterHit(playerInvulnerability))
                     registeredHits++;
             }
+            catchCursorView?.SetStunned(OverlapsActiveStunZone(catchCursor));
             return registeredHits;
         }
 
@@ -605,6 +650,7 @@ namespace Audere.Combat
                     playArea, screenPosition, eventCamera, out Vector2 localPoint)) return;
 
             localPoint = ClampCursorToBattleBox(localPoint);
+            if (forcedPlayerControlOwner != null) return;
             if (verticalControlOwner != null) localPoint.y = catchCursor.anchoredPosition.y;
             catchCursor.anchoredPosition = localPoint;
             SetCursorVisible(true);
@@ -631,6 +677,8 @@ namespace Audere.Combat
         public void ClearPlayerConstraint()
         {
             verticalControlOwner = null;
+            forcedPlayerControlOwner = null;
+            forcedMovementGrace = 0f;
             playerConstraintActive = false;
             playerConstraintCenter = Vector2.zero;
             playerConstraintRadius = 0f;
@@ -818,6 +866,7 @@ namespace Audere.Combat
 
         private bool OverlapsActiveStunZone(RectTransform target)
         {
+            if (OverlapsStunTrail(target)) return true;
             if (stunZoneRoot == null || target == null || !stunZoneRoot.gameObject.activeInHierarchy)
                 return false;
             ResolveStunZones();
@@ -1208,6 +1257,7 @@ namespace Audere.Combat
 
         public void ClearCombatRuntime()
         {
+            SetEncounterPresentationVisible(false);
             SetMechanicHint(null);
             ClearPlayerConstraint();
             ResetBattleBoxLayout();
@@ -1249,6 +1299,8 @@ namespace Audere.Combat
         public void ClearRuntimeBullets()
         {
             attackAudio?.Reset();
+            ClearExteriorProjectiles();
+            ClearStunTrails();
             activeBullets.Clear();
             if (bulletRoot != null)
             {
@@ -1307,6 +1359,7 @@ namespace Audere.Combat
         public void ClearRuntimeBullets(int sessionVersion, int phaseVersion = -1)
         {
             attackAudio?.Reset(sessionVersion, phaseVersion);
+            ClearStunTrails(sessionVersion, phaseVersion);
             for (int i = activeBullets.Count - 1; i >= 0; i--)
             {
                 CombatBulletView bullet = activeBullets[i];
@@ -1432,6 +1485,8 @@ namespace Audere.Combat
 
         private CombatBulletView FindPooledBullet(CombatBulletView sourcePrefab)
         {
+            CombatBulletView exterior = FindExteriorPooledBullet(sourcePrefab);
+            if (exterior != null) return exterior;
             if (bulletRoot == null) return null;
             for (int i = 0; i < bulletRoot.childCount; i++)
             {
@@ -1766,7 +1821,10 @@ namespace Audere.Combat
 
         private void OnDisable()
         {
+            SetEncounterPresentationVisible(false);
             attackAudio?.Reset();
+            ClearExteriorProjectiles();
+            ClearStunTrails();
             RestoreEnemyFade();
             if (enemyHitRoutine != null) StopCoroutine(enemyHitRoutine);
             enemyHitRoutine = null;

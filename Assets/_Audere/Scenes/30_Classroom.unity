@@ -1452,6 +1452,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2815497228575788602, guid: 83aaaca914250924885dc6ff4735ea65, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 295499486aaa5764898c6f932b9da833, type: 3}
+    - target: {fileID: 2815497228575788602, guid: 83aaaca914250924885dc6ff4735ea65, type: 3}
+      propertyPath: m_PreserveAspect
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4657722422092740698, guid: 83aaaca914250924885dc6ff4735ea65, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -354
+      objectReference: {fileID: 0}
     - target: {fileID: 4711998734120365247, guid: 83aaaca914250924885dc6ff4735ea65, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1539,6 +1551,22 @@ PrefabInstance:
     - target: {fileID: 5495530636496089444, guid: 83aaaca914250924885dc6ff4735ea65, type: 3}
       propertyPath: m_Name
       value: Story Registration Overlay
+      objectReference: {fileID: 0}
+    - target: {fileID: 6649074429431796536, guid: 83aaaca914250924885dc6ff4735ea65, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6649074429431796536, guid: 83aaaca914250924885dc6ff4735ea65, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6649074429431796536, guid: 83aaaca914250924885dc6ff4735ea65, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6649074429431796536, guid: 83aaaca914250924885dc6ff4735ea65, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3397,6 +3425,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   combatController: {fileID: 68819237}
   combatEncounterData: {fileID: 11400000, guid: 09f6b0b36ead7f240904a2f89af8bb83, type: 2}
+  enemyActorOverride: {fileID: 0}
   victoryBehaviour: 0
   defeatBehaviour: 2
   specialBehaviour: 0
@@ -3893,10 +3922,12 @@ MonoBehaviour:
   puzzleRoot: {fileID: 0}
   combatRoot: {fileID: 174918969}
   storyRoot: {fileID: 1053866513}
+  storyAndPuzzleRoots: []
   puzzleViewportMask: {fileID: 654411823}
   storyUsesPuzzleViewportMask: 1
   combatSystemsRoot: {fileID: 1592450646}
   transitionFade: {fileID: 835004017}
+  allowChildFadeFallback: 1
   revealStartingModeOnStart: 0
   fadeOutDuration: 0.18
   coveredHoldDuration: 0.05

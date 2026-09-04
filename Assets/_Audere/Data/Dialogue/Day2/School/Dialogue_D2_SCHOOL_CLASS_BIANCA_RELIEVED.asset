@@ -16,15 +16,21 @@ MonoBehaviour:
   leftCharacter: 1
   rightCharacter: 4
   leftPortraitOverride: {fileID: 0}
-  rightPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: -8522945175667249623, guid: 185e3c99ab0def940b195570629d5076, type: 3}
   lines:
   - speaker: 1
     text: "\xC0\u2026"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "T\u1EDB c\u1EE9 t\u01B0\u1EDFng c\u1EADu gi\u1EADn t\u1EDB chuy\u1EC7n
       g\xEC."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "C\xF3 c\u1EADu \u0111i c\xF9ng th\xEC t\u1ED1t qu\xE1."
-    portraitOverride: {fileID: 0}
+    characterOverride: 0
+    portraitOverride: {fileID: 7203529753858926249, guid: 5a29a2e57d0d13b42b26519f3b021631, type: 3}
+    glitchPortraitTransition: 0

@@ -32,6 +32,9 @@ namespace Audere.Puzzle.PathPieces
         private float cursorToPreviewMidpointDistance;
         private bool hasAnchoredOrigin;
         private PathPieceData observedSelectedPiece;
+        // A preview/result always belongs to the same selected asset for its whole
+        // lifetime. This prevents a card click from committing a stale shape.
+        private PathPieceData previewPiece;
         private GameplayInputGate inputGate;
         private int pointerInputBlockedThroughFrame;
         private bool waitingForPrimaryPointerRelease;
@@ -74,7 +77,7 @@ namespace Audere.Puzzle.PathPieces
             ArmPointerInput();
             if (preview != null) preview.Setup();
             if (observedSelectedPiece != null)
-                ShowInitialPreview();
+                ShowInitialPreview(observedSelectedPiece);
         }
 
         private void Update()
@@ -150,15 +153,14 @@ namespace Audere.Puzzle.PathPieces
         {
             observedSelectedPiece = selectedPiece;
             if (selectedPiece != null)
-                ShowInitialPreview();
+                ShowInitialPreview(selectedPiece);
             else
                 HidePreview();
         }
 
-        private void ShowInitialPreview()
+        private void ShowInitialPreview(PathPieceData selectedPiece)
         {
-            if (hand == null ||
-                hand.SelectedPiece == null ||
+            if (selectedPiece == null ||
                 player == null ||
                 board == null ||
                 gridSpace == null)
@@ -166,15 +168,16 @@ namespace Audere.Puzzle.PathPieces
 
             rotation = GridRotation.Degrees0;
             Vector2Int rotatedEndpointA = GridRotationUtility.Rotate(
-                hand.SelectedPiece.EndpointA,
+                selectedPiece.EndpointA,
                 rotation);
             origin = player.GridPosition - rotatedEndpointA;
             hasAnchoredOrigin = true;
             previewActive = true;
-            currentResult = ValidatePreview();
+            previewPiece = selectedPiece;
+            currentResult = ValidatePreview(selectedPiece);
 
             if (!BuildWorldPreviewPath(
-                    hand.SelectedPiece,
+                    selectedPiece,
                     origin,
                     rotation,
                     out float cellWorldSize))
@@ -192,7 +195,7 @@ namespace Audere.Puzzle.PathPieces
             cursorToPreviewMidpointDistance = 0f;
             if (preview != null)
             {
-                preview.Show(previewWorldPath, cellWorldSize);
+                preview.Show(previewWorldPath, cellWorldSize, rotation, false);
                 preview.SetState(GetPresentationState(currentResult));
             }
         }
@@ -201,6 +204,7 @@ namespace Audere.Puzzle.PathPieces
         {
             previewActive = false;
             hasAnchoredOrigin = false;
+            previewPiece = null;
             cursorToPreviewMidpointDistance = 0f;
             currentResult = default;
             if (preview != null) preview.Clear();
@@ -226,7 +230,13 @@ namespace Audere.Puzzle.PathPieces
                     out Vector3 world))
                 return false;
 
-            RefreshPreview(world);
+            PathPieceData selectedPiece = hand.SelectedPiece;
+            if (selectedPiece != observedSelectedPiece)
+                HandleSelectionChanged(selectedPiece);
+            if (selectedPiece == null)
+                return false;
+
+            RefreshPreview(world, selectedPiece);
             PointerCell = pointerCell;
             return previewActive;
         }
@@ -242,6 +252,14 @@ namespace Audere.Puzzle.PathPieces
                 puzzle == null)
                 return false;
 
+            // A pointer interaction can select a different card between frames.
+            // Never submit the old PlacementResult with that new card.
+            if (hand == null || hand.SelectedPiece != previewPiece)
+            {
+                HidePreview();
+                return false;
+            }
+
             if (!currentResult.CanCommit)
             {
                 PlacementRejected?.Invoke(currentResult);
@@ -252,13 +270,13 @@ namespace Audere.Puzzle.PathPieces
             return true;
         }
 
-        private void RefreshPreview(Vector3 mouseWorld)
+        private void RefreshPreview(Vector3 mouseWorld, PathPieceData selectedPiece)
         {
             PointerCell = gridSpace.WorldToCell(mouseWorld);
             PointerGridPosition = PointerCell;
 
             if (!PathPreviewAnchorSolver.TrySolve(
-                    hand.SelectedPiece,
+                    selectedPiece,
                     rotation,
                     PointerGridPosition,
                     hasAnchoredOrigin,
@@ -278,33 +296,33 @@ namespace Audere.Puzzle.PathPieces
             PreviewMidpointGridPosition = anchor.EndpointMidpoint;
             cursorToPreviewMidpointDistance = anchor.PointerDistance;
             previewActive = true;
-            currentResult = ValidatePreview();
+            previewPiece = selectedPiece;
+            currentResult = ValidatePreview(selectedPiece);
 
-            if (!BuildWorldPreviewPath(hand.SelectedPiece, origin, rotation, out float cellWorldSize))
+            if (!BuildWorldPreviewPath(selectedPiece, origin, rotation, out float cellWorldSize))
             {
                 previewActive = false;
                 if (preview != null) preview.Clear();
                 return;
             }
 
-            preview.Show(previewWorldPath, cellWorldSize);
+            preview.Show(previewWorldPath, cellWorldSize, rotation);
             preview.SetState(GetPresentationState(currentResult));
             PreviewChanged?.Invoke(currentResult);
         }
 
-        private PlacementResult ValidatePreview()
+        private PlacementResult ValidatePreview(PathPieceData selectedPiece)
         {
             GridPlayer mover = player;
             if (puzzle.Cooperative != null)
             {
                 var pair = puzzle.Cooperative;
-                var piece = hand.SelectedPiece;
-                Vector2Int a = origin + GridRotationUtility.Rotate(piece.EndpointA, rotation);
-                Vector2Int b = origin + GridRotationUtility.Rotate(piece.EndpointB, rotation);
+                Vector2Int a = origin + GridRotationUtility.Rotate(selectedPiece.EndpointA, rotation);
+                Vector2Int b = origin + GridRotationUtility.Rotate(selectedPiece.EndpointB, rotation);
                 mover = pair.ActorAtStart(a, false) ?? pair.ActorAtStart(b, false);
                 if (mover == null) return PlacementResult.Invalid("Nối một đầu path vào ô của người chưa tới đích.");
             }
-            return PathPlacementValidator.Validate(hand.SelectedPiece, origin, rotation, mover.GridPosition, board, mover);
+            return PathPlacementValidator.Validate(selectedPiece, origin, rotation, mover.GridPosition, board, mover);
         }
 
         private bool BuildWorldPreviewPath(

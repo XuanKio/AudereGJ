@@ -11,12 +11,13 @@ namespace Audere.Combat
         [SerializeField, Min(.5f)] private float flightDuration = 3f;
         [SerializeField, Min(.3f)] private float interval = 1.7f;
         [SerializeField] private float turns = 1.5f;
+        [SerializeField] private CombatProjectileTrailSettings stunTrail = new CombatProjectileTrailSettings();
         public override bool Validate(out string error)
         {
             if(!base.Validate(out error))return false;
             if(projectilePrefab==null||telegraph<=0||flightDuration<=0||interval<=0)
             {error="Chalk sweep requires projectile and positive timings.";return false;}
-            return true;
+            return stunTrail.Validate(out error);
         }
         public override ICombatMoveExecution CreateExecution(CombatMoveExecutionContext c)
         { if(!Validate(out var e))throw new InvalidOperationException(e);return new Execution(this,c); }
@@ -37,9 +38,9 @@ namespace Audere.Combat
                 Vector2 end=new Vector2(right?r.xMax+90:r.xMin-90,y);
                 float direction=right?1:-1;
                 var b=c.Board.SpawnEnemyBullet(d.projectilePrefab,start,Vector2.zero,c.SessionVersion,c.PhaseVersion,d.telegraph);
-                b?.ConfigurePathMotion(new ParametricProjectileMotion(d.flightDuration,t=>Vector2.Lerp(start,end,t),t=>t*360*d.turns*direction));
+                b?.ConfigurePathMotion(d.stunTrail.Wrap(new ParametricProjectileMotion(d.flightDuration,t=>Vector2.Lerp(start,end,t),t=>t*360*d.turns*direction),c,this));
             }
-            public void Cancel(){cancelled=true;}
+            public void Cancel(){cancelled=true;c.Board?.ClearStunTrails(c.SessionVersion,c.PhaseVersion,this);}
         }
     }
 }

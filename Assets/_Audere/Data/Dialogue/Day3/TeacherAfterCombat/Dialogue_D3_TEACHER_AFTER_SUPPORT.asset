@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D3_TEACHER_AFTER_SUPPORT
+  m_EditorClassIdentifier: 
+  dialogueId: D3_TEACHER_AFTER_SUPPORT
+  leftCharacter: 1
+  rightCharacter: 3
+  leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
+  rightPortraitOverride: {fileID: -8234531690603157784, guid: 991479b1422f0004c825ea3362e68224, type: 3}
+  lines:
+  - speaker: 1
+    text: "Em kh\xF4ng ph\u1EA3i t\u1EF1 lo h\u1EBFt m\u1ECDi th\u1EE9 \u0111\xE2u."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "H\xF4m nay, c\u1EE9 ngh\u1EC9 m\u1ED9t ch\xFAt \u0111\xE3 nh\xE9."
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

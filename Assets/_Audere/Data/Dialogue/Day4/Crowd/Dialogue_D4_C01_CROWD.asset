@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D4_C01_CROWD
+  m_EditorClassIdentifier: 
+  dialogueId: D4_CROWD_C01_CROWD
+  leftCharacter: 1
+  rightCharacter: 8
+  leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+  rightPortraitOverride: {fileID: 3787490157305779964, guid: 4987d6d90de1c1b468f2d948534fa623, type: 3}
+  lines:
+  - speaker: 1
+    text: "Mang c\xF3 m\u1EA5y th\u1EE9 c\u0169ng l\xE0m r\u01A1i."
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "Ai c\u0169ng \u0111ang nh\xECn k\xECa."
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

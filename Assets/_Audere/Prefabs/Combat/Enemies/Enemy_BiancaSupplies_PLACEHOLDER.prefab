@@ -207,6 +207,9 @@ MonoBehaviour:
   - {fileID: 5322979352527052575}
   animator: {fileID: 0}
   mechanicModules: []
+  idleFloatEnabled: 1
+  idleFloatAmplitude: 1.5
+  idleFloatPeriod: 3.6
 --- !u!1 &6812603513271294747
 GameObject:
   m_ObjectHideFlags: 0

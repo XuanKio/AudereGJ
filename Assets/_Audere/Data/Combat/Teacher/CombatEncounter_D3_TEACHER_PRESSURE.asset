@@ -16,7 +16,7 @@ MonoBehaviour:
   enemyDefinition: {fileID: 11400000, guid: 4eac6b121b4f73248af93b1ff9517c2c, type: 2}
   tutorialData: {fileID: 0}
   music: 9003
-  encounterDuration: 120
+  encounterDuration: 90
   outcomeRules:
     allowedOutcomes: 7
     playerDefeatGate: 0
@@ -24,7 +24,10 @@ MonoBehaviour:
   defeatPresentation:
     dialogue: {fileID: 0}
     hazardFadeDuration: 0.55
-  victoryFadeDuration: 0.75
+  victoryFadeDuration: 0.4
+  victoryPresentation:
+    dialogue: {fileID: 11400000, guid: 55d8564c59399c048b1e34002dff55a8, type: 2}
+    hazardFadeDuration: 0.45
   dicePerBatch: 3
   batchRespawnDelay: 0.3
   minimumDiceSpeed: 115

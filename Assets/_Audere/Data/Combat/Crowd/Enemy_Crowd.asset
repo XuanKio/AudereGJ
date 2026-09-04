@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ca86d61b03b73f42aa06816f765d42e, type: 3}
+  m_Name: Enemy_Crowd
+  m_EditorClassIdentifier: 
+  enemyId: d4-crowd-pressure
+  displayName: "\u0110\xE1m \u0111\xF4ng"
+  actorPrefab: {fileID: 7455955963728027949, guid: eaf714f66a44263468d58ee647cbed5d, type: 3}
+  phasePolicy: 1
+  sharedMaxHealth: 21
+  phases:
+  - phaseId: everyone-is-looking
+    maxHealth: 0
+    sharedExitThreshold: 10
+    duration: 0
+    moveSet: {fileID: 11400000, guid: 96a1279525e6a1543b090d839fb53c9c, type: 2}
+    dialogueCues:
+    - cueId: crowd-timor-returns
+      oneShotKey: 
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 69e86f98775ec734cae99850bc0c98e5, type: 2}
+      - {fileID: 11400000, guid: 256045cf60af58d42b549071f640d277, type: 2}
+      - {fileID: 11400000, guid: fa5af59d2726545489e538ffd19fe852, type: 2}
+      - {fileID: 11400000, guid: f0f4f948feef77d46892eac812cef78b, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.8
+      charactersPerSecond: 25
+      interLineGap: 0.2
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 0
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+    playerTimeExitFraction: 0
+  - phaseId: one-real-voice
+    maxHealth: 0
+    sharedExitThreshold: 0
+    duration: 0
+    moveSet: {fileID: 11400000, guid: 34adc1a3e5e8d9949981389ece1b5905, type: 2}
+    dialogueCues:
+    - cueId: crowd-bianca-real-voice
+      oneShotKey: 
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: a2bac01296d531746a89e71599cbf9c1, type: 2}
+      - {fileID: 11400000, guid: b569efb2050df064daba46dccc10232d, type: 2}
+      - {fileID: 11400000, guid: 5ba65014f8414c74c900160d296da3e7, type: 2}
+      - {fileID: 11400000, guid: 020d9bc75c6526a409626bfe41c4f013, type: 2}
+      - {fileID: 11400000, guid: 4c21a0e1b28b1854c814b747e29b0c48, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.8
+      charactersPerSecond: 25
+      interLineGap: 0.2
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 1
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 0
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+    playerTimeExitFraction: 0
+  passiveHealthDecayInterval: 0

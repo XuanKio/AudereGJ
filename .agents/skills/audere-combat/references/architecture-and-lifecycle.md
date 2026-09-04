@@ -57,7 +57,8 @@ The final phase enters Victory cleanup instead of indexing a missing next phase.
 
 - Prefer combat-local pause. Tutorial instruction and modal combat dialogue stop TIME, move, bullets, dice, and Heart simulation without global `Time.timeScale`.
 - Mid-phase `CallerOwnedPause` preserves Heart, projectile, active dice, and move cadence; resume must not restart or duplicate the move.
-- `AutoCombatDialogue` and background text do not claim input or pause combat.
+- `AutoCombatDialogue` does not claim dialogue input, but owns a combat-local pause while its
+  timed DialogueUI sequence is visible. Background text neither claims input nor pauses combat.
 - Priority: Victory/Defeat > phase break > mid-phase cue > normal continuation.
 
 ## Cleanup

@@ -109,14 +109,16 @@ namespace Audere.Dialogue
             if (puzzleUi == null)
                 return;
 
-            if (scene.name == GameScenes.Classroom || scene.name == GameScenes.Day2SchoolMorning ||
-                scene.name == GameScenes.Day2HomeNight || scene.name == GameScenes.Day2HomeAwakening ||
-                scene.name == GameScenes.Day3HomeMorning || scene.name == GameScenes.Day3SchoolBoard ||
-                scene.name == GameScenes.Day3SchoolTeacher)
-                puzzleUi.gameObject.SetActive(false);
-            else if (scene.name == GameScenes.Day1HomeMorning ||
-                     scene.name == GameScenes.Day2HomeMorning || scene.name == GameScenes.Day2Dream)
-                puzzleUi.gameObject.SetActive(true);
+            // GameplayUIRoot survives Single-mode loads, so every production destination must
+            // establish its own Puzzle UI state. Leaving a scene unlisted would inherit the
+            // previous scene's state and makes debug jumps behave differently from story order.
+            bool showPuzzleUi =
+                scene.name == GameScenes.Day1HomeMorning ||
+                scene.name == GameScenes.Day2HomeMorning ||
+                scene.name == GameScenes.Day2Dream ||
+                scene.name == GameScenes.Day4HomeMorning;
+
+            puzzleUi.gameObject.SetActive(showPuzzleUi);
         }
     }
 }

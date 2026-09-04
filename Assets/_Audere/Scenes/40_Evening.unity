@@ -584,10 +584,12 @@ MonoBehaviour:
   puzzleRoot: {fileID: 0}
   combatRoot: {fileID: 310743308}
   storyRoot: {fileID: 693933826}
+  storyAndPuzzleRoots: []
   puzzleViewportMask: {fileID: 1210648280}
   storyUsesPuzzleViewportMask: 1
   combatSystemsRoot: {fileID: 23852888}
   transitionFade: {fileID: 245894678}
+  allowChildFadeFallback: 1
   revealStartingModeOnStart: 0
   fadeOutDuration: 0.22
   coveredHoldDuration: 0.05
@@ -2352,6 +2354,7 @@ Transform:
   - {fileID: 1514216663}
   - {fileID: 73712254}
   - {fileID: 1890122462}
+  - {fileID: 1459755073}
   m_Father: {fileID: 1518499196}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1019822900
@@ -3036,6 +3039,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   combatController: {fileID: 23852890}
   combatEncounterData: {fileID: 11400000, guid: 0205bcd9500153f4ea3a8faea039cfc8, type: 2}
+  enemyActorOverride: {fileID: 0}
   victoryBehaviour: 1
   defeatBehaviour: 0
   specialBehaviour: 1
@@ -3365,6 +3369,52 @@ Transform:
   - {fileID: 23852889}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1459755072
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1459755073}
+  - component: {fileID: 1459755074}
+  m_Layer: 0
+  m_Name: 200_BeginDayTwo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1459755073
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1459755072}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 995973566}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1459755074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1459755072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 728a195dd7bc272488f0e049f1a8e47d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: 50_D2_Home_Morning
+  hidePuzzleUiBeforeLoad: 1
 --- !u!1001 &1488230776
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4192,6 +4242,8 @@ MonoBehaviour:
   title: "Ng\xE0y 1 - K\u1EBFt th\xFAc"
   fadeDuration: 0.55
   holdDuration: 2
+  waitForConfirm: 1
+  allowConfirmSkip: 0
   leaveVisible: 1
 --- !u!1001 &1921359499
 PrefabInstance:

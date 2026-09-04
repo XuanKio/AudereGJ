@@ -11,6 +11,10 @@ namespace Audere.Story.Steps
         [SerializeField] private string title = "Ngày 1 - Kết thúc";
         [SerializeField, Min(0f)] private float fadeDuration = .65f;
         [SerializeField, Min(0f)] private float holdDuration = 1.8f;
+        [Tooltip("Keep the title visible until the player clicks, taps or confirms.")]
+        [SerializeField] private bool waitForConfirm;
+        [Tooltip("Allows click/tap/confirm to skip the normal hold without making confirmation required.")]
+        [SerializeField] private bool allowConfirmSkip;
         [SerializeField] private bool leaveVisible = true;
 
         protected override IEnumerator Execute()
@@ -36,9 +40,19 @@ namespace Audere.Story.Steps
             }
             overlay.alpha = 1f;
 
+            bool waitForRelease = IsPrimaryPointerHeld();
             elapsed = 0f;
-            while (elapsed < holdDuration)
+            while (waitForConfirm || elapsed < holdDuration)
             {
+                if (waitForRelease)
+                {
+                    waitForRelease = IsPrimaryPointerHeld();
+                }
+                else if (ConfirmPressed() && (waitForConfirm || allowConfirmSkip))
+                {
+                    break;
+                }
+
                 elapsed += Time.unscaledDeltaTime;
                 yield return null;
             }
@@ -52,6 +66,30 @@ namespace Audere.Story.Steps
         {
             if (overlay != null && !leaveVisible)
                 overlay.alpha = 0f;
+        }
+
+        private static bool ConfirmPressed()
+        {
+            if (Input.GetMouseButtonDown(0) ||
+                Input.GetKeyDown(KeyCode.Space) ||
+                Input.GetKeyDown(KeyCode.Return) ||
+                Input.GetKeyDown(KeyCode.KeypadEnter))
+                return true;
+
+            return Input.touchCount > 0 &&
+                   Input.GetTouch(0).phase == TouchPhase.Began;
+        }
+
+        private static bool IsPrimaryPointerHeld()
+        {
+            if (Input.touchCount > 0)
+            {
+                Touch touch = Input.GetTouch(0);
+                return touch.phase != TouchPhase.Ended &&
+                       touch.phase != TouchPhase.Canceled;
+            }
+
+            return Input.GetMouseButton(0);
         }
     }
 }

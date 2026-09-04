@@ -133,7 +133,8 @@ Source: production event `D1_CLASSROOM_RECESS_BIANCA` in `30_Classroom` and its 
   and `45 s`, with Aimed Fan, a converging Side Sweep, and Rain looping in authored order.
   The shared enemy runtime still supports multiple phases, but this encounter has no phase marker.
 - **Established implementation state:** Khoảng Lặng's supplied opening and Side Sweep lines use the
-  standard auto-advancing DialogueUI while combat-local TIME, dice, bullets and input continue.
+  standard auto-advancing DialogueUI without claiming Dialogue input; combat-local TIME, dice,
+  bullets, Heart simulation, and enemy moves pause until each sequence completes.
   Audere occupies the left slot and Khoảng Lặng the right slot, following the project-wide Audere
   presentation contract. Legacy assets authored with Audere on the right are mirrored at runtime.
   After the Side Sweep dialogue, Audere's Heart briefly loses rhythm; the Audere–Timor anchor dialogue
@@ -197,8 +198,8 @@ Source: production event `D1_HOME_NIGHT_MESSAGE` in `40_Evening`, its Day1/Eveni
   cậu làm vậy`. This final attempt to remove her choice is the immediate cause of the combat handoff.
 - **Established implementation state:** Story enters Combat through the shared `Dreamy
   Disorientation` profile focused on Audere. Combat bark uses standard DialogueUI with Audere in
-  the left slot and Timor in the right slot; it auto-advances without claiming Dialogue input or
-  pausing combat.
+  the left slot and Timor in the right slot; it auto-advances without claiming Dialogue input while
+  the shared controller pauses combat-local simulation for the visible sequence.
 - **Established implementation state:** the eleven combat barks continue the conflict instead of
   introducing a new threat. Protection becomes instruction to stand still; Audere's claim that she
   can choose is reframed as being pulled in; disagreement becomes not trusting or abandoning Timor;
@@ -302,3 +303,10 @@ Source: production events `D2_HOME_MORNING` and `D2_TO_BUS_STOP` in
 - Voice under anger, grief, comfort, social pressure, and combat.
 - Exact later-story milestones and when each relationship progression band begins.
 - Canon status and voice of future characters.
+
+
+## Day 4 quiet morning — implemented design intent (2026-08-28)
+
+- **Design Intent theo Xuân, implemented for review:** Scene130 follows the Day3 ending title. Timor remains silent and has no portrait, hints, arrows, or failure comments. This does not establish that Audere has stopped feeling anxious.
+- Audere quietly says “Đánh răng… thay đồ… ăn sáng.” / “Ba việc thôi.”; no additional motivational monologue. Familiar home puzzle presentation has harder piece ordering. Changing clothes is a short covered time ellipsis between brushing and breakfast, not new outfit art.
+- Scene140 is an arrival-only Day4 classroom destination. Subsequent classroom story remains **Unresolved**. See `Docs/16_Day4_QuietMorning_StoryWorkflow.md` and scene-authored steps; do not replay Day1 classroom dialogue.

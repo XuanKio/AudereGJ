@@ -177,14 +177,14 @@ namespace Audere.EditorTools
             Say(e,"140_BiancaLikesTheDetails",D("BIANCA_PRAISE",DialogueCharacterId.Bianca,"Audere_Tired",null,
                 "R|Đẹp quá!","R|Cậu vẽ nét này khéo thật đấy.","R|Bảng lớp mình sáng hẳn lên rồi.","L|…Ừ."));
             Wait(e,"150_AudereNeedsASecond",.65f);
-            Say(e,"160_LastNightHasNotPassed",D("SLEEPLESS",DialogueCharacterId.Bianca,"Audere_Tired",null,
+            Say(e,"160_LastNightHasNotPassed",D("SLEEPLESS",DialogueCharacterId.Bianca,"Audere_Tired","Bianca_Worried",
                 "L|Xin lỗi… cậu vừa nói gì?","R|Audere, cậu mệt à?","L|Đêm qua tớ cứ tỉnh giấc.",
                 "L|Nhắm mắt lại là gặp giấc mơ đó.","R|Vậy cậu nghỉ chút nhé.","L|Chỉ hơi chóng mặt thôi."));
             var dizzy=Step<ParallelStoryStep>(e,"170_TheRoomDriftsWhileBiancaCalls");
             var effect=Branch(dizzy,"WorldSway","D3_FATIGUE_SWAY");var calls=Branch(dizzy,"BiancaCalls","D3_BIANCA_CALLS");
             Set(dizzy,"branches",new Object[]{effect,calls});
             Set(Step<FullscreenPresentationStep>(effect,"000_SharedFatigueProfile"),"controller",fx,"profile",Required<FullscreenTransitionProfile>(FatiguePath),"focusRenderer",s.Audere.GetComponent<SpriteRenderer>());
-            Set(Step<AutoDialogueStep>(calls,"000_NoClickNeededForHerCalls"),"dialogueData",D("BIANCA_CALLS",DialogueCharacterId.Bianca,"Audere_Tired",null,
+            Set(Step<AutoDialogueStep>(calls,"000_NoClickNeededForHerCalls"),"dialogueData",D("BIANCA_CALLS",DialogueCharacterId.Bianca,"Audere_Tired","Bianca_Worried",
                 "R|Audere?","R|Audere, cậu có nghe tớ không?"),"minimumLineDuration",1.8f,"charactersPerSecond",16f);
             Cover(e,"180_FadeToTheTeacher",s.Fade,1,.7f);
             Load(e,"190_TeacherChecksOnHer",GameScenes.Day3SchoolTeacher);
@@ -307,8 +307,10 @@ namespace Audere.EditorTools
             EnemyPrefab();
             var chalk=Bullet("Bullet_ChalkRod",new Vector2(120,19));
             var stream=Required<CombatBulletView>("Assets/_Audere/Prefabs/Combat/Bullets/EnemyBullet.prefab");
-            var fence=Asset<ChalkFenceMove>(CombatFolder+"/Moves/Move_ChalkFence.asset",p=>Set(p,"duration",6f,"projectilePrefab",chalk));
-            var sweep=Asset<ChalkSweepMove>(CombatFolder+"/Moves/Move_ChalkSweep.asset",p=>Set(p,"duration",6f,"projectilePrefab",chalk));
+            var fence=Asset<ChalkFenceMove>(CombatFolder+"/Moves/Move_ChalkFence.asset",p=>
+            {Set(p,"duration",6f,"projectilePrefab",chalk);Audere.Combat.Editor.TeacherRadialTrailSetupTool.EnableTrail(p);});
+            var sweep=Asset<ChalkSweepMove>(CombatFolder+"/Moves/Move_ChalkSweep.asset",p=>
+            {Set(p,"duration",6f,"projectilePrefab",chalk);Audere.Combat.Editor.TeacherRadialTrailSetupTool.EnableTrail(p);});
             var rain=Asset<SineProjectileStreamMove>(CombatFolder+"/Moves/Move_ChalkSineStream.asset",p=>Set(p,"duration",7f,"projectilePrefab",stream));
             var impulse=Asset<VerticalPlayerImpulseMove>(CombatFolder+"/Moves/Move_VerticalImpulse.asset",p=>Set(p,"duration",6f));
             var impulseSweep=Asset<CompositeCombatMove>(CombatFolder+"/Moves/Move_ChalkSweepAndImpulse.asset",p=>Set(p,"duration",6f,"children",new Object[]{sweep,impulse}));
@@ -320,7 +322,9 @@ namespace Audere.EditorTools
                 for(int i=0;i<2;i++){poses.GetArrayElementAtIndex(i).FindPropertyRelative("widthFraction").floatValue=.82f;poses.GetArrayElementAtIndex(i).FindPropertyRelative("normalizedX").floatValue=i==0?-.6f:.6f;}so.ApplyModifiedPropertiesWithoutUndo();});
             var final=Asset<CompositeCombatMove>(CombatFolder+"/Moves/Move_TeacherFinalPressure.asset",p=>Set(p,"duration",7f,"children",new Object[]{rain,laser}));
             var squeezeSweep=Asset<CompositeCombatMove>(CombatFolder+"/Moves/Move_TeacherShiftAndSweep.asset",p=>Set(p,"duration",7f,"children",new Object[]{squeeze,sweep}));
-            var sets=new[]{SetAsset("ChalkCorridor",fence,sweep),SetAsset("ForcedRhythm",impulseSweep,fence),SetAsset("OverlappingPressure",final,squeezeSweep)};
+            var radial=Asset<RadialInwardTrailMove>(CombatFolder+"/Moves/Move_TeacherRadialInwardTrails.asset",p=>
+            {Set(p,"duration",8.2f,"projectilePrefab",chalk);Audere.Combat.Editor.TeacherRadialTrailSetupTool.EnableTrail(p);});
+            var sets=new[]{SetAsset("ChalkCorridor",fence,sweep),SetAsset("ForcedRhythm",radial,sweep,fence),SetAsset("OverlappingPressure",final,squeezeSweep)};
             var barks=new[]{
                 D("COMBAT_PROJECTION_01",DialogueCharacterId.Timor,"Audere_Scared","TimorLoLangKhongVui","R|…nghĩ lẽ ra không nên giao cậu làm?"),
                 D("COMBAT_PROJECTION_02",DialogueCharacterId.Timor,"Audere_Scared","TimorLoLangKhongVui","R|Chỉ một việc thôi mà cậu cũng mệt."),
@@ -329,12 +333,12 @@ namespace Audere.EditorTools
             {
                 var so=new SerializedObject(p);so.FindProperty("enemyId").stringValue="d3-teacher-perceived-pressure";so.FindProperty("displayName").stringValue="Cô giáo";
                 so.FindProperty("actorPrefab").objectReferenceValue=Required<CombatEnemyActor>(EnemyPrefabPath);
-                so.FindProperty("phasePolicy").intValue=1;so.FindProperty("sharedMaxHealth").intValue=12;
+                so.FindProperty("phasePolicy").intValue=1;so.FindProperty("sharedMaxHealth").intValue=15;
                 var phases=so.FindProperty("phases");phases.arraySize=3;
                 for(int i=0;i<3;i++)
                 {
                     var phase=phases.GetArrayElementAtIndex(i);phase.FindPropertyRelative("phaseId").stringValue=new[]{"chalk-corridor","forced-rhythm","overlapping-pressure"}[i];
-                    phase.FindPropertyRelative("maxHealth").intValue=12;phase.FindPropertyRelative("sharedExitThreshold").intValue=new[]{8,4,0}[i];
+                    phase.FindPropertyRelative("maxHealth").intValue=15;phase.FindPropertyRelative("sharedExitThreshold").intValue=new[]{7,4,0}[i];
                     phase.FindPropertyRelative("moveSet").objectReferenceValue=sets[i];phase.FindPropertyRelative("spawnDice").boolValue=true;
                     phase.FindPropertyRelative("allowsPlayerDefeat").boolValue=true;phase.FindPropertyRelative("advanceOnMoveComplete").boolValue=false;
                     var cues=phase.FindPropertyRelative("dialogueCues");cues.arraySize=1;var cue=cues.GetArrayElementAtIndex(0);
@@ -345,7 +349,7 @@ namespace Audere.EditorTools
                 so.ApplyModifiedPropertiesWithoutUndo();if(!p.Validate(out string error))throw new InvalidOperationException(error);
             });
             Asset<CombatEncounterData>(EncounterPath,p=>Set(p,"encounterId","d3-teacher-perceived-pressure","enemyDefinition",enemy,
-                "encounterDuration",120f,"dicePerBatch",3,"maximumAttacksPerBatch",2,"bulletTimePenaltySeconds",3f,"victoryFadeDuration",.75f));
+                "encounterDuration",90f,"dicePerBatch",3,"maximumAttacksPerBatch",2,"bulletTimePenaltySeconds",3f,"victoryFadeDuration",.75f));
         }
 
         private static void EnemyPrefab()
@@ -390,7 +394,7 @@ namespace Audere.EditorTools
                 var group=(CanvasGroup)so.FindProperty("overlay").objectReferenceValue;
                 group.GetComponent<Canvas>().sortingOrder=1500;
                 text.rectTransform.anchorMin=text.rectTransform.anchorMax=new Vector2(.5f,.5f);text.rectTransform.anchoredPosition=Vector2.zero;
-                Set(title,"title","Ngày 2 - Kết thúc","holdDuration",2f);
+                Set(title,"title","Ngày 2 - Kết thúc","holdDuration",2f,"waitForConfirm",false,"allowConfirmSkip",true);
                 title.name="050_DayTwoEnds";
                 var cover=s.GetRootGameObjects().Single(x=>x.name=="Scene Transition Overlay").GetComponentInChildren<CanvasGroup>(true);
                 var fade=Step<CanvasFadeStep>(e,"040_FadeOutDayTwo");Fade(fade,cover,1,.85f);fade.transform.SetSiblingIndex(title.transform.GetSiblingIndex());
@@ -414,7 +418,7 @@ namespace Audere.EditorTools
         private static T Asset<T>(string path,Action<T> configure) where T:ScriptableObject
         {var asset=AssetDatabase.LoadAssetAtPath<T>(path);if(asset!=null)return asset;Folder(System.IO.Path.GetDirectoryName(path).Replace('\\','/'));
             asset=ScriptableObject.CreateInstance<T>();asset.name=System.IO.Path.GetFileNameWithoutExtension(path);configure(asset);AssetDatabase.CreateAsset(asset,path);return asset;}
-        private static DialogueData D(string suffix,DialogueCharacterId counterpart,string audere,string timor,params string[] lines)
+        private static DialogueData D(string suffix,DialogueCharacterId counterpart,string audere,string counterpartPortrait,params string[] lines)
         {
             return Asset<DialogueData>("Assets/_Audere/Data/Dialogue/Day3/Dialogue_D3_"+suffix+".asset",p=>
             {
@@ -422,7 +426,7 @@ namespace Audere.EditorTools
                 var so=new SerializedObject(p);so.FindProperty("dialogueId").stringValue="d3-"+suffix.ToLowerInvariant().Replace('_','-');
                 so.FindProperty("leftCharacter").intValue=1;so.FindProperty("rightCharacter").intValue=(int)counterpart;
                 so.FindProperty("leftPortraitOverride").objectReferenceValue=Portrait("Audere",audere);
-                so.FindProperty("rightPortraitOverride").objectReferenceValue=timor==null?null:Portrait("Timor",timor);
+                so.FindProperty("rightPortraitOverride").objectReferenceValue=counterpartPortrait==null?null:Portrait(counterpart==DialogueCharacterId.Bianca?"Bianca":"Timor",counterpartPortrait);
                 var array=so.FindProperty("lines");array.arraySize=lines.Length;
                 for(int i=0;i<lines.Length;i++){var l=array.GetArrayElementAtIndex(i);l.FindPropertyRelative("speaker").intValue=lines[i][0]=='L'?0:1;l.FindPropertyRelative("text").stringValue=lines[i].Substring(2);}
                 so.ApplyModifiedPropertiesWithoutUndo();

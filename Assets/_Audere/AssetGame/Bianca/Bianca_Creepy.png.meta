@@ -129,12 +129,12 @@ TextureImporter:
       name: Bianca_Creepy_0
       rect:
         serializedVersion: 2
-        x: 959
+        x: 873
         y: 0
-        width: 1800
-        height: 2073
+        width: 2224
+        height: 2076
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -151,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 11f8c13ebbe77bb40b3d17454c8afa9c
     internalID: 0
     vertices: []
     indices: 

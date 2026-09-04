@@ -16,13 +16,15 @@ MonoBehaviour:
   leftCharacter: 1
   rightCharacter: 4
   leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
-  rightPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: -8522945175667249623, guid: 185e3c99ab0def940b195570629d5076, type: 3}
   lines:
   - speaker: 1
     text: Audere?
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: "Audere, c\u1EADu c\xF3 nghe t\u1EDB kh\xF4ng?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

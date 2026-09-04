@@ -1,0 +1,235 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ca86d61b03b73f42aa06816f765d42e, type: 3}
+  m_Name: Enemy_TimorNightPressure
+  m_EditorClassIdentifier: 
+  enemyId: d4-timor-final
+  displayName: TIMOR
+  actorPrefab: {fileID: 692416596494224280, guid: 578c45c2bb9ba0b44b7e71574f442be9, type: 3}
+  phasePolicy: 0
+  sharedMaxHealth: 33
+  phases:
+  - phaseId: timor-final-protection
+    maxHealth: 11
+    sharedExitThreshold: 0
+    duration: 1
+    moveSet: {fileID: 11400000, guid: 8e47706ce1b1c1b45afbece3b8297b79, type: 2}
+    dialogueCues:
+    - cueId: timor-history
+      oneShotKey: timor-history
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 1ddeb0bfed77bbb408ec702db8314fe8, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.35
+      charactersPerSecond: 21
+      interLineGap: 0.2
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+    playerTimeExitFraction: 0
+  - phaseId: timor-final-control
+    maxHealth: 11
+    sharedExitThreshold: 0
+    duration: 1
+    moveSet: {fileID: 11400000, guid: 576476c60c004654694cf36811546e71, type: 2}
+    dialogueCues:
+    - cueId: timor-fear
+      oneShotKey: timor-fear
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 340338ebbfe61694398add020acde8ed, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.35
+      charactersPerSecond: 21
+      interLineGap: 0.2
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 0
+      requiredBeforePhaseAdvance: 1
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+    playerTimeExitFraction: 0
+  - phaseId: timor-final-uncertainty
+    maxHealth: 11
+    sharedExitThreshold: 0
+    duration: 1
+    moveSet: {fileID: 11400000, guid: f9274de83a2b20448aabd47f67a26f40, type: 2}
+    dialogueCues:
+    - cueId: timor-rebellion
+      oneShotKey: timor-rebellion
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 35cf8009d1849b14582ec607bc9622e6, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.35
+      charactersPerSecond: 21
+      interLineGap: 0.2
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 1
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: memory-bianca
+      oneShotKey: memory-bianca
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: 7a8cfc3b5d3e06d42a979709fafe78e9, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: be1e6c0cb2f2dc244ad151a0bc0fa947, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.35
+      charactersPerSecond: 21
+      interLineGap: 0.2
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 1
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: memory-teacher
+      oneShotKey: memory-teacher
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: 064bee8aeb5064e4f9f33816372a8ff9, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 77c481c5c6683e84c8cacd2b4bbab4bd, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.35
+      charactersPerSecond: 21
+      interLineGap: 0.2
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 1
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: memory-crowd
+      oneShotKey: memory-crowd
+      trigger: 10
+      triggerValue: 0
+      triggerMove: {fileID: 11400000, guid: b1fe8c9a0b147274bb9d3245a2a9ef58, type: 2}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 050b8573b3da0e94ca92b3b8c1176557, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.35
+      charactersPerSecond: 21
+      interLineGap: 0.2
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 1
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    - cueId: timor-final-choice
+      oneShotKey: timor-final-choice
+      trigger: 2
+      triggerValue: 2
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: ad72ced894c147e4889863dd05a72c9b, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 1.35
+      charactersPerSecond: 21
+      interLineGap: 0.2
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 1
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 1
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+    playerTimeExitFraction: 0
+  passiveHealthDecayInterval: 0

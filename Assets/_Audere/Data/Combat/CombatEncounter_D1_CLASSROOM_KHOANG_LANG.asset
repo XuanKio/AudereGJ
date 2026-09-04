@@ -24,7 +24,7 @@ MonoBehaviour:
   defeatPresentation:
     dialogue: {fileID: 0}
     hazardFadeDuration: 0.55
-  victoryFadeDuration: 0
+  victoryFadeDuration: 0.75
   dicePerBatch: 5
   batchRespawnDelay: 0.3
   minimumDiceSpeed: 115

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D4_C02_TIMOR
+  m_EditorClassIdentifier: 
+  dialogueId: D4_CROWD_C02_TIMOR
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: -7375481834221275510, guid: 46cb5eee23d03764387f71c94edc4425, type: 3}
+  rightPortraitOverride: {fileID: -4747829306167941163, guid: cdecd5c621db74b43927eb49d1f04191, type: 3}
+  lines:
+  - speaker: 1
+    text: "T\u1EDB \u0111\xE3 n\xF3i r\u1ED3i."
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "\u0110\xE2y l\xE0 \u0111i\u1EC1u x\u1EA3y ra khi c\u1EADu t\u1EF1 l\xE0m."
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

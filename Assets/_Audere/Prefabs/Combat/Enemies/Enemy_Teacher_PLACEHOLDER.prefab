@@ -242,3 +242,6 @@ MonoBehaviour:
   - {fileID: 3091347328992513346}
   animator: {fileID: 0}
   mechanicModules: []
+  idleFloatEnabled: 1
+  idleFloatAmplitude: 1.5
+  idleFloatPeriod: 3.6

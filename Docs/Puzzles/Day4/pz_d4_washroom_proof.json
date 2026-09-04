@@ -1,0 +1,296 @@
+{
+  "solved": true,
+  "solution_count": 3,
+  "solutions_truncated": false,
+  "total_piece_steps": 6,
+  "parity_matches": true,
+  "valid_first_move_count": 4,
+  "winning_first_move_count": 1,
+  "trap_first_move_count": 3,
+  "dead_end_state_count": 9,
+  "premature_goal_hit_count": 2,
+  "sample_trap_first_moves": [
+    {
+      "piece": "PathPiece_L_Corner_3",
+      "source_index": 0,
+      "rotation": 0,
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "end": [
+        1,
+        1
+      ]
+    },
+    {
+      "piece": "PathPiece_L_Corner_3",
+      "source_index": 0,
+      "rotation": 180,
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "end": [
+        1,
+        1
+      ]
+    },
+    {
+      "piece": "PathPiece_Line_2",
+      "source_index": 2,
+      "rotation": 0,
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "end": [
+        1,
+        0
+      ]
+    }
+  ],
+  "sample_solutions": [
+    [
+      {
+        "piece": "PathPiece_Line_2",
+        "source_index": 2,
+        "rotation": 90,
+        "path": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "end": [
+          0,
+          1
+        ]
+      },
+      {
+        "piece": "PathPiece_L_Corner",
+        "source_index": 1,
+        "rotation": 90,
+        "path": [
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "end": [
+          2,
+          0
+        ]
+      },
+      {
+        "piece": "PathPiece_L_Corner_3",
+        "source_index": 0,
+        "rotation": 270,
+        "path": [
+          [
+            2,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "end": [
+          1,
+          1
+        ]
+      }
+    ],
+    [
+      {
+        "piece": "PathPiece_Line_2",
+        "source_index": 2,
+        "rotation": 90,
+        "path": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "end": [
+          0,
+          1
+        ]
+      },
+      {
+        "piece": "PathPiece_L_Corner",
+        "source_index": 1,
+        "rotation": 270,
+        "path": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "end": [
+          2,
+          0
+        ]
+      },
+      {
+        "piece": "PathPiece_L_Corner_3",
+        "source_index": 0,
+        "rotation": 90,
+        "path": [
+          [
+            2,
+            0
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "end": [
+          1,
+          1
+        ]
+      }
+    ],
+    [
+      {
+        "piece": "PathPiece_Line_2",
+        "source_index": 2,
+        "rotation": 90,
+        "path": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "end": [
+          0,
+          1
+        ]
+      },
+      {
+        "piece": "PathPiece_L_Corner",
+        "source_index": 1,
+        "rotation": 270,
+        "path": [
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "end": [
+          2,
+          0
+        ]
+      },
+      {
+        "piece": "PathPiece_L_Corner_3",
+        "source_index": 0,
+        "rotation": 270,
+        "path": [
+          [
+            2,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "end": [
+          1,
+          1
+        ]
+      }
+    ]
+  ],
+  "one_use_cell_count": 2,
+  "board": " 2 . . #\n 1 R G R\n 0 S # #\n   0 1 2"
+}

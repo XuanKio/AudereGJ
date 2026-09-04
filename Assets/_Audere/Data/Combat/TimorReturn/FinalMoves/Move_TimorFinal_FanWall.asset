@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6d984a5d5787b34cb9bb63257f5f366, type: 3}
+  m_Name: Move_TimorFinal_FanWall
+  m_EditorClassIdentifier: 
+  duration: 5.15
+  leadInDuration: 0.46
+  children:
+  - {fileID: 11400000, guid: 8ee911391c567f54fa37029a168846c3, type: 2}
+  - {fileID: 11400000, guid: e506983b30de0dd4e92bfb4762bf9d58, type: 2}

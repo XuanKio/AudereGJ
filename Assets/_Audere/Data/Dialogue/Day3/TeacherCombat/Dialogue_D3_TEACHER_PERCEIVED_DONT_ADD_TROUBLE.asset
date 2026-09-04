@@ -14,15 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dialogueId: d3-teacher-perceived-dont-add-trouble
   leftCharacter: 1
-  rightCharacter: 3
+  rightCharacter: 7
   leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
-  rightPortraitOverride: {fileID: -4037008909499468936, guid: 6d38537decfc13845ab624d43ad28856, type: 3}
+  rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
     text: "\u0110\u1EEBng \u0111\u1EC3 m\u1ECDi ng\u01B0\u1EDDi ph\u1EA3i lo th\xEAm."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: "Audere, c\xF4 \u1EDF \u0111\xE2y m\xE0."
-    portraitOverride: {fileID: -8234531690603157784, guid: 991479b1422f0004c825ea3362e68224, type: 3}
+    characterOverride: 3
+    portraitOverride: {fileID: 0}
     glitchPortraitTransition: 1

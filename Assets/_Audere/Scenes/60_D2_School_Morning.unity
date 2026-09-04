@@ -15058,8 +15058,8 @@ MonoBehaviour:
   endpointSprite: {fileID: -7229646230898672557, guid: 5826bb178ed23674c947d484d7cdb422, type: 3}
   connectorSprite: {fileID: -998410569971287069, guid: ef044398ee454ec439ac28a85e256d92, type: 3}
   endpointScaleToBoardTile: 0.82
-  connectorScaleToBoardTile: 0.22
-  connectorSpacingToBoardTile: 0.28
+  connectorScaleToBoardTile: 0.14
+  connectorSpacingToBoardTile: 0.25
   endpointClearanceToBoardTile: 0.05
   maximumConnectorCount: 32
   sortingOrder: 3
@@ -16760,6 +16760,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   combatController: {fileID: 1138635644}
   combatEncounterData: {fileID: 11400000, guid: 9a16c660cc052bc48a0730812b1cf5ad, type: 2}
+  enemyActorOverride: {fileID: 0}
   victoryBehaviour: 0
   defeatBehaviour: 2
   specialBehaviour: 0

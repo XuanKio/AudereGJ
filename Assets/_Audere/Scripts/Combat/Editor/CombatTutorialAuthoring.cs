@@ -144,12 +144,12 @@ namespace Audere.Combat.Editor
             tutorialEnemySerialized.FindProperty("displayName").stringValue = enemy.DisplayName;
             tutorialEnemySerialized.FindProperty("actorPrefab").objectReferenceValue = enemy.ActorPrefab;
             tutorialEnemySerialized.FindProperty("phasePolicy").enumValueIndex = (int)CombatPhasePolicy.PerPhaseHealth;
-            tutorialEnemySerialized.FindProperty("sharedMaxHealth").intValue = 99;
+            tutorialEnemySerialized.FindProperty("sharedMaxHealth").intValue = 20;
             SerializedProperty tutorialPhases = tutorialEnemySerialized.FindProperty("phases");
             tutorialPhases.arraySize = 1;
             SerializedProperty tutorialPhase = tutorialPhases.GetArrayElementAtIndex(0);
             tutorialPhase.FindPropertyRelative("phaseId").stringValue = "tutorial-only-placeholder";
-            tutorialPhase.FindPropertyRelative("maxHealth").intValue = 99;
+            tutorialPhase.FindPropertyRelative("maxHealth").intValue = 20;
             tutorialPhase.FindPropertyRelative("sharedExitThreshold").intValue = 0;
             tutorialPhase.FindPropertyRelative("duration").floatValue = 120f;
             // Keep the learning round predictable even though the production phase
@@ -171,7 +171,7 @@ namespace Audere.Combat.Editor
             openingDice.GetArrayElementAtIndex(2).enumValueIndex = (int)CombatSymbol.Heal;
             SetCues(tutorialSerialized.FindProperty("cues"),
                 new CueSpec("tutorial-overview", CombatDialogueCueTrigger.DiceBatchReady, overview,
-                    "TRÁI: BẮT · PHẢI: GIEO LẠI · TIME VỀ 0: THUA",
+                    "CHUỘT TRÁI: BẮT XÚC XẮC · CHUỘT PHẢI: GIEO LẠI · TIME VỀ 0: THUA",
                     tutorialFocus: CombatTutorialFocus.DiceAll),
                 new CueSpec("tutorial-stun-zone", CombatDialogueCueTrigger.ElapsedActiveTime, stun,
                     "VÙNG NHIỄU · KHÔNG BẮT ĐƯỢC · VẪN GIEO LẠI ĐƯỢC",
@@ -186,7 +186,7 @@ namespace Audere.Combat.Editor
                 DiceCaughtCue("tutorial-heal", "tutorial-heal", heal, CombatSymbol.Heal,
                     "HỒI NHỊP · TIME TĂNG 3 GIÂY"),
                 new CueSpec("tutorial-reroll", CombatDialogueCueTrigger.DiceRerolled, reroll,
-                    "GIEO LẠI · MẶT XÚC XẮC ĐÃ ĐỔI"),
+                    "CHUỘT PHẢI: GIEO LẠI · MẶT XÚC XẮC ĐÃ ĐỔI"),
                 new CueSpec("tutorial-player-hit", CombatDialogueCueTrigger.PlayerHit, hit,
                     "TRÚNG ĐẠN · TIME GIẢM 3 GIÂY",
                     tutorialFocus: CombatTutorialFocus.Time),

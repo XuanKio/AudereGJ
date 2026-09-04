@@ -44,6 +44,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Audere/Scenes/120_D3_School_Teacher.unity
     guid: 7955fcd5d443c324d8c596969d8b86dc
+  - enabled: 1
+    path: Assets/_Audere/Scenes/130_D4_Home_Morning.unity
+    guid: f07a8210759ecf0419eee6a28f8c36d0
+  - enabled: 1
+    path: Assets/_Audere/Scenes/140_D4_Classroom.unity
+    guid: dc75c4934a49de14aaa5423b441ac0bf
+  - enabled: 1
+    path: Assets/_Audere/Scenes/150_D4_Home_Evening.unity
+    guid: c8e8c410d6191f34db8e71e4c397a04a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

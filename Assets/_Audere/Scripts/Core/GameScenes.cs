@@ -21,6 +21,10 @@ namespace Audere.Core
         public const string Day3SchoolBoard = "110_D3_School_Board";
         public const string Day3SchoolTeacher = "120_D3_School_Teacher";
 
+        public const string Day4HomeMorning = "130_D4_Home_Morning";
+        public const string Day4Classroom = "140_D4_Classroom";
+        public const string Day4HomeEvening = "150_D4_Home_Evening";
+
         // Compatibility alias for older call sites and serialized defaults.
         public const string Game = Day1HomeMorning;
     }

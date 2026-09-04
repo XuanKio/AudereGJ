@@ -62,9 +62,35 @@ Destination covers start active at alpha 1; shared BGM fade hooks remain in use.
 
 See `Docs/15_Day3_BoardTeacher_StoryWorkflow.md` for bindings and QA. Keep profile curves in the asset, not in scene/runtime code. Presentation cancellation must restore material, disable feature and resolve callback once.
 
+## Dream Fracture — Scene80
+
+- **Design Intent requested by Xuân:** an ordinary tile conversation fractures into the existing dream. This is not a claim about Bianca's real thoughts.
+- Profile `Assets/_Audere/Data/Transitions/WorldTransition_DreamFracture.asset`, material `Assets/_Audere/Materials/PostProcess/FullscreenDreamFracture.mat`, shader `Assets/_Audere/Shaders/FullscreenDreamFracture.shader`.
+- Duration **6.95 s**, scenery swap **4.8 s** beneath the frozen pane; no focus renderer required.
+- Shake → freeze the source frame at **0.8 s** → cracks crawl from the top/left/right edges inward in pulses, then branch back out toward the corners → actual polygon pieces burst/rotate/fall from **4.8 s**, immediately revealing the walking puzzle behind them → pieces clear by **6.85 s**. No black interlude.
+- Reference direction: [Code Monkey, How to BREAK your Screen!](https://unitycodemonkey.com/video.php?v=RP1-PZD4Ab4). Independently implemented screenshot geometry, not a fixed-region UV distortion. `ScreenShatterGraphic` draws clipped radial shards with thickness, perspective and gravity; shared profile owns all settings. Snapshot/overlay are runtime-only and do not modify actor sorting.
+- Consumer: `80_D2_Dream/D2_DREAM_ONLY_ME/019_TheClassroomFractures`, `FullscreenPresentationStep`. Authored enable/disable references swap under the intact screenshot; `revealTargetBehindShards` exposes the dream through the separating pieces. Cool charcoal/violet faces, darker backs and restrained rim highlights remain profile settings. No world-mode change or music duck/cue is added.
+- Use for explicit glass/fracture perception changes, not ordinary travel or mild fatigue. Keep Dreamy Disorientation and Fatigue Sway unchanged.
+- Cancellation restores source root states, disables the shared feature, and destroys the snapshot/overlay; later puzzle input is owned by the following PuzzleStep.
+
 ## Adding a catalog entry
 
 Record the profile asset, material, shader, duration, swap time, focus requirement, visual
 order, intended use, exclusions and every accepted scene consumer. Prefer one shared profile
 for several scenes that should change together; create a variant only when those scenes need
 independent future tuning.
+
+## Day4 Crowd classroom
+
+- `140_D4_Classroom/D4_CLASSROOM_CROWD/070_TheRoomBecomesPressure`: shared Dreamy Disorientation, Story→Combat, focus Audere lying renderer. Profile unchanged.
+- `090_TheNoiseFallsAway` neutral0.9s cover → `100_BackInTheClassroom` Story → Bianca placed under cover → reveal0.9s.
+- `200_EveningCover` neutral1.15s → `150_D4_Home_Evening` covered arrival/reveal1.2s. Evening opening continues with Timor Shadow below. See Docs17.
+
+## Timor Shadow Encroachment — Scene150
+
+- **Design Intent:** Timor's fear of becoming unnecessary fills Audere's quiet room; source Story → target Combat. Do not use for neutral travel or mild fatigue.
+- Profile `Assets/_Audere/Data/Transitions/WorldTransition_TimorShadow.asset`; material `Assets/_Audere/Materials/PostProcess/FullscreenTimorShadow.mat`; shader `Assets/_Audere/Shaders/FullscreenTimorShadow.shader`.
+- Consumer: `150_D4_Home_Evening/D4_EVENING_TIMOR_RETURNS/150_HisShadowFillsTheRoom`, direct `FullscreenWorldModeTransitionStep`. No focus renderer required; aspect-correct silhouette grows from the right using existing `Enemyy/timor.png` alpha, with slight shape drift and dark indigo details.
+- Duration5.4s; opaque cover held4.0–4.4s; mode swap4.2s; shadow/cover clear5.4s. Only the following CombatStep owns combat input. Shared transition controller retains existing music duck/reveal behavior; no new sound or low-pass logic.
+- Cancellation before/after swap restores Story and PuzzleViewportMask, disables feature and destroys material. Scene40 and other profiles unchanged. Final encounter outcome remains Unresolved; current re-entry preserves Scene40 rules until Xuân chooses.
+- Verified production reveal, opaque swap, clean Timor target and both cancellation sides; `Temp/Day4Timor/tests_4_pass.xml` and GameView screenshots. See Docs17 for narrative/authoring limits.

@@ -41,6 +41,17 @@ namespace Audere.Audio.Editor.Tests
             return go;
         }
 
+        [Test]
+        public void SceneMusicSpace_LeavesQuietGapsAndReleasesItsOwner()
+        {
+            var space=NewObject("Scene music space").AddComponent<SceneMusicSpace>();
+            Assert.Less(space.GainAt(0f),.5f);
+            Assert.Less(space.GainAt(25f),space.GainAt(0f)*.2f);
+            Assert.AreEqual(space.GainAt(0f),space.GainAt(32f),.0001f);
+            state.SetDuck(space,space.GainAt(25f));
+            Assert.Less(state.Gain,.1f);
+            state.Release(space);Assert.AreEqual(1f,state.Gain);
+        }
         private CanvasGroup Cover(float alpha)
         {
             CanvasGroup cover = NewObject("QA Cover").AddComponent<CanvasGroup>();

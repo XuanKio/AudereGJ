@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 967723d69e90a4d499f2dff45bf25f11, type: 3}
+  m_Name: MoveSet_TimorFinal_P1
+  m_EditorClassIdentifier: 
+  selectionPolicy: 0
+  entries:
+  - move: {fileID: 11400000, guid: dba4ba7f3aa99154594313c3a4cdd3b8, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 85090eaf6a737af4f95af83010cb5286, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: cbc27bdfcac7891418c6bcd8ca4c316a, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: d6a1a343e42f19349933baded9cbf8aa, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 77fceba49652e6741974b283bb957a7c, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: b7105afee2bd73f49b54ed5f50c1666f, type: 2}
+    weight: 1

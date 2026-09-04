@@ -19,12 +19,14 @@ namespace Audere.Puzzle.PathPieces
         private readonly List<PathPieceData> pieces = new List<PathPieceData>();
         private readonly List<PathPieceCardUI> cards = new List<PathPieceCardUI>();
         private int selectedIndex = -1;
+        private bool selectionEnabled = true;
         private bool tutorialAttention;
 
         public bool HasPieces => pieces.Count > 0;
         public int Count => pieces.Count;
         public PathPieceData SelectedPiece =>
             selectedIndex >= 0 && selectedIndex < pieces.Count ? pieces[selectedIndex] : null;
+        public bool SelectionEnabled => selectionEnabled;
         public event Action<PathPieceData> SelectionChanged;
 
         public void ConfigurePrefab(RectTransform root, PathPieceCardUI prefab)
@@ -57,7 +59,7 @@ namespace Audere.Puzzle.PathPieces
 
         public void Select(int index)
         {
-            if (index < 0 || index >= pieces.Count)
+            if (!selectionEnabled || index < 0 || index >= pieces.Count)
                 return;
 
             selectedIndex = index;
@@ -66,7 +68,7 @@ namespace Audere.Puzzle.PathPieces
 
         public void ToggleSelection(int index)
         {
-            if (index < 0 || index >= pieces.Count)
+            if (!selectionEnabled || index < 0 || index >= pieces.Count)
                 return;
 
             selectedIndex = selectedIndex == index ? -1 : index;
@@ -87,6 +89,16 @@ namespace Audere.Puzzle.PathPieces
         {
             selectedIndex = -1;
             RefreshSelection();
+        }
+
+        /// <summary>
+        /// The selected piece is reserved as soon as traversal starts. Cards stay
+        /// visible, but cannot replace that in-flight path until the board returns
+        /// to its next placement turn.
+        /// </summary>
+        public void SetSelectionEnabled(bool value)
+        {
+            selectionEnabled = value;
         }
 
         public void SetTutorialAttention(bool value)

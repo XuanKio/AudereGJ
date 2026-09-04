@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ca86d61b03b73f42aa06816f765d42e, type: 3}
+  m_Name: Enemy_Bianca_FadingPressure
+  m_EditorClassIdentifier: 
+  enemyId: d3-bianca-fading-pressure
+  displayName: Bianca
+  actorPrefab: {fileID: 3076063008388383328, guid: bb39e8d445f20d543ab58b7566c98b6e, type: 3}
+  phasePolicy: 0
+  sharedMaxHealth: 1
+  phases:
+  - phaseId: listen-to-her
+    maxHealth: 6
+    sharedExitThreshold: 0
+    duration: 60
+    moveSet: {fileID: 11400000, guid: 96a8eb916c5f930468fd2283922de1fb, type: 2}
+    dialogueCues:
+    - cueId: reprise-real-voices
+      oneShotKey: 
+      trigger: 0
+      triggerValue: 0
+      triggerMove: {fileID: 0}
+      triggerCueId: 
+      filterBySymbol: 0
+      symbol: 0
+      sequence:
+      - {fileID: 11400000, guid: 4d33a94d76578da41a5dc32639e8af8c, type: 2}
+      - {fileID: 11400000, guid: 276abd016bd5d6440a75fb4f95112c26, type: 2}
+      - {fileID: 11400000, guid: 2b9be65e33d4dd34894d1e5b03c4f4c9, type: 2}
+      - {fileID: 11400000, guid: 410f224b5025cbc43bcf37846bb0d01b, type: 2}
+      - {fileID: 11400000, guid: 77b651b025c71d541b89b65a64c5fcd0, type: 2}
+      - {fileID: 11400000, guid: 859146c1467d4e04e8380f42e44b3716, type: 2}
+      instruction: 
+      instructionDuration: 0
+      tutorialFocus: 0
+      showcasedSymbol: 0
+      isTutorial: 0
+      presentation: 1
+      minimumLineDuration: 2.1
+      charactersPerSecond: 24
+      interLineGap: 0.3
+      repeatOnTrigger: 0
+      interruptsAutoDialogue: 0
+      playLoseRhythmOnComplete: 0
+      requiredBeforeVictory: 1
+      requiredBeforePhaseAdvance: 0
+      requiredBeforePlayerDefeat: 0
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 0
+    spawnDice: 0
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 0
+    minimumPlayerTimeOnEnter: 0
+  passiveHealthDecayInterval: 3.5

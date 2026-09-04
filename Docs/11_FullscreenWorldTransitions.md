@@ -158,7 +158,23 @@ Checklist:
 - Cancel trước/sau swap và replay đều trả state sạch.
 - C#/shader compile sạch; Console 0 error; scene không missing script/reference.
 
-## Presentation-only use: Day3 fatigue
+## Presentation-only use
+
+### Optional covered scenery swap
+
+`PlayPresentation` now accepts an optional `Action onSwap` after `onEnded`. It runs once at the profile's `ModeSwapTime`, after applying the covered profile state, and holds that state for a rendered frame even after a long frame. Existing three-argument calls remain valid and do not swap scenery or claim music ownership.
+
+`FullscreenPresentationStep` optionally holds direct `enableAtSwap` / `disableAtSwap` GameObject arrays. It captures their initial active states for each run and restores them on cancellation before or after swap. Scene80 uses this with the shared **Dream Fracture** profile (6.95 s / swap 4.8 s beneath the intact frozen pane); Scene110 fatigue leaves the arrays empty. A scenery swap needs either an opaque screenshot or the profile's intended cover.
+
+### Optional frozen-screen shatter
+
+`FullscreenTransitionProfile.ScreenShatter` is disabled by default. Only Dream Fracture enables it. Shared settings contain the shard material, capture/break/clear times, crack curve, impact, seed, spoke count, impulse, gravity, spin, thickness and glass colors. Validation requires `capture < break < clear <= duration` and a fullscreen `_Cover` property. With `revealTargetBehindShards`, swap occurs during breakup (Scene80 swaps exactly at break); otherwise clear must precede the covered swap. Existing profiles retain their original renderer path and music behavior.
+
+The controller waits for the source frame to finish rendering, captures one `Texture2D`, and then creates a runtime-only overlay Canvas. `ScreenShatterGraphic` requires a `CanvasRenderer`: clipped radial polygons map their original screen coordinates into the frozen texture. Their vertices move with individual translation, three-axis rotation, perspective and gravity; side faces give pieces visible thickness. Cracks use those same polygon boundaries. No physics, world layers, actor transforms or gameplay input are changed.
+
+For Scene80, the opaque frozen pane conceals the source-to-dream swap at breakup. The overlay background and fullscreen cover then become transparent immediately: the walking puzzle is visible behind the falling pieces, without a black interlude. Profiles can instead retain the original covered-swap option. Complete/cancel/disable destroys the texture and overlay and resets the renderer feature/material; replay captures a fresh source. No screenshot assets are written in production. Visual QA must inspect actual Canvas output as well as mesh geometry: a missing renderer can otherwise leave an apparently successful timeline over a blank cover. Snapshot sampling decodes display-encoded pixels in Linear projects to prevent a brightness jump.
+
+### Day3 fatigue
 
 `FullscreenTransitionController.PlayPresentation(profile, focusRenderer, onEnded)` dùng shared material/profile nhưng **không gọi WorldModeController** và không claim music duck. `FullscreenPresentationStep` sở hữu callback/cancel; normal completion và cancellation đều disable feature/reset runtime material. Public mode-transition API không đổi.
 

@@ -35,8 +35,10 @@ namespace Audere.Combat
         private int currentHealth;
         private int sharedHealth;
         private float phaseElapsed;
+        private float passiveDecayElapsed;
         private float moveLeadInRemaining;
         private readonly bool allowVictory;
+        private readonly float healthMultiplier;
         private int capturedBatchesInPhase;
         private bool batchProgressionPending;
         private bool healthProgressionPending;
@@ -46,13 +48,17 @@ namespace Audere.Combat
             CombatBoardView board,
             ICombatRandom random,
             int sessionVersion,
-            bool allowVictory = true)
+            bool allowVictory = true,
+            float healthMultiplier = 1f)
         {
             this.definition = definition ?? throw new ArgumentNullException(nameof(definition));
             this.board = board ?? throw new ArgumentNullException(nameof(board));
             this.random = random ?? throw new ArgumentNullException(nameof(random));
             SessionVersion = sessionVersion;
             this.allowVictory = allowVictory;
+            if (float.IsNaN(healthMultiplier) || float.IsInfinity(healthMultiplier) || healthMultiplier <= 0f)
+                throw new ArgumentOutOfRangeException(nameof(healthMultiplier), healthMultiplier, "Health multiplier must be finite and greater than zero.");
+            this.healthMultiplier = healthMultiplier;
             if (!definition.Validate(out string error))
                 throw new InvalidOperationException(error);
         }
@@ -63,13 +69,15 @@ namespace Audere.Combat
         public int PhaseIndex { get; private set; } = -1;
         public int PhaseCount => definition.PhaseCount;
         public int CurrentHealth => definition.PhasePolicy == CombatPhasePolicy.SharedHealthThresholds ||
-                                    definition.PhasePolicy == CombatPhasePolicy.CapturedDiceBatchSequence
+                                    definition.PhasePolicy == CombatPhasePolicy.CapturedDiceBatchSequence ||
+                                    definition.PhasePolicy == CombatPhasePolicy.SharedHealthPlayerTime
             ? sharedHealth
             : currentHealth;
         public int CurrentMaxHealth => definition.PhasePolicy == CombatPhasePolicy.SharedHealthThresholds ||
-                                       definition.PhasePolicy == CombatPhasePolicy.CapturedDiceBatchSequence
-            ? definition.SharedMaxHealth
-            : CurrentPhase != null ? CurrentPhase.MaxHealth : 0;
+                                       definition.PhasePolicy == CombatPhasePolicy.CapturedDiceBatchSequence ||
+                                    definition.PhasePolicy == CombatPhasePolicy.SharedHealthPlayerTime
+            ? ScaleHealth(definition.SharedMaxHealth)
+            : CurrentPhase != null ? ScaleHealth(CurrentPhase.MaxHealth) : 0;
         public float PhaseElapsed => phaseElapsed;
         public CombatPhaseDefinition CurrentPhase => definition.GetPhase(PhaseIndex);
         public CombatEnemyActor Actor => actor;
@@ -83,6 +91,12 @@ namespace Audere.Combat
         public bool ShouldSpawnDice => CurrentPhase != null && CurrentPhase.SpawnDice;
         public CombatDiceBatchDefinition CurrentDiceBatch => UsesCapturedBatchProgression ? CurrentPhase?.DiceBatch : null;
         public bool CanPlayerBeDefeated => CurrentPhase != null && CurrentPhase.AllowsPlayerDefeat && !HasUnresolvedPlayerDefeatGate();
+        public float HealthMultiplier => healthMultiplier;
+
+        public float ScaleAuthoredHealthThreshold(float authoredThreshold)
+        {
+            return Mathf.Max(0f, authoredThreshold) * healthMultiplier;
+        }
 
         public void Start()
         {
@@ -92,8 +106,18 @@ namespace Audere.Combat
             if (actor == null)
                 throw new InvalidOperationException($"Could not spawn actor for enemy '{definition.EnemyId}'.");
             actor.Initialize(new CombatEnemyMechanicContext(board, SessionVersion));
-            sharedHealth = definition.SharedMaxHealth;
+            sharedHealth = ScaleHealth(definition.SharedMaxHealth);
             EnterPhase(0);
+        }
+
+        // Controller supplies the real TIME meter, including hits/heals. Progress only forwards;
+        // a later Heal cannot re-enable an earlier pressure phase.
+        public void ObservePlayerTime(float remaining, float maximum)
+        {
+            if (State != CombatEnemyRuntimeState.Playing || definition.PhasePolicy != CombatPhasePolicy.SharedHealthPlayerTime ||
+                PhaseIndex >= PhaseCount - 1 || maximum <= 0f) return;
+            if (Mathf.Clamp01(remaining / maximum) <= CurrentPhase.PlayerTimeExitFraction)
+                BeginProgression(CombatEnemyProgression.PhaseBreak);
         }
 
         public void Tick(float activeDeltaTime)
@@ -101,18 +125,38 @@ namespace Audere.Combat
             if (State != CombatEnemyRuntimeState.Playing)
                 return;
 
-            // Keep the current simulation alive while a required auto-dialogue finishes.
-            // Damage has already reached this threshold; do not require another hit or
+            // Resolve a threshold held by required dialogue on the first active tick after
+            // the controller releases its dialogue pause. Do not require another hit or
             // carry overflow into the next phase. The controller owns result/phase cleanup.
             if (healthProgressionPending && !HasUnresolvedSharedHealthGate())
             {
                 healthProgressionPending = false;
-                BeginProgression(PhaseIndex >= definition.PhaseCount - 1
-                    ? CombatEnemyProgression.Victory
-                    : CombatEnemyProgression.PhaseBreak);
-                return;
+                bool resumesPassiveDecay = definition.PhasePolicy == CombatPhasePolicy.PerPhaseHealth &&
+                    definition.PassiveHealthDecayInterval > 0f;
+                if (!resumesPassiveDecay)
+                {
+                    if (definition.PhasePolicy == CombatPhasePolicy.PerPhaseHealth)
+                        currentHealth = 0;
+                    BeginProgression(PhaseIndex >= definition.PhaseCount - 1
+                        ? CombatEnemyProgression.Victory
+                        : CombatEnemyProgression.PhaseBreak);
+                    return;
+                }
             }
 
+            float decayInterval = definition.PassiveHealthDecayInterval;
+            if (decayInterval > 0f && AcceptsDamage)
+            {
+                passiveDecayElapsed += Mathf.Max(0f, activeDeltaTime);
+                if (passiveDecayElapsed >= decayInterval)
+                {
+                    int ticks = Mathf.Min(CurrentHealth, Mathf.FloorToInt(passiveDecayElapsed / decayInterval));
+                    ApplyDamage(ticks, out int applied);
+                    // A blocked final hit does not accumulate a burst behind the dialogue gate.
+                    passiveDecayElapsed = applied < ticks ? 0f : passiveDecayElapsed % decayInterval;
+                    if (State != CombatEnemyRuntimeState.Playing) return;
+                }
+            }
             phaseElapsed += Mathf.Max(0f, activeDeltaTime);
             if (definition.PhasePolicy == CombatPhasePolicy.TimedSequence &&
                 phaseElapsed >= CurrentPhase.Duration)
@@ -155,17 +199,32 @@ namespace Audere.Combat
             if (definition.PhasePolicy == CombatPhasePolicy.PerPhaseHealth)
             {
                 int previous = currentHealth;
-                int minimumHealth = (!allowVictory || HasUnresolvedVictoryGate()) &&
-                                    PhaseIndex >= definition.PhaseCount - 1 ? 1 : 0;
+                bool finalPhase = PhaseIndex >= definition.PhaseCount - 1;
+                bool phaseGate = !finalPhase && HasUnresolvedPhaseAdvanceGate();
+                bool victoryGate = finalPhase && (!allowVictory || HasUnresolvedVictoryGate());
+                int minimumHealth = phaseGate || victoryGate ? 1 : 0;
                 currentHealth = Mathf.Max(minimumHealth, currentHealth - amount);
                 appliedDamage = previous - currentHealth;
                 if (currentHealth > 0)
+                {
+                    if (currentHealth == 1 && previous - amount <= 0 && (phaseGate || victoryGate))
+                        healthProgressionPending = true;
                     return CombatEnemyProgression.None;
-                return BeginProgression(PhaseIndex >= definition.PhaseCount - 1
+                }
+                return BeginProgression(finalPhase
                     ? CombatEnemyProgression.Victory
                     : CombatEnemyProgression.PhaseBreak);
             }
 
+            if (definition.PhasePolicy == CombatPhasePolicy.SharedHealthPlayerTime)
+            {
+                int beforeTimeDamage = sharedHealth;
+                bool final = PhaseIndex >= PhaseCount - 1;
+                int floor = !final || !allowVictory || HasUnresolvedVictoryGate() ? 1 : 0;
+                sharedHealth = Mathf.Max(floor, sharedHealth - amount);
+                appliedDamage = beforeTimeDamage - sharedHealth;
+                return sharedHealth == 0 ? BeginProgression(CombatEnemyProgression.Victory) : CombatEnemyProgression.None;
+            }
             if (definition.PhasePolicy == CombatPhasePolicy.CapturedDiceBatchSequence)
             {
                 int previous = sharedHealth;
@@ -174,7 +233,7 @@ namespace Audere.Combat
                 return CombatEnemyProgression.None;
             }
 
-            int threshold = CurrentPhase.SharedExitThreshold;
+            int threshold = ScaleHealth(CurrentPhase.SharedExitThreshold);
             int before = sharedHealth;
             sharedHealth = Mathf.Max(threshold, sharedHealth - amount);
             appliedDamage = before - sharedHealth;
@@ -206,7 +265,7 @@ namespace Audere.Combat
             if (CurrentPhase != null)
                 actor.ExitPhase(CurrentPhase, PhaseIndex);
             actor.SetPaused(false);
-            sharedHealth = definition.SharedMaxHealth;
+            sharedHealth = ScaleHealth(definition.SharedMaxHealth);
             playedCueIds.Clear();
             resolvedCueIds.Clear();
             EnterPhase(0);
@@ -298,12 +357,13 @@ namespace Audere.Combat
             PhaseVersion++;
             State = CombatEnemyRuntimeState.EnteringPhase;
             phaseElapsed = 0f;
+            passiveDecayElapsed = 0f;
             capturedBatchesInPhase = 0;
             batchProgressionPending = false;
             healthProgressionPending = false;
             CombatPhaseDefinition phase = CurrentPhase;
             if (definition.PhasePolicy == CombatPhasePolicy.PerPhaseHealth)
-                currentHealth = phase.MaxHealth;
+                currentHealth = ScaleHealth(phase.MaxHealth);
             moveSelector = new CombatMoveSelector(phase.MoveSet, random);
             moveSelector.Reset();
             CurrentMove = null;
@@ -332,10 +392,16 @@ namespace Audere.Combat
         {
             if (State != CombatEnemyRuntimeState.Playing)
                 return;
+
             activeMove?.Cancel();
+            // A new attack starts from a clean board. This makes the authored
+            // lead-in a real breathing beat instead of letting old hazards fill it.
+            board?.ClearRuntimeBullets(SessionVersion, PhaseVersion);
+
             CombatMoveDefinition move = moveSelector.Next();
             CurrentMove = move;
             MoveVersion++;
+
             moveLeadInRemaining = move.LeadInDuration;
             activeMove = moveLeadInRemaining > 0f ? null : move.CreateExecution(new CombatMoveExecutionContext(
                 board, actor, random, SessionVersion, PhaseVersion));
@@ -357,6 +423,13 @@ namespace Audere.Combat
             activeMove?.Cancel();
             activeMove = null;
             CurrentMove = null;
+        }
+
+        private int ScaleHealth(int authoredHealth)
+        {
+            if (authoredHealth <= 0)
+                return 0;
+            return Mathf.Max(1, Mathf.CeilToInt(authoredHealth * healthMultiplier));
         }
 
         private bool HasUnresolvedSharedHealthGate()

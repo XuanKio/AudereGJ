@@ -18,6 +18,9 @@ namespace Audere.Story.Steps
         [Header("Combat")]
         [SerializeField] private CombatController combatController;
         [SerializeField] private CombatEncounterData combatEncounterData;
+        [Tooltip("Optional direct actor binding when successive encounters share a board.")]
+        [SerializeField] private CombatEnemyActor enemyActorOverride;
+        public CombatEnemyActor EnemyActorOverride => enemyActorOverride;
 
         [Header("Result Behaviour")]
         [SerializeField] private CombatResultBehaviour victoryBehaviour = CombatResultBehaviour.Complete;
@@ -146,6 +149,7 @@ namespace Audere.Story.Steps
             activeRetryView?.ForceHide();
             isWaitingForRetry = false;
             controller.ResetEncounter();
+            if (enemyActorOverride != null) controller.BoardView.BindAuthoredEnemyActor(enemyActorOverride);
 
             int attempt = ++attemptVersion;
             ownsCombatSession = true;

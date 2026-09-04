@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D4_TIMOR_FINAL_FINAL_GATE
+  m_EditorClassIdentifier: 
+  dialogueId: D4_TIMOR_FINAL_FINAL_GATE
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 5003323414229244817, guid: aef14cf774eb96745a1ce7b2b831128f, type: 3}
+  rightPortraitOverride: {fileID: 4335302707972937840, guid: 5d2b3fc096225e44a80f7c7be67ca463, type: 3}
+  lines:
+  - speaker: 1
+    text: "C\u1EADu\u2026 v\u1EABn mu\u1ED1n th\u1EED sao?"
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 0
+    text: "\u1EEA. D\xF9 t\u1EDB v\u1EABn s\u1EE3."
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

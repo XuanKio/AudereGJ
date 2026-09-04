@@ -12,6 +12,8 @@ namespace Audere.Dialogue
         {
             [SerializeField] private DialogueSpeakerSide speaker;
             [SerializeField, TextArea(2, 6)] private string text;
+            [Tooltip("Optional identity for this speaker from this line onward. None holds the current identity. Changing identity resets its portrait to the catalog default before applying Portrait Override.")]
+            [SerializeField] private DialogueCharacterId characterOverride;
             [Tooltip("Optional portrait used from this line onward for its speaker.")]
             [SerializeField] private Sprite portraitOverride;
             [Tooltip("Briefly flicker from the previous portrait into this line's portrait, then settle.")]
@@ -19,6 +21,7 @@ namespace Audere.Dialogue
 
             public DialogueSpeakerSide Speaker => speaker;
             public string Text => text;
+            public DialogueCharacterId CharacterOverride => characterOverride;
             public Sprite PortraitOverride => portraitOverride;
             public bool GlitchPortraitTransition => glitchPortraitTransition;
         }

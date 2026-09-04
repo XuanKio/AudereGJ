@@ -32,6 +32,12 @@ namespace Audere.Combat
         [SerializeField, Range(.05f, .8f)] private float safeGapFraction = .28f;
         [SerializeField, Min(1)] private int intensity = 5;
 
+        [Header("Readable Burst Rhythm")]
+        [Tooltip("Zero keeps continuous fire. A positive value inserts a breathing beat after this many waves.")]
+        [SerializeField, Range(0, 8)] private int wavesPerBurst;
+        [SerializeField, Min(0f)] private float breatherDuration = .5f;
+        [SerializeField, Range(1, 3)] private int breatherGridPulses = 1;
+
         [Header("Optional Music Grid")]
         [SerializeField] private Audere.Audio.AudioId rhythmMusic = Audere.Audio.AudioId.None;
         [SerializeField, Min(0f)] private float rhythmBpm;
@@ -49,6 +55,9 @@ namespace Audere.Combat
         public float TelegraphDuration => telegraphDuration;
         public float SafeGapFraction => safeGapFraction;
         public int Intensity => Mathf.Max(1, intensity);
+        public int WavesPerBurst => Mathf.Max(0, wavesPerBurst);
+        public float BreatherDuration => Mathf.Max(0f, breatherDuration);
+        public int BreatherGridPulses => Mathf.Max(1, breatherGridPulses);
 
         public override bool Validate(out string error)
         {
@@ -85,6 +94,8 @@ namespace Audere.Combat
             private float cooldown;
             private readonly CombatMusicBeatClock musicClock = new CombatMusicBeatClock();
             private int waveIndex;
+            private int wavesInBurst;
+            private int remainingGridBreatherPulses;
             private bool cancelled;
 
             public Execution(NarrativePressurePatternMove data, CombatMoveExecutionContext context)
@@ -118,8 +129,7 @@ namespace Audere.Combat
                     double period = 60d / data.rhythmBpm * data.waveBeats;
                     if (!IsComplete && musicClock.Tick(songTime, period, data.rhythmBeatOffset, data.TelegraphDuration, activeDeltaTime))
                     {
-                        SpawnWave();
-                        waveIndex++;
+                        TickMusicGridPulse();
                     }
                     return;
                 }
@@ -131,10 +141,34 @@ namespace Audere.Combat
                 cooldown -= activeDeltaTime;
                 while (cooldown <= 0f && !IsComplete)
                 {
+                    if (data.WavesPerBurst > 0 && wavesInBurst >= data.WavesPerBurst)
+                    {
+                        wavesInBurst = 0;
+                        cooldown += Mathf.Max(.08f, data.BreatherDuration);
+                        continue;
+                    }
                     SpawnWave();
                     cooldown += Mathf.Max(.08f, data.WaveInterval);
                     waveIndex++;
+                    wavesInBurst++;
                 }
+            }
+
+            private void TickMusicGridPulse()
+            {
+                if (remainingGridBreatherPulses > 0)
+                {
+                    remainingGridBreatherPulses--;
+                    if (remainingGridBreatherPulses == 0)
+                        wavesInBurst = 0;
+                    return;
+                }
+
+                SpawnWave();
+                waveIndex++;
+                wavesInBurst++;
+                if (data.WavesPerBurst > 0 && wavesInBurst >= data.WavesPerBurst)
+                    remainingGridBreatherPulses = data.BreatherGridPulses;
             }
 
             public void Cancel()

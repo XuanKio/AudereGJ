@@ -145,6 +145,11 @@ namespace Audere.Dialogue
                 !TryResolveCharacter(displayRight, out DialogueCharacterCatalog.Entry rightCharacter))
                 return false;
 
+            // Reject invalid line identities before cancelling a valid playback or claiming input.
+            foreach (DialogueData.Line line in data.Lines)
+                if (line.CharacterOverride != DialogueCharacterId.None &&
+                    !TryResolveCharacter(line.CharacterOverride, out _))
+                    return false;
             int requestVersion = ++playRequestVersion;
             CancelPlayback();
 
@@ -212,7 +217,8 @@ namespace Audere.Dialogue
         {
             if (playbackMode == DialoguePlaybackMode.GlobalTimePause)
             {
-                timeScaleBeforeDialogue = Time.timeScale;
+                if (!Audere.UI.InGameSettingsPanel.TryGetResumeTimeScale(out timeScaleBeforeDialogue))
+                    timeScaleBeforeDialogue = Time.timeScale;
                 Time.timeScale = 0f;
                 ownsGameplayPause = true;
             }
@@ -243,6 +249,8 @@ namespace Audere.Dialogue
 
             yield return AnimateCharactersIn();
 
+            var leftPresentation = new DialoguePresentationState(leftCharacter, leftPortrait);
+            var rightPresentation = new DialoguePresentationState(rightCharacter, rightPortrait);
             DialogueBubbleView currentBubble = null;
 
             foreach (DialogueData.Line line in data.Lines)
@@ -258,25 +266,26 @@ namespace Audere.Dialogue
                     ? leftSlot
                     : rightSlot;
 
-                if (line.PortraitOverride != null)
+                var presentation = displaySpeaker == DialogueSpeakerSide.Left
+                    ? leftPresentation : rightPresentation;
+                if (!presentation.TryApply(line, characterCatalog))
                 {
-                    if (displaySpeaker == DialogueSpeakerSide.Left)
-                        leftPortrait = line.PortraitOverride;
-                    else
-                        rightPortrait = line.PortraitOverride;
+                    Debug.LogError("[DialogueController] Line character is no longer available in the catalog.", data);
+                    cancellationRequested = true;
+                    break;
                 }
 
                 leftSlot.SetPresentation(
-                    leftCharacter,
+                    leftPresentation.Character,
                     displaySpeaker == DialogueSpeakerSide.Left,
                     line.Text,
-                    leftPortrait,
+                    leftPresentation.PortraitOverride,
                     displaySpeaker == DialogueSpeakerSide.Left && line.GlitchPortraitTransition);
                 rightSlot.SetPresentation(
-                    rightCharacter,
+                    rightPresentation.Character,
                     displaySpeaker == DialogueSpeakerSide.Right,
                     line.Text,
-                    rightPortrait,
+                    rightPresentation.PortraitOverride,
                     displaySpeaker == DialogueSpeakerSide.Right && line.GlitchPortraitTransition);
 
                 TMP_Text text = speakingSlot.Bubble != null ? speakingSlot.Bubble.DialogueText : null;
@@ -439,6 +448,8 @@ namespace Audere.Dialogue
             DialogueCharacterId characterId,
             out DialogueCharacterCatalog.Entry character)
         {
+            // An unoccupied side is valid for a monologue; the slot hides its null portrait.
+            if (characterId == DialogueCharacterId.None) { character = default; return true; }
             if (characterCatalog != null && characterCatalog.TryGet(characterId, out character))
             {
                 if (character.Portrait == null)

@@ -14,15 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dialogueId: d2-bianca-taunt-02
   leftCharacter: 1
-  rightCharacter: 4
+  rightCharacter: 6
   leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
-  rightPortraitOverride: {fileID: 6381855181040149290, guid: b0ed9cb7d9759054d9f7927c3491205d, type: 3}
+  rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
     text: "C\xE1i n\xE0y c\u0169ng l\u1EA5y nh\u1EA7m."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: Audere?
-    portraitOverride: {fileID: 7503800403365798388, guid: 03f69c0d5de4d5b4982fff343666a5cb, type: 3}
+    characterOverride: 4
+    portraitOverride: {fileID: -8522945175667249623, guid: 185e3c99ab0def940b195570629d5076, type: 3}
     glitchPortraitTransition: 1

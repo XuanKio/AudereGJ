@@ -14,11 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dialogueId: d2-bianca-taunt-03
   leftCharacter: 1
-  rightCharacter: 4
+  rightCharacter: 6
   leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
-  rightPortraitOverride: {fileID: 6381855181040149290, guid: b0ed9cb7d9759054d9f7927c3491205d, type: 3}
+  rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
     text: "\u0110i m\u1ED9t m\xECnh c\xF2n nhanh h\u01A1n."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

@@ -111,11 +111,22 @@ Path Piece trong thanh chọn dưới UI giữ presentation cũ: card `128 × 12
 node `14 px` và logical spacing `24 px`. Không thay đổi presentation card khi chỉ polish
 preview đang bám con trỏ trên board.
 
-World `PathPreview` dùng sprite cursor ở hai endpoint và các connector sprite nhỏ chạy theo
-polyline. Endpoint bằng `0.82` cell, connector bằng `0.22` cell và spacing bằng `0.28` cell.
-Với L-corner, runtime snap một connector đúng vào authored vertex; các connector còn lại vẫn
-được chia đều theo chiều dài. Vì vậy góc đọc thành hai đoạn vuông góc thay vì một đường chéo,
-trong khi `PathPieceData` và hình card lựa chọn không đổi.
+World `PathPreview` giữ endpoint `0.82` cell; ô connector nhỏ bằng `0.14` cell,
+khoảng cách tâm bằng `0.25` cell. Các điểm nằm trên cùng một lưới chia tư mỗi đoạn;
+vertex 90 độ có đúng một ô nối, không kéo mẫu lân cận về góc nên không còn dồn/chồng ô.
+Clearance ở A/B có tính cả nửa kích thước connector. Path dài vượt budget giảm mật độ
+đồng đều, tối đa 32 connector; không đổi `PathPieceData`, hình card hay luật đặt đường.
+
+Connector mới/tái sử dụng được khởi tạo đúng kích thước trước frame hiển thị và dùng
+chung scale presentation. Khi xoay/đổi hình, cả preview đổi hình cùng nhau; khi chỉ di
+chuyển con trỏ, vẫn giữ nội suy vị trí. Hai prefab `PathPreviewWorld`, `PathPreviewUI`
+và preview author trực tiếp trong Scene60 dùng cùng cấu hình.
+
+Kiểm tra 2026-08-29: 14/14 test passed, gồm 13 presentation cases (góc, xoay, đảo hai đầu,
+scale parent, pool tăng/giảm, retarget, clear) và production Day4 với actual preview/drop,
+wrong-goal/fall/reset/cancel, thắng hai board rồi chuyển lớp. Evidence:
+`Temp/PathPreviewPolish/tests_14_pass.xml`, `short-even.png`, `long-even.png`.
+Hai ảnh là Play preview dùng prefab thật trên nền kiểm tra riêng; lượt Day4 kiểm gameplay.
 
 ## 5. Dựng một map mới
 

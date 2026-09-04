@@ -891,6 +891,7 @@ namespace Audere.EditorTools
             ConfigureWait(CreateStep<WaitStep>(storyEvent, "170_HoldAfterReply"), .45f);
             ConfigureFade(CreateStep<CanvasFadeStep>(storyEvent, "180_LightsOut"), fade, 1f, .8f);
             ConfigureTitleCard(CreateStep<StoryTitleCardStep>(storyEvent, "190_DayOneEnds"), nightUi.TitleGroup, nightUi.TitleText);
+            ConfigureSceneLoad(CreateStep<SceneLoadStep>(storyEvent, "200_BeginDayTwo"), "50_D2_Home_Morning");
 
             SerializedObject directorSerialized = new SerializedObject(director);
             SetObject(directorSerialized, "storyEventsRoot", story.transform);
@@ -1253,7 +1254,17 @@ namespace Audere.EditorTools
             serialized.FindProperty("title").stringValue = "Ngày 1 - Kết thúc";
             serialized.FindProperty("fadeDuration").floatValue = .55f;
             serialized.FindProperty("holdDuration").floatValue = 2f;
+            serialized.FindProperty("waitForConfirm").boolValue = true;
+            serialized.FindProperty("allowConfirmSkip").boolValue = false;
             serialized.FindProperty("leaveVisible").boolValue = true;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void ConfigureSceneLoad(SceneLoadStep step, string sceneName)
+        {
+            SerializedObject serialized = new SerializedObject(step);
+            serialized.FindProperty("sceneName").stringValue = sceneName;
+            serialized.FindProperty("hidePuzzleUiBeforeLoad").boolValue = true;
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 

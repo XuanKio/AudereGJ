@@ -13,6 +13,9 @@ namespace Audere.Combat
         [SerializeField] private CombatPhasePolicy phasePolicy;
         [SerializeField, Min(1)] private int sharedMaxHealth = 1;
         [SerializeField] private CombatPhaseDefinition[] phases;
+        [Tooltip("Optional active-time HP decay. Zero disables it; per-phase health only. Required victory dialogue keeps the final HP at one.")]
+        [SerializeField, Min(0f)] private float passiveHealthDecayInterval;
+        public float PassiveHealthDecayInterval => Mathf.Max(0f, passiveHealthDecayInterval);
         public string EnemyId => enemyId;
         public string DisplayName => displayName;
         public CombatEnemyActor ActorPrefab => actorPrefab;
@@ -28,9 +31,12 @@ namespace Audere.Combat
             if (actorPrefab == null) { error = $"Enemy '{enemyId}' has no CombatEnemyActor prefab."; return false; }
             if (phases == null || phases.Length == 0) { error = $"Enemy '{enemyId}' has no authored phase."; return false; }
             if ((phasePolicy == CombatPhasePolicy.SharedHealthThresholds ||
-                 phasePolicy == CombatPhasePolicy.CapturedDiceBatchSequence) && sharedMaxHealth <= 0)
+                 phasePolicy == CombatPhasePolicy.CapturedDiceBatchSequence || phasePolicy == CombatPhasePolicy.SharedHealthPlayerTime) && sharedMaxHealth <= 0)
             { error = $"Enemy '{enemyId}' requires Shared Max Health greater than zero."; return false; }
+            if (passiveHealthDecayInterval > 0f && phasePolicy != CombatPhasePolicy.PerPhaseHealth)
+            { error = "Passive HP decay requires per-phase health."; return false; }
             int previousThreshold = sharedMaxHealth + 1;
+            float previousTimeFraction = 1f;
             var phaseIds = new HashSet<string>(StringComparer.Ordinal);
             var cueIds = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < phases.Length; i++)
@@ -43,6 +49,14 @@ namespace Audere.Combat
                 {
                     if (phase.SharedExitThreshold < 0 || (phase.AdvanceOnMoveComplete ? phase.SharedExitThreshold > previousThreshold : phase.SharedExitThreshold >= previousThreshold)) { error = $"Enemy '{enemyId}' health thresholds must descend; move-completion specials may hold the preceding threshold."; return false; }
                     previousThreshold = phase.SharedExitThreshold;
+                }
+                if (phasePolicy == CombatPhasePolicy.SharedHealthPlayerTime)
+                {
+                    bool final = i == phases.Length - 1;
+                    if ((!final && (phase.PlayerTimeExitFraction <= 0f || phase.PlayerTimeExitFraction >= previousTimeFraction)) ||
+                        (final && phase.PlayerTimeExitFraction != 0f) || phase.AdvanceOnMoveComplete)
+                    { error = "Player-TIME thresholds must descend inside (0,1), with final threshold zero and no move-completion phases."; return false; }
+                    previousTimeFraction = phase.PlayerTimeExitFraction;
                 }
                 if (phasePolicy == CombatPhasePolicy.TimedSequence && phase.Duration <= 0f) { error = $"Enemy '{enemyId}' phase '{phase.PhaseId}' requires Duration greater than zero."; return false; }
                 if (phasePolicy == CombatPhasePolicy.CapturedDiceBatchSequence)

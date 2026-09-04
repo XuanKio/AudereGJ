@@ -110,14 +110,14 @@ namespace Audere.EditorTools
 
             var prefix = D("Combat", "PROJECTION_PREFIX", DialogueCharacterId.Timor, "Audere_Scared_0", "TimorLoLangKhongVui_0", "R|Chắc cậu ấy đang nghĩ…");
             var taunts = new[] {
-                D("Combat", "TAUNT_01", DialogueCharacterId.Bianca, "Audere_Scared_0", "Bianca_Creepy_0", "R|Phiền thật."),
-                D("Combat", "TAUNT_02", DialogueCharacterId.Bianca, "Audere_Scared_0", "Bianca_Creepy_0", "R|Cái này cũng lấy nhầm.", "R|Audere?|Bianca_0|g"),
-                D("Combat", "TAUNT_03", DialogueCharacterId.Bianca, "Audere_Scared_0", "Bianca_Creepy_0", "R|Đi một mình còn nhanh hơn."),
-                D("Combat", "TAUNT_04", DialogueCharacterId.Bianca, "Audere_Scared_0", "Bianca_Creepy_0", "R|Tại sao mình lại rủ cậu ấy nhỉ?", "R|Audere ơi?|Bianca_0|g")
+                D("Combat", "TAUNT_01", DialogueCharacterId.BiancaDistorted, "Audere_Scared_0", "Bianca_Creepy_0", "R|Phiền thật."),
+                D("Combat", "TAUNT_02", DialogueCharacterId.BiancaDistorted, "Audere_Scared_0", "Bianca_Creepy_0", "R|Cái này cũng lấy nhầm.", "R|Audere?|Bianca_Worried_0|g|Bianca"),
+                D("Combat", "TAUNT_03", DialogueCharacterId.BiancaDistorted, "Audere_Scared_0", "Bianca_Creepy_0", "R|Đi một mình còn nhanh hơn."),
+                D("Combat", "TAUNT_04", DialogueCharacterId.BiancaDistorted, "Audere_Scared_0", "Bianca_Creepy_0", "R|Tại sao mình lại rủ cậu ấy nhỉ?", "R|Audere ơi?|Bianca_Worried_0|g|Bianca")
             };
-            var wrongLine = D("Combat", "WRONG_BOX", DialogueCharacterId.Bianca, "Audere_Scared_0", "Bianca_Creepy_0", "R|Cái này cũng lấy nhầm.");
-            var returnLine = D("Combat", "RETURNING_THOUGHT", DialogueCharacterId.Bianca, "Audere_Scared_0", "Bianca_Creepy_0",
-                "R|Tại sao mình lại rủ cậu ấy nhỉ?", "R|Audere?|Bianca_0|g");
+            var wrongLine = D("Combat", "WRONG_BOX", DialogueCharacterId.BiancaDistorted, "Audere_Scared_0", "Bianca_Creepy_0", "R|Cái này cũng lấy nhầm.");
+            var returnLine = D("Combat", "RETURNING_THOUGHT", DialogueCharacterId.BiancaDistorted, "Audere_Scared_0", "Bianca_Creepy_0",
+                "R|Tại sao mình lại rủ cậu ấy nhỉ?", "R|Audere?|Bianca_Worried_0|g|Bianca");
             var replies = new[] {
                 D("Combat", "RESIST_01", DialogueCharacterId.Timor, "Audere_Scared_0", "TimorLoLangKhongVui_0", "L|Không… cậu ấy chưa nói thế."),
                 D("Combat", "RESIST_02", DialogueCharacterId.Timor, "Audere_Scared_0", "TimorLoLangKhongVui_0", "L|Tớ chỉ lấy nhầm một hộp thôi."),
@@ -265,7 +265,8 @@ namespace Audere.EditorTools
                 so.FindProperty("leftCharacter").intValue = (int)DialogueCharacterId.Audere;
                 so.FindProperty("rightCharacter").intValue = (int)partner;
                 so.FindProperty("leftPortraitOverride").objectReferenceValue = Portrait(left);
-                so.FindProperty("rightPortraitOverride").objectReferenceValue = Portrait(right);
+                so.FindProperty("rightPortraitOverride").objectReferenceValue =
+                    partner == DialogueCharacterId.BiancaDistorted && right == "Bianca_Creepy_0" ? null : Portrait(right);
                 var array = so.FindProperty("lines"); array.arraySize = lines.Length;
                 for (int i = 0; i < lines.Length; i++)
                 {
@@ -274,6 +275,8 @@ namespace Audere.EditorTools
                     var line = array.GetArrayElementAtIndex(i);
                     line.FindPropertyRelative("speaker").intValue = tokens[0] == "L" ? 0 : 1;
                     line.FindPropertyRelative("text").stringValue = tokens[1];
+                    line.FindPropertyRelative("characterOverride").intValue = tokens.Length > 4
+                        ? (int)Enum.Parse(typeof(DialogueCharacterId), tokens[4]) : (int)DialogueCharacterId.None;
                     line.FindPropertyRelative("portraitOverride").objectReferenceValue = tokens.Length > 2 && tokens[2].Length > 0 ? Portrait(tokens[2]) : null;
                     line.FindPropertyRelative("glitchPortraitTransition").boolValue = tokens.Length > 3 && tokens[3] == "g";
                 }
@@ -341,8 +344,8 @@ namespace Audere.EditorTools
             }
             Set(EnsureStep<SetActorFacingStep>(story, "253_AudereFacesBianca"), "actorRenderer", audere.GetComponent<SpriteRenderer>(), "faceRight", true, "sourceSpriteFacesLeft", true);
             Set(EnsureStep<SetActorFacingStep>(story, "254_BiancaFacesAudere"), "actorRenderer", bianca.GetComponent<SpriteRenderer>(), "faceRight", false, "sourceSpriteFacesLeft", true);
-            var check = D("PostCombat", "CHECK_IN", DialogueCharacterId.Bianca, "Audere_Scared_0", "Bianca_0",
-                "R|Audere?", "L|…Ừ.", "R|Cậu ổn không?", "L|Tớ lấy nhầm.", "R|Ừ.", "R|Để lại là được mà.",
+            var check = D("PostCombat", "CHECK_IN", DialogueCharacterId.Bianca, "Audere_Scared_0", "Bianca_Worried_0",
+                "R|Audere?", "L|…Ừ.", "R|Cậu ổn không?", "L|Tớ lấy nhầm.", "R|Ừ.|Bianca_0", "R|Để lại là được mà.",
                 "R|Sáng nay tớ cũng cầm nhầm danh sách.", "R|Tớ lấy luôn của nhóm đồ ăn.", "R|Đi nửa cầu thang mới nhận ra.");
             var stop = D("PostCombat", "DONT_ASK", DialogueCharacterId.Timor, "Audere_Scared_0", "TimorLolang_0",
                 "R|Đừng hỏi.", "R|Cậu ấy sẽ chẳng nói thẳng đâu.");

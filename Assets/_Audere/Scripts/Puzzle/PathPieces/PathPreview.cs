@@ -28,9 +28,9 @@ namespace Audere.Puzzle.PathPieces
         [Tooltip("Endpoint size compared with one board cell.")]
         [SerializeField, Range(.5f, 1.2f)] private float endpointScaleToBoardTile = .86f;
         [Tooltip("Middle tile size compared with one board cell.")]
-        [SerializeField, Range(.08f, .5f)] private float connectorScaleToBoardTile = .2f;
+        [SerializeField, Range(.08f, .5f)] private float connectorScaleToBoardTile = .14f;
         [Tooltip("Preferred center-to-center gap between the small middle tiles, measured in cells.")]
-        [SerializeField, Range(.12f, .75f)] private float connectorSpacingToBoardTile = .32f;
+        [SerializeField, Range(.12f, .75f)] private float connectorSpacingToBoardTile = .25f;
         [Tooltip("Gap between a cursor endpoint and the first middle tile, measured in cells.")]
         [SerializeField, Range(0f, .25f)] private float endpointClearanceToBoardTile = .06f;
         [SerializeField, Range(0, 64)] private int maximumConnectorCount = 32;
@@ -38,6 +38,8 @@ namespace Audere.Puzzle.PathPieces
 
         [Header("Motion")]
         [SerializeField, Min(1f)] private float positionSharpness = 20f;
+        [Tooltip("How quickly a rotated path settles into its next 90-degree orientation.")]
+        [SerializeField, Min(1f)] private float rotationSharpness = 14f;
         [SerializeField, Min(1f)] private float appearanceSharpness = 18f;
         [SerializeField, Range(.5f, 1f)] private float retargetStartScale = .88f;
         [SerializeField, Min(1f)] private float retargetScaleSharpness = 16f;
@@ -56,7 +58,8 @@ namespace Audere.Puzzle.PathPieces
         private readonly List<SpriteRenderer> connectorPool = new List<SpriteRenderer>();
         private readonly List<Vector3> targetConnectorPositions = new List<Vector3>();
         private readonly List<float> pathDistances = new List<float>();
-        private readonly List<float> connectorDistances = new List<float>();
+        private readonly List<Vector3> canonicalShapeOffsets = new List<Vector3>();
+        private readonly HashSet<SpriteRenderer> initializedConnectors = new HashSet<SpriteRenderer>();
         private Vector3 targetEndpointA;
         private Vector3 targetEndpointB;
         private float targetEndpointSize;
@@ -66,6 +69,9 @@ namespace Audere.Puzzle.PathPieces
         private float targetStateScale = 1f;
         private Color targetEndpointColor = Color.white;
         private Color targetConnectorColor = Color.white;
+        private float targetRotationDegrees;
+        private float displayedRotationDegrees;
+        private bool rotationInitialized;
         private bool positionsInitialized;
 
         public PresentationState CurrentState { get; private set; }
@@ -91,6 +97,15 @@ namespace Audere.Puzzle.PathPieces
 
         public void Show(IReadOnlyList<Vector3> worldPoints, float cellWorldSize)
         {
+            Show(worldPoints, cellWorldSize, GridRotation.Degrees0, true);
+        }
+
+        public void Show(
+            IReadOnlyList<Vector3> worldPoints,
+            float cellWorldSize,
+            GridRotation rotation,
+            bool animateRotation = true)
+        {
             if (worldPoints == null || worldPoints.Count < 2)
             {
                 Clear();
@@ -98,12 +113,30 @@ namespace Audere.Puzzle.PathPieces
             }
 
             CacheReferences();
+            bool wasVisible = positionsInitialized;
+            float nextRotationDegrees = (int)rotation * 90f;
+            bool shapeChanged = ShapeChanged(worldPoints, nextRotationDegrees);
+            if (shapeChanged)
+            {
+                // A genuinely different piece must not morph old connector indices through
+                // unrelated corners. Quarter-turns are normalized out by ShapeChanged and
+                // remain eligible for the coherent rotation tween below.
+                positionsInitialized = false;
+                initializedConnectors.Clear();
+            }
+            CacheCanonicalShape(worldPoints, nextRotationDegrees);
+            if (!rotationInitialized || !wasVisible || shapeChanged || !animateRotation)
+            {
+                displayedRotationDegrees = nextRotationDegrees;
+                rotationInitialized = true;
+            }
+            targetRotationDegrees = nextRotationDegrees;
             targetEndpointA = worldPoints[0];
             targetEndpointB = worldPoints[worldPoints.Count - 1];
             targetEndpointSize = Mathf.Max(.01f, cellWorldSize * endpointScaleToBoardTile);
             targetConnectorSize = Mathf.Max(.01f, cellWorldSize * connectorScaleToBoardTile);
             targetAlpha = 1f;
-            retargetScale = positionsInitialized
+            retargetScale = wasVisible
                 ? Mathf.Min(retargetScale, retargetStartScale)
                 : 1f;
 
@@ -113,6 +146,27 @@ namespace Audere.Puzzle.PathPieces
             EnsureConnectorPool(targetConnectorPositions.Count);
             SetVisible(true);
             ApplySpritesAndSorting();
+        }
+
+        private bool ShapeChanged(IReadOnlyList<Vector3> points, float rotationDegrees)
+        {
+            if (canonicalShapeOffsets.Count != points.Count) return true;
+            Quaternion inverseRotation = Quaternion.Euler(0f, 0f, -rotationDegrees);
+            for (int i = 1; i < points.Count; i++)
+            {
+                Vector3 canonicalOffset = inverseRotation * (points[i] - points[0]);
+                if ((canonicalOffset - canonicalShapeOffsets[i]).sqrMagnitude > .00000001f)
+                    return true;
+            }
+            return false;
+        }
+
+        private void CacheCanonicalShape(IReadOnlyList<Vector3> points, float rotationDegrees)
+        {
+            canonicalShapeOffsets.Clear();
+            Quaternion inverseRotation = Quaternion.Euler(0f, 0f, -rotationDegrees);
+            for (int i = 0; i < points.Count; i++)
+                canonicalShapeOffsets.Add(inverseRotation * (points[i] - points[0]));
         }
 
         private void BuildConnectorPositions(
@@ -129,67 +183,33 @@ namespace Audere.Puzzle.PathPieces
                 pathDistances.Add(totalDistance);
             }
 
-            float endpointRadius = targetEndpointSize * .5f;
+            if (totalDistance <= Mathf.Epsilon || maximumConnectorCount <= 0) return;
+            // Include each square's half width so its edge never crowds endpoint A/B.
             float clearance = cellWorldSize * endpointClearanceToBoardTile;
-            float usableStart = Mathf.Min(totalDistance * .5f, endpointRadius + clearance);
-            float usableEnd = Mathf.Max(totalDistance * .5f, totalDistance - endpointRadius - clearance);
-            float usableLength = Mathf.Max(0f, usableEnd - usableStart);
-            float preferredSpacing = Mathf.Max(.01f, cellWorldSize * connectorSpacingToBoardTile);
-            int connectorCount = Mathf.Clamp(
-                Mathf.RoundToInt(usableLength / preferredSpacing),
-                0,
-                maximumConnectorCount);
+            float usableStart = targetEndpointSize * .5f + targetConnectorSize * .5f + clearance;
+            float usableEnd = totalDistance - usableStart;
+            if (usableEnd < usableStart) return;
 
-            connectorDistances.Clear();
-            for (int index = 0; index < connectorCount; index++)
-            {
-                float normalized = (index + 1f) / (connectorCount + 1f);
-                float distance = Mathf.Lerp(usableStart, usableEnd, normalized);
-                connectorDistances.Add(distance);
-            }
+            // PathPieceData is an adjacent-cell polyline. Integer subdivisions keep
+            // straight runs and every 90-degree corner on the SAME distance lattice.
+            // Moving individual samples onto corners used to create oversized clumps.
+            float cellSize = Mathf.Max(.01f, cellWorldSize);
+            float preferredSpacing = Mathf.Max(.01f, cellSize * connectorSpacingToBoardTile);
+            int subdivisions = Mathf.Clamp(Mathf.RoundToInt(cellSize / preferredSpacing), 1, 8);
+            float spacing = cellSize / subdivisions;
+            while (subdivisions > 1 && CountSamples(usableStart, usableEnd, spacing) > maximumConnectorCount)
+                spacing = cellSize / --subdivisions;
+            if (CountSamples(usableStart, usableEnd, spacing) > maximumConnectorCount)
+                spacing *= Mathf.Ceil(CountSamples(usableStart, usableEnd, spacing) / (float)maximumConnectorCount);
 
-            // A uniformly sampled polyline can miss an exact 90-degree vertex and make an L
-            // piece look rounded or diagonal. Snap the nearest sample to every authored bend;
-            // if there is room, add a dedicated corner sample instead.
-            for (int index = 1; index < pathDistances.Count - 1; index++)
-            {
-                float cornerDistance = pathDistances[index];
-                if (cornerDistance <= usableStart || cornerDistance >= usableEnd)
-                    continue;
-
-                int nearestIndex = FindNearestDistanceIndex(connectorDistances, cornerDistance);
-                if (nearestIndex >= 0 &&
-                    Mathf.Abs(connectorDistances[nearestIndex] - cornerDistance) <= preferredSpacing * .55f)
-                {
-                    connectorDistances[nearestIndex] = cornerDistance;
-                }
-                else if (connectorDistances.Count < maximumConnectorCount)
-                {
-                    connectorDistances.Add(cornerDistance);
-                }
-            }
-
-            connectorDistances.Sort();
-            foreach (float distance in connectorDistances)
-                targetConnectorPositions.Add(SamplePolyline(worldPoints, distance));
+            int first = Mathf.CeilToInt(usableStart / spacing);
+            int last = Mathf.FloorToInt(usableEnd / spacing);
+            for (int sample = first; sample <= last && targetConnectorPositions.Count < maximumConnectorCount; sample++)
+                targetConnectorPositions.Add(SamplePolyline(worldPoints, sample * spacing));
         }
 
-        private static int FindNearestDistanceIndex(IReadOnlyList<float> distances, float target)
-        {
-            int nearestIndex = -1;
-            float nearestDelta = float.PositiveInfinity;
-            for (int index = 0; index < distances.Count; index++)
-            {
-                float delta = Mathf.Abs(distances[index] - target);
-                if (delta >= nearestDelta)
-                    continue;
-
-                nearestDelta = delta;
-                nearestIndex = index;
-            }
-
-            return nearestIndex;
-        }
+        private static int CountSamples(float start, float end, float spacing) =>
+            Mathf.Max(0, Mathf.FloorToInt(end / spacing) - Mathf.CeilToInt(start / spacing) + 1);
 
         private Vector3 SamplePolyline(IReadOnlyList<Vector3> points, float distance)
         {
@@ -240,14 +260,24 @@ namespace Audere.Puzzle.PathPieces
             if (!positionsInitialized) SetVisible(false);
         }
 
-        private void LateUpdate()
+        private void LateUpdate() => TickPresentation(Time.unscaledDeltaTime);
+
+        private void TickPresentation(float deltaTime)
         {
-            float deltaTime = Time.unscaledDeltaTime;
             float positionBlend = 1f - Mathf.Exp(-positionSharpness * deltaTime);
+            float rotationBlend = 1f - Mathf.Exp(-rotationSharpness * deltaTime);
             float appearanceBlend = 1f - Mathf.Exp(-appearanceSharpness * deltaTime);
             float scaleBlend = 1f - Mathf.Exp(-retargetScaleSharpness * deltaTime);
+            if (rotationInitialized)
+                displayedRotationDegrees = Mathf.LerpAngle(
+                    displayedRotationDegrees,
+                    targetRotationDegrees,
+                    rotationBlend);
             retargetScale = Mathf.Lerp(retargetScale, 1f, scaleBlend);
             float presentationScale = retargetScale * targetStateScale;
+            // Ordered paths rotate around their first authored point. Keeping that
+            // anchor fixed prevents the preview from orbiting around its midpoint.
+            Vector3 rotationPivot = targetEndpointA;
 
             if (targetAlpha <= 0f && !positionsInitialized)
                 return;
@@ -255,7 +285,7 @@ namespace Audere.Puzzle.PathPieces
             if (endpointA != null)
                 SmoothRenderer(
                     endpointA,
-                    targetEndpointA,
+                    GetAnimatedPosition(targetEndpointA, rotationPivot),
                     targetEndpointSize * presentationScale,
                     targetEndpointColor,
                     positionBlend,
@@ -263,7 +293,7 @@ namespace Audere.Puzzle.PathPieces
             if (endpointB != null)
                 SmoothRenderer(
                     endpointB,
-                    targetEndpointB,
+                    GetAnimatedPosition(targetEndpointB, rotationPivot),
                     targetEndpointSize * presentationScale,
                     targetEndpointColor,
                     positionBlend,
@@ -272,15 +302,22 @@ namespace Audere.Puzzle.PathPieces
             for (int index = 0; index < connectorPool.Count; index++)
             {
                 bool active = index < targetConnectorPositions.Count;
-                connectorPool[index].gameObject.SetActive(active);
+                SpriteRenderer connector = connectorPool[index];
                 if (active)
+                {
+                    bool firstFrame = initializedConnectors.Add(connector);
                     SmoothRenderer(
-                        connectorPool[index],
-                        targetConnectorPositions[index],
+                        connector,
+                        GetAnimatedPosition(targetConnectorPositions[index], rotationPivot),
                         targetConnectorSize * presentationScale,
                         targetConnectorColor,
                         positionBlend,
-                        appearanceBlend);
+                        appearanceBlend,
+                        firstFrame,
+                        true);
+                }
+                else initializedConnectors.Remove(connector);
+                connector.gameObject.SetActive(active);
             }
 
             if (targetAlpha <= 0f &&
@@ -295,13 +332,21 @@ namespace Audere.Puzzle.PathPieces
             positionsInitialized = true;
         }
 
+        private Vector3 GetAnimatedPosition(Vector3 targetPosition, Vector3 pivot)
+        {
+            float remainingAngle = Mathf.DeltaAngle(targetRotationDegrees, displayedRotationDegrees);
+            return pivot + Quaternion.Euler(0f, 0f, remainingAngle) * (targetPosition - pivot);
+        }
+
         private void SmoothRenderer(
             SpriteRenderer renderer,
             Vector3 targetPosition,
             float targetSize,
             Color targetColor,
             float positionBlend,
-            float appearanceBlend)
+            float appearanceBlend,
+            bool snap = false,
+            bool uniformSize = false)
         {
             if (renderer.sprite == null)
                 return;
@@ -323,16 +368,16 @@ namespace Audere.Puzzle.PathPieces
                 ? renderer.transform.parent.TransformVector(localCenterOffset)
                 : localCenterOffset;
             Vector3 centeredPosition = targetPosition - worldCenterOffset;
-            renderer.transform.position = positionsInitialized
+            renderer.transform.position = positionsInitialized && !snap
                 ? Vector3.Lerp(renderer.transform.position, centeredPosition, positionBlend)
                 : centeredPosition;
-            renderer.transform.localScale = positionsInitialized
+            renderer.transform.localScale = positionsInitialized && !snap && !uniformSize
                 ? Vector3.Lerp(renderer.transform.localScale, desiredScale, appearanceBlend)
                 : desiredScale;
 
             Color desiredColor = targetColor;
             desiredColor.a *= targetAlpha;
-            renderer.color = positionsInitialized
+            renderer.color = positionsInitialized && !snap
                 ? Color.Lerp(renderer.color, desiredColor, appearanceBlend)
                 : desiredColor;
         }
@@ -355,6 +400,11 @@ namespace Audere.Puzzle.PathPieces
 
         private void SetVisible(bool visible)
         {
+            if (!visible)
+            {
+                initializedConnectors.Clear();
+                rotationInitialized = false;
+            }
             if (endpointA != null) endpointA.gameObject.SetActive(visible);
             if (endpointB != null) endpointB.gameObject.SetActive(visible);
             foreach (SpriteRenderer connector in connectorPool)

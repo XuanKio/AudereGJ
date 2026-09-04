@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6ab702f53d8c5243b962687147295a0, type: 3}
+  m_Name: Move_TimorTailHold
+  m_EditorClassIdentifier: 
+  duration: 3.75
+  leadInDuration: 0.46
+  tailSprite: {fileID: 218921286961725087, guid: 6000ad8dcf254f64498663af69ac4761, type: 3}
+  normalTimorSprite: {fileID: 21300000, guid: 78c77873d4d32a843b935ffd210a5257, type: 3}
+  noTailTimorSprite: {fileID: 1356790043131172382, guid: a090835c7efc0134b9ba1fa740dd1d62, type: 3}
+  warningDuration: 0.62
+  lungeDuration: 0.31
+  holdDuration: 0.88
+  throwDuration: 0.46
+  stunDuration: 1
+  catchRadius: 74
+  visualHeight: 250
+  glowColor: {r: 0.25, g: 0.12, b: 0.95, a: 0.9}

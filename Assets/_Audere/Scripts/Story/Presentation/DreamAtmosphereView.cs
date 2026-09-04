@@ -20,6 +20,10 @@ namespace Audere.Story.Presentation
         [SerializeField, Min(0f)] private float floatHeight = .055f;
         [SerializeField, Min(0f)] private float textDrift = .04f;
 
+        [SerializeField, Min(0f)] private float horizontalDrift;
+        [SerializeField, Min(0f)] private float floatRotation;
+        private Quaternion[] tileRotations;
+        private bool[] independentFloat;
         private Vector3[] tilePositions, textPositions;
         private Quaternion[] textRotations;
         private Color[] tileColors, pathColors, textColors;
@@ -34,6 +38,8 @@ namespace Audere.Story.Presentation
             if (captured) return;
             tilePositions = new Vector3[floatingTiles.Length];
             tileColors = new Color[floatingTiles.Length];
+            tileRotations = new Quaternion[floatingTiles.Length];
+            independentFloat = new bool[floatingTiles.Length];
             pathColors = new Color[pathRenderers.Length];
             textPositions = new Vector3[murmurs.Length];
             textRotations = new Quaternion[murmurs.Length];
@@ -43,6 +49,11 @@ namespace Audere.Story.Presentation
             {
                 tilePositions[i] = floatingTiles[i].transform.localPosition;
                 tileColors[i] = floatingTiles[i].color;
+                tileRotations[i] = floatingTiles[i].transform.localRotation;
+                independentFloat[i] = true;
+                // Child fringes move with their parent, without a second bob.
+                for (int j = 0; j < floatingTiles.Length; j++)
+                    if (floatingTiles[i].transform.parent == floatingTiles[j].transform) independentFloat[i] = false;
             }
             for (int i = 0; i < pathRenderers.Length; i++) pathColors[i] = pathRenderers[i].color;
             for (int i = 0; i < murmurs.Length; i++)
@@ -90,8 +101,15 @@ namespace Audere.Story.Presentation
             for (int i = 0; i < floatingTiles.Length; i++)
             {
                 var tile = floatingTiles[i];
-                if (tile != null) tile.transform.localPosition = tilePositions[i] +
-                    Vector3.up * (Mathf.Sin(elapsed * .85f + i * 1.7f) * floatHeight);
+                if (tile != null && independentFloat[i])
+                {
+                    float phase = i * 1.7f;
+                    tile.transform.localPosition = tilePositions[i] + new Vector3(
+                        (Mathf.Sin(elapsed * .55f + phase) - Mathf.Sin(phase)) * horizontalDrift,
+                        (Mathf.Sin(elapsed * .85f + phase) - Mathf.Sin(phase)) * floatHeight, 0f);
+                    tile.transform.localRotation = tileRotations[i] * Quaternion.Euler(0f, 0f,
+                        (Mathf.Sin(elapsed * .6f + phase) - Mathf.Sin(phase)) * floatRotation);
+                }
             }
             for (int i = 0; i < murmurs.Length; i++)
             {
@@ -140,6 +158,7 @@ namespace Audere.Story.Presentation
                 if (floatingTiles[i] != null)
                 {
                     floatingTiles[i].transform.localPosition = tilePositions[i];
+                    floatingTiles[i].transform.localRotation = tileRotations[i];
                     floatingTiles[i].color = tileColors[i];
                 }
             for (int i = 0; i < pathRenderers.Length; i++)

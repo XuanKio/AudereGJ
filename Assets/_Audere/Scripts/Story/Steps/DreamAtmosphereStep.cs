@@ -20,7 +20,11 @@ namespace Audere.Story.Steps
                 atmosphere.Begin();
                 if (GameplayUIRoot.Instance != null) GameplayUIRoot.Instance.PuzzleUi.gameObject.SetActive(true);
             }
-            else if (action == Action.Stop) atmosphere.StopAndRestore();
+            else if (action == Action.Stop)
+            {
+                atmosphere.StopAndRestore();
+                if (GameplayUIRoot.Instance != null) GameplayUIRoot.Instance.PuzzleUi.gameObject.SetActive(false);
+            }
             else
             {
                 if (GameplayUIRoot.Instance != null) GameplayUIRoot.Instance.PuzzleUi.gameObject.SetActive(false);

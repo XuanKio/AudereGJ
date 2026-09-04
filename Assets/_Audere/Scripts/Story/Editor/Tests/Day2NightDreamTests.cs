@@ -196,6 +196,7 @@ namespace Audere.Story.Editor.Tests
 
         private static IEnumerator CancelReplay()
         {
+            EditorWindow.GetWindow(Type.GetType("UnityEditor.GameView,UnityEditor")).Focus();
             var s = SceneManager.GetActiveScene();
             var director = All<StoryDirector>(s).Single();
             var e = All<StoryEvent>(s).Single();
@@ -217,6 +218,213 @@ namespace Audere.Story.Editor.Tests
             director.CancelCurrentEvent();
             yield return null;
             LogAssert.NoUnexpectedReceived();
+        }
+
+
+        [Test]
+        public void DreamOpening_KeepsOrdinaryConversationAndStableForegroundDepth()
+        {
+            var s = EditorSceneManager.OpenScene(Day2NightDreamSetupTool.DreamPath);
+            var world = s.GetRootGameObjects().Single(x => x.name == "WORLD").transform;
+            var normal = world.Find("Ordinary Classroom - Dream Opening");
+            var props = world.Find("Floating Desks - NOT WALKABLE");
+            Assert.IsTrue(normal.gameObject.activeSelf);
+            Assert.IsFalse(props.gameObject.activeSelf);
+            Assert.AreEqual(10, props.childCount);
+            Assert.IsEmpty(props.GetComponentsInChildren<Collider2D>(true));
+            Assert.IsEmpty(props.GetComponentsInChildren<BoardTile>(true));
+            var actor = All<GridPlayer>(s).Single();
+            int order = actor.GetComponent<UnityEngine.Rendering.SortingGroup>().sortingOrder;
+            foreach (Transform prop in props)
+            {
+                var group = prop.GetComponent<UnityEngine.Rendering.SortingGroup>();
+                Assert.AreEqual("Player", group.sortingLayerName);
+                if (prop.name.StartsWith("Foreground")) Assert.Greater(group.sortingOrder, order);
+                else Assert.Less(group.sortingOrder, order);
+                Assert.AreEqual("Assets/_Audere/AssetGame/Item/ban.aseprite",
+                    AssetDatabase.GetAssetPath(prop.GetComponent<SpriteRenderer>().sprite));
+            }
+            Assert.AreEqual(5, actor.GetComponent<SpriteRenderer>().sortingOrder);
+            Assert.IsTrue(actor.GetComponentsInChildren<SpriteRenderer>().Any(x => x.sortingOrder == 4));
+            var opening = All<DialogueStep>(s).Single(x => x.name == "016_BiancaOrdinaryConversation").DialogueData;
+            Assert.AreEqual(DialogueCharacterId.Bianca, opening.RightCharacter);
+            Assert.IsTrue(opening.Lines.All(x => x.Text.Length <= 42));
+            var transition = All<FullscreenPresentationStep>(s).Single();
+            var profile = (Audere.World.FullscreenTransitionProfile)new SerializedObject(transition).FindProperty("profile").objectReferenceValue;
+            Assert.IsTrue(profile.Validate(out string error), error);
+            Assert.IsFalse(ShaderUtil.ShaderHasError(profile.Material.shader));
+            Assert.AreEqual(0f, profile.FloatTracks.Single(x => x.ShaderProperty == "_Cover").Values.Evaluate(profile.ModeSwapTime),
+                "The dream must appear directly behind the falling glass, without a black interlude.");
+            Assert.Less(transition.transform.GetSiblingIndex(),
+                All<PuzzleStep>(s).First().transform.GetSiblingIndex());
+        }
+
+        [UnityTest]
+        public IEnumerator DreamFracture_CancelOnBothSidesOfSwapAndReplay()
+        {
+            EditorSceneManager.OpenScene(Day2NightDreamSetupTool.DreamPath);
+            yield return new EnterPlayMode();
+            yield return FractureLifecycle();
+            yield return new ExitPlayMode();
+        }
+
+        private static IEnumerator FractureLifecycle()
+        {
+            EditorWindow.GetWindow(Type.GetType("UnityEditor.GameView,UnityEditor")).Focus();
+            var s = SceneManager.GetActiveScene();
+            var e = All<StoryEvent>(s).Single();
+            var director = All<StoryDirector>(s).Single();
+            var controller = All<Audere.World.FullscreenTransitionController>(s).Single();
+            var world = s.GetRootGameObjects().Single(x => x.name == "WORLD").transform;
+            var normal = world.Find("Ordinary Classroom - Dream Opening").gameObject;
+            var props = world.Find("Floating Desks - NOT WALKABLE").gameObject;
+            var runtimeField = typeof(Audere.World.FullscreenTransitionController).GetField("runtimeMaterial", Private);
+            for (int pass = 0; pass < 3; pass++)
+            {
+                yield return Until(() => controller.IsTransitioning);
+                Assert.IsFalse(GameplayUIRoot.Instance.PuzzleUi.gameObject.activeSelf);
+                Texture captured = null;
+                if (pass == 1)
+                {
+                    yield return Until(() => controller.ShatterView != null, false);
+                    var source = (Texture2D)controller.ShatterView.mainTexture;
+                    Texture2D presented = null;
+                    controller.StartCoroutine(CaptureFrame(texture => presented = texture));
+                    yield return Until(() => presented != null, false);
+                    try
+                    {
+                        var a = source.GetPixel(source.width / 13, source.height / 17);
+                        var b = presented.GetPixel(presented.width / 13, presented.height / 17);
+                        Assert.Less(Vector3.Distance(new Vector3(a.r, a.g, a.b), new Vector3(b.r, b.g, b.b)), .035f,
+                            "Frozen frame must retain source brightness, not receive a second gamma conversion.");
+                    }
+                    finally { Object.Destroy(presented); }
+                    yield return Until(() => controller.ShatterView != null && controller.ShatterView.FlightTime > .4f, false);
+                    captured = controller.ShatterView.mainTexture;
+                    Canvas.ForceUpdateCanvases();
+                    Assert.IsNotNull(controller.ShatterView.canvasRenderer);
+                    Assert.Greater(controller.ShatterView.canvasRenderer.GetMesh().vertexCount, 100, "The actual Canvas renderer must contain shard geometry.");
+                    Assert.Greater(controller.ShatterView.PieceCount, 30);
+                    Assert.IsFalse(controller.ShatterView.raycastTarget);
+                    Assert.IsFalse(GameplayUIRoot.Instance.PuzzleUi.gameObject.activeSelf);
+                }
+                if (pass == 2) yield return Until(() => props.activeSelf, false);
+                Assert.AreEqual(pass == 0, normal.activeSelf);
+                Assert.AreEqual(pass > 0, props.activeSelf);
+                if (pass == 2)
+                {
+                    var material = (Material)runtimeField.GetValue(controller);
+                    Assert.AreEqual(0f, material.GetFloat("_Cover"), .001f, "The puzzle must be visible behind falling shards.");
+                    Assert.IsNotNull(controller.ShatterView, "The source snapshot conceals the scenery swap before its pieces separate.");
+                }
+                director.CancelCurrentEvent();
+                yield return null;
+                Assert.IsFalse(controller.IsTransitioning);
+                Assert.IsFalse(controller.RendererFeature.isActive);
+                Assert.IsNull(runtimeField.GetValue(controller));
+                Assert.IsNull(controller.ShatterView);
+                Assert.IsTrue(captured == null, "Cancel must destroy the captured texture.");
+                Assert.IsNull(typeof(Audere.World.FullscreenTransitionController).GetField("frozenFrame", Private).GetValue(controller));
+                Assert.IsFalse(Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None).Any(x => x.name == "Fullscreen Shatter (Runtime)"));
+                Assert.IsTrue(normal.activeSelf);
+                Assert.IsFalse(props.activeSelf);
+                Assert.AreEqual(0, GameplayUIRoot.Instance.InputGate.ActiveClaimCount);
+                Assert.IsTrue(director.PlayEvent(e));
+            }
+            yield return Until(() => e.CurrentStep is PuzzleStep);
+            Assert.IsFalse(normal.activeSelf);
+            Assert.IsTrue(props.activeSelf);
+            Assert.IsFalse(controller.RendererFeature.isActive);
+            Assert.IsNull(controller.ShatterView);
+            var atmosphere = All<DreamAtmosphereView>(s).Single();
+            var renders = props.GetComponentsInChildren<SpriteRenderer>(true);
+            var initialPositions = (Vector3[])typeof(DreamAtmosphereView).GetField("tilePositions", Private).GetValue(atmosphere);
+            var floating = (SpriteRenderer[])typeof(DreamAtmosphereView).GetField("floatingTiles", Private).GetValue(atmosphere);
+            var orders = renders.Select(x => x.GetComponent<UnityEngine.Rendering.SortingGroup>().sortingOrder).ToArray();
+            var before = renders.Select(x => x.transform.localPosition).ToArray();
+            double end = EditorApplication.timeSinceStartup + .9;
+            yield return Until(() => EditorApplication.timeSinceStartup >= end, false);
+            Assert.IsTrue(renders.Where((x,i) => Vector3.Distance(x.transform.localPosition,before[i]) > .002f).Any());
+            CollectionAssert.AreEqual(orders,renders.Select(x => x.GetComponent<UnityEngine.Rendering.SortingGroup>().sortingOrder));
+            director.CancelCurrentEvent();
+            yield return null;
+            Assert.IsFalse(atmosphere.IsRunning);
+            for (int i = 0; i < floating.Length; i++)
+                Assert.Less(Vector3.Distance(initialPositions[i], floating[i].transform.localPosition), .00001f);
+            Assert.AreEqual(0, GameplayUIRoot.Instance.InputGate.ActiveClaimCount);
+            LogAssert.NoUnexpectedReceived();
+        }
+
+        [TestCase(160, 90)]
+        [TestCase(120, 90)]
+        [TestCase(210, 90)]
+        public void DreamShards_CoverSourceMoveBoundariesAndClear(int width, int height)
+        {
+            var profile = AssetDatabase.LoadAssetAtPath<Audere.World.FullscreenTransitionProfile>(
+                "Assets/_Audere/Data/Transitions/WorldTransition_DreamFracture.asset");
+            var texture = new Texture2D(width, height);
+            var go = new GameObject("Shatter geometry test", typeof(RectTransform), typeof(Audere.World.ScreenShatterGraphic));
+            var mesh = new Mesh();
+            try
+            {
+                var graphic = go.GetComponent<Audere.World.ScreenShatterGraphic>();
+                graphic.rectTransform.sizeDelta = new Vector2(width, height);
+                graphic.Initialize(texture, profile.ScreenShatter);
+                float area = 0f;
+                var shards = (IEnumerable)typeof(Audere.World.ScreenShatterGraphic).GetField("shards", Private).GetValue(graphic);
+                foreach (var shard in shards)
+                {
+                    var points = (Vector2[])shard.GetType().GetField("points").GetValue(shard);
+                    var reveal = (Vector2[])shard.GetType().GetField("edgeTimes").GetValue(shard);
+                    var primary = (bool[])shard.GetType().GetField("primaryEdges").GetValue(shard);
+                    for (int edge = 0; edge < reveal.Length; edge++)
+                    {
+                        if (!primary[edge]) Assert.GreaterOrEqual(Mathf.Min(reveal[edge].x, reveal[edge].y), .52f, "Branches must wait until inward cracks reach the center.");
+                        if (Mathf.Min(reveal[edge].x, reveal[edge].y) > .001f) continue;
+                        Vector2 origin = reveal[edge].x < reveal[edge].y ? points[edge] : points[(edge + 1) % points.Length];
+                        Assert.IsTrue(origin.x < .0001f || origin.y < .0001f || Mathf.Abs(origin.x - (float)width / height) < .0001f || origin.y > .9999f, "The first crack must start at the screen edge.");
+                    }
+                    float polygonArea = 0f;
+                    for (int i = 0; i < points.Length; i++)
+                    {
+                        var a = points[i]; var b = points[(i + 1) % points.Length];
+                        Assert.That(a.x, Is.InRange(-.0001f, (float)width / height + .0001f));
+                        Assert.That(a.y, Is.InRange(-.0001f, 1.0001f));
+                        polygonArea += a.x * b.y - b.x * a.y;
+                    }
+                    area += Mathf.Abs(polygonArea) * .5f;
+                }
+                Assert.AreEqual((float)width / height, area, .0001f, "Clipped shards must tile the source without missing area.");
+                var populate = typeof(Audere.World.ScreenShatterGraphic).GetMethod("OnPopulateMesh", Private, null, new[] { typeof(UnityEngine.UI.VertexHelper) }, null);
+                using (var helper = new UnityEngine.UI.VertexHelper())
+                {
+                    graphic.SetTime(profile.ScreenShatter.CaptureTime);
+                    populate.Invoke(graphic, new object[] { helper });
+                    helper.FillMesh(mesh);
+                    Assert.Greater(mesh.vertexCount, 100);
+                    Assert.Less(mesh.vertexCount, 65000);
+                    var original = mesh.bounds;
+                    graphic.SetTime(profile.ScreenShatter.BreakTime + .7f);
+                    populate.Invoke(graphic, new object[] { helper });
+                    helper.FillMesh(mesh);
+                    Assert.Greater(Vector3.Distance(original.min, mesh.bounds.min), height * .1f,
+                        "Actual shard vertices must move, not just their texture sampling.");
+                    Assert.AreSame(texture, graphic.mainTexture, "One frozen source is retained throughout flight.");
+                    graphic.SetTime(profile.ScreenShatter.ClearTime);
+                    populate.Invoke(graphic, new object[] { helper });
+                    Assert.AreEqual(0, helper.currentVertCount);
+                }
+                Assert.IsFalse(ShaderUtil.ShaderHasError(profile.ScreenShatter.ShardMaterial.shader));
+            }
+            finally { Object.DestroyImmediate(go); Object.DestroyImmediate(texture); Object.DestroyImmediate(mesh); }
+        }
+
+        private static IEnumerator CaptureFrame(Action<Texture2D> captured)
+        {
+            // EditMode UnityTest enumerators run on Editor update, not the camera's
+            // end-of-frame phase. Use a real MonoBehaviour coroutine for this GPU readback.
+            yield return new WaitForEndOfFrame();
+            captured(ScreenCapture.CaptureScreenshotAsTexture());
         }
 
         private static void CommitRight(PuzzleManager p)

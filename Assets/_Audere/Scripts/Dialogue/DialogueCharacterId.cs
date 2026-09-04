@@ -11,7 +11,11 @@ namespace Audere.Dialogue
         Timor = 2,
         Teacher = 3,
         Bianca = 4,
-        KhoangLang = 5
+        KhoangLang = 5,
+        // Presentation identities for Timor-distorted speech, not the real characters.
+        BiancaDistorted = 6,
+        TeacherDistorted = 7,
+        CrowdDistorted = 8
     }
 
     public enum DialogueSpeakerSide

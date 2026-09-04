@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 637e1f99b966b3a45b7a6d876706de0b, type: 3}
+  m_Name: CombatEncounter_D4_CROWD
+  m_EditorClassIdentifier: 
+  encounterId: d4-crowd-classroom
+  enemyDefinition: {fileID: 11400000, guid: 9006aa7ab765adb4bbb2b7b9c260f16c, type: 2}
+  tutorialData: {fileID: 0}
+  music: 9003
+  encounterDuration: 90
+  outcomeRules:
+    allowedOutcomes: 7
+    playerDefeatGate: 0
+    showRetryOnDefeat: 1
+  defeatPresentation:
+    dialogue: {fileID: 0}
+    hazardFadeDuration: 0.55
+  victoryFadeDuration: 0.75
+  victoryPresentation:
+    dialogue: {fileID: 0}
+    hazardFadeDuration: 0.45
+  dicePerBatch: 3
+  batchRespawnDelay: 0.26
+  minimumDiceSpeed: 105
+  maximumDiceSpeed: 158
+  playerHitInvulnerability: 0.65
+  bulletTimePenaltySeconds: 2.25
+  maximumAttacksPerBatch: 1
+  additionalRerolledAttacksPerBatch: 1

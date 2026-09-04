@@ -15,7 +15,8 @@ Teach all three dice together first, then spotlight Stun Zone and individual dic
 `CombatDialogueCue` supports phase enter/exit, HP, active time, dice ready/caught/rerolled, Stun Zone entry, player hit, all dice types, move start, and cue completion.
 
 - `ModalDialogue`: caller-owned combat pause; preserves mid-phase state.
-- `AutoCombatDialogue`: timed DialogueUI lines with no click, input claim, or pause.
+- `AutoCombatDialogue`: timed DialogueUI lines with no click or input claim; the controller pauses
+  combat-local TIME, moves, bullets, dice, and Heart simulation until the sequence completes.
 - `BackgroundTextField`: non-interactive pressure text behind gameplay.
 
 Required gates resolve once per attempt and ignore stale callbacks. Skip/close/cancel resolves the owner callback at most once. Dialogue portraits and combat enemy visuals are separate systems.

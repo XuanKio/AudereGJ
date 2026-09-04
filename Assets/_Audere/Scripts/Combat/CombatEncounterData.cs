@@ -16,6 +16,16 @@ namespace Audere.Combat
         public bool IsConfigured => dialogue != null && dialogue.HasLines;
     }
 
+    [Serializable]
+    public sealed class CombatVictoryPresentation
+    {
+        [SerializeField] private DialogueData dialogue;
+        [SerializeField, Min(0f)] private float hazardFadeDuration = .45f;
+        public DialogueData Dialogue => dialogue;
+        public float HazardFadeDuration => Mathf.Max(0f, hazardFadeDuration);
+        public bool IsConfigured => dialogue != null && dialogue.HasLines;
+    }
+
     [CreateAssetMenu(menuName = "Audere/Combat/Encounter Data", fileName = "CombatEncounter_New")]
     public sealed class CombatEncounterData : ScriptableObject
     {
@@ -34,6 +44,8 @@ namespace Audere.Combat
         [SerializeField] private CombatDefeatPresentation defeatPresentation = new CombatDefeatPresentation();
 
         [SerializeField, Min(0f)] private float victoryFadeDuration;
+        [SerializeField] private CombatVictoryPresentation victoryPresentation = new CombatVictoryPresentation();
+        public CombatVictoryPresentation VictoryPresentation => victoryPresentation;
         public float VictoryFadeDuration => Mathf.Max(0f, victoryFadeDuration);
 
         [Header("Continuous Dice Batches")]
@@ -57,9 +69,12 @@ namespace Audere.Combat
         public float EncounterDuration => encounterDuration;
         public CombatEncounterOutcomeRules OutcomeRules => outcomeRules ??= new CombatEncounterOutcomeRules();
         public CombatDefeatPresentation DefeatPresentation => defeatPresentation;
-        [Tooltip("Zero leaves the shared dice rules unrestricted. Includes already caught Attack dice; rerolls cannot bypass the batch budget.")]
+        [Tooltip("Zero leaves the initial random dice unrestricted. Includes already caught Attack dice while the batch is spawning.")]
         [SerializeField, Min(0)] private int maximumAttacksPerBatch;
         public int MaximumAttacksPerBatch => Mathf.Max(0, maximumAttacksPerBatch);
+        [Tooltip("Optional extra Attack results that rerolls may create per batch. Zero preserves the legacy shared budget.")]
+        [SerializeField, Min(0)] private int additionalRerolledAttacksPerBatch;
+        public int AdditionalRerolledAttacksPerBatch => Mathf.Max(0, additionalRerolledAttacksPerBatch);
         public int DicePerBatch => dicePerBatch;
         public float BatchRespawnDelay => batchRespawnDelay;
         public float MinimumDiceSpeed => minimumDiceSpeed;

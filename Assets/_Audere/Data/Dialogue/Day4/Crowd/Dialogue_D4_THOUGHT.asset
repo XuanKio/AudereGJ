@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D4_THOUGHT
+  m_EditorClassIdentifier: 
+  dialogueId: D4_CROWD_THOUGHT
+  leftCharacter: 1
+  rightCharacter: 0
+  leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 0
+    text: "Sao t\u1EF1 nhi\xEAn im th\u1EBF\u2026"
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 0
+    text: "\u2026C\xF3 ai v\u1EEBa c\u01B0\u1EDDi \xE0?"
+    characterOverride: 0
+    portraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+    glitchPortraitTransition: 0
+  - speaker: 0
+    text: "\u0110\u1EEBng nh\xECn t\u1EDB l\xFAc n\xE0y\u2026"
+    characterOverride: 0
+    portraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+    glitchPortraitTransition: 0

@@ -12,12 +12,13 @@ namespace Audere.Combat
         [SerializeField, Min(.4f)] private float waveInterval = 2.6f;
         [SerializeField, Min(.2f)] private float telegraph = .65f;
         [SerializeField, Min(.3f)] private float flightDuration = 1.8f;
+        [SerializeField] private CombatProjectileTrailSettings stunTrail = new CombatProjectileTrailSettings();
         public override bool Validate(out string error)
         {
             if (!base.Validate(out error)) return false;
             if (projectilePrefab == null || columns < 3 || reachFraction < .15f || reachFraction > .45f || waveInterval <= 0 || telegraph <= 0 || flightDuration <= 0)
             { error = "Chalk fence requires prefab, >=3 columns, safe reach and positive timings."; return false; }
-            return true;
+            return stunTrail.Validate(out error);
         }
         public static float Reach(float t) => Mathf.Sin(Mathf.Clamp01(t) * Mathf.PI);
         public override ICombatMoveExecution CreateExecution(CombatMoveExecutionContext c)
@@ -47,12 +48,12 @@ namespace Audere.Combat
                         Vector2 start=new Vector2(x,y);
                         float depth=-side*r.height*d.reachFraction;
                         var b=c.Board.SpawnEnemyBullet(d.projectilePrefab,start,Vector2.zero,c.SessionVersion,c.PhaseVersion,d.telegraph);
-                        b?.ConfigurePathMotion(new ParametricProjectileMotion(d.flightDuration,
-                            t=>start+Vector2.up*(depth*Reach(t)), t=>90f));
+                        b?.ConfigurePathMotion(d.stunTrail.Wrap(new ParametricProjectileMotion(d.flightDuration,
+                            t=>start+Vector2.up*(depth*Reach(t)), t=>90f),c,this));
                     }
                 }
             }
-            public void Cancel() { cancelled=true; }
+            public void Cancel() { cancelled=true;c.Board?.ClearStunTrails(c.SessionVersion,c.PhaseVersion,this); }
         }
     }
 }

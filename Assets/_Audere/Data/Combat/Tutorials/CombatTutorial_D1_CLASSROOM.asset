@@ -27,8 +27,8 @@ MonoBehaviour:
     symbol: 0
     sequence:
     - {fileID: 11400000, guid: 3f0ad0b66f0992a4ea0f6e117e9718e5, type: 2}
-    instruction: "TR\xC1I: B\u1EAET \xB7 PH\u1EA2I: GIEO L\u1EA0I \xB7 TIME V\u1EC0
-      0: THUA"
+    instruction: "CHU\u1ED8T TR\xC1I: B\u1EAET X\xDAC X\u1EAEC \xB7 CHU\u1ED8T PH\u1EA2I:
+      GIEO L\u1EA0I \xB7 TIME V\u1EC0 0: THUA"
     instructionDuration: 0
     tutorialFocus: 4
     showcasedSymbol: 0
@@ -37,8 +37,12 @@ MonoBehaviour:
     minimumLineDuration: 1.4
     charactersPerSecond: 20
     interLineGap: 0.18
+    repeatOnTrigger: 0
+    interruptsAutoDialogue: 0
     playLoseRhythmOnComplete: 0
     requiredBeforeVictory: 0
+    requiredBeforePhaseAdvance: 0
+    requiredBeforePlayerDefeat: 0
   - cueId: tutorial-stun-zone
     oneShotKey: 
     trigger: 3
@@ -59,8 +63,12 @@ MonoBehaviour:
     minimumLineDuration: 1.4
     charactersPerSecond: 20
     interLineGap: 0.18
+    repeatOnTrigger: 0
+    interruptsAutoDialogue: 0
     playLoseRhythmOnComplete: 0
     requiredBeforeVictory: 0
+    requiredBeforePhaseAdvance: 0
+    requiredBeforePlayerDefeat: 0
   - cueId: tutorial-attack
     oneShotKey: tutorial-attack
     trigger: 5
@@ -80,8 +88,12 @@ MonoBehaviour:
     minimumLineDuration: 1.4
     charactersPerSecond: 20
     interLineGap: 0.18
+    repeatOnTrigger: 0
+    interruptsAutoDialogue: 0
     playLoseRhythmOnComplete: 0
     requiredBeforeVictory: 0
+    requiredBeforePhaseAdvance: 0
+    requiredBeforePlayerDefeat: 0
   - cueId: tutorial-shield
     oneShotKey: tutorial-shield
     trigger: 5
@@ -102,8 +114,12 @@ MonoBehaviour:
     minimumLineDuration: 1.4
     charactersPerSecond: 20
     interLineGap: 0.18
+    repeatOnTrigger: 0
+    interruptsAutoDialogue: 0
     playLoseRhythmOnComplete: 0
     requiredBeforeVictory: 0
+    requiredBeforePhaseAdvance: 0
+    requiredBeforePlayerDefeat: 0
   - cueId: tutorial-heal
     oneShotKey: tutorial-heal
     trigger: 5
@@ -123,8 +139,12 @@ MonoBehaviour:
     minimumLineDuration: 1.4
     charactersPerSecond: 20
     interLineGap: 0.18
+    repeatOnTrigger: 0
+    interruptsAutoDialogue: 0
     playLoseRhythmOnComplete: 0
     requiredBeforeVictory: 0
+    requiredBeforePhaseAdvance: 0
+    requiredBeforePlayerDefeat: 0
   - cueId: tutorial-reroll
     oneShotKey: 
     trigger: 6
@@ -135,7 +155,8 @@ MonoBehaviour:
     symbol: 0
     sequence:
     - {fileID: 11400000, guid: 8a41cd6008da41b418698b80677d73af, type: 2}
-    instruction: "GIEO L\u1EA0I \xB7 M\u1EB6T X\xDAC X\u1EAEC \u0110\xC3 \u0110\u1ED4I"
+    instruction: "CHU\u1ED8T PH\u1EA2I: GIEO L\u1EA0I \xB7 M\u1EB6T X\xDAC X\u1EAEC
+      \u0110\xC3 \u0110\u1ED4I"
     instructionDuration: 0
     tutorialFocus: 0
     showcasedSymbol: 0
@@ -144,8 +165,12 @@ MonoBehaviour:
     minimumLineDuration: 1.4
     charactersPerSecond: 20
     interLineGap: 0.18
+    repeatOnTrigger: 0
+    interruptsAutoDialogue: 0
     playLoseRhythmOnComplete: 0
     requiredBeforeVictory: 0
+    requiredBeforePhaseAdvance: 0
+    requiredBeforePlayerDefeat: 0
   - cueId: tutorial-player-hit
     oneShotKey: 
     trigger: 8
@@ -165,8 +190,12 @@ MonoBehaviour:
     minimumLineDuration: 1.4
     charactersPerSecond: 20
     interLineGap: 0.18
+    repeatOnTrigger: 0
+    interruptsAutoDialogue: 0
     playLoseRhythmOnComplete: 0
     requiredBeforeVictory: 0
+    requiredBeforePhaseAdvance: 0
+    requiredBeforePlayerDefeat: 0
   - cueId: tutorial-intro-complete
     oneShotKey: tutorial-intro-complete
     trigger: 9
@@ -186,5 +215,9 @@ MonoBehaviour:
     minimumLineDuration: 1.4
     charactersPerSecond: 20
     interLineGap: 0.18
+    repeatOnTrigger: 0
+    interruptsAutoDialogue: 0
     playLoseRhythmOnComplete: 0
     requiredBeforeVictory: 0
+    requiredBeforePhaseAdvance: 0
+    requiredBeforePlayerDefeat: 0

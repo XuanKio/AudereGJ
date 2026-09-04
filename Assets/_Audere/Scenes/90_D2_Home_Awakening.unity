@@ -1709,6 +1709,8 @@ MonoBehaviour:
   title: "Ng\xE0y 2 - K\u1EBFt th\xFAc"
   fadeDuration: 0.7
   holdDuration: 2
+  waitForConfirm: 0
+  allowConfirmSkip: 1
   leaveVisible: 1
 --- !u!1 &1765661741
 GameObject:

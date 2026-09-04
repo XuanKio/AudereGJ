@@ -16,11 +16,11 @@ MonoBehaviour:
   displayName: "C\xF4 gi\xE1o"
   actorPrefab: {fileID: 6203938331374984877, guid: 6db0f4902ca560a45a3bf835520ef3d5, type: 3}
   phasePolicy: 1
-  sharedMaxHealth: 12
+  sharedMaxHealth: 15
   phases:
   - phaseId: chalk-corridor
-    maxHealth: 12
-    sharedExitThreshold: 8
+    maxHealth: 15
+    sharedExitThreshold: 7
     duration: 0
     moveSet: {fileID: 11400000, guid: 6fbed8de38f7d2643bd22f5c0287d0a9, type: 2}
     dialogueCues:
@@ -58,7 +58,7 @@ MonoBehaviour:
     allowsPlayerDefeat: 1
     minimumPlayerTimeOnEnter: 0
   - phaseId: forced-rhythm
-    maxHealth: 12
+    maxHealth: 15
     sharedExitThreshold: 4
     duration: 0
     moveSet: {fileID: 11400000, guid: 3096b2fc93e96a446985ee86da9967b8, type: 2}
@@ -97,7 +97,7 @@ MonoBehaviour:
     allowsPlayerDefeat: 1
     minimumPlayerTimeOnEnter: 0
   - phaseId: overlapping-pressure
-    maxHealth: 12
+    maxHealth: 15
     sharedExitThreshold: 0
     duration: 0
     moveSet: {fileID: 11400000, guid: bab9c6639d39ff340a154d376a1b7012, type: 2}

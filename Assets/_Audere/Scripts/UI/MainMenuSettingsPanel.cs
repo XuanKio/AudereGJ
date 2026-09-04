@@ -1,4 +1,5 @@
 using Audere.Audio;
+using Audere.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -19,6 +20,17 @@ namespace Audere.UI
         [SerializeField] private Slider sfxSlider;
         [SerializeField] private TextMeshProUGUI musicValueText;
         [SerializeField] private TextMeshProUGUI sfxValueText;
+
+        [Header("Difficulty")]
+        [SerializeField] private Button easyDifficultyButton;
+        [SerializeField] private Button hardDifficultyButton;
+        [SerializeField] private TextMeshProUGUI easyDifficultyText;
+        [SerializeField] private TextMeshProUGUI hardDifficultyText;
+        [SerializeField] private TextMeshProUGUI difficultyDescriptionText;
+        [SerializeField] private Color difficultySelectedBackground = new Color(0.94f, 0.97f, 1f, 1f);
+        [SerializeField] private Color difficultyIdleBackground = new Color(0.94f, 0.97f, 1f, 0.16f);
+        [SerializeField] private Color difficultySelectedText = new Color(0.008f, 0.06f, 0.18f, 1f);
+        [SerializeField] private Color difficultyIdleText = new Color(0.96f, 0.98f, 1f, 1f);
 
         private bool initialized;
 
@@ -60,6 +72,12 @@ namespace Audere.UI
 
             if (sfxSlider != null)
                 sfxSlider.onValueChanged.RemoveListener(SetSfxVolume);
+
+            if (easyDifficultyButton != null)
+                easyDifficultyButton.onClick.RemoveListener(SetEasyDifficulty);
+
+            if (hardDifficultyButton != null)
+                hardDifficultyButton.onClick.RemoveListener(SetHardDifficulty);
         }
 
         public void Open()
@@ -106,6 +124,12 @@ namespace Audere.UI
             if (sfxSlider != null)
                 sfxSlider.onValueChanged.AddListener(SetSfxVolume);
 
+            if (easyDifficultyButton != null)
+                easyDifficultyButton.onClick.AddListener(SetEasyDifficulty);
+
+            if (hardDifficultyButton != null)
+                hardDifficultyButton.onClick.AddListener(SetHardDifficulty);
+
             float musicVolume = AudioService.Instance != null
                 ? AudioService.Instance.MusicVolume
                 : PlayerPrefs.GetFloat(AudioService.MusicVolumePrefKey, 0.8f);
@@ -120,6 +144,7 @@ namespace Audere.UI
                 sfxSlider.SetValueWithoutNotify(sfxVolume);
 
             RefreshValueLabels(musicVolume, sfxVolume);
+            RefreshDifficultyVisuals(GameplayDifficultySettings.Current);
 
             if (panelRoot != null)
                 panelRoot.SetActive(false);
@@ -145,6 +170,45 @@ namespace Audere.UI
 
             if (sfxValueText != null)
                 sfxValueText.text = Mathf.RoundToInt(value * 100f).ToString();
+        }
+
+        private void SetEasyDifficulty()
+        {
+            SetDifficulty(GameDifficulty.Easy);
+        }
+
+        private void SetHardDifficulty()
+        {
+            SetDifficulty(GameDifficulty.Hard);
+        }
+
+        private void SetDifficulty(GameDifficulty difficulty)
+        {
+            GameplayDifficultySettings.Current = difficulty;
+            RefreshDifficultyVisuals(difficulty);
+        }
+
+        private void RefreshDifficultyVisuals(GameDifficulty difficulty)
+        {
+            bool hard = difficulty == GameDifficulty.Hard;
+            ApplyDifficultyVisual(easyDifficultyButton, easyDifficultyText, !hard);
+            ApplyDifficultyVisual(hardDifficultyButton, hardDifficultyText, hard);
+
+            if (difficultyDescriptionText != null)
+            {
+                difficultyDescriptionText.text = hard
+                    ? "Máu địch +36% · TIME -18%"
+                    : "Nhịp chiến đấu tiêu chuẩn";
+            }
+        }
+
+        private void ApplyDifficultyVisual(Button button, TextMeshProUGUI label, bool selected)
+        {
+            if (button != null && button.targetGraphic != null)
+                button.targetGraphic.color = selected ? difficultySelectedBackground : difficultyIdleBackground;
+
+            if (label != null)
+                label.color = selected ? difficultySelectedText : difficultyIdleText;
         }
 
         private void RefreshValueLabels(float musicVolume, float sfxVolume)

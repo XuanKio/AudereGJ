@@ -97,6 +97,7 @@ namespace Audere.Puzzle
             ClearRuntimePath();
             board.ResetSceneAuthoredState();
             hand.Setup(null);
+            hand.SetSelectionEnabled(false);
             completionLocked = false;
             CurrentState = State.Idle;
             SetHudMessage(string.Empty);
@@ -201,6 +202,7 @@ namespace Audere.Puzzle
                 return false;
             }
             hand.Setup(puzzleData != null ? puzzleData.AvailablePathPieces : null);
+            hand.SetSelectionEnabled(resumePlaying);
             // Placement may have been disabled in an older scene revision.  It
             // must be active for its Update loop to keep the world preview under
             // the mouse after a hand piece is selected.
@@ -228,6 +230,8 @@ namespace Audere.Puzzle
         {
             StopAllCoroutines();
             cooperative?.EndAttempt();
+            if (hand != null)
+                hand.SetSelectionEnabled(false);
             if (placement != null)
                 placement.Cancel();
             CurrentState = State.Idle;
@@ -276,13 +280,14 @@ namespace Audere.Puzzle
         private IEnumerator ExecutePlacement(PlacementResult result)
         {
             CurrentState = State.Traversing;
+            hand.SetSelectionEnabled(false);
             placement.HidePreview();
             SetHudMessage(string.Empty);
             GridPlayer moving = ActivePlayer;
-            // Reserve this card before moving; changing a UI selection cannot consume another actor's next card.
-            if (cooperative != null) hand.ConsumeSelected();
+            // Reserve this card before moving; changing UI focus cannot replace an
+            // in-flight path or consume a different card when traversal completes.
+            hand.ConsumeSelected();
             yield return moving.Traverse(result.GridPath, board, HandleFallStarted);
-            if (cooperative == null) hand.ConsumeSelected();
 
             if (moving.FellDuringTraversal)
             {
@@ -342,6 +347,7 @@ namespace Audere.Puzzle
             else
             {
                 CurrentState = State.Playing;
+                hand.SetSelectionEnabled(true);
                 SetHudMessage("Chọn một mảnh đường.");
                 PlacementResolved?.Invoke(result);
             }

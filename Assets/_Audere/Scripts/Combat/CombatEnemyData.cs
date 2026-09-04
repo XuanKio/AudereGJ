@@ -11,6 +11,7 @@ namespace Audere.Combat
         SharedHealthThresholds = 1,
         TimedSequence = 2,
         CapturedDiceBatchSequence = 3,
+        SharedHealthPlayerTime = 4,
     }
 
     public enum CombatMoveSelectionPolicy
@@ -106,7 +107,9 @@ namespace Audere.Combat
         public bool RequiredBeforePlayerDefeat => requiredBeforePlayerDefeat;
         public bool HasInstruction => !string.IsNullOrWhiteSpace(instruction);
         public bool HasContent => HasDialogue || HasInstruction;
-        public bool PausesCombatForPresentation => HasInstruction && tutorialFocus != CombatTutorialFocus.None;
+        public bool PausesCombatForPresentation =>
+            (HasDialogue && presentation != CombatDialoguePresentation.BackgroundTextField) ||
+            (HasInstruction && tutorialFocus != CombatTutorialFocus.None);
 
         public bool MatchesSymbol(CombatSymbol value)
         {
@@ -132,6 +135,9 @@ namespace Audere.Combat
         [SerializeField] private bool allowsPlayerDefeat = true;
         [Tooltip("Optional encounter-TIME floor applied when this phase begins. Zero keeps the current TIME.")]
         [SerializeField, Min(0f)] private float minimumPlayerTimeOnEnter;
+        [Tooltip("SharedHealthPlayerTime only: advance once remaining TIME / maximum reaches this fraction. Final phase ends at HP zero.")]
+        [SerializeField, Range(0f, 1f)] private float playerTimeExitFraction;
+        public float PlayerTimeExitFraction => playerTimeExitFraction;
 
         public string PhaseId => phaseId;
         public int MaxHealth => maxHealth;

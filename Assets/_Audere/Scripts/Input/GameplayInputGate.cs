@@ -22,12 +22,19 @@ namespace Audere.GameplayInput
     {
         private readonly List<Claim> claims = new List<Claim>();
         private int nextClaimId;
+        private int suppressInputThroughFrame = -1;
 
         public GameplayInputMode CurrentMode
         {
             get
             {
                 RemoveDestroyedOwnerClaims();
+
+                for (int index = claims.Count - 1; index >= 0; index--)
+                {
+                    if (claims[index].Mode == GameplayInputMode.Modal)
+                        return GameplayInputMode.Modal;
+                }
 
                 for (int index = claims.Count - 1; index >= 0; index--)
                 {
@@ -53,6 +60,7 @@ namespace Audere.GameplayInput
         private void OnDisable()
         {
             claims.Clear();
+            suppressInputThroughFrame = -1;
         }
 
         public GameplayInputToken PushMode(Object owner, GameplayInputMode mode)
@@ -90,6 +98,8 @@ namespace Audere.GameplayInput
                 if (claims[index].Id != token.ClaimId)
                     continue;
 
+                if (claims[index].Mode == GameplayInputMode.Modal)
+                    suppressInputThroughFrame = Time.frameCount;
                 claims.RemoveAt(index);
                 return true;
             }
@@ -115,7 +125,7 @@ namespace Audere.GameplayInput
 
         public bool Allows(GameplayInputMode mode)
         {
-            return CurrentMode == mode;
+            return Time.frameCount > suppressInputThroughFrame && CurrentMode == mode;
         }
 
         private int NextClaimId()

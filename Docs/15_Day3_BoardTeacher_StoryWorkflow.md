@@ -1,6 +1,6 @@
 # Ngày 3 — vẽ bảng, mệt mỏi và lời hỏi han bị diễn giải thành áp lực
 
-Status: **Design Intent**, triển khai theo yêu cầu Xuân ngày 2026-08-28. Cô giáo vẫn ôn hòa; lời tiêu cực trong combat là hình dung bị Timor bóp méo, không phải suy nghĩ đã được xác nhận của cô. Enemy visual và location art là **PLACEHOLDER**. Ontology combat, art chính thức, cân bằng cuối và hậu thoại sau trận vẫn **Unresolved**.
+Status: **Design Intent**, triển khai theo yêu cầu Xuân ngày 2026-08-28. Cô giáo vẫn ôn hòa; lời tiêu cực trong combat là hình dung bị Timor bóp méo, không phải suy nghĩ đã được xác nhận của cô. Enemy visual và location art là **PLACEHOLDER**. Hậu thoại đã triển khai theo yêu cầu Xuân; ontology combat, art chính thức và cân bằng cuối vẫn **Unresolved**.
 
 ## Flow production
 
@@ -18,8 +18,8 @@ Status: **Design Intent**, triển khai theo yêu cầu Xuân ngày 2026-08-28. 
   → Fatigue Sway + Bianca gọi tự động → fade → load
 120_D3_School_Teacher / D3_TEACHER_CHECK_IN_PRESSURE
   → cô hỏi han → Timor diễn giải tiêu cực
-  → Dreamy Disorientation → combat 12 HP / 120 TIME
-  → Victory: neutral fade về cô; kết thúc event, chưa thêm hậu thoại
+  → Dreamy Disorientation → combat 15 HP / 90 TIME
+  → Victory: giữ hình enemy khi cô trấn an → neutral fade về hai tile cạnh nhau → chọn một trong ba câu trả lời → cô xin phép ôm → Audere đồng ý → cử chỉ gần lại và giữ yên
   → Defeat: Retry chung; không replay bảng vẽ
 ```
 
@@ -61,25 +61,28 @@ Encounter: `Data/Combat/Teacher/CombatEncounter_D3_TEACHER_PRESSURE.asset`.
 Enemy: `Data/Combat/Teacher/Enemy_Teacher_PLACEHOLDER.asset`.
 Actor: `Prefabs/Combat/Enemies/Enemy_Teacher_PLACEHOLDER.prefab` — chỉnh Image/RectTransform trực tiếp hoặc override instance `WORLD/Combat Root/CombatBoard/.../Enemy_Teacher_PLACEHOLDER` trong Scene120. Runtime không tự normalize kích thước art.
 
-- ID `d3-teacher-perceived-pressure`; display “Cô giáo”. **SharedHealthThresholds**, tổng12HP, chuyển ở8/4/0; không hồi đầy HP mỗi phase. Damage dư qua threshold bị bỏ theo contract chung.
+- ID `d3-teacher-perceived-pressure`; display “Cô giáo”. **SharedHealthThresholds**, tổng15HP, chuyển ở7/4/0; không hồi đầy HP mỗi phase. Damage dư qua threshold bị bỏ theo contract chung. HP nguyên nên mốc dưới nửa máu (7.5) là7HP.
 - `CombatController` nằm ở `SYSTEMS/Combat Systems`, tách khỏi `WORLD/Combat Root/CombatBoard` như Scene40. `CombatStep.combatController`, controller.boardView và WorldModeController.combatSystemsRoot vẫn direct reference. Scene120 không có puzzle nên không tạo Puzzle Systems rỗng. Tool tạo Day3 mới cũng theo bố cục này; không rebuild scene cũ.
-- Audere120TIME,3dice/batch,max2Attack/batch kể cả reroll/caught budget. Giữ nguyên CombatDiceConstants, Shield clear và physics dice.
+- Audere90TIME (1 phút30 giây),3dice/batch,max2Attack/batch kể cả reroll/caught budget. Giữ nguyên CombatDiceConstants, Shield clear và physics dice.
 - Phase1: `ChalkFenceMove` hàng phấn từ trên/dưới, chừa hành lang giữa và một cột trống luân phiên; sau đó `ChalkSweepMove` phấn xoay băng ngang.
-- Phase2: sweep + `VerticalPlayerImpulseMove`. Cảnh báo0.9s rồi kéo Y0.65s, nghỉ1.6s. X vẫn nhận chuột. Luân phiên lên/xuống, không khóa người chơi vào sát viền. Sau đó fence.
+- Phase2 (7→4HP): `RadialInwardTrailMove` mở đầu, rồi sweep, rồi fence, OrderedLoop.12 thanh phấn chia đều trên một vòng tròn ngoài Dice Field, hướng vào tâm; alpha0→1 trong1.1s, sau đó đồng loạt lao xuyên tâm trong2.6s. Đòn dài8.2s để đọc vệt và có khoảng thoát. Bán kính tính theo hướng phát thực tế, kích thước field và chiều dài phấn, không đẩy vòng báo trước ra khỏi màn hình chỉ để bao các góc không dùng.
 - Phase3: `SineProjectileStreamMove` tạo luồng đạn thường uốn lượn từ trên xuống + laser columns có telegraph0.85s. Luân phiên field-shift + sweep; vùng Dice Field co còn82%, dịch trong Frame, rồi trả về.
 - Đạn thường dùng nguyên `Prefabs/Combat/Bullets/EnemyBullet.prefab` chung: sprite `AssetGame/Item/dan.aseprite`,24×24,không tint riêng. `Move_ChalkSineStream` giữ tên/GUID cũ nhưng reference đạn đã đổi sang EnemyBullet; reference dự phòng của `Move_TeacherLaserColumns` cũng dùng EnemyBullet. Laser vẫn là presentation riêng của CombatLaserView, không biến thành viên phấn.
-- Chỉ `ChalkFenceMove` (hàng trên/dưới) và `ChalkSweepMove` (thanh xoay/quét) dùng `Bullet_ChalkRod`120×19 với `AssetGame/Item/phan.aseprite`. `Bullet_ChalkGrain`33×8 cũ được giữ nhưng không còn dùng trong move Teacher. Tool dựng Day3 lấy EnemyBullet chung cho luồng đạn, không tạo grain mới. Không đổi tốc độ/interval/HP/TIME/dice/cue hoặc prefab đạn chung. Các asset move nằm trong `Data/Combat/Teacher/Moves`; không check enemyID trong runtime.
+- Chỉ các đòn phấn đặc biệt `ChalkFenceMove`, `ChalkSweepMove`, `RadialInwardTrailMove` dùng `Bullet_ChalkRod`120×19 với `AssetGame/Item/phan.aseprite`. Cả ba bật `stunTrail`: vệt chấm tím nằm trong Dice Field, chặn catch3.6 giây combat-active rồi fade0.3s không còn chặn. Reroll và di chuyển vẫn dùng được. Shield clear projectile thì ngừng tạo vệt mới; vệt đã tạo tự hết hạn hoặc được dọn cùng lifecycle phase/move/session. Không đổi prefab đạn thường, dice constants hay thoại.
 - `ParametricProjectileMotion` giữ elapsed riêng mỗi projectile, được tick bằng combat-local delta; pause giữ nguyên vị trí. Pool Setup/Return/Fade hủy motion cũ và reset ownership/rotation/collision. Phase/session cleanup vẫn do board/controller chung sở hữu.
-- Va chạm rectangle xoay dùng SAT trong `CombatRectCollision`, tránh vùng góc rỗng của AABB gây hit giả. `CombatBoardView` thêm owner handle cho vertical impulse, release khi move cancel/complete hoặc board cleanup.
+- Va chạm rectangle xoay dùng SAT trong `CombatRectCollision`, tránh vùng góc rỗng của AABB gây hit giả. **Teacher không còn dùng vertical impulse/hất người chơi. Co–dịch width/X của Dice Field trong Frame vẫn giữ nguyên.** Asset impulse cũ được giữ để tái sử dụng, không nằm trong moveset production Teacher.
+
+Menu `Audere/Combat/Author Teacher Radial Trails` cập nhật riêng data và hai root trên shared CombatBoard prefab, không rebuild Scene120/actor. `Exterior Projectile Root` cho phép vòng phấn xuất hiện ngoài field; đạn thường/laser vẫn ở Projectile Mask. `Stun Trail Root` có RectMask2D trong field. Chi tiết contract/pool/cleanup tại `Docs/06_CombatGameplay.md`.
 
 ## Chỉnh sửa / rerun author
 
 ### Portrait và lời combat bị bóp méo
 
-- `Data/Dialogue/Day3/TeacherCombat/`: giữ 10 asset/GUID, hiện tham chiếu 7 asset trong ba sequence tổng30 bubble (prefix Timor được dùng ở cả ba mốc). Ba draft `LET_ME_DO_IT`, `THE_CLASS_WAITS`, `DONT_ADD_TROUBLE` được giữ nhưng không tham chiếu trong encounter. Audere luôn trái; Timor/cô giáo bên phải. Không đổi catalog, enemy visual hoặc scene art.
+- `Data/Dialogue/Day3/TeacherCombat/`: giữ 10 asset/GUID, hiện tham chiếu 7 asset trong ba sequence tổng30 bubble (prefix Timor được dùng ở cả ba mốc). Ba draft `LET_ME_DO_IT`, `THE_CLASS_WAITS`, `DONT_ADD_TROUBLE` được giữ nhưng không tham chiếu trong encounter. Audere luôn trái; Timor/cô giáo bên phải. Enemy visual và scene art không đổi.
+- Catalog tách `Teacher = 3` (người thật, `Co_giao_0`) và `TeacherDistorted = 7` (Timor bóp méo, `Co_giao_Creepy_0`). Dùng `Line.CharacterOverride` để trở về Teacher ở câu chăm sóc thật; không đổi nội dung, thời lượng hay thứ tự cue. TeacherAfterCombat giữ Teacher normal, BiancaReprise giữ Timor trực tiếp/Bianca thật. Quy ước chung và QA ở `Docs/05_DialogueSystem.md`.
 - Mỗi sequence: Timor “Chắc cô đang nghĩ…” → lời cô giáo bị bóp méo với `Co_giao_Creepy_0` → một câu chăm sóc bằng `Co_giao_0` → Audere đối thoại trực tiếp với Timor. Glitch portrait giữ cơ chế hiện có. Đây là **Design Intent về sự diễn giải của Timor**, không xác nhận cô giáo thật sự trách Audere.
-- Mỗi phase chỉ có **một `PhaseEnter` cue**, auto/non-modal, không repeat, không interrupt. Bỏ trigger theo mỗi move/catch để câu lập luận không bị cắt hoặc quay về mức phản kháng trước. Min1.4s,30 ký tự/s,gap0.12s; không click, không claim Dialogue input, không pause TIME/đạn.
-- Phase1/2 dùng `RequiredBeforePhaseAdvance`, phase3 dùng `RequiredBeforeVictory`. Nếu damage đạt8/4/0 trước khi nói xong, giữ phase hiện tại, không nhận thêm damage/không chuyển damage dư, tiếp tục dodge/heal/moves; hết sequence thì tick kế tiếp chuyển phase/Victory, không yêu cầu hit bổ sung. HP có thể hiển thị0 trong phần cuối sequence trước Victory. Defeat/cancel vẫn được phép ngắt. HP12,TIME120,3dice,max2Attack và moves không đổi; đây không phải ba phase hồi HP.
+- Mỗi phase chỉ có **một `PhaseEnter` cue**, auto/non-click, không repeat, không interrupt. Bỏ trigger theo mỗi move/catch để câu lập luận không bị cắt hoặc quay về mức phản kháng trước. Min1.4s,30 ký tự/s,gap0.12s; không click, không claim Dialogue input; TIME/đạn/Heart/move pause cục bộ tới khi sequence kết thúc.
+- Phase1/2 dùng `RequiredBeforePhaseAdvance`, phase3 dùng `RequiredBeforeVictory`. Nếu damage đạt7/4/0 trước khi nói xong, giữ phase hiện tại, không nhận thêm damage/không chuyển damage dư, tiếp tục dodge/heal/moves; hết sequence thì tick kế tiếp chuyển phase/Victory, không yêu cầu hit bổ sung. HP có thể hiển thị0 trong phần cuối sequence trước Victory. Defeat/cancel vẫn được phép ngắt. Đây không phải ba phase hồi HP; lượt cập nhật15HP/90TIME không sửa lời/cue.
 - Audere giữ `Audere_Scared_0` qua hai mốc đầu. Ở câu “Nhưng tớ đang mệt thật.” đổi sang `Audere_Tired_0`, giữ tới cuối: cô dám nhận giúp đỡ nhưng vẫn kiệt sức, không chuyển sang cười/đắc thắng. Timor vẫn `TimorLoLangKhongVui_0`, lời bảo vệ thu hẹp lựa chọn của Audere; không cần tăng thành quát tháo.
 - Ba asset cũ `Dialogue_D3_COMBAT_PROJECTION_01..03` được giữ nguyên, không còn được enemy này tham chiếu; không xóa draft của người dùng.
 
@@ -87,7 +90,7 @@ Actor: `Prefabs/Combat/Enemies/Enemy_Teacher_PLACEHOLDER.prefab` — chỉnh Ima
 
 Mỗi mốc bắt đầu bằng prefix Timor nêu trên. Các dòng bên dưới là thứ tự sau prefix, không phải lời nói ngoài đời của cô giáo:
 
-**12 → 8 HP: Audere bắt đầu nghi ngờ cách Timor diễn giải.**
+**15 → 7 HP: Audere bắt đầu nghi ngờ cách Timor diễn giải.**
 
 - Cô giáo (bóp méo): “Cô phải bỏ việc để trông em.” / “Em làm mọi người cuống cả lên.”
 - Cô giáo (bình thường): “Audere, em nghe cô nói không?”
@@ -97,7 +100,7 @@ Mỗi mốc bắt đầu bằng prefix Timor nêu trên. Các dòng bên dưới
 - Timor: “Cô không cần nói ra.”
 - Audere: “…Cậu đâu biết chắc.”
 
-**8 → 4 HP: Audere viện vào trải nghiệm thật với Bianca hôm qua.**
+**7 → 4 HP: Audere viện vào trải nghiệm thật với Bianca hôm qua.**
 
 - Cô giáo (bóp méo): “Cả lớp còn đang chờ em đấy.” / “Em định nằm đây đến bao giờ?”
 - Cô giáo (bình thường): “Em cứ nghỉ đã.”
@@ -117,13 +120,24 @@ Mỗi mốc bắt đầu bằng prefix Timor nêu trên. Các dòng bên dưới
 - Timor: “Audere—”
 - Audere: “Để tớ tự trả lời.”
 
-Victory chỉ kết thúc lớp diễn giải áp lực, không chứng minh Audere đã khỏi lo âu hoặc biến Timor thành kẻ xấu tuyệt đối. Hậu thoại thực tế với cô giáo chưa được viết trong lượt này, vẫn **Unresolved**.
+Victory chỉ kết thúc lớp diễn giải áp lực, không chứng minh Audere đã khỏi lo âu hoặc biến Timor thành kẻ xấu tuyệt đối. Phần hậu thoại bổ sung sau lượt combat nằm ở mục dưới; không thay lời phản kháng đã có trong ba phase.
 
 Menu `Audere/Story/Author Day 3 Board and Teacher` chỉ tạo scene/data/prefab còn thiếu và nối Scene90 một lần. Guard Play/dirty scene; không rebuild nội dung đã được Xuân chỉnh. Scene100/110/120 đã có trong Build Settings và GameScenes; GameplayUIRoot tắt PuzzleUI tại các scene này.
 
 DialogueData mới nằm ở `Data/Dialogue/Day3/`. Chỉnh DialogueData thay vì chạy author để ghi đè lời. Giữ rõ Design Intent; không biến placeholder asset thành canon.
 
 ## QA đã thực hiện
+
+### Vòng phấn, trail3.6s,15HP/90TIME và giữ co–dịch field — 2026-08-28
+
+- C# compile thành công.68/68 EditMode tests PASS: RadialStunTrail, CombatEnemyRuntime, EnemyActorFloat và5 test data/binding/chalk Teacher; XML `Temp/RadialQA/tests.xml`. Có coverage trail3.59s còn chặn/3.61s hết chặn, pause, clip khi field dịch/co, cancel warning/flight/end, Shield ngừng sinh vệt, pool đúng prefab/lease và board disable.
+- Play Scene120 qua CombatStep thật, data production15→7→4→0: Completed đúng1 lần sau69.81s; đầu trận90TIME. Dùng debug Attack/Heal để đo lifecycle, **không phải test độ khó/thắng bằng chuột**. Required cue vẫn giữ damage ở threshold trước khi chuyển phase.
+- Ring phase2:12 viên, warning chưa có trail; flight sinh vệt, tất cả warning nằm trong viewport1920×1080 (mép thấp nhất6.3px). Đã xem ảnh `production-warning.png`, `production-flight.png`, `production-field-shift.png` trong `Temp/RadialQA`. Ảnh `ring-*` là mẫu isolated ban đầu, hai viên dưới bị cắt; không dùng làm hình QA cuối sau khi thu bán kính theo hướng phát.
+- Toàn trận đo tối đa323 trail segment (<cap384), field co0.82, dịch X tối đa43.32 đơn vị local; vertical-control không bật. Cuối trận projectile0/trail0/dialoguefalse/input0. Báo cáo `Temp/RadialQA/production.txt`.
+- Cancel giữa flight có128 trail/12 viên: clear hết, callback1,input0,width1. Replay15HP/90TIME/phase0; Defeat mở Retry sau khi clear projectile/trail/dialogue/input. Bấm đôi chỉ đổi session3→4 một lần; lượt mới15HP/90TIME/phase0,input1. Cancel hai lần vẫn dọn hết; `Temp/RadialQA/retry.txt`.
+- Một lượt Play probe đầu bị forced synchronous domain reload giữa phase1; không tính là pass, chưa xác định nguồn reload. Đã stop/reload scene và chạy lại toàn bộ production/Retry thành công, không ghi file trong lúc chạy. Console cuối0error/warning, PlayOFF,compileOFF,Scene120dirty=false,startup=true,0missing/broken; không còn callback QA.
+- Hash Scene120,Scene80,10 TeacherCombat DialogueData và CombatDiceConstants giữ nguyên so với đầu lượt. Shared CombatBoard chỉ thêm binding/root/material trail; scene override enemy art/size/position của Xuân được giữ. Không chạy lại builder production toàn scene.
+- Chưa replay full100→110→120, chưa test balance90TIME bằng chuột,4:3/ultrawide hoặc build executable trong lượt này. Các mục QA phía dưới là lịch sử với data12HP/120TIME cũ, không thay cho thông số hiện tại.
 
 ### Phản kháng tăng dần và tách SYSTEMS — 2026-08-28
 
@@ -163,3 +177,47 @@ DialogueData mới nằm ở `Data/Dialogue/Day3/`. Chỉnh DialogueData thay v�
 - Lượt đầu tìm và sửa missing CanvasRenderer, thiếu StoryEventsRoot. Ảnh shader compile lần đầu có cyan Editor placeholder; ảnh ổn định sau compile hiển thị nét phấn đúng. Không coi ảnh warmup là kết quả cuối.
 - Chưa build player executable, chưa nghe đánh giá loa thật, chưa chơi tay cân bằng đủ120s hoặc full story ở mọi aspect. Chưa viết hậu thoại sau trận cô giáo.
 - Kiểm tra bàn giao: Scene20/30/60/90/100/110/120 đều0 missing scripts,0 broken prefabs,dirty=false; StoryDirector startup/reference còn đúng. Console không có error runtime mới, chỉ hai thông báo Test Runner save/cleanup. Dừng Play, mở Scene100; lượt Editor kế tiếp được nhả cho task âm thanh, không giữ QA callback.
+
+## Hậu combat Teacher — bổ sung 2026-08-28
+
+**Design Intent theo Xuân:** Audere nghe lời cô thật và tự chọn mức độ mình muốn nói ra; thắng không có nghĩa em hết mệt hoặc hết lo. Những câu xin Timor đừng nói thay cô và muốn nghe cô nói đã có trong cuối combat, không lặp lại toàn bộ tranh luận.
+
+- `CombatEncounter_D3_TEACHER_PRESSURE.VictoryPresentation` giữ actor enemy đang có trong scene, dừng combat và fade hazard `.45s`, rồi phát ba câu cô trấn an qua DialogueUI bình thường. Portrait `Co_giao_0`, Audere `Audere_Tired_0`; không sửa sprite enemy do Xuân đã gán. Sau lời trấn an, enemy fade `.4s` và trả về neutral Story transition sẵn có.
+- `Data/Dialogue/Day3/TeacherAfterCombat`: 7 DialogueData. Ba nhánh lo lắng / mệt vì lần đầu tham gia / nói mình chỉ thiếu ngủ, không điểm số hoặc timeout. Nhánh thiếu ngủ được cô đáp đúng lời em vừa nói, không ép em thú nhận thêm.
+- `140_AudereChoosesHerAnswer` dùng `StoryChoiceBranchStep`, 3 StoryEvents dưới `STORY/TEACHER REPLY BRANCHES`, cùng hội tụ tại `150_NoNeedToSolveEverythingToday`. Choice UI tái sử dụng cách trình bày của Evening, không tạo framework mới.
+- Hai tile cách nhau đúng một pitch `.25 world`, Audere trái và cô phải. Reset/facing nằm dưới cover; actor feet và shadow giữ baseline cũ. Sau `170_TeacherAsksPermission`, Audere nói `…Dạ.` rồi cô mới lại gần. Cử chỉ được diễn tả bằng sprite có sẵn nhích sát, Audere đáp nhẹ, giữ yên `1.6s`, sau đó cả hai trở về tâm tile. **Không có sprite/animation tay ôm mới.**
+- Bốn `CharacterMotionStep` có direct shadow/anchor, không scale hoặc đổi màu bóng/tile; Audere chỉ lift `.004 world` ở nhịp đáp. Cancel/replay trả actor về ground pose hợp lệ.
+- Apply lặp lại bằng `Audere/Story/Apply Teacher After Combat To Active Scene` trên Scene120 sạch. Lượt rerun kiểm tra byte scene không đổi; không chạy lại builder Day3 toàn bộ.
+
+### Kiểm tra lượt hậu combat
+
+- **20/20 Passed**, XML `Temp/TeacherAfterCombat/tests_20_pass.xml`, kết thúc `2026-08-28 14:27:17Z`: Day3SchoolTests + EveningNightPressureTests.
+- Production test đi từ100→110→120, qua3phase tớiVictory rồi chọn reply và kết thúc. Harness dùng Debug Attack/Heal vì Heart đứng yên khi chờ thoại; đây là kiểm tra flow/lifecycle, **không phải thắng bằng chuột hoặc kết luận balance**. Lượt trước test đứng yên bị mắc trước hậu combat; đã bổ sung Heal trong harness, không sửa HP/TIME/đòn trong asset.
+- Test riêng: giữ actor/hazard0/TIME đứng yên trong Victory dialogue; cancel rồi chạy lại và callback đúng1lần; cả3reply; choice double-click; hủy khi chọn và giữa chuyển động; replay; grounded shadow giữ scale/rotation/color; Defeat/Retry vẫn qua.
+- Play visual1920×1080: `choices.png`, `victory-reassurance.png`, `visual-10.png`, `visual-14.png`, `embrace.png`. Probe visual bắt đầu tại seam Victory mô phỏng và tự tiến bubble để kiểm tra hình; không thay thế production test ở trên. Đã thấy đủ reassurance → reply lo lắng → lời hỗ trợ → xin ôm → đồng ý → gần lại. `visual-log.txt` kết thúc `claims=0 combat=False trails=0 choice=False dialogue=False`; callback tự unregister.
+- 30 hash bảo vệ gồm Scene80, Teacher enemy/moves, audio catalog và dice constants không đổi trong lượt hậu combat. Atlas font động do Play sinh được trả về dữ liệu trước QA. Không build executable, chưa visual cả3nhánh ở mọi aspect.
+
+## Bianca trở lại, Timor im lặng — 2026-08-28
+
+**Design Intent theo Xuân:** Audere tự chọn nghe Bianca thật. Timor sợ mất vị trí bên Audere; sự im lặng của cậu không phải dấu hiệu Audere đã hết lo âu. Phần Ngày4 chưa được dựng trong lượt này, không thêm kết luận hoặc cờ chữa khỏi.
+
+- `D3_TEACHER_CHECK_IN_PRESSURE` nối trực tiếp tới `D3_BIANCA_REPRISE_AND_SILENCE`. Sau một nhịp, Bianca đi3 bước từ phải trên đường tile. Timor vội diễn giải sự có mặt của Bianca rồi mở combat quen thuộc. Các motion có anchor/shadow trực tiếp; actor order5, shadow4; không đổi màu tile hoặc bóng. Chân Bianca căn theo **bounds của bóng được vẽ**, không theo pivot lệch của sprite bóng.
+- Encounter riêng `Data/Combat/BiancaReprise/CombatEncounter_D3_BIANCA_REPRISE.asset`: 6HP tự giảm mỗi3.5s; không dice và không thua. Fan đạn thường xen boomerang `dan_bianca`; đạn đổi hướng/biến mất gần Heart và không có damage collision. HP giữ ở1 cho tới khi toàn bộ lời Audere cuối cue đã kết thúc, rồi mới về0 và fade enemy0.9s.
+- 13 DialogueData tại `Data/Dialogue/Day3/BiancaReprise`. Timor và Bianca thật lần lượt nói; Bianca không hứa cứu Audere hay đọc được suy nghĩ của cô. Audere vẫn dùng `Audere_Tired`, nói ngắn: “Được rồi mà, Timor.” / “Cậu biết Bianca không phải người như thế.” Timor cuối chuyển từ buồn → giận → buồn; không dùng biểu cảm đắc ý. Bianca thật luôn portrait normal.
+- Khi trở lại Story chỉ giữ Audere và Bianca. Audere bước sang tile bên cạnh rồi nhảy nhỏ `.035world/.22s`. Ba nhánh dùng chung ChoiceView với Teacher, lần lượt xin ở lại / cảm ơn / hẹn cùng về lớp. Nhánh thứ ba là câu nối được soạn theo yêu cầu3lựa chọn; không chấm điểm hoặc mặc định lựa chọn đúng.
+- Sau câu Timor rút lui là1.4s không lời, fade đen1.1s rồi title “Ngày 3 - Kết thúc”. Dùng `CanvasFadeStep` với `DAY THREE STORY COVER` riêng, vì Fade của Scene Transition Overlay bị tắt khi scene bootstrap hoàn tất. Không sửa profile transition dùng chung hoặc Scene80. Title và cover reset khi replay main.
+- Author lặp bằng `Audere/Story/Apply Bianca Reprise To Active Scene` trên Scene120 đã lưu; không rerun builder Day3 toàn bộ. Teacher CombatStep và reprise cùng board/controller nhưng có `EnemyActorOverride` riêng.
+
+### Kiểm chứng
+
+- Lượt đầu **64/64 passed**: CombatEnemyRuntimeTests + Day3SchoolTests, gồm production100→110→120 và test riêng reprise. Sau sửa visual, **91/91 passed**, XML `Temp/BiancaReprise/tests_91_pass.xml`, kết thúc `2026-08-28 15:38:47Z`: runtime, MusicPresentation, BiancaProjectilePolish và3test reprise.
+- Reprise Play test không dùng Debug Attack: HP tự giảm tớiVictory, cố tình đặt đạn lên Heart, không dice/damage, cancel/replay, rồi chuyển actor về Teacher. Kiểm tra gate1HP, pause/long-frame/pool reset, đủ3reply/double-click/cancel/hop/title, author rerun không thay scene byte.
+- Visual1920×1080 từ bước Teacher trở về chỗ đứng đi qua Director auto-chain tới hết ngày: `visual-log.txt` ghi đúng hai câu Audere cuối khiHP1, kết thúc combat/dialogue=false/claims0. Ảnh `visual-16.png` là lời Audere ởHP1; lượt đầu phát hiện lệch chân Bianca và inactive cover, đã sửa rồi chạy lại.
+- Lượt visual cuối: `hop-apex.png`, `title-final.png`, `final-visual-log.txt`. 28 mẫu hop giữ shadowY=-0.1174375 trong khi actor lên/xuống; title cuối chỉ còn chữ trên nền đen, claims0. `choices-final.png` bắt lúc UI chuyển sang lời đáp nên không dùng làm ảnh kiểm layout choice; layout và3nhánh đã có test/ảnh ở lượt trước.
+- Scene60, Scene80, Teacher enemy/encounter giữ nguyên hash qua tests; atlas Mynerve tạm được trả về baseline trước QA, giữ các font edit có sẵn. Không build executable, chưa nghe loa thật hoặc QA cả mạch mới ở4:3/ultrawide. Các probe đã tự unregister.
+
+### Bianca tile-center alignment correction (2026-08-28)
+
+Scene120 Bianca now uses the sprite foot midpoint (the same bottom-baseline convention as GridPlayer) to align to each tile center. Updated only her entry pose and four arrival anchors; preserved the prefab shadow offset, sorting, tile presentation, all dialogue and combat data. The reprise setup tool uses the same foot calculation so future authoring retains this placement.
+
+2/2 focused Play tests passed: arrival across three tiles with apex cancel/replay and settled foot-center assertions; existing three-reply ending through the final title. Evidence: `Temp/BiancaCenter/tests_2_pass.xml`, `arrival-apex.png`, `centered-pair.png` (1920x1080). Scene diff for this correction is six coordinate lines; no broad scene builder was rerun.

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dd65b553d905a94eae8159ff65e4e7e, type: 3}
+  m_Name: Move_TeacherRadialInwardTrails
+  m_EditorClassIdentifier: 
+  duration: 8.2
+  leadInDuration: 0
+  projectilePrefab: {fileID: 8510501794874435420, guid: 6a62986d8883345478d2962117bc8838, type: 3}
+  projectileCount: 12
+  outerPadding: 20
+  angularOffset: 15
+  telegraphDuration: 1.1
+  flightDuration: 2.6
+  stunTrail:
+    enabled: 1
+    width: 14
+    blockingDuration: 3.6
+    fadeDuration: 0.3

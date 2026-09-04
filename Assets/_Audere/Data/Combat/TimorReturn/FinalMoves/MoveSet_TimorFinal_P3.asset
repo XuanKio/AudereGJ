@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 967723d69e90a4d499f2dff45bf25f11, type: 3}
+  m_Name: MoveSet_TimorFinal_P3
+  m_EditorClassIdentifier: 
+  selectionPolicy: 0
+  entries:
+  - move: {fileID: 11400000, guid: 16b844465d5c70341ba4f26426974501, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 7a8cfc3b5d3e06d42a979709fafe78e9, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 8a5929e3d39e8a24da1f6875a3f3edaf, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 064bee8aeb5064e4f9f33816372a8ff9, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: c882f15848e040545b5f4ee2b51fd73a, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: b1fe8c9a0b147274bb9d3245a2a9ef58, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 3238fe53e300ae1489c9e4d420afee4f, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 113a1eb8c2b12ba409dfcf6a692004fe, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 5da16ae7f5688d544a9880a625d9c47b, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 31857fd4b1d9a354e84ae21bfc3d9eef, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 0e8e57d31c29992419718cd2a1fa6d41, type: 2}
+    weight: 1

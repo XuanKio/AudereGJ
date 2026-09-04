@@ -6,5 +6,6 @@ namespace Audere.GameplayInput
         Puzzle,
         Combat,
         Dialogue,
+        Modal,
     }
 }

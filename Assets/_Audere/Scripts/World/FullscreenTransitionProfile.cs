@@ -31,6 +31,56 @@ namespace Audere.World
         }
     }
 
+    [Serializable]
+    public sealed class FullscreenShatterSettings
+    {
+        [SerializeField] private bool enabled;
+        [SerializeField] private bool revealTargetBehindShards;
+        [SerializeField] private Material shardMaterial;
+        [SerializeField] private float captureTime = .8f;
+        [SerializeField] private float breakTime = 2.2f;
+        [SerializeField] private float clearTime = 4.25f;
+        [SerializeField] private AnimationCurve crack = AnimationCurve.Linear(.9f, 0f, 2.2f, 1f);
+        [SerializeField] private Vector2 impact = new Vector2(.54f, .53f);
+        [SerializeField, Range(8, 24)] private int spokeCount = 14;
+        [SerializeField] private int seed = 8027;
+        [SerializeField, Min(.1f)] private float impulse = 1f;
+        [SerializeField, Min(.1f)] private float gravity = 2.8f;
+        [SerializeField, Min(0f)] private float spin = 1f;
+        [SerializeField, Range(.001f, .025f)] private float thickness = .007f;
+        [SerializeField] private Color frontTint = new Color(.55f, .63f, .8f, 1f);
+        [SerializeField] private Color backTint = new Color(.018f, .025f, .045f, 1f);
+        [SerializeField] private Color edgeTint = new Color(.12f, .17f, .22f, 1f);
+        [SerializeField] private Color crackTint = new Color(.38f, .48f, .58f, 1f);
+
+        public bool Enabled => enabled;
+        public bool RevealTargetBehindShards => revealTargetBehindShards;
+        public Material ShardMaterial => shardMaterial;
+        public float CaptureTime => captureTime;
+        public float BreakTime => breakTime;
+        public float ClearTime => clearTime;
+        public AnimationCurve Crack => crack;
+        public Vector2 Impact => impact;
+        public int SpokeCount => Mathf.Clamp(spokeCount, 8, 24);
+        public int Seed => seed;
+        public float Impulse => impulse;
+        public float Gravity => gravity;
+        public float Spin => spin;
+        public float Thickness => thickness;
+        public Color FrontTint => frontTint;
+        public Color BackTint => backTint;
+        public Color EdgeTint => edgeTint;
+        public Color CrackTint => crackTint;
+
+        public bool Validate(float swapTime, float duration)
+        {
+            return !enabled || (shardMaterial != null && crack != null && captureTime >= 0f &&
+                captureTime < breakTime && breakTime < clearTime && clearTime <= duration &&
+                (revealTargetBehindShards ? swapTime >= breakTime && swapTime <= clearTime : clearTime <= swapTime) &&
+                impulse > 0f && gravity > 0f && spin >= 0f && thickness > 0f &&
+                impact.x >= 0f && impact.x <= 1f && impact.y >= 0f && impact.y <= 1f);
+        }
+    }
     [CreateAssetMenu(
         fileName = "WorldTransition_New",
         menuName = "Audere/World/Fullscreen Transition Profile")]
@@ -49,6 +99,10 @@ namespace Audere.World
         [SerializeField] private FullscreenTransitionFloatTrack[] floatTracks =
             Array.Empty<FullscreenTransitionFloatTrack>();
 
+        [Header("Optional Frozen Screen Shatter")]
+        [SerializeField] private FullscreenShatterSettings screenShatter = new FullscreenShatterSettings();
+
+        public FullscreenShatterSettings ScreenShatter => screenShatter;
         public string ProfileId => profileId;
         public string DisplayName => displayName;
         public Material Material => material;
@@ -74,6 +128,17 @@ namespace Audere.World
             if (modeSwapTime < 0f || modeSwapTime > duration)
             {
                 error = $"Transition profile '{name}' has a mode swap outside its duration.";
+                return false;
+            }
+
+            if (screenShatter != null && !screenShatter.Validate(modeSwapTime, duration))
+            {
+                error = $"Transition profile '{name}' needs valid capture/break/clear timing and a swap concealed by the frozen pane or cover.";
+                return false;
+            }
+            if (screenShatter != null && screenShatter.Enabled && !material.HasProperty("_Cover"))
+            {
+                error = $"Transition profile '{name}' needs a _Cover property behind screen shards.";
                 return false;
             }
 

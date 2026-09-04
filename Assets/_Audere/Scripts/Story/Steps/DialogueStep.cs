@@ -93,11 +93,22 @@ namespace Audere.Story.Steps
 
         private DialogueController ResolveController()
         {
-            if (dialogueController != null)
+            // Scene-authored steps keep a direct reference for scene-first authoring, but the
+            // GameplayUIRoot itself persists between scenes. During a Single-mode scene load,
+            // the incoming scene's duplicate UI root is disabled before it is destroyed, so a
+            // direct reference can briefly point at that inactive duplicate. Prefer the authored
+            // controller while it is usable, then fall back to the persistent shared controller.
+            if (dialogueController != null && dialogueController.isActiveAndEnabled)
                 return dialogueController;
 
             GameplayUIRoot root = GameplayUIRoot.Instance;
-            return root != null ? root.Dialogue : null;
+            DialogueController sharedController = root != null ? root.Dialogue : null;
+            if (sharedController != null && sharedController.isActiveAndEnabled)
+                return sharedController;
+
+            // Return the best available reference so Execute can report the existing, precise
+            // disabled/inactive error when neither controller is currently usable.
+            return dialogueController != null ? dialogueController : sharedController;
         }
 
         private void HandleDialogueEnded(

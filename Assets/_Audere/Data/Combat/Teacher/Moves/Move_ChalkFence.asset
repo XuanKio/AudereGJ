@@ -20,3 +20,8 @@ MonoBehaviour:
   waveInterval: 2.6
   telegraph: 0.65
   flightDuration: 1.8
+  stunTrail:
+    enabled: 1
+    width: 14
+    blockingDuration: 3.6
+    fadeDuration: 0.3

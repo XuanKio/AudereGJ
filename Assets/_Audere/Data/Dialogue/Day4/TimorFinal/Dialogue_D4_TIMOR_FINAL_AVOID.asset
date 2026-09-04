@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D4_TIMOR_FINAL_AVOID
+  m_EditorClassIdentifier: 
+  dialogueId: D4_TIMOR_FINAL_AVOID
+  leftCharacter: 1
+  rightCharacter: 2
+  leftPortraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
+  rightPortraitOverride: {fileID: -4747829306167941163, guid: cdecd5c621db74b43927eb49d1f04191, type: 3}
+  lines:
+  - speaker: 1
+    text: "N\u1EBFu c\u1EE9 tr\xE1nh t\u1EA5t c\u1EA3\u2026"
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 1
+    text: "c\u1EADu s\u1EBD kh\xF4ng bao gi\u1EDD th\u1EA5t b\u1EA1i."
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 0
+    text: "Nh\u01B0ng t\u1EDB c\u0169ng s\u1EBD kh\xF4ng bao gi\u1EDD bi\u1EBFt\u2026"
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 0
+    text: "\u0111i\u1EC1u g\xEC c\xF3 th\u1EC3 x\u1EA3y ra."
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

@@ -16,11 +16,19 @@ MonoBehaviour:
   displayName: "Kho\u1EA3ng L\u1EB7ng"
   actorPrefab: {fileID: 692416596494224280, guid: 985674116d46a934fac1db6dac754fe4, type: 3}
   phasePolicy: 0
-  sharedMaxHealth: 99
+  sharedMaxHealth: 20
   phases:
   - phaseId: tutorial-only-placeholder
-    maxHealth: 99
+    maxHealth: 20
     sharedExitThreshold: 0
     duration: 120
     moveSet: {fileID: 11400000, guid: 763b58cd6e0707948b39f13bcd20df2d, type: 2}
     dialogueCues: []
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 1
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+    playerTimeExitFraction: 0
+  passiveHealthDecayInterval: 0

@@ -80,6 +80,7 @@ namespace Audere.UI
                 RebuildLeaves();
         }
 
+#if UNITY_EDITOR
         protected override void OnValidate()
         {
             base.OnValidate();
@@ -95,6 +96,7 @@ namespace Audere.UI
                 SetMaterialDirty();
             }
         }
+#endif
 
         private void Update()
         {
@@ -247,4 +249,3 @@ namespace Audere.UI
         }
     }
 }
-

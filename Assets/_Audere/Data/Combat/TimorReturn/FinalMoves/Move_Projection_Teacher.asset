@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddea483c41a99a942bac2084d0219a99, type: 3}
+  m_Name: Move_Projection_Teacher
+  m_EditorClassIdentifier: 
+  duration: 7.1
+  leadInDuration: 0.46
+  projectionSprite: {fileID: -6851251128304860037, guid: d2458e92299d0524f88c873ad255e8cb, type: 3}
+  childMove: {fileID: 11400000, guid: 53b7e8e6679682e4eabd9db4bc6ecaad, type: 2}
+  copies: 2
+  visualSize: {x: 568, y: 760}
+  tint: {r: 0.62, g: 0.5, b: 1, a: 0.72}
+  boardSideOffset: 48

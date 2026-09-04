@@ -16,14 +16,20 @@ MonoBehaviour:
   leftCharacter: 1
   rightCharacter: 4
   leftPortraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
-  rightPortraitOverride: {fileID: 7503800403365798388, guid: 03f69c0d5de4d5b4982fff343666a5cb, type: 3}
+  rightPortraitOverride: {fileID: -8522945175667249623, guid: 185e3c99ab0def940b195570629d5076, type: 3}
   lines:
   - speaker: 1
     text: "Xin l\u1ED7i!"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "T\u1EDB l\xE0m c\u1EADu gi\u1EADt m\xECnh \xE0?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "Kh\xF4ng\u2026 t\u1EDB kh\xF4ng \u0111\u1EC3 \xFD."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

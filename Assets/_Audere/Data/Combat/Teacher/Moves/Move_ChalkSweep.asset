@@ -19,3 +19,8 @@ MonoBehaviour:
   flightDuration: 3
   interval: 1.7
   turns: 1.5
+  stunTrail:
+    enabled: 1
+    width: 14
+    blockingDuration: 3.6
+    fadeDuration: 0.3

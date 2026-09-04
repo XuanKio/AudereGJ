@@ -247,6 +247,39 @@ namespace Audere.Combat.Editor.Tests
         }
 
         [Test]
+        public void CombatDialogueCue_AllDialogueUiPresentationsPauseCombat()
+        {
+            var cue = new CombatDialogueCue();
+            SetField(cue, "sequence", new Audere.Dialogue.DialogueData[] { null });
+            SetField(cue, "presentation", CombatDialoguePresentation.AutoCombatDialogue);
+            Assert.IsTrue(cue.PausesCombatForPresentation);
+
+            SetField(cue, "presentation", CombatDialoguePresentation.ModalDialogue);
+            Assert.IsTrue(cue.PausesCombatForPresentation);
+
+            SetField(cue, "presentation", CombatDialoguePresentation.BackgroundTextField);
+            Assert.IsFalse(cue.PausesCombatForPresentation);
+        }
+
+        [Test]
+        public void CombatBoard_PresentationStaysHiddenUntilEncounterIsPrepared()
+        {
+            GameObject root = new GameObject(
+                "Combat Board Presentation Test",
+                typeof(RectTransform),
+                typeof(Canvas),
+                typeof(CombatBoardView));
+            cleanup.Add(root);
+            CombatBoardView board = root.GetComponent<CombatBoardView>();
+
+            board.SetEncounterPresentationVisible(true);
+            Assert.IsTrue(board.IsEncounterPresentationVisible);
+
+            board.ClearCombatRuntime();
+            Assert.IsFalse(board.IsEncounterPresentationVisible);
+        }
+
+        [Test]
         public void TutorialCue_PlayedState_IsPerRuntimeAttempt()
         {
             var cue = new CombatDialogueCue();
@@ -357,6 +390,14 @@ namespace Audere.Combat.Editor.Tests
                     cue.Trigger == CombatDialogueCueTrigger.AllDiceTypesCaught;
                 if (cue.CueId == "tutorial-player-hit")
                     Assert.AreEqual(CombatTutorialFocus.Time, cue.TutorialFocus);
+                if (cue.CueId == "tutorial-overview")
+                {
+                    string instruction = cue.Instruction.ToLowerInvariant();
+                    StringAssert.Contains("chuột trái", instruction);
+                    StringAssert.Contains("bắt xúc xắc", instruction);
+                    StringAssert.Contains("chuột phải", instruction);
+                    StringAssert.Contains("gieo lại", instruction);
+                }
                 if (cue.CueId == "tutorial-stun-zone")
                 {
                     Assert.AreEqual(CombatTutorialFocus.StunZone, cue.TutorialFocus);
@@ -654,10 +695,12 @@ namespace Audere.Combat.Editor.Tests
                 "Assets/_Audere/Data/Combat/CombatEncounter_D1_CLASSROOM_KHOANG_LANG.asset");
             Assert.IsNotNull(encounter);
             Assert.AreEqual(45f, encounter.EncounterDuration, .001f);
+            Assert.AreEqual(.75f, encounter.VictoryFadeDuration, .001f,
+                "Khoảng Lặng must visibly reach zero before combat returns to Story mode.");
             Assert.IsNotNull(encounter.TutorialData);
             Assert.AreEqual(120f, encounter.TutorialData.PlayerTime, .001f);
             Assert.AreEqual(1, encounter.TutorialData.EnemyDefinition.PhaseCount);
-            Assert.GreaterOrEqual(encounter.TutorialData.EnemyDefinition.GetPhase(0).MaxHealth, 30);
+            Assert.AreEqual(20, encounter.TutorialData.EnemyDefinition.GetPhase(0).MaxHealth);
             Assert.AreEqual(3, encounter.TutorialData.OpeningDice.Count);
             Assert.AreEqual(CombatSymbol.Attack, encounter.TutorialData.OpeningDice[0]);
             Assert.AreEqual(CombatSymbol.Shield, encounter.TutorialData.OpeningDice[1]);
@@ -707,8 +750,10 @@ namespace Audere.Combat.Editor.Tests
             Assert.AreEqual(5, guardedDamage);
             Assert.AreEqual(1, runtime.CurrentHealth);
             runtime.MarkCueResolved(required);
-            Assert.AreEqual(CombatEnemyProgression.Victory, runtime.ApplyDamage(1, out int finalDamage));
-            Assert.AreEqual(1, finalDamage);
+            runtime.Tick(0f);
+            Assert.AreEqual(CombatEnemyRuntimeState.Completed, runtime.State);
+            Assert.AreEqual(0, runtime.CurrentHealth,
+                "Resolving the required line must expose zero HP before the encounter fade.");
         }
 
         [Test]
@@ -1216,6 +1261,23 @@ namespace Audere.Combat.Editor.Tests
         }
 
         [Test]
+        public void DiceBatchBudget_OpeningAttackDoesNotConsumeAdditionalRerollAttack()
+        {
+            CombatSymbol opening = CombatDiceBatchBudget.Roll(1, 0, 0f);
+            Assert.AreEqual(CombatSymbol.Attack, opening);
+
+            int rerolledAttacksGranted = 0;
+            CombatSymbol firstReroll = CombatDiceBatchBudget.Roll(1, rerolledAttacksGranted, 0f);
+            if (firstReroll == CombatSymbol.Attack) rerolledAttacksGranted++;
+            CombatSymbol secondReroll = CombatDiceBatchBudget.Roll(1, rerolledAttacksGranted, 0f);
+
+            Assert.AreEqual(CombatSymbol.Attack, firstReroll,
+                "The opening Attack uses a separate budget from rerolls.");
+            Assert.AreNotEqual(CombatSymbol.Attack, secondReroll,
+                "Only one additional Attack may be granted by rerolls in this batch.");
+        }
+
+        [Test]
         public void WrongBox_SixtyPercentExplodes_AndTwoSuccessesNeedNotBeConsecutive()
         {
             var progress = new CombatChoiceRoundState();
@@ -1344,6 +1406,173 @@ namespace Audere.Combat.Editor.Tests
             finally { if (opened) EditorSceneManager.CloseScene(scene, true); }
         }
 
+        [Test]
+        public void PassiveHealthDecay_UsesActiveTimeAndWaitsAtOneForFinalWords()
+        {
+            var runtime = CreateRuntime(CombatPhasePolicy.PerPhaseHealth, 1, ("fade", 6, 0, 60f));
+            var definition = (CombatEnemyDefinition)typeof(CombatEnemyRuntime).GetField("definition", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(runtime);
+            SetField(definition, "passiveHealthDecayInterval", 1f);
+            var cue = JsonUtility.FromJson<CombatDialogueCue>("{\"cueId\":\"last-words\",\"requiredBeforeVictory\":true}");
+            SetField(runtime.CurrentPhase, "dialogueCues", new[] { cue });
+            runtime.Tick(.5f); Assert.AreEqual(6, runtime.CurrentHealth);
+            runtime.PauseForDialogue(); runtime.Tick(100); Assert.AreEqual(6, runtime.CurrentHealth);
+            runtime.ResumeFromDialogue(); runtime.Tick(.5f); Assert.AreEqual(5, runtime.CurrentHealth);
+            runtime.Tick(100); Assert.AreEqual(1, runtime.CurrentHealth);
+            Assert.AreEqual(CombatEnemyRuntimeState.Playing, runtime.State);
+            runtime.MarkCueResolved(cue); runtime.Tick(.99f); Assert.AreEqual(1, runtime.CurrentHealth);
+            runtime.Tick(.02f); Assert.AreEqual(0, runtime.CurrentHealth);
+            Assert.AreEqual(CombatEnemyRuntimeState.Completed, runtime.State);
+            runtime.RestartFromBeginning(); runtime.Tick(.5f); Assert.AreEqual(6, runtime.CurrentHealth);
+            Assert.IsFalse(runtime.IsCueResolved(cue.CueId));
+            runtime.Cancel(); runtime.Tick(100); Assert.AreEqual(6, runtime.CurrentHealth);
+        }
+
+        private CombatBulletView AvoidanceBullet(Vector2 position, Vector2 velocity)
+        {
+            var go = new GameObject("Avoidance test", typeof(RectTransform), typeof(Image), typeof(CombatBulletView));
+            cleanup.Add(go);
+            var bullet = go.GetComponent<CombatBulletView>();
+            ((RectTransform)go.transform).sizeDelta = new Vector2(12f, 12f);
+            bullet.Setup(position, velocity);
+            return bullet;
+        }
+
+        [Test]
+        public void HarmlessProjectile_TurnsAtCatchRimWithoutFadingAndResetsPoolLease()
+        {
+            var bullet = AvoidanceBullet(new Vector2(120,0), new Vector2(-120,0));
+            bullet.ConfigureHarmlessAvoidance(() => Vector2.zero, () => 50f, 36f, 3f);
+            var bounds = new Rect(-500,-300,1000,600);
+            Assert.IsTrue(bullet.TickMovement(bounds,.5f));
+            float turnedX = bullet.RectTransform.anchoredPosition.x;
+            Assert.Greater(turnedX, 95f, "It turns outside the CATCH circle, not at the smaller Heart.");
+            Assert.IsTrue(bullet.TickMovement(bounds,.1f));
+            Assert.Greater(bullet.RectTransform.anchoredPosition.x, turnedX);
+            Assert.AreEqual(1f, bullet.GetComponent<Image>().color.a);
+            Assert.IsFalse(bullet.CollisionActive);
+            bullet.ReturnToPool(); bullet.Setup(Vector2.zero,Vector2.right);
+            Assert.IsFalse(bullet.IsHarmless); Assert.IsTrue(bullet.CollisionActive);
+            Assert.IsTrue(bullet.TickMovement(bounds,.1f));
+            Assert.AreEqual(.1f,bullet.RectTransform.anchoredPosition.x,.001f);
+        }
+
+        [Test]
+        public void HarmlessProjectile_LongFrameReflectsIntactInsteadOfDissolvingFarAway()
+        {
+            var bullet = AvoidanceBullet(new Vector2(-150,0),new Vector2(300,0));
+            bullet.ConfigureHarmlessAvoidance(()=>Vector2.zero,()=>50f,36f,3f);
+            Assert.IsTrue(bullet.TickMovement(new Rect(-600,-300,1200,600),1f));
+            Assert.Less(bullet.RectTransform.anchoredPosition.x,-100f);
+            Assert.AreEqual(1f,bullet.GetComponent<Image>().color.a);
+            Assert.IsFalse(bullet.CollisionActive);
+        }
+
+        [Test]
+        public void HarmlessProjectile_ChasingCatchRepelsAndOnlyDissolvesWhenNoEscapeFits()
+        {
+            Vector2 center = Vector2.zero;
+            var bullet = AvoidanceBullet(new Vector2(55,0),Vector2.left*80f);
+            bullet.ConfigureHarmlessAvoidance(()=>center,()=>50f,36f,3f);
+            var bounds = new Rect(-300,-200,600,400);
+            for(int i=0;i<12;i++)
+            {
+                center=bullet.RectTransform.anchoredPosition;
+                Assert.IsTrue(bullet.TickMovement(bounds,0f));
+                Assert.Greater(Vector2.Distance(center,bullet.RectTransform.anchoredPosition),61f);
+                Assert.AreEqual(1f,bullet.GetComponent<Image>().color.a);
+            }
+            center=bullet.RectTransform.anchoredPosition;
+            var noRoom=new Rect(center.x-8,center.y-8,16,16);
+            Assert.IsFalse(bullet.TickMovement(noRoom,0f),"Fallback is only reached while the catch overlaps and no outward escape fits.");
+        }
+
+        [Test]
+        public void HarmlessProjectile_OrbitRedirectsAndPresentationFadeStaysFrozen()
+        {
+            var bullet=AvoidanceBullet(Vector2.zero,Vector2.left*90f);
+            var bounds=new Rect(-300,-200,600,400);
+            bullet.ConfigureReturningOrbit(bounds,4f,0f,1f);
+            Vector2 initial=bullet.RectTransform.anchoredPosition;
+            Vector2 center=initial-Vector2.right*55f;
+            bullet.ConfigureHarmlessAvoidance(()=>center,()=>50f,36f,3f);
+            Assert.IsTrue(bullet.TickMovement(bounds,.01f));
+            Assert.Greater(bullet.RectTransform.anchoredPosition.x,initial.x);
+            Vector2 after=bullet.RectTransform.anchoredPosition;
+            Assert.IsTrue(bullet.TickMovement(bounds,.01f));
+            Assert.Greater(bullet.RectTransform.anchoredPosition.x,after.x);
+            bullet.BeginPresentationFade(); bullet.SetPresentationFade(.4f);
+            center=bullet.RectTransform.anchoredPosition; after=center;
+            Assert.IsTrue(bullet.TickMovement(bounds,.1f));
+            Assert.AreEqual(after,bullet.RectTransform.anchoredPosition);
+            Assert.AreEqual(.4f,bullet.GetComponent<Image>().color.a,.001f);
+            Assert.IsFalse(bullet.CollisionActive);
+        }
+
+        [Test]
+        public void HarmlessProjectile_TelegraphFadeIsNotOverriddenByAvoidance()
+        {
+            var bullet=AvoidanceBullet(new Vector2(70,0),Vector2.left*80f);
+            bullet.Setup(null,new Vector2(70,0),Vector2.left*80f,1,1,.2f);
+            bullet.ConfigureHarmlessAvoidance(()=>Vector2.zero,()=>50f,36f,3f);
+            bullet.FadeInDuringTelegraph();
+            var bounds=new Rect(-300,-200,600,400);
+            Assert.IsTrue(bullet.TickMovement(bounds,.1f));
+            Assert.AreEqual(.5f,bullet.GetComponent<Image>().color.a,.001f);
+            Assert.IsFalse(bullet.AttackActive);
+            Assert.IsTrue(bullet.TickMovement(bounds,.15f));
+            Assert.AreEqual(1f,bullet.GetComponent<Image>().color.a,.001f);
+            Assert.IsTrue(bullet.AttackActive);Assert.IsFalse(bullet.CollisionActive);
+        }
+
+        [Test]
+        public void CatchZoneGeometry_UsesLiveScaledCircleInPlayAreaSpace()
+        {
+            var root=new GameObject("Board geometry",typeof(RectTransform),typeof(CombatBoardView)); cleanup.Add(root);
+            var board=root.GetComponent<CombatBoardView>();var play=(RectTransform)root.transform;
+            var holder=new GameObject("Catch holder",typeof(RectTransform));holder.transform.SetParent(play,false);
+            holder.transform.localScale=new Vector3(.6f,.6f,1);
+            var cursor=new GameObject("Catch geometry",typeof(RectTransform));cursor.transform.SetParent(holder.transform,false);
+            var rect=(RectTransform)cursor.transform;rect.sizeDelta=new Vector2(100,100);rect.anchoredPosition=new Vector2(40,20);
+            SetObject(board,"playArea",play);SetObject(board,"catchCursor",rect);
+            Assert.AreEqual(30f,board.CatchZoneRadius,.001f);
+            Assert.AreEqual(new Vector2(24,12),board.CatchZoneCenter);
+            holder.transform.localScale=new Vector3(.8f,.8f,1);
+            Assert.AreEqual(40f,board.CatchZoneRadius,.001f);
+            Assert.AreEqual(new Vector2(32,16),board.CatchZoneCenter);
+        }
+
+
+
+        [Test]
+        public void PlayerTimePhase_PreservesSharedHealthLatchesAndWaitsForRealVoice()
+        {
+            var runtime=CreateRuntime(CombatPhasePolicy.SharedHealthPlayerTime,20,("dense",1,0,5f),("gentle",1,0,5f));
+            Assert.AreEqual(20,runtime.CurrentHealth);
+            runtime.ApplyDamage(99,out int applied);Assert.AreEqual(19,applied);Assert.AreEqual(1,runtime.CurrentHealth);
+            runtime.ObservePlayerTime(45.01f,90f);Assert.AreEqual(CombatEnemyRuntimeState.Playing,runtime.State);
+            runtime.PauseForDialogue();runtime.ObservePlayerTime(30f,90f);Assert.AreEqual(CombatEnemyRuntimeState.PausedForDialogue,runtime.State);
+            runtime.ResumeFromDialogue();runtime.ObservePlayerTime(44f,90f);Assert.AreEqual(CombatEnemyRuntimeState.TransitioningPhase,runtime.State);
+            runtime.CompletePhaseBreak();Assert.AreEqual(1,runtime.CurrentHealth);Assert.AreEqual(20,runtime.CurrentMaxHealth);
+            runtime.ObservePlayerTime(90f,90f);Assert.AreEqual(1,runtime.PhaseIndex);
+            var cue=new CombatDialogueCue();SetField(cue,"cueId","real-voice");SetField(cue,"requiredBeforeVictory",true);SetField(runtime.CurrentPhase,"dialogueCues",new[]{cue});
+            runtime.ApplyDamage(9,out applied);Assert.AreEqual(0,applied);Assert.AreEqual(1,runtime.CurrentHealth);
+            runtime.MarkCueResolved(cue);Assert.AreEqual(CombatEnemyProgression.Victory,runtime.ApplyDamage(1,out applied));
+            runtime.RestartFromBeginning();Assert.AreEqual(20,runtime.CurrentHealth);Assert.AreEqual(0,runtime.PhaseIndex);Assert.IsFalse(runtime.IsCueResolved("real-voice"));runtime.Cancel();
+        }
+
+        [Test]
+        public void ForcedMovement_OwnershipReleaseAndGlobalCleanup()
+        {
+            var go=new GameObject("Forced board",typeof(RectTransform),typeof(CombatBoardView));cleanup.Add(go);
+            var board=go.GetComponent<CombatBoardView>();var area=(RectTransform)go.transform;area.sizeDelta=new Vector2(600,400);SetObject(board,"playArea",area);
+            var cursor=new GameObject("Cursor",typeof(RectTransform));cursor.transform.SetParent(area,false);var rect=(RectTransform)cursor.transform;rect.sizeDelta=new Vector2(60,60);SetObject(board,"catchCursor",rect);
+            var owner=new object();var stale=new object();board.SetForcedPlayerControl(owner,new Vector2(.9f,.9f),1000f,.2f);
+            Assert.IsTrue(board.HasForcedPlayerControl);Assert.IsTrue(board.HasForcedMovementProtection);Assert.Greater(rect.anchoredPosition.x,0);var before=rect.anchoredPosition;
+            board.SetForcedPlayerControl(stale,Vector2.zero,1000f,1f);board.ReleaseForcedPlayerControl(stale);Assert.AreEqual(before,rect.anchoredPosition);Assert.IsTrue(board.HasForcedPlayerControl);
+            board.ReleaseForcedPlayerControl(owner);Assert.IsFalse(board.HasForcedPlayerControl);Assert.IsTrue(board.HasForcedMovementProtection);
+            board.ClearPlayerConstraint();Assert.IsFalse(board.HasForcedMovementProtection);
+        }
+
         private CombatEnemyRuntime CreateRuntime(
             CombatPhasePolicy policy,
             int sharedHealth,
@@ -1376,6 +1605,7 @@ namespace Audere.Combat.Editor.Tests
             {
                 SerializedProperty phase = phases.GetArrayElementAtIndex(i);
                 phase.FindPropertyRelative("spawnDice").boolValue = true;
+                if(policy==CombatPhasePolicy.SharedHealthPlayerTime) phase.FindPropertyRelative("playerTimeExitFraction").floatValue=i==phaseData.Length-1?0f:.5f;
                 phase.FindPropertyRelative("phaseId").stringValue = phaseData[i].id;
                 phase.FindPropertyRelative("maxHealth").intValue = phaseData[i].hp;
                 phase.FindPropertyRelative("sharedExitThreshold").intValue = phaseData[i].threshold;
