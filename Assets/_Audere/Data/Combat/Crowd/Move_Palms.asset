@@ -17,13 +17,13 @@ MonoBehaviour:
   handPrefab: {fileID: 792354162730361880, guid: 6ab965fd084276c4da98b26693013e27, type: 3}
   bulletPrefab: {fileID: 6048505104675138802, guid: 3dbf775471ac5a0409fc3a7f933dfb9a, type: 3}
   pullToCorners: 0
-  warning: 0.55
-  strike: 0.44
-  hold: 0.88
-  retreat: 0.46
-  rest: 0.1
-  handsPerBeat: 3
-  palmVolleys: 3
-  bulletsPerVolley: 14
-  bulletSpeed: 125
-  sweepDegrees: 46
+  warning: 0.65
+  strike: 0.55
+  hold: 0.55
+  retreat: 0.5
+  rest: 0.3
+  handsPerBeat: 2
+  palmVolleys: 1
+  bulletsPerVolley: 10
+  bulletSpeed: 112
+  sweepDegrees: 30

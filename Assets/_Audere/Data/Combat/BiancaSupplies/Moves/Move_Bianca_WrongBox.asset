@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: Move_Bianca_WrongBox
   m_EditorClassIdentifier: 
   duration: 90
-  leadInDuration: 2.2
+  leadInDuration: 0.9
   projectilePrefab: {fileID: 6048505104675138802, guid: 3dbf775471ac5a0409fc3a7f933dfb9a, type: 3}
   explosionChance: 0.6
   requiredSuccesses: 2
-  roundDelay: 1.5
-  telegraphDuration: 0.45
+  roundDelay: 1.6
+  telegraphDuration: 0.7
   burstCount: 12
   burstSpeed: 210

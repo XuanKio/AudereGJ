@@ -194,6 +194,7 @@ namespace Audere.EditorTools
             foreach (var asset in touched) { EditorUtility.SetDirty(asset); AssetDatabase.SaveAssetIfDirty(asset); }
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
+            BiancaThreePhaseAuthoring.Apply();
         }
 
         private static void Cue(SerializedProperty p, string id, CombatDialogueCueTrigger trigger, CombatMoveDefinition move, DialogueData[] sequence, bool repeat, bool attack)
@@ -329,10 +330,35 @@ namespace Audere.EditorTools
             return step != null ? step : child.gameObject.AddComponent<T>();
         }
 
-        private static void AuthorAfterCombat(StoryEvent story)
+        [MenuItem("Audere/Story/Repair Bianca Post Combat Staging Only")]
+        public static void RepairPostCombatStagingOnly()
         {
-            var dialogue = story.transform.Find("110_PuttingDownSupplies").GetComponent<DialogueStep>();
-            var dc = (DialogueController)new SerializedObject(dialogue).FindProperty("dialogueController").objectReferenceValue;
+            if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Author in Edit Mode.");
+            Scene scene = SceneManager.GetSceneByPath(Day2SchoolMorningSetupTool.ScenePath);
+            if (!scene.IsValid() || !scene.isLoaded) throw new InvalidOperationException("Open scene 60 first.");
+            var story = scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<StoryEvent>(true))
+                .Single(e => e.EventId == "D2_SCHOOL_WRONG_SUPPLIES");
+            AuthorPostCombatStaging(story);
+            var order = story.transform.Cast<Transform>().OrderBy(t => t.name, StringComparer.Ordinal).ToArray();
+            for (int i = 0; i < order.Length; i++) order[i].SetSiblingIndex(i);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+        }
+
+        private static void CopyStagingStep<T>(StoryEvent story, string sourceName, string name) where T : StoryStep
+        {
+            T source = story.transform.Find(sourceName).GetComponent<T>();
+            T destination = EnsureStep<T>(story, name);
+            EditorUtility.CopySerialized(source, destination);
+            destination.gameObject.name = name;
+        }
+
+        private static void AuthorPostCombatStaging(StoryEvent story)
+        {
+            // The L shortcut can bypass pre-combat staging. Restore the entire authored
+            // two-tile presentation while the victory cover is opaque, before revealing it.
+            CopyStagingStep<SetActiveStep>(story, "020_StageSuppliesReturn", "250_StageReturnTiles");
+            CopyStagingStep<SetBehaviourEnabledStep>(story, "015_NoCameraFollow", "250_StopCameraFollow");
             Transform audere = (Transform)new SerializedObject(story.transform.Find("030_AudereOnOwnTile").GetComponent<MoveActorStep>()).FindProperty("actor").objectReferenceValue;
             Transform bianca = (Transform)new SerializedObject(story.transform.Find("040_BiancaOnOwnTile").GetComponent<MoveActorStep>()).FindProperty("actor").objectReferenceValue;
             foreach (var pair in new[] { new { Name = "251_AudereStaysOnHerTile", Source = "030_AudereOnOwnTile" },
@@ -344,6 +370,16 @@ namespace Audere.EditorTools
             }
             Set(EnsureStep<SetActorFacingStep>(story, "253_AudereFacesBianca"), "actorRenderer", audere.GetComponent<SpriteRenderer>(), "faceRight", true, "sourceSpriteFacesLeft", true);
             Set(EnsureStep<SetActorFacingStep>(story, "254_BiancaFacesAudere"), "actorRenderer", bianca.GetComponent<SpriteRenderer>(), "faceRight", false, "sourceSpriteFacesLeft", true);
+            CopyStagingStep<SpriteGroupFadeStep>(story, "050_RestoreAudere", "255_RestoreAudereVisibility");
+            CopyStagingStep<SpriteGroupFadeStep>(story, "060_RestoreBianca", "256_RestoreBiancaVisibility");
+            CopyStagingStep<MoveActorStep>(story, "090_FrameTheTwoTiles", "257_FrameReturnTiles");
+        }
+
+        private static void AuthorAfterCombat(StoryEvent story)
+        {
+            AuthorPostCombatStaging(story);
+            var dialogue = story.transform.Find("110_PuttingDownSupplies").GetComponent<DialogueStep>();
+            var dc = (DialogueController)new SerializedObject(dialogue).FindProperty("dialogueController").objectReferenceValue;
             var check = D("PostCombat", "CHECK_IN", DialogueCharacterId.Bianca, "Audere_Scared_0", "Bianca_Worried_0",
                 "R|Audere?", "L|…Ừ.", "R|Cậu ổn không?", "L|Tớ lấy nhầm.", "R|Ừ.|Bianca_0", "R|Để lại là được mà.",
                 "R|Sáng nay tớ cũng cầm nhầm danh sách.", "R|Tớ lấy luôn của nhóm đồ ăn.", "R|Đi nửa cầu thang mới nhận ra.");

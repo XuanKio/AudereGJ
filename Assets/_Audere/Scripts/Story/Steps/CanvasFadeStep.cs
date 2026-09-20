@@ -11,11 +11,15 @@ namespace Audere.Story.Steps
         [SerializeField, Range(0f, 1f)] private float targetAlpha = 1f;
         [SerializeField, Min(0f)] private float duration = .45f;
         [SerializeField] private bool useUnscaledTime = true;
+        [SerializeField] private bool suppressMusicWhileOpaque = true;
+
+        public CanvasGroup CanvasGroup => canvasGroup;
 
         private void Awake()
         {
             // Register authored black covers before a delayed StoryEvent starts.
-            AudioService.Instance?.TrackScreenFade(canvasGroup);
+            if (suppressMusicWhileOpaque)
+                AudioService.Instance?.TrackScreenFade(canvasGroup);
         }
 
         protected override IEnumerator Execute()
@@ -27,7 +31,8 @@ namespace Audere.Story.Steps
                 yield break;
             }
 
-            AudioService.Instance?.TrackScreenFade(canvasGroup);
+            if (suppressMusicWhileOpaque)
+                AudioService.Instance?.TrackScreenFade(canvasGroup);
             float startAlpha = canvasGroup.alpha;
             canvasGroup.interactable = false;
             if (targetAlpha > startAlpha)

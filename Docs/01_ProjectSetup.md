@@ -9,7 +9,7 @@ summary: How to open, run, and build Audere — engine version, packages, and pr
 
 # Audere — Project Setup
 
-> **Last updated:** 2026-08-23
+> **Last updated:** 2026-09-19
 
 ## Engine
 
@@ -26,7 +26,8 @@ summary: How to open, run, and build Audere — engine version, packages, and pr
 | `com.unity.inputsystem` | 1.19.0 | **New Input System.** UI uses `InputSystemUIInputModule` on the EventSystem (NOT the legacy `StandaloneInputModule`). |
 | `com.unity.ugui` | 2.0.0 | uGUI + **TextMeshPro is bundled here** in Unity 6 (no separate TMP package). |
 | `com.unity.feature.2d` | 2.0.1 | 2D tooling. |
-| `com.coplaydev.unity-mcp` | git `#main` | MCP for Unity — lets tooling drive the Editor. |
+| `com.unity.2d.pixel-perfect` | 5.1.1 | Unity 6 compatible Pixel Perfect; fixes the URP namespace compile error in 5.0.3. |
+| `com.coplaydev.unity-mcp` | git `#v10.2.0` | MCP for Unity — lets tooling drive the Editor. |
 
 Full list: `Packages/manifest.json`.
 

@@ -148,6 +148,7 @@ namespace Audere.Audio
 
         public void SetCombatMusicOwner(Object owner, bool active, AudioId? track = null, int priority = 0) => musicPresentation.SetCombat(owner, active, track, priority);
         public void SetMusicDuck(Object owner, float gain) => musicPresentation.SetDuck(owner, gain);
+        public void SetMusicBoost(Object owner, float gain) => musicPresentation.SetBoost(owner, gain);
         public void ReleaseMusicOwner(Object owner) => musicPresentation.Release(owner);
 
         private void LateUpdate()
@@ -223,7 +224,7 @@ namespace Audere.Audio
         private void ApplyVolumes()
         {
             if (musicSource != null)
-                musicSource.volume = MusicVolume * clipVolume * musicGain;
+                musicSource.volume = Mathf.Clamp01(MusicVolume * clipVolume * musicGain * musicPresentation.Boost);
 
             if (sfxSource != null)
                 sfxSource.volume = SfxVolume;

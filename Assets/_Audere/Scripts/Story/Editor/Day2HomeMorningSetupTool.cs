@@ -115,6 +115,7 @@ namespace Audere.Story.Editor
             ConfigurePuzzleGuidance(breakfast, "Dùng hết mảnh. Đừng quay lại ô đỏ.", "Nhìn lại đường đi rồi thử lần nữa nhé.", false);
             ConfigurePuzzleGuidance(bus, "Mỗi ô đỏ chỉ đi qua một lần.", "Đi chậm lại. Mình thử từ đầu nhé.", false);
 
+            Audere.EditorTools.ShortPuzzleAuthoring.CompactBus(scene);
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene, TargetScenePath);
             AddSceneToBuildSettings(TargetScenePath);

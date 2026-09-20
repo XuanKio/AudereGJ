@@ -1,7 +1,7 @@
 ---
 id: audere.visual_palette
 archetype: knowledge
-version: 1.0.0
+version: 1.1.0
 schema_version: 1.0.0
 cost_tier: S
 summary: Shared camera, viewport-mask, transition, and contextual UI color rules for Audere production scenes.
@@ -9,7 +9,7 @@ summary: Shared camera, viewport-mask, transition, and contextual UI color rules
 
 # Audere — Visual Palette
 
-> **Last updated:** 2026-08-23
+> **Last updated:** 2026-09-20
 
 Tài liệu này là nguồn chuẩn cho các màu nền hệ thống nhìn thấy khi load scene, đổi
 gameplay mode hoặc khi content chưa phủ kín camera. Màu art của từng địa điểm vẫn có
@@ -64,6 +64,24 @@ Main Menu được phép giữ UI xanh navy. Camera phía sau menu vẫn dùng `
 Scene chỉ được override transform để giữ cùng tỷ lệ khung theo orthographic size. Không
 override `SpriteRenderer.color` ở `Mask Top/Bottom/Left/Right`. Content trong viewport
 dùng `CameraFallback` làm nền; phần ngoài dùng `ViewportOutside`.
+
+Prefab sở hữu `PuzzleViewportMaskFitter` và bốn renderer phụ dưới `Screen Coverage`:
+`Coverage Top`, `Coverage Bottom`, `Coverage Left`, `Coverage Right`.
+
+- Fitter lấy camera từ parent và phủ phần ngoài cửa sổ gameplay đến các cạnh viewport,
+  cập nhật khi aspect ratio, camera pose hoặc orthographic size thay đổi.
+- Bốn `Mask Top/Bottom/Left/Right` gốc giữ nguyên transform và xác định cửa sổ gameplay.
+  Child UI được author dưới các cạnh này, gồm choice UI của scene 40, giữ nguyên vị trí.
+- Coverage sao chép sprite, material, màu, sorting và visibility từ cạnh tương ứng.
+  Phần phủ mới có dư biên ngoài viewport để tránh khe hở ở mép màn hình.
+- Tất cả 14 scene production từ `20_D1_Home_Morning` đến `150_D4_Home_Evening`
+  dùng cùng prefab. Migration nối lại 8 mask trước đó bị unpack ở scene 60–120 và 150;
+  các scene giữ nguyên aperture, actor/board scale, camera framing và direct references.
+
+**Đã kiểm tra ngày 2026-09-20:** 6/6 EditMode test qua với aspect 4:3, 16:9, 21:9,
+32:9, 9:16; hai mức zoom, camera di chuyển, đổi scale mask và bảo toàn child UI.
+Ba camera render của scene 60 ở 1440×1080, 1920×1080 và 2520×1080 đã được kiểm tra.
+Đây là kiểm tra geometry và camera render, chưa phải lượt Play toàn bộ story flow.
 
 ## 5. Transition overlay
 

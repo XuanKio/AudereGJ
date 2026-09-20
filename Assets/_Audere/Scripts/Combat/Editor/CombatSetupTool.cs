@@ -860,7 +860,7 @@ namespace Audere.EditorTools
                 image.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
                 image.type = Image.Type.Simple;
                 image.preserveAspect = true;
-                image.color = new Color(.72f, .95f, .92f, 1f);
+                image.color = Color.white;
                 image.raycastTarget = false;
                 PrefabUtility.SaveAsPrefabAsset(root, HeartVisualPrefabPath);
             }

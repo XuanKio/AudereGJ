@@ -119,12 +119,12 @@ namespace Audere.Puzzle.Editor.Tests
             for (int index = 0; index < puzzles.Length; index++)
             {
                 int expectedCellCount = puzzles[index].PuzzleRoot.name == "PZ_D2_BUS_STOP"
-                    ? 13
+                    ? 9
                     : puzzles[index].PuzzleRoot.name == "PZ_D2_BREAKFAST"
                         ? 15
                         : 4;
                 int expectedRedCount = puzzles[index].PuzzleRoot.name == "PZ_D2_BUS_STOP"
-                    ? 3
+                    ? 1
                     : puzzles[index].PuzzleRoot.name == "PZ_D2_BREAKFAST"
                         ? 3
                         : 1;

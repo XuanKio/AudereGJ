@@ -36,12 +36,12 @@ namespace Audere.Story.Editor.Tests
             CollectionAssert.AreEqual(ids, scene.GetRootGameObjects().SelectMany(r => r.GetComponentsInChildren<Transform>(true)).Select(t => t.GetInstanceID()).ToArray());
             var pairs = all.Select(t => t.GetComponent<CooperativePuzzleSession>()).Where(p => p != null)
                 .OrderBy(p => p.Puzzle.PuzzleData.PuzzleId).ToArray();
-            Assert.AreEqual(3, pairs.Length);
+            Assert.AreEqual(1, pairs.Length);
             for (int i = 0; i < pairs.Length; i++)
             {
                 var controller = pairs[i].Puzzle.GetComponent<PuzzleController>();
-                Assert.AreEqual(1, controller.PuzzleRoot.GetComponentsInChildren<CooperativeRedTileBehaviour>(true).Length);
-                Assert.AreEqual(4, pairs[i].Puzzle.PuzzleData.AvailablePathPieces.Count);
+                Assert.AreEqual(2, controller.PuzzleRoot.GetComponentsInChildren<CooperativeRedTileBehaviour>(true).Length);
+                Assert.AreEqual(5, pairs[i].Puzzle.PuzzleData.AvailablePathPieces.Count);
                 Assert.IsTrue(pairs[i].Puzzle.PuzzleData.RequireAllPathPieces);
                 if (i > 0)
                 {
@@ -55,7 +55,7 @@ namespace Audere.Story.Editor.Tests
         }
 
         [UnityTest]
-        public IEnumerator AllThreeBoards_ActualPreviewDropsCompleteAndReplayCancelIsClean()
+        public IEnumerator SingleBoard_ActualPreviewDropsCompleteAndReplayCancelIsClean()
         {
             PrepareScene();
             yield return new EnterPlayMode();
@@ -92,9 +92,9 @@ namespace Audere.Story.Editor.Tests
                 .OrderBy(p => p.Puzzle.PuzzleData.PuzzleId).ToArray();
             var events = pairs.Select((p, i) => director.StoryEventsRoot.Find("D2_SCHOOL_COOP_0" + (i + 1)).GetComponent<StoryEvent>()).ToArray();
             // Exercise the production puzzle chain, but leave the separately-owned combat alone.
-            Set(events[2], "autoPlayNextEvent", false);
+            Set(events[0], "autoPlayNextEvent", false);
             Assert.IsTrue(director.PlayEvent(events[0]));
-            for (int boardIndex = 0; boardIndex < 3; boardIndex++)
+            for (int boardIndex = 0; boardIndex < pairs.Length; boardIndex++)
             {
                 var pair = pairs[boardIndex];
                 yield return Until(() => pair.Puzzle.CurrentState == PuzzleManager.State.Playing);
@@ -117,7 +117,6 @@ namespace Audere.Story.Editor.Tests
                 Assert.Greater(a.GetComponent<UnityEngine.Rendering.SortingGroup>().sortingOrder, b.GetComponent<UnityEngine.Rendering.SortingGroup>().sortingOrder);
                 a.SetPosition(aCell, grid.CellToWorldCenter(aCell)); b.SetPosition(bCell, grid.CellToWorldCenter(bCell));
                 foreach (var actor in new[] { a, b }) Assert.AreEqual(5, actor.GetComponent<SpriteRenderer>().sortingOrder);
-                TestContext.WriteLine("Playing " + pair.Puzzle.PuzzleData.PuzzleId + " timeScale=" + Time.timeScale);
                 Assert.IsFalse(scene.GetRootGameObjects().Single(r => r.name == "SCHOOL")
                     .transform.Find("SCHOOL ART PLACEHOLDER/Supplies Return Board").gameObject.activeInHierarchy,
                     "The post-combat floor must not look like extra playable puzzle tiles.");
@@ -132,8 +131,7 @@ namespace Audere.Story.Editor.Tests
                 {
                     var cells = routes[move].Select(p => Cell(pair, p.x, p.y)).ToArray();
                     CommitPointerRoute(pair.Puzzle, cells);
-                    TestContext.WriteLine("Dropped move " + (move + 1) + " on " + pair.Puzzle.PuzzleData.PuzzleId);
-                    int remaining = 3 - move;
+                    int remaining = routes.Length - move - 1;
                     yield return Until(() => pair.Puzzle.CurrentState == PuzzleManager.State.Playing || pair.BothAtGoals);
                     Assert.AreEqual(remaining, GameplayUIRoot.Instance.PathPieceHand.Count, "A dropped card must be consumed exactly once.");
                     Assert.AreEqual(cameraPose, Camera.main.transform.position);
@@ -156,11 +154,11 @@ namespace Audere.Story.Editor.Tests
             yield return Until(() => first.Puzzle.CurrentState == PuzzleManager.State.Playing);
             var hand = GameplayUIRoot.Instance.PathPieceHand;
             hand.Select(0);
-            var start = first.Puzzle.Player.GridPosition;
-            var fall = PathPlacementValidator.Validate(hand.SelectedPiece, start, GridRotation.Degrees90, start, first.Puzzle.Board, first.Puzzle.Player);
+            var start = first.Partner.GridPosition;
+            var fall = PathPlacementValidator.Validate(hand.SelectedPiece, start, GridRotation.Degrees90, start, first.Puzzle.Board, first.Partner);
             Assert.IsTrue(fall.WillFall);
             first.Puzzle.SubmitPlacement(fall);
-            yield return Until(() => first.Puzzle.CurrentState == PuzzleManager.State.Playing && hand.Count == 4);
+            yield return Until(() => first.Puzzle.CurrentState == PuzzleManager.State.Playing && hand.Count == 5);
             foreach (var red in first.Puzzle.GetComponent<PuzzleController>().PuzzleRoot.GetComponentsInChildren<CooperativeRedTileBehaviour>(true))
                 Assert.IsFalse(red.HasBeenEntered);
             CommitPointerRoute(first.Puzzle, Routes(0)[0].Select(p => Cell(first, p.x, p.y)).ToArray());
@@ -170,7 +168,7 @@ namespace Audere.Story.Editor.Tests
             Assert.IsFalse(first.Partner.IsMoving);
             Assert.IsTrue(director.PlayEvent(events[0]));
             yield return Until(() => first.Puzzle.CurrentState == PuzzleManager.State.Playing);
-            Assert.AreEqual(4, hand.Count);
+            Assert.AreEqual(5, hand.Count);
             director.CancelCurrentEvent();
             LogAssert.NoUnexpectedReceived();
         }
@@ -207,9 +205,7 @@ namespace Audere.Story.Editor.Tests
 
         private static Vector2Int[][] Routes(int board)
         {
-            if (board == 0) return new[] { Path(0,1, 1,1), Path(1,0, 1,1, 2,1), Path(1,1, 2,1, 3,1), Path(2,1, 2,2) };
-            if (board == 1) return new[] { Path(0,1, 1,1), Path(1,0, 1,1, 2,1), Path(1,1, 2,1, 3,1, 4,1), Path(2,1, 2,2) };
-            return new[] { Path(0,1, 1,1, 2,1), Path(2,0, 2,1, 3,1), Path(2,1, 3,1, 4,1), Path(3,1, 3,2) };
+            return new[] { Path(0,1, 1,1), Path(1,0, 1,1, 2,1), Path(1,1, 2,1, 2,2), Path(2,1, 2,2), Path(2,2, 3,2, 4,2, 4,1) };
         }
 
         private static Vector2Int[] Path(params int[] xy) => Enumerable.Range(0, xy.Length / 2).Select(i => new Vector2Int(xy[i*2], xy[i*2+1])).ToArray();
@@ -219,8 +215,9 @@ namespace Audere.Story.Editor.Tests
             var runtime = puzzle.Board.GridSpace.GetComponentInChildren<PuzzleRuntime>(true);
             var placement = runtime.Placement;
             var hand = GameplayUIRoot.Instance.PathPieceHand;
-            // Cards are authored in the intended order; rotation remains player-controlled.
-            hand.Select(0);
+            for (int slot = 0; slot < hand.Count; slot++)
+            {
+            hand.Select(slot);
             for (int rotation = 0; rotation < 4; rotation++)
             {
                 Set(placement, "rotation", (GridRotation)rotation);
@@ -235,6 +232,7 @@ namespace Audere.Story.Editor.Tests
                     Assert.IsTrue(placement.TryCommitPreview());
                     return;
                 }
+            }
             }
             Assert.Fail("No legal pointer/drop found for " + string.Join(" -> ", wanted.Select(p => p.ToString())));
         }

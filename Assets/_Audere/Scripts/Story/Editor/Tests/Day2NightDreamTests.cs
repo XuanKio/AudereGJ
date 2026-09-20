@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace Audere.Story.Editor.Tests
         private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
 
         [Test]
-        public void Scenes_KeepFifteenStepsOnePlayerAndExactHandoffs()
+        public void Scenes_KeepAuthoredRouteWithAutomaticMovement()
         {
             var s = EditorSceneManager.OpenScene(Day2NightDreamSetupTool.DreamPath);
             var levels = All<PuzzleController>(s).OrderBy(x => x.PuzzleRoot.name).ToArray();
@@ -48,6 +48,21 @@ namespace Audere.Story.Editor.Tests
                     Assert.Less(Vector3.Distance(goal.transform.position, levels[i + 1].Puzzle.PlayerStartTransform.position), .00001f);
             }
             Assert.AreEqual(15, total);
+            Assert.IsEmpty(All<PuzzleStep>(s).Where(x => x.gameObject.activeInHierarchy));
+            Assert.AreEqual(15, All<DreamWalkStep>(s).Single().Waypoints.Length);
+            Assert.AreEqual(64, All<TMPro.TextMeshPro>(s).Count(x => x.transform.parent.name == "Dream Murmurs - NOT Bianca Dialogue"));
+            Assert.GreaterOrEqual(All<TMPro.TextMeshPro>(s).Select(x => x.text).Distinct().Count(), 40);
+            Assert.IsFalse(All<GridPlayer>(s).Single().enabled);
+            var dreamEvent = All<StoryEvent>(s).Single();
+            Assert.IsFalse(dreamEvent.transform.Find("275_AudereTurnsTowardTimorsVoice").gameObject.activeSelf);
+            Assert.IsFalse(dreamEvent.transform.Find("280_AudereStartlesInPlace").gameObject.activeSelf);
+            var wind = All<FallingWindView>(s).Single();
+            Assert.AreEqual("Assets/_Audere/Data/Transitions/FallingRoom_Classroom.asset",
+                AssetDatabase.GetAssetPath(new SerializedObject(wind).FindProperty("profile").objectReferenceValue));
+            var continuation = All<GridPlayer>(s).Single().transform.parent.Find("Dream Path Continues Beyond Break - Scenery");
+            Assert.AreEqual(8, continuation.childCount);
+            Assert.IsEmpty(continuation.GetComponentsInChildren<BoardTile>(true));
+            Assert.IsEmpty(continuation.GetComponentsInChildren<Collider2D>(true));
             Assert.Greater(All<TMPro.TextMeshPro>(s).Select(t => t.transform.position).Distinct().Count(), 15,
                 "Murmurs must remain spread across the background after scene serialization.");
             var decor = s.GetRootGameObjects().Single(r => r.name == "WORLD").transform.Find("Floating Tiles PLACEHOLDER - NOT WALKABLE");
@@ -97,7 +112,7 @@ namespace Audere.Story.Editor.Tests
         }
 
         [UnityTest]
-        public IEnumerator HomeDreamAndAwakening_ProductionFlowFifteenRealDrops()
+        public IEnumerator HomeDreamAndAwakening_ProductionFlowAutomaticRunAndFall()
         {
             EditorSceneManager.OpenScene(Day2NightDreamSetupTool.HomePath);
             yield return new EnterPlayMode();
@@ -119,6 +134,7 @@ namespace Audere.Story.Editor.Tests
                 LogAssert.Expect(LogType.Log, "[SceneFlow] Loaded '" + scene + "'.");
             }
             System.IO.Directory.CreateDirectory("Temp/Day2NightDreamQA");
+            System.IO.Directory.CreateDirectory("Temp/DreamAutomaticQA");
             yield return Until(() => GameplayUIRoot.Instance.Dialogue.IsPlaying, false);
             double portraitSettle = EditorApplication.timeSinceStartup + .8;
             yield return Until(() => EditorApplication.timeSinceStartup >= portraitSettle, false);
@@ -129,26 +145,59 @@ namespace Audere.Story.Editor.Tests
             var e = All<StoryEvent>(s).Single();
             var levels = All<PuzzleController>(s).OrderBy(x => x.PuzzleRoot.name).ToArray();
             var actor = All<GridPlayer>(s).Single();
-            int actorId = actor.GetInstanceID();
-            for (int segment = 0; segment < 5; segment++)
+            var walk = All<DreamWalkStep>(s).Single();
+            var fall = All<DreamFallStep>(s).Single();
+            var dreamWorld = s.GetRootGameObjects().Single(x => x.name == "WORLD").transform;
+            var dreamMurmurs = dreamWorld.Find("Dream Murmurs - NOT Bianca Dialogue").GetComponentsInChildren<TMPro.TMP_Text>(true);
+            yield return Until(() => dreamWorld.Find("Floating Desks - NOT WALKABLE").gameObject.activeSelf);
+            Assert.AreEqual(8, dreamMurmurs.Count(x => x.color.a > .01f), "Glass must reveal only the initial sparse text.");
+            ScreenCapture.CaptureScreenshot("Temp/DreamAutomaticQA/glass-reveal.png");
+            yield return null;
+            yield return Until(() => walk.IsRunning);
+            Assert.AreEqual(8, dreamMurmurs.Count(x => x.color.a > .01f), "Text density must not reset at the beginning of the run.");
+            Assert.IsFalse(actor.enabled, "Story motion must own the actor exclusively.");
+            Assert.IsFalse(levels.Any(x => x.IsPlaying));
+            var shadowRenderer = actor.GetComponentsInChildren<SpriteRenderer>(true).Single(x => x.sortingOrder == 4);
+            Vector3 initialShadow = shadowRenderer.transform.position;
+            Color shadowColor = shadowRenderer.color;
+            Vector3 initialScale = actor.transform.localScale;
+            float groundY = fall.Fragments.Tile.transform.position.y;
+            float previousX = actor.transform.position.x;
+            bool earlyFrame = false, middleFrame = false, lateFrame = false;
+            while (walk.IsRunning)
             {
-                var p = levels[segment].Puzzle;
-                yield return Until(() => levels[segment].IsPlaying && p.CurrentState == PuzzleManager.State.Playing);
-                Assert.AreEqual(segment * 3, actor.GridPosition.x);
-                Assert.AreEqual(3, GameplayUIRoot.Instance.PathPieceHand.Count);
-                if (segment == 0) ScreenCapture.CaptureScreenshot("Temp/Day2NightDreamQA/dream-start.png");
-                for (int cell = 0; cell < 3; cell++)
-                {
-                    CommitRight(p);
-                    int x = segment * 3 + cell + 1;
-                    yield return Until(() => !actor.IsMoving && actor.GridPosition.x == x);
-                    Assert.IsTrue(actor.gameObject.activeInHierarchy);
-                    Assert.AreEqual(actorId, actor.GetInstanceID());
-                    Assert.Less(Mathf.Abs(actor.GetComponent<SpriteRenderer>().bounds.min.y - p.Board.GridSpace.CellToWorldCenter(actor.GridPosition).y), .002f);
-                    if (cell < 2) yield return Until(() => p.CurrentState == PuzzleManager.State.Playing);
-                }
+                Assert.IsFalse(GameplayUIRoot.Instance.PuzzleUi.gameObject.activeSelf);
+                Assert.AreEqual(0, GameplayUIRoot.Instance.InputGate.ActiveClaimCount);
+                Assert.GreaterOrEqual(actor.transform.position.x + .0001f, previousX);
+                previousX = actor.transform.position.x;
+                Assert.AreEqual(initialShadow.y, shadowRenderer.transform.position.y, .0001f);
+                Assert.AreEqual(groundY, shadowRenderer.bounds.center.y, .0001f,
+                    "The visible shadow ellipse, not its off-center pivot, must stay on the tile plane.");
+                Assert.AreEqual(actor.transform.position.x, shadowRenderer.bounds.center.x, .0001f);
+                Assert.That(actor.GetComponent<SpriteRenderer>().bounds.min.y - shadowRenderer.bounds.center.y,
+                    Is.InRange(-.001f, .036f), "The feet can lift only by the authored stride arc above the shadow.");
+                Assert.AreEqual(shadowColor, shadowRenderer.color);
+                Assert.AreEqual(initialScale, actor.transform.localScale);
+                if (!earlyFrame && walk.Progress > .08f) { ScreenCapture.CaptureScreenshot("Temp/DreamAutomaticQA/run.png"); earlyFrame = true; }
+                if (!middleFrame && walk.Progress > .5f) { ScreenCapture.CaptureScreenshot("Temp/DreamAutomaticQA/pressure.png"); middleFrame = true; }
+                if (!lateFrame && walk.Progress > .95f) { ScreenCapture.CaptureScreenshot("Temp/DreamAutomaticQA/dense.png"); lateFrame = true; }
+                EditorApplication.QueuePlayerLoopUpdate();
+                yield return null;
             }
-            Assert.AreEqual(15, actor.GridPosition.x);
+            yield return Until(() => fall.IsRunning, false);
+            Assert.GreaterOrEqual(fall.Fragments.PieceCount, 32);
+            Assert.Less(actor.transform.position.x, fall.Fragments.Tile.transform.position.x,
+                "The last tile breaks before Audere reaches it.");
+            Assert.Less(fall.Fragments.Tile.transform.position.x - actor.transform.position.x, .025f,
+                "Audere must nearly reach the tile center before the surprise break.");
+            Assert.IsFalse(fall.Fragments.Tile.enabled);
+            Assert.IsFalse(shadowRenderer.gameObject.activeSelf);
+            ScreenCapture.CaptureScreenshot("Temp/DreamAutomaticQA/shatter.png");
+            yield return Until(() => fall.Progress > .55f, false);
+            Assert.Less(actor.transform.position.y, -.4f);
+            Assert.Greater(Quaternion.Angle(Quaternion.identity, actor.transform.rotation), 65f,
+                "Audere must visibly fall backward, not remain upright.");
+            ScreenCapture.CaptureScreenshot("Temp/DreamAutomaticQA/fall.png");
             yield return Until(() => e.CurrentStep != null && e.CurrentStep.name == "270_TimorCallsFromTheVoid", false);
             var atmosphere = All<DreamAtmosphereView>(s).Single();
             Assert.AreEqual(1f, atmosphere.Chaos);
@@ -156,6 +205,10 @@ namespace Audere.Story.Editor.Tests
             Assert.IsTrue(path.All(r => r.color.a == 0f));
             Assert.IsFalse(GameplayUIRoot.Instance.PuzzleUi.gameObject.activeSelf);
             ScreenCapture.CaptureScreenshot("Temp/Day2NightDreamQA/dream-collapse.png");
+            var wind = All<FallingWindView>(s).Single();
+            yield return AssertHeldFall(actor.transform, wind, "fall-timor-call");
+            yield return Until(() => e.CurrentStep != null && e.CurrentStep.name == "300_OnlyMe");
+            yield return AssertHeldFall(actor.transform, wind, "fall-only-me");
             yield return Until(() => SceneManager.GetActiveScene().name == GameScenes.Day2HomeAwakening, true, 25);
             s = SceneManager.GetActiveScene();
             e = All<StoryEvent>(s).Single();
@@ -201,20 +254,36 @@ namespace Audere.Story.Editor.Tests
             var director = All<StoryDirector>(s).Single();
             var e = All<StoryEvent>(s).Single();
             var atmosphere = All<DreamAtmosphereView>(s).Single();
-            yield return Until(() => e.CurrentStep is PuzzleStep);
-            var p = ((PuzzleStep)e.CurrentStep).PuzzleController.Puzzle;
-            CommitRight(p);
-            yield return null;
-            director.CancelCurrentEvent();
-            yield return null;
-            Assert.IsFalse(p.Player.IsMoving);
-            Assert.IsFalse(atmosphere.IsRunning);
-            Assert.AreEqual(0, GameplayUIRoot.Instance.InputGate.ActiveClaimCount);
+            var walk = All<DreamWalkStep>(s).Single();
+            var fall = All<DreamFallStep>(s).Single();
+            Quaternion originalRotation = walk.Actor.rotation;
+            var wind = All<FallingWindView>(s).Single();
+            for (int pass = 0; pass < 3; pass++)
+            {
+                yield return Until(() => walk.IsRunning);
+                Assert.Less(walk.Progress, .15f, "Replay must start at the first authored stride.");
+                Assert.AreEqual(0f, atmosphere.Chaos);
+                if (pass == 0) yield return Until(() => walk.Progress > .4f, false);
+                else if (pass == 1) yield return Until(() => fall.Progress > .35f && fall.IsRunning, false);
+                else yield return Until(() => e.CurrentStep != null && e.CurrentStep.name == "300_OnlyMe");
+                director.CancelCurrentEvent();
+                yield return null;
+                Assert.IsFalse(walk.IsRunning);
+                Assert.IsFalse(fall.IsRunning);
+                Assert.IsFalse(atmosphere.IsRunning);
+                Assert.IsFalse(wind.IsRunning);
+                Assert.AreEqual(0, wind.GetComponentsInChildren<SpriteRenderer>().Length);
+                Assert.AreEqual(0, fall.Fragments.PieceCount);
+                Assert.IsTrue(fall.Fragments.Tile.enabled);
+                Assert.AreEqual(0, GameplayUIRoot.Instance.InputGate.ActiveClaimCount);
+                Assert.Less(Quaternion.Angle(originalRotation, walk.Actor.rotation), .01f);
+                if (pass < 2) Assert.IsTrue(director.PlayEvent(e));
+            }
             Assert.IsTrue(director.PlayEvent(e));
-            yield return Until(() => e.CurrentStep is PuzzleStep);
-            Assert.AreEqual(0, p.Player.GridPosition.x);
-            Assert.AreEqual(3, GameplayUIRoot.Instance.PathPieceHand.Count);
-            Assert.AreEqual(0f, atmosphere.Chaos);
+            yield return Until(() => walk.IsRunning);
+            Assert.Less(walk.Progress, .15f);
+            Assert.Less(Quaternion.Angle(originalRotation, walk.Actor.rotation), .01f);
+            Assert.IsTrue(All<GridPlayer>(s).Single().GetComponentsInChildren<SpriteRenderer>(true).Single(x => x.sortingOrder == 4).gameObject.activeSelf);
             director.CancelCurrentEvent();
             yield return null;
             LogAssert.NoUnexpectedReceived();
@@ -256,7 +325,7 @@ namespace Audere.Story.Editor.Tests
             Assert.AreEqual(0f, profile.FloatTracks.Single(x => x.ShaderProperty == "_Cover").Values.Evaluate(profile.ModeSwapTime),
                 "The dream must appear directly behind the falling glass, without a black interlude.");
             Assert.Less(transition.transform.GetSiblingIndex(),
-                All<PuzzleStep>(s).First().transform.GetSiblingIndex());
+                All<DreamWalkStep>(s).Single().transform.GetSiblingIndex());
         }
 
         [UnityTest]
@@ -313,6 +382,9 @@ namespace Audere.Story.Editor.Tests
                 Assert.AreEqual(pass > 0, props.activeSelf);
                 if (pass == 2)
                 {
+                    var texts = world.Find("Dream Murmurs - NOT Bianca Dialogue").GetComponentsInChildren<TMPro.TMP_Text>(true);
+                    Assert.AreEqual(8, texts.Count(x => x.color.a > .01f),
+                        "The glass must reveal only the opening murmurs, never all late hostile text.");
                     var material = (Material)runtimeField.GetValue(controller);
                     Assert.AreEqual(0f, material.GetFloat("_Cover"), .001f, "The puzzle must be visible behind falling shards.");
                     Assert.IsNotNull(controller.ShatterView, "The source snapshot conceals the scenery swap before its pieces separate.");
@@ -331,7 +403,9 @@ namespace Audere.Story.Editor.Tests
                 Assert.AreEqual(0, GameplayUIRoot.Instance.InputGate.ActiveClaimCount);
                 Assert.IsTrue(director.PlayEvent(e));
             }
-            yield return Until(() => e.CurrentStep is PuzzleStep);
+            yield return Until(() => e.CurrentStep is DreamWalkStep);
+            Assert.AreEqual(8, world.Find("Dream Murmurs - NOT Bianca Dialogue").GetComponentsInChildren<TMPro.TMP_Text>(true).Count(x => x.color.a > .01f),
+                "Beginning the walk must preserve the sparse text revealed by the glass.");
             Assert.IsFalse(normal.activeSelf);
             Assert.IsTrue(props.activeSelf);
             Assert.IsFalse(controller.RendererFeature.isActive);
@@ -427,20 +501,25 @@ namespace Audere.Story.Editor.Tests
             captured(ScreenCapture.CaptureScreenshotAsTexture());
         }
 
-        private static void CommitRight(PuzzleManager p)
+        private static IEnumerator AssertHeldFall(Transform actor, FallingWindView wind, string image)
         {
-            var placement = p.Board.GridSpace.GetComponentInChildren<PuzzleRuntime>(true).Placement;
-            GameplayUIRoot.Instance.PathPieceHand.Select(0);
-            typeof(PathPlacementController).GetField("rotation", Private).SetValue(placement, GridRotation.Degrees0);
-            typeof(PathPlacementController).GetField("hasAnchoredOrigin", Private).SetValue(placement, false);
-            // Pointer is snapped to a cell by the production solver. Aim inside the destination,
-            // not at an exact half-cell where floating-point rounding can choose the previous cell.
-            var pointer = p.Board.GridSpace.CellToWorldCenter(p.Player.GridPosition + Vector2Int.right);
-            Assert.IsTrue(placement.TryMovePreviewToScreenPosition(Camera.main.WorldToScreenPoint(pointer)));
-            var result = (PlacementResult)typeof(PathPlacementController).GetField("currentResult", Private).GetValue(placement);
-            Assert.IsFalse(result.WillFall);
-            Assert.AreEqual(p.Player.GridPosition + Vector2Int.right, result.GridPath.Last());
-            Assert.IsTrue(placement.TryCommitPreview());
+            Assert.IsTrue(wind.IsRunning);
+            Assert.GreaterOrEqual(wind.StreakCount, 8);
+            var streak = wind.GetComponentsInChildren<SpriteRenderer>().First();
+            float initialY = streak.transform.position.y;
+            double end = EditorApplication.timeSinceStartup + .8;
+            while (EditorApplication.timeSinceStartup < end)
+            {
+                Assert.Greater(Quaternion.Angle(Quaternion.identity, actor.rotation), 75f,
+                    "Audere must remain leaned back even while waiting for dialogue input.");
+                Assert.IsTrue(wind.IsRunning);
+                EditorApplication.QueuePlayerLoopUpdate();
+                yield return null;
+            }
+            Assert.Greater(Mathf.Abs(streak.transform.position.y - initialY), .01f,
+                "Wind must keep moving during player-paced dialogue.");
+            ScreenCapture.CaptureScreenshot("Temp/DreamAutomaticQA/" + image + ".png");
+            yield return null;
         }
 
         private static IEnumerator Until(Func<bool> ready, bool advanceDialogue = true, float timeout = 20f)

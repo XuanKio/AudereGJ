@@ -286,7 +286,7 @@ namespace Audere.Story.Editor.Tests
             step.Play(_=>{});
             yield return Until(()=>step.CombatController.CurrentState==CombatController.State.Playing,false);
             var c=step.CombatController;var old=c.EnemyRuntime; c.DebugExpireTimer();
-            yield return Until(()=>GameplayUIRoot.Instance.CombatRetry.IsShowing,false);
+            yield return Until(()=>GameplayUIRoot.Instance.CombatRetry.IsReadyToRetry,false);
             Assert.IsFalse(c.IsPlaying);Assert.AreEqual(0,board.GetComponentsInChildren<CombatBulletView>().Length);
             var button=GameplayUIRoot.Instance.CombatRetry.GetComponentInChildren<UnityEngine.UI.Button>(true);
             button.onClick.Invoke();button.onClick.Invoke();

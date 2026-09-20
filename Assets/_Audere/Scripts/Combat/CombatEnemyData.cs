@@ -125,6 +125,12 @@ namespace Audere.Combat
         [SerializeField, Min(0)] private int sharedExitThreshold;
         [SerializeField, Min(.01f)] private float duration = 1f;
         [SerializeField] private CombatMoveSet moveSet;
+        [Tooltip("Runs once before the regular moveset, with normal dice and enemy damage held.")]
+        [SerializeField] private CombatMoveDefinition openingMove;
+        [SerializeField] private CombatPhasePresentationProfile presentation;
+        [Tooltip("Optional counter after a successful non-terminal hit; returns to the regular moveset afterwards.")]
+        [SerializeField] private CombatMoveDefinition damageReactionMove;
+        [SerializeField] private bool damageReactionOnEnter;
         [SerializeField] private CombatDialogueCue[] dialogueCues;
         [Header("Captured Dice Batch Sequence")]
         [SerializeField] private CombatDiceBatchDefinition diceBatch;
@@ -144,6 +150,10 @@ namespace Audere.Combat
         public int SharedExitThreshold => sharedExitThreshold;
         public float Duration => duration;
         public CombatMoveSet MoveSet => moveSet;
+        public CombatMoveDefinition OpeningMove => openingMove;
+        public CombatPhasePresentationProfile Presentation => presentation;
+        public CombatMoveDefinition DamageReactionMove => damageReactionMove;
+        public bool DamageReactionOnEnter => damageReactionOnEnter;
         public IReadOnlyList<CombatDialogueCue> DialogueCues => dialogueCues;
         public CombatDiceBatchDefinition DiceBatch => diceBatch;
         public int RequiredCapturedBatches => Mathf.Max(1, requiredCapturedBatches);

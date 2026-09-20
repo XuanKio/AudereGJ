@@ -920,14 +920,6 @@ PrefabInstance:
       propertyPath: authoredEnemyPreview
       value: 
       objectReference: {fileID: 1551819592}
-    - target: {fileID: 1456769421717324199, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1456769421717324199, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3120566435012112659, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1

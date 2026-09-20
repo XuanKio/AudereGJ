@@ -18,7 +18,7 @@ MonoBehaviour:
     weight: 1
   - move: {fileID: 11400000, guid: a4d85c41bd02c5e4999472d1d936fdd0, type: 2}
     weight: 1
-  - move: {fileID: 11400000, guid: b7bf25d739d0c6b47856776db606fd0c, type: 2}
-    weight: 1
   - move: {fileID: 11400000, guid: d14d3f58621f16947ad4a0fe6dd39a5a, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: b7bf25d739d0c6b47856776db606fd0c, type: 2}
     weight: 1

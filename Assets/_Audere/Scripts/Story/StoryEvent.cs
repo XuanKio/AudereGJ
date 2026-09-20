@@ -33,13 +33,17 @@ namespace Audere.Story
         public StoryEvent NextEvent => nextEvent;
         public bool IsPlaying => isPlaying;
         public StoryStep CurrentStep => currentStep;
+        public event Action<StoryEventResult> Ended;
 
         private void OnDisable()
         {
             Cancel();
         }
 
-        public bool Play(Action<StoryEventResult> onEnded = null)
+        public bool Play(Action<StoryEventResult> onEnded = null) => PlayFromStep(null, onEnded);
+
+        // Keep the normal result/continuation owner when a debug shortcut enters mid-event.
+        public bool PlayFromStep(StoryStep firstStep, Action<StoryEventResult> onEnded = null)
         {
             if (isPlaying)
             {
@@ -56,10 +60,14 @@ namespace Audere.Story
             if (!CollectDirectChildSteps())
                 return false;
 
+            int firstIndex = firstStep != null ? orderedSteps.IndexOf(firstStep) : 0;
+            if (firstIndex < 0)
+                return false;
+
             activeCompletion = null;
             activeCompletion = onEnded;
             isPlaying = true;
-            playbackRoutine = StartCoroutine(PlayStepsInOrder());
+            playbackRoutine = StartCoroutine(PlayStepsInOrder(firstIndex));
             return true;
         }
 
@@ -105,9 +113,9 @@ namespace Audere.Story
             return true;
         }
 
-        private IEnumerator PlayStepsInOrder()
+        private IEnumerator PlayStepsInOrder(int firstIndex)
         {
-            for (int index = 0; index < orderedSteps.Count; index++)
+            for (int index = firstIndex; index < orderedSteps.Count; index++)
             {
                 currentStep = orderedSteps[index];
                 bool stepEnded = false;
@@ -161,6 +169,7 @@ namespace Audere.Story
 
             Action<StoryEventResult> completion = activeCompletion;
             activeCompletion = null;
+            Ended?.Invoke(result);
             completion?.Invoke(result);
         }
     }

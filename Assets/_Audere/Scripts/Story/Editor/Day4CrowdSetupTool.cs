@@ -139,6 +139,7 @@ namespace Audere.Story.Editor
             EditorSceneManager.OpenScene(ScenePath);
             PolishActive();
             FitStageActive();
+            ApplyFallingRoomActive();
         }
 
         private static CombatEncounterData AuthorCombat()
@@ -146,18 +147,18 @@ namespace Audere.Story.Editor
             var hand=HandPrefab(); var enemyActor=EnemyPrefab();
             var bullet=AssetDatabase.LoadAssetAtPath<CombatBulletView>(Prefabs+"/Bullets/EnemyBullet.prefab");
             var stab=New<GraspingHandsMove>(Folder+"/Move_Palms.asset");
-            Set(stab,"handPrefab",hand,"bulletPrefab",bullet,"duration",7f,"warning",.55f,"strike",.44f,"hold",.88f,"retreat",.46f,"rest",.1f,"handsPerBeat",3,"palmVolleys",3,"bulletsPerVolley",14,"bulletSpeed",125f,"sweepDegrees",46f);Save(stab,Folder+"/Move_Palms.asset");
+            Set(stab,"handPrefab",hand,"bulletPrefab",bullet,"duration",7f,"warning",.65f,"strike",.55f,"hold",.55f,"retreat",.5f,"rest",.3f,"handsPerBeat",2,"palmVolleys",1,"bulletsPerVolley",10,"bulletSpeed",112f,"sweepDegrees",30f);Save(stab,Folder+"/Move_Palms.asset");
             var gentle=New<GraspingHandsMove>(Folder+"/Move_UncertainHands.asset");
             Set(gentle,"handPrefab",hand,"bulletPrefab",bullet,"duration",8.5f,"warning",1.1f,"strike",1f,"hold",.62f,"retreat",.82f,"rest",.7f,"handsPerBeat",1,"palmVolleys",1,"bulletsPerVolley",7,"bulletSpeed",76f,"sweepDegrees",18f);Save(gentle,Folder+"/Move_UncertainHands.asset");
             var fast=New<LinearProjectilePatternMove>(Folder+"/Move_RushingVoices.asset");
-            Set(fast,"duration",5f,"projectilePrefab",bullet,"spawnMode",1,"targetMode",1,"shotInterval",.29f,"projectilesPerShot",5,"spacing",46f,"speed",175f);Save(fast,Folder+"/Move_RushingVoices.asset");
+            Set(fast,"duration",5f,"projectilePrefab",bullet,"spawnMode",1,"targetMode",1,"shotInterval",.62f,"projectilesPerShot",3,"spacing",70f,"speed",155f);Save(fast,Folder+"/Move_RushingVoices.asset");
             var slow=New<LinearProjectilePatternMove>(Folder+"/Move_DistantVoices.asset");
             Set(slow,"duration",6f,"projectilePrefab",bullet,"spawnMode",1,"targetMode",1,"shotInterval",1f,"projectilesPerShot",2,"spacing",96f,"speed",92f);Save(slow,Folder+"/Move_DistantVoices.asset");
             var shift=New<ShiftingBattleBoxMove>(Folder+"/Move_RoomSqueezes.asset");Set(shift,"duration",7f,"telegraphDuration",.45f,"squeezeDuration",.65f,"holdDuration",.6f,"returnDuration",.6f);
             var so=new SerializedObject(shift);var poses=so.FindProperty("poses");poses.arraySize=3;
             for(int i=0;i<3;i++){poses.GetArrayElementAtIndex(i).FindPropertyRelative("widthFraction").floatValue=i==1?.75f:.82f;poses.GetArrayElementAtIndex(i).FindPropertyRelative("normalizedX").floatValue=i%2==0?-.65f:.65f;}so.ApplyModifiedPropertiesWithoutUndo();Save(shift,Folder+"/Move_RoomSqueezes.asset");
             var combo=New<CompositeCombatMove>(Folder+"/Move_ShiftingPalms.asset");Set(combo,"duration",7f,"children",new Object[]{stab,shift});Save(combo,Folder+"/Move_ShiftingPalms.asset");
-            var dense=MoveSet("Crowded",combo,fast);var quiet=MoveSet("ThereIsRoom",gentle,slow);
+            var dense=MoveSet("Crowded",combo,fast);var pressure=CreateCrowdMountDiveMoveSet();var quiet=CreateCrowdQuietMoveSet();
             var opening=new[]{
                 D("C01_CROWD",DialogueCharacterId.CrowdDistorted,"Audere_Scared.png","Enemyy/Crowd.png","R|Mang có mấy thứ cũng làm rơi.","R|Ai cũng đang nhìn kìa."),
                 D("C02_TIMOR",DialogueCharacterId.Timor,"Audere_Crying.png","Timor/TimorLoLangKhongVui.png","R|Tớ đã nói rồi.","R|Đây là điều xảy ra khi cậu tự làm."),
@@ -169,20 +170,22 @@ namespace Audere.Story.Editor
                 D("C12_TIMOR",DialogueCharacterId.Timor,"Audere_Tired.png","Timor/TimorLoLangKhongVui.png","R|Không… nhưng vừa nãy…","R|Họ vẫn đang nhìn cậu mà."),
                 D("C13_BIANCA",DialogueCharacterId.Bianca,"Audere_Tired.png","Bianca/Bianca_Worried.png","R|Đừng vội đứng lên. Tớ ở đây."),
                 D("C14_AUDERE",DialogueCharacterId.Timor,"Audere_Tired.png","Timor/TimorLolang.png","L|Cậu ấy đang hỏi tớ có đau không.","L|Tớ chưa biết mọi người nghĩ gì…","L|Nhưng tớ muốn nghe cậu ấy nói.")};
-            var enemy=New<CombatEnemyDefinition>(Folder+"/Enemy_Crowd.asset");Set(enemy,"enemyId","d4-crowd-pressure","displayName","Đám đông","actorPrefab",enemyActor,"phasePolicy",(int)CombatPhasePolicy.SharedHealthThresholds,"sharedMaxHealth",21);
-            so=new SerializedObject(enemy);var phases=so.FindProperty("phases");phases.arraySize=2;
-            for(int i=0;i<2;i++)
+            var enemy=New<CombatEnemyDefinition>(Folder+"/Enemy_Crowd.asset");Set(enemy,"enemyId","d4-crowd-pressure","displayName","Đám đông","actorPrefab",enemyActor,"phasePolicy",(int)CombatPhasePolicy.SharedHealthThresholds,"sharedMaxHealth",19);
+            so=new SerializedObject(enemy);var phases=so.FindProperty("phases");phases.arraySize=3;
+            for(int i=0;i<3;i++)
             {
-                var phase=phases.GetArrayElementAtIndex(i);phase.FindPropertyRelative("phaseId").stringValue=i==0?"everyone-is-looking":"one-real-voice";
-                phase.FindPropertyRelative("moveSet").objectReferenceValue=i==0?dense:quiet;
-                phase.FindPropertyRelative("sharedExitThreshold").intValue=i==0?10:0;
+                var phase=phases.GetArrayElementAtIndex(i);phase.FindPropertyRelative("phaseId").stringValue=i==0?"everyone-is-looking":i==1?"nowhere-to-hide":"one-real-voice";
+                phase.FindPropertyRelative("moveSet").objectReferenceValue=i==0?dense:i==1?pressure:quiet;
+                phase.FindPropertyRelative("sharedExitThreshold").intValue=i==0?10:i==1?3:0;
+                phase.FindPropertyRelative("damageReactionMove").objectReferenceValue=i==1?AssetDatabase.LoadAssetAtPath<EnemyMountDiveMove>(Folder+"/Move_MountDive_Counter.asset"):null;
+                phase.FindPropertyRelative("damageReactionOnEnter").boolValue=i==1;
                 phase.FindPropertyRelative("playerTimeExitFraction").floatValue=0f;
                 phase.FindPropertyRelative("spawnDice").boolValue=true;phase.FindPropertyRelative("allowsPlayerDefeat").boolValue=true;
-                var cues=phase.FindPropertyRelative("dialogueCues");cues.arraySize=1;var cue=cues.GetArrayElementAtIndex(0);
+                var cues=phase.FindPropertyRelative("dialogueCues");cues.arraySize=i==1?0:1;if(i==1)continue;var cue=cues.GetArrayElementAtIndex(0);
                 cue.FindPropertyRelative("cueId").stringValue=i==0?"crowd-timor-returns":"crowd-bianca-real-voice";
                 cue.FindPropertyRelative("trigger").intValue=0;cue.FindPropertyRelative("presentation").intValue=1;
                 cue.FindPropertyRelative("minimumLineDuration").floatValue=1.8f;cue.FindPropertyRelative("charactersPerSecond").floatValue=25f;cue.FindPropertyRelative("interLineGap").floatValue=.2f;
-                cue.FindPropertyRelative("requiredBeforeVictory").boolValue=i==1;
+                cue.FindPropertyRelative("requiredBeforeVictory").boolValue=i==2;
                 var seq=cue.FindPropertyRelative("sequence");var lines=i==0?opening:turning;seq.arraySize=lines.Length;
                 for(int j=0;j<lines.Length;j++)seq.GetArrayElementAtIndex(j).objectReferenceValue=lines[j];
             }
@@ -217,7 +220,9 @@ namespace Audere.Story.Editor
             var catalog=AssetDatabase.LoadAssetAtPath<DialogueCharacterCatalog>(AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets("t:DialogueCharacterCatalog").Single()));
             var so=new SerializedObject(catalog);var entries=so.FindProperty("characters");int index=-1;
             for(int i=0;i<entries.arraySize;i++)if(entries.GetArrayElementAtIndex(i).FindPropertyRelative("character").intValue==8)index=i;
-            if(index<0){index=entries.arraySize;entries.arraySize++;}var e=entries.GetArrayElementAtIndex(index);e.FindPropertyRelative("character").intValue=8;e.FindPropertyRelative("displayName").stringValue="Đám đông";e.FindPropertyRelative("portrait").objectReferenceValue=Sprite("Enemyy/Crowd.png");so.ApplyModifiedPropertiesWithoutUndo();
+            if(index<0){index=entries.arraySize;entries.arraySize++;}var e=entries.GetArrayElementAtIndex(index);e.FindPropertyRelative("character").intValue=8;e.FindPropertyRelative("displayName").stringValue="Đám đông";e.FindPropertyRelative("portrait").objectReferenceValue=Sprite("Enemyy/Crowd.png");
+            e.FindPropertyRelative("portraitVerticalOffset").floatValue=-16f;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
         private static void CreateEveningIfMissing()
         {
@@ -268,6 +273,7 @@ namespace Audere.Story.Editor
         {
             var so=new SerializedObject(o);for(int i=0;i<pairs.Length;i+=2){var p=so.FindProperty((string)pairs[i]);var v=pairs[i+1];if(p==null)throw new InvalidOperationException(o.name+":"+pairs[i]);
                 if(v is Object[] array){p.arraySize=array.Length;for(int j=0;j<array.Length;j++)p.GetArrayElementAtIndex(j).objectReferenceValue=array[j];}
+                else if(v is float[] values){p.arraySize=values.Length;for(int j=0;j<values.Length;j++)p.GetArrayElementAtIndex(j).floatValue=values[j];}
                 else if(v is string s)p.stringValue=s;else if(v is int n)p.intValue=n;else if(v is bool b)p.boolValue=b;else if(v is float f)p.floatValue=f;else p.objectReferenceValue=v as Object;}
             so.ApplyModifiedPropertiesWithoutUndo();EditorUtility.SetDirty(o);
         }

@@ -1,8 +1,8 @@
-# Day 2 — tan học, cuộc hỏi lại và giấc mơ
+﻿# Day 2 — tan học, cuộc hỏi lại và giấc mơ
 
 ## Trạng thái và phạm vi
 
-Implemented / QA 2026-08-28. Narrative mới là **Design Intent theo yêu cầu Xuân**, không tự xác nhận ontology của Timor/combat hoặc biến chữ trong mơ thành suy nghĩ thật của Bianca.
+Implemented 2026-08-28; scene80 revised 2026-09-20. Narrative mới là **Design Intent theo yêu cầu Xuân**, không tự xác nhận ontology của Timor/combat hoặc biến chữ trong mơ thành suy nghĩ thật của Bianca.
 
 Chuỗi production: `60_D2_School_Morning → 70_D2_Home_Night → 80_D2_Dream → 90_D2_Home_Awakening`.
 
@@ -33,15 +33,15 @@ Bianca xác nhận đủ đồ cho ngày mai, hẹn trang trí bảng rồi chu�
 
 **Design Intent**, not an additional waking-day event: the dream initially resembles an ordinary conversation. Audere and Bianca stand on two adjacent tiles; four nearby tiles hold desks from `AssetGame/Item/ban.aseprite`. There is no continuous classroom floor or added blackboard. Bianca discusses the remaining paper; Audere tentatively offers to finish cutting shapes. Both use their ordinary portraits, with Audere Left and Bianca Right.
 
-The scene-first opening is `000_CoverDream → 005_ResetAtmosphereAndHideHand → 010_PrepareContinuousPath → 011_NormalClassroomUnderCover → 012_AudereFacesBianca → 014_RevealOrdinaryConversation → 016_BiancaOrdinaryConversation → 018_AQuietBeatBeforeTheCrack → 019_TheClassroomFractures`. The existing dream drift, five boards, collapse, Timor dialogue and wake-up handoff follow unchanged.
+The scene-first opening is `000_CoverDream → 005_ResetAtmosphereAndHideHand → 008_RestoreGroundedShadow → 009_AudereAtDreamStart → 011_NormalClassroomUnderCover → 012_AudereFacesBianca → 014_RevealOrdinaryConversation → 016_BiancaOrdinaryConversation → 018_AQuietBeatBeforeTheCrack → 019_TheClassroomFractures`. The automatic run/fall revision below follows this opening; the Timor dialogue and wake-up handoff are preserved.
 
-`019` directly references shared `WorldTransition_DreamFracture.asset`: 6.95 seconds, scenery swap at 4.8 seconds beneath the still-intact screenshot. Following Xuân's [BREAK your Screen reference](https://unitycodemonkey.com/video.php?v=RP1-PZD4Ab4), the source shakes, freezes at 0.8 seconds, then cracks advance from the top/left/right edges toward the center in discrete pulses; only afterward do secondary cracks spread outward to the corners. At 4.8 seconds the actual image pieces separate, rotate in three axes and fall with visible thickness, revealing the walking puzzle immediately behind them. They clear by 6.85 seconds; there is no black interlude. Charcoal/violet faces, darker backs and restrained cool edge highlights replace the bright wireframe appearance. This replaces the earlier fixed-region UV shifting. The runtime capture is never saved as a production asset. No scene-local timeline or added audio cue. Puzzle hand stays hidden until `020_BeginDreamDrift`.
+`019` directly references shared `WorldTransition_DreamFracture.asset`: 6.95 seconds, scenery swap at 4.8 seconds beneath the still-intact screenshot. Following Xuân's [BREAK your Screen reference](https://unitycodemonkey.com/video.php?v=RP1-PZD4Ab4), the source shakes, freezes at 0.8 seconds, then cracks advance from the top/left/right edges toward the center in discrete pulses; only afterward do secondary cracks spread outward to the corners. At 4.8 seconds the actual image pieces separate, rotate in three axes and fall with visible thickness, revealing the automatic dream path immediately behind them. They clear by 6.85 seconds; there is no black interlude. Charcoal/violet faces, darker backs and restrained cool edge highlights replace the bright wireframe appearance. This replaces the earlier fixed-region UV shifting. The runtime capture is never saved as a production asset. No scene-local timeline or added audio cue. Puzzle hand stays hidden throughout the dream. Only eight opening murmurs are visible at scenery swap and at `020_BeginDreamDrift`.
 
 Ten dream desks float gently with the existing scenery: horizontal drift, vertical bob and small tilt all begin at their authored pose. RGB fringes inherit parent motion instead of bobbing twice. Desk and floating-tile `SortingGroup` orders use their authored depth relative to Audere's constant ground plane; they do not change when the object bobs or Audere hops. Foreground objects can cover her feet, background objects remain behind her. Audere body/shadow stay `Player/5` and `Player/4`. Decor has no puzzle tiles or collision components.
 
 Cancel before capture, during shard flight or after the glass swap restores the source active states and releases the screenshot, overlay and fullscreen material/feature. Dream cancellation restores prop positions, rotations, colors and the camera; replay starts under cover with the hand hidden. The existing create-missing-scenes author tool preserves this scoped scene revision.
 
-Revision verification: **39/39 passed** (`Day2NightDreamTests` 10 + `MusicPresentationTests` 29), result `Temp/DreamShatterQA/tests_39_pass.xml`, completed 2026-08-28 09:04:31Z. Includes 15 real preview/drops through Home→Dream→Awakening, source tiling at 16:9/4:3/21:9, edge-origin cracks with delayed outward branches, actual Canvas mesh, source brightness preservation, cancellation before capture/during flight/at scenery swap, replay and prop restoration. Play frames `Temp/DreamShatterQA/final-*.png` at 1920×1080 show edge→center→corner crack growth, dark glass colors and the walking puzzle visible directly behind falling shards. `final-capture-log.txt` records cover=0 throughout breakup and clean overlay/feature shutdown. Other aspect ratios received geometry tests, not a visual Play pass. Earlier QA caught a missing CanvasRenderer, screenshot gamma conversion and stale test expectations from the former black handoff; those are fixed and covered by the final run.
+Historical opening verification (2026-08-28): **39/39 passed** (`Day2NightDreamTests` 10 + `MusicPresentationTests` 29), result `Temp/DreamShatterQA/tests_39_pass.xml`, completed 2026-08-28 09:04:31Z. Includes 15 real preview/drops through Home→Dream→Awakening, source tiling at 16:9/4:3/21:9, edge-origin cracks with delayed outward branches, actual Canvas mesh, source brightness preservation, cancellation before capture/during flight/at scenery swap, replay and prop restoration. Play frames `Temp/DreamShatterQA/final-*.png` at 1920×1080 show edge→center→corner crack growth, dark glass colors and the walking puzzle visible directly behind falling shards. `final-capture-log.txt` records cover=0 throughout breakup and clean overlay/feature shutdown. Other aspect ratios received geometry tests, not a visual Play pass. Earlier QA caught a missing CanvasRenderer, screenshot gamma conversion and stale test expectations from the former black handoff; those are fixed and covered by the final run.
 
 ## Scene70 — D2_HOME_NIGHT_DOUBT
 
@@ -62,19 +62,21 @@ Portrait có sẵn: `Audere_Tired`, `TimorLolang`, rồi `TimorLoLangKhongVui`. 
 
 ## Scene80 — D2_DREAM_ONLY_ME
 
-Scene-first: `WORLD/Dream Path - Scene Authored` chứa đúng một Player, Puzzle Runtime và năm `PZ_D2_DREAM_*`. Mỗi board có bốn tile (tính cả Start), ba card `PathPiece_Line_2`; mỗi card thêm một bước. Tổng cộng **15 bước**, không phải 30 bước.
+Revision 2026-09-20 — **Design Intent theo yêu cầu Xuân**: đoạn mơ tự chạy, không yêu cầu đặt khối puzzle. Giữ nguyên hội thoại mở đầu với Bianca, shared Dream Fracture profile và phần Timor → tỉnh giấc.
 
-- Các đoạn `(0,0)→(3,0)→(6,0)→(9,0)→(12,0)→(15,0)`.
-- Goal cũ giữ hiện trong lúc đường mới reveal, trùng Start mới tuyệt đối; swap anchor cùng một frame. Player không bị disable giữa đoạn.
-- Camera follow X, không follow Y của hop. Đường chính ổn định; 24 decor tile/RGB fringe lơ lửng không có BoardTile/collider nên không đi vào được.
-- 20 dòng chữ scene-authored tái dùng bốn câu: “Lại phải sửa cho cậu.”, “Biết ngay rồi cũng sẽ nhờ thêm.”, “Ngày mai lại phải gặp.”, “Con nhỏ phiền phức”. Nhóm đặt tên **NOT Bianca Dialogue**.
-- Chữ mờ, trôi ngược chuyển động camera, méo nhẹ bằng vertex; cuối mơ tăng wobble/opacity. Không thêm VHS hoặc thay shared fullscreen profile.
-- `DreamAtmosphereView` chỉ sở hữu camera drift và decor/text presentation; không tạo board, di chuyển Player hoặc thay shadow. `DreamAtmosphereStep` điều khiển Begin/Collapse/Stop qua direct reference.
-- Hết đoạn năm: giữ 0.55 s, ẩn PuzzleUI, tất cả path/decor fade 1.25 s. Audere còn lại giữa chữ.
+- `100_AudereRunsThenSlows` (`DreamWalkStep`) đi qua 15 staging anchor trực tiếp; stride tăng từ 0.28 s lên 0.95 s. `GridPlayer`, puzzle managers/controllers/coordinator tắt, Puzzle Runtime và hand ẩn. Năm board cũ giữ như scene geometry; các PuzzleStep/board hand-off cũ inactive, không thực thi.
+- 64 text scene-authored với 40 câu khác nhau, mở từ 8 câu thúc giục, tăng qua phàn nàn → chế giễu → xua đuổi. Ngưỡng pressure từng nhóm: 0 / 0.14 / 0.36 / 0.57 / 0.77. Opacity, xoay và vertex warp tăng liên tục theo tiến độ đi. Text thuộc `Dream Murmurs - NOT Bianca Dialogue`, không phải lời thật của Bianca.
+- `005_ResetAtmosphereAndHideHand` capture/reset presentation ngay dưới cover, trước khi kính mở target. Chỉ 8 câu đầu hiện ở scenery swap; `020_BeginDreamDrift` giữ nguyên mức chữ đó. Pose/màu được cache khi text còn ẩn; mesh chỉ được copy sau Awake khi text active. TMP tạo lại mesh trước khi warp để rebuild màu ở PreRender không xóa distortion.
+- Tile sụp ở cell 15 khi Audere cách tâm 0.015 world units (6% chiều dài bước). Tám tile decor phía sau giữ đường nhìn vẫn tiếp tục, không lộ đây là điểm kết thúc. Chúng không có BoardTile/collider.
+- `250_LastTileShattersAudereFalls`: sprite tile thật tách mỗi tam giác thành 16 mảnh nhỏ; ít nhất 32 mảnh có texture, bay tách và rơi. Sau 0.07 s Audere rơi gia tốc xuống anchor 2.4 units trong 2.6 s, ngửa lưng 78°. Camera theo độ rơi, chữ co thành vòng xoáy quanh Audere, scenery/path tan đi. Shadow tắt riêng trước cú rơi; không đổi màu/scale của shadow.
 
-Thoại cuối: Timor gọi “Audere.” / “Nhìn tớ.”; Audere giật mình tại chỗ. “Timor… đường đâu rồi?” Timor kéo sự chú ý về mình: “Đừng nhìn chỗ đó nữa.” / “Nhìn tớ thôi.” / “Chỉ có tớ giúp cậu an toàn thôi.” / “Chỉ mình tớ là bạn thật sự của cậu.” Audere: “…Đừng đi.” Timor: “Tớ ở đây.” / “Vậy cứ nghe tớ, Audere.”
+Timor gọi ở step270 như cũ; step275 dựng đứng và step280 bật người đã inactive. Audere giữ góc ngửa 78° trong toàn bộ thoại đến fade; camera giữ cơ thể trong khung, chữ tiếp tục xoáy và gió chạy lên để diễn tả rơi liên tục. `FallingWindView` tham chiếu shared `FallingRoom_Classroom.asset` của cảnh trước boss Đám Đông, dùng 38 vệt ở hai mép bên trong aperture. Gió chạy bằng unscaled time cả khi chờ người chơi đọc thoại, dọn khi event kết thúc/hủy/disable. Opening normalize dùng `CharacterPoseStep` với anchor trực tiếp; cancel cả trong thoại cuối cũng bỏ góc nghiêng, dọn shard/gió và phục hồi atmosphere.
 
-Portrait Audere chuyển sang `Audere_Scared`. Startle dùng `CharacterMotionStep.VerticalInPlace`, shadow giữ nguyên. Hold 0.7 s, fade 0.85 s rồi load Scene90.
+Shadow art có sprite bounds center Y=0.215 khác pivot. `Shadow_Start` bù offset này theo world scale để **tâm ellipse nhìn thấy** nằm ở Y=-0.04, ngang mặt tile và chân; không đặt Transform của bóng ở tâm tile. Khi bước, bóng chỉ theo ground trajectory, không nhảy theo body; màu/material/scale và sorting Player/4 giữ nguyên.
+
+Thoại cuối: Timor gọi “Audere.” / “Nhìn tớ.” trong khi Audere tiếp tục rơi ngửa. “Timor… đường đâu rồi?” Timor kéo sự chú ý về mình: “Đừng nhìn chỗ đó nữa.” / “Nhìn tớ thôi.” / “Chỉ có tớ giúp cậu an toàn thôi.” / “Chỉ mình tớ là bạn thật sự của cậu.” Audere: “…Đừng đi.” Timor: “Tớ ở đây.” / “Vậy cứ nghe tớ, Audere.”
+
+Portrait Audere chuyển sang `Audere_Scared`; cơ thể vẫn ngả sau, shadow ẩn vì không còn mặt đất. Hold 0.7 s, fade 0.85 s rồi load Scene90. Chỉ scene tỉnh giấc mới có startle tại chỗ.
 
 ## Scene90 — D2_HOME_WAKE_FROM_DREAM
 
@@ -86,7 +88,7 @@ Cover → reset pose → reveal 0.35 s → startle dọc 0.19 s / arc 0.09 → g
 - Mỗi direct child event có một StoryStep; sibling order là flow. Không hardcode hội thoại vào runtime presentation.
 - SceneLoadStep dùng GameScenes/SceneFlow. Destination có cover active alpha 1. Neutral fade dùng contract sẵn có; BGM tiếp tục theo hook fade chung, không sửa music service.
 - DialogueStep resolve UI qua persistent GameplayUIRoot, tránh giữ reference scene-local đã bị discard sau load.
-- Cancel: PuzzleStep normalize board/Player và release input; DreamAtmosphereView nhận owner không còn playing hoặc OnDisable, khôi phục camera/text/decor. Replay reset chaos, card hand và cell 0.
+- Cancel: story motion dừng và bỏ lift/rotation tạm; fragment view dọn mesh/material khi event kết thúc. DreamAtmosphereView khôi phục camera/text/decor. Replay normalize actor/shadow dưới cover; không cấp input puzzle.
 - Không thay combat controller, encounter, Shield/dice, board sizing, hoặc các StoryStep cũ.
 
 ## Assets và nơi chỉnh
@@ -94,11 +96,20 @@ Cover → reset pose → reveal 0.35 s → startle dọc 0.19 s / arc 0.09 → g
 - Ba scene mới: `Assets/_Audere/Scenes/70_D2_Home_Night.unity`, `80_D2_Dream.unity`, `90_D2_Home_Awakening.unity`.
 - Chín DialogueData: `Assets/_Audere/Data/Dialogue/Day2/NightDream/`.
 - PuzzleData: `Assets/_Audere/Data/Puzzle/Day2/Puzzle_D2_Dream_ThreeSteps.asset`.
-- Runtime mới: `Story/Presentation/DreamAtmosphereView.cs`, `Story/Steps/DreamAtmosphereStep.cs`.
-- Author/tests: `Story/Editor/Day2NightDreamSetupTool.cs`, `Story/Editor/Tests/Day2NightDreamTests.cs`.
+- Runtime: `DreamAtmosphereView`, `DreamAtmosphereStep`, `DreamWalkStep`, `DreamFallStep`, `DreamTileFragments`; tái dùng `CharacterPoseStep` cho normalize/recover.
+- Author/tests: `Day2NightDreamSetupTool` (tạo scene thiếu), `Day2DreamAutomaticAuthoring` (revision có thể chạy lại), `Day2NightDreamTests`.
 - [Tọa độ và solver proof](Puzzles/Day2Dream/README.md).
 
-## Evidence / giới hạn QA
+## QA revision 2026-09-20
+
+- Initial automatic traversal suite: **8/8 passed**, `Temp/DreamAutomaticQA/results.xml`.
+- Follow-up giữ ngả sau/gió/shadow: **3/3 passed**, `Temp/DreamAutomaticQA/held-fall-wind-shadow.xml` (2026-09-20 05:34:04Z). Production 70→80→90, visible shadow center đúng mặt tile suốt bước, feet chỉ lift theo stride; giữ thoại270/300 vẫn nghiêng >75° và gió tiếp tục chạy; cancel khi đi, đang rơi và trong thoại cuối đều dọn sạch rồi replay. Ảnh `run.png`, `fall-timor-call.png`, `fall-only-me.png` đã xem ở 875×498. Compile/Console 0 error, 0 missing script, rerun author byte-identical. Chưa lặp visual ở aspect ratio khác.
+- After Xuân's center-impact/backward-fall/text-flash refinement: scene structure and unchanged opening checks passed; final two Play tests **2/2 passed**, `Temp/DreamAutomaticQA/refinement-final-play.xml` (2026-09-20 05:16:11Z). Covers Home→Dream→Awakening without any puzzle drop; exactly eight visible murmurs at glass swap and walk start; center approach <0.025 units; ≥32 tile fragments; body lean >65° while falling; hidden grounded shadow; cancel while walking/falling; replay restores upright pose and removes fragments/input claims.
+- The first refinement run caught TMP mesh arrays not yet initialized on hidden text. Presentation colors/poses now capture before reveal, while mesh cache waits until text is active after Awake. The final rerun passes with that correction.
+- Visual frames inspected: `Temp/DreamAutomaticQA/glass-reveal.png`, `run.png`, `shatter.png`, `fall.png`; the row remains visible beyond the breaking tile and the body falls backward. Captures are at the current Game View size (875×498); this revision did not repeat a full 1080p/ultrawide playthrough. Shared glass geometry at 16:9/4:3/21:9 passed in the initial eight-test run; the shared fullscreen profile was not changed.
+- Compile successful; final Console contains zero errors. Scene80 saved and reopened in Edit mode. All three scene DialogueData references are unchanged from the task-start scene backup.
+
+## Evidence / giới hạn QA — checkpoint cũ 2026-08-28
 
 - Unity compile thành công (`scriptCompilationFailed=false`). Focused suite **5/5 Passed**, XML kết thúc `2026-08-28 04:29:48Z`.
 - Kiểm thử Play dùng preview/drop thật đủ 15 lần qua năm board; hand mỗi đoạn ba card, một Player luôn active; Goal/Start delta <0.00001, feet/tile delta <0.002.

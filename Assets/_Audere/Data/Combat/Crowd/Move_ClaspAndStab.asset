@@ -12,13 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a76719c05d69ee849bb5ad0eee16891c, type: 3}
   m_Name: Move_ClaspAndStab
   m_EditorClassIdentifier: 
-  duration: 5.1
+  duration: 7.2
   leadInDuration: 0
   handPrefab: {fileID: 792354162730361880, guid: 6ab965fd084276c4da98b26693013e27, type: 3}
   gripHands: 3
-  warning: 0.9
-  closeDuration: 0.45
-  holdDuration: 2.4
-  releaseDuration: 0.55
-  stabInterval: 0.34
-  stabWarning: 0.3
+  startDistance: 215
+  chaseSpeed: 310
+  chaseDuration: 0.9
+  trackingDuration: 0.28
+  appearDuration: 0.14
+  warningDuration: 0.4
+  fadeDuration: 0.38
+  gapDuration: 0.3
+  captureHoldDuration: 1.02
+  stabCount: 3
+  stabInterval: 0.15
+  stabWarning: 0.22
+  recoveryDuration: 0.4

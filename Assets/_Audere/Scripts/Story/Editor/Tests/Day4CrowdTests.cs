@@ -22,7 +22,7 @@ namespace Audere.Story.Editor.Tests
     {
         private const BindingFlags Private=BindingFlags.Instance|BindingFlags.NonPublic;
         [Test]
-        public void Content_DirectSceneBindingsTwentyOneHealthAndAnEveningDestination()
+        public void Content_DirectSceneBindingsNineteenHealthAndAnEveningDestination()
         {
             var scene=EditorSceneManager.OpenScene(Day4CrowdSetupTool.ScenePath);
             Assert.IsFalse(scene.GetRootGameObjects().Any(x=>x.name=="DAY FOUR CLASSROOM COVER"));
@@ -30,13 +30,17 @@ namespace Audere.Story.Editor.Tests
                 .FindProperty("playOnStart").boolValue,
                 "Scene140 production StoryDirector must start automatically after Scene130 loads it.");
             var combat=All<CombatStep>(scene).Single();var data=combat.CombatEncounterData;
-            Assert.IsTrue(data.EnemyDefinition.Validate(out var error),error);Assert.AreEqual(21,data.EnemyDefinition.SharedMaxHealth);Assert.AreEqual(90,data.EncounterDuration);
+            Assert.IsTrue(data.EnemyDefinition.Validate(out var error),error);Assert.AreEqual(19,data.EnemyDefinition.SharedMaxHealth);Assert.AreEqual(90,data.EncounterDuration);
             Assert.AreEqual(CombatPhasePolicy.SharedHealthThresholds,data.EnemyDefinition.PhasePolicy);
             foreach(var phase in data.EnemyDefinition.Phases)foreach(var entry in phase.MoveSet.Entries)AssertNoCornerPull(entry.Move);
+            CollectionAssert.AreEqual(
+                new[]{"Move_HandWaves","Move_ClaspAndStab","Move_RushingVoices","Move_ShiftingPalms"},
+                data.EnemyDefinition.GetPhase(0).MoveSet.Entries.Select(entry=>entry.Move.name).ToArray());
             Assert.AreEqual(10,data.EnemyDefinition.GetPhase(0).SharedExitThreshold);
-            Assert.AreEqual(0,data.EnemyDefinition.GetPhase(1).SharedExitThreshold);
+            Assert.AreEqual(3,data.EnemyDefinition.GetPhase(1).SharedExitThreshold);
+            Assert.AreEqual(0,data.EnemyDefinition.GetPhase(2).SharedExitThreshold);
             Assert.IsTrue(data.EnemyDefinition.Phases.All(x=>Mathf.Approximately(0f,x.PlayerTimeExitFraction)));
-            Assert.IsTrue(data.EnemyDefinition.GetPhase(1).DialogueCues.Single().RequiredBeforeVictory);
+            Assert.IsTrue(data.EnemyDefinition.GetPhase(2).DialogueCues.Single().RequiredBeforeVictory);
             Assert.IsNotNull(combat.EnemyActorOverride);Assert.AreEqual(3,data.DicePerBatch);Assert.AreEqual(1,data.MaximumAttacksPerBatch);Assert.AreEqual(1,data.AdditionalRerolledAttacksPerBatch);
             Assert.AreEqual(8,All<Transform>(scene).Count(x=>x.name=="Desk centered on tile"));
             var stage=All<Transform>(scene).Single(t=>t.name=="DAY FOUR TILE CLASSROOM");
@@ -90,7 +94,7 @@ namespace Audere.Story.Editor.Tests
             {
                 sawHand|=c.BoardView.GetComponentsInChildren<CombatBulletView>().Any(x=>x.SourcePrefab!=null&&x.SourcePrefab.name=="Bullet_CrowdHand");
                 sawNormal|=c.BoardView.GetComponentsInChildren<CombatBulletView>().Any(x=>x.SourcePrefab!=null&&x.SourcePrefab.name=="EnemyBullet");
-                sawClasp|=c.EnemyRuntime.CurrentMove is ConvergingHandsMove && c.BoardView.HasForcedPlayerControl;
+                sawClasp|=c.EnemyRuntime.CurrentMove is ConvergingHandsMove;
                 if(c.EnemyRuntime.CurrentMove!=null)AssertNoCornerPull(c.EnemyRuntime.CurrentMove);
                 if(c.PlayerTime<55)c.DebugApplyDiceEffect(CombatSymbol.Heal);
                 if(c.EnemyRuntime.PhaseElapsed>7.4f&&c.EnemyRuntime.PhaseElapsed<7.5f)ScreenCapture.CaptureScreenshot("Temp/Day4Crowd/hands-and-volley.png");
@@ -106,14 +110,21 @@ namespace Audere.Story.Editor.Tests
             c.EnemyRuntime.ApplyDamage(1,out int thresholdDamage);
             Assert.AreEqual(1,thresholdDamage);
             yield return Until(()=>c.EnemyRuntime.PhaseIndex==1);
-            Assert.AreEqual(10,c.EnemyHealth,"The gentler phase starts when the crowd reaches 10 HP.");
+            Assert.AreEqual(10,c.EnemyHealth,"The mount pressure phase starts when the crowd reaches 10 HP.");
             Assert.IsFalse(c.BoardView.HasForcedPlayerControl);
             Assert.IsFalse(c.BoardView.GetComponentsInChildren<CombatBulletView>().Any(x=>x.OwnerPhaseVersion==firstPhase));
+            yield return Until(()=>c.BoardView.IsMountDiveActive,false,5);
+            yield return new WaitForSecondsRealtime(.98f);yield return Capture("mount-dive-pressure");
+            c.EnemyRuntime.ApplyDamage(6,out _);Assert.AreEqual(4,c.EnemyHealth);Assert.AreEqual(1,c.EnemyRuntime.PhaseIndex);
+            c.EnemyRuntime.ApplyDamage(1,out _);
+            yield return Until(()=>c.EnemyRuntime.PhaseIndex==2);
+            Assert.AreEqual(3,c.EnemyHealth);Assert.IsFalse(c.BoardView.IsMountDiveActive);
+            Assert.AreEqual(0,c.BoardView.BoardSeparation);Assert.AreEqual(0,c.BoardView.ActiveMountEchoes);
             yield return new WaitForSecondsRealtime(1.3f);yield return Capture("bianca-real-voice");
             yield return Until(()=>c.EnemyRuntime.IsCueResolved("crowd-bianca-real-voice"),false,35);
             yield return Until(()=>c.EnemyRuntime.State==CombatEnemyRuntimeState.Playing,false,5);
             c.EnemyRuntime.ApplyDamage(99,out int finishingDamage);
-            Assert.AreEqual(10,finishingDamage);
+            Assert.AreEqual(3,finishingDamage);
             yield return Until(()=>director.CurrentEvent.CurrentStep.name=="120_DoNotRush",false,10);
             var b=All<Transform>(scene).Single(x=>x.name=="Bianca");AssertFeet(b,All<Transform>(scene).Single(x=>x.name=="Bianca Tile"));
             Assert.Less(Quaternion.Angle(a.rotation,Quaternion.Euler(0,0,90)),.1f);
@@ -139,13 +150,65 @@ namespace Audere.Story.Editor.Tests
             yield return new EnterPlayMode();yield return null;
             yield return LifecycleChecks();yield return new ExitPlayMode();
         }
+        [UnityTest]
+        public IEnumerator DefeatRetry_PresentationReleasesInputAndRestartsCombat()
+        {
+            var scene = EditorSceneManager.OpenScene(Day4CrowdSetupTool.ScenePath);
+            var data = new SerializedObject(All<StoryDirector>(scene).Single());
+            data.FindProperty("playOnStart").boolValue = false;
+            data.ApplyModifiedPropertiesWithoutUndo();
+            yield return new EnterPlayMode();
+            yield return null;
+            yield return RetryPresentationChecks();
+            yield return new ExitPlayMode();
+        }
+
+        private static IEnumerator RetryPresentationChecks()
+        {
+            Services();
+            var scene = SceneManager.GetActiveScene();
+            All<Audere.World.WorldModeController>(scene).Single()
+                .ApplyModeImmediate(Audere.World.WorldGameplayMode.Combat);
+            var step = All<CombatStep>(scene).Single();
+            var combat = step.CombatController;
+            Assert.IsTrue(step.Play());
+            // The authored four-part opening cue exceeds this test's 20-second wait.
+            yield return Until(() => combat.CurrentState == CombatController.State.Playing, true);
+            var previousAttempt = combat.EnemyRuntime;
+            combat.BoardView.CatchCursor.anchoredPosition = new Vector2(35f, -20f);
+            var deathPose = combat.BoardView.CapturePlayerHeartPose();
+            Assert.IsTrue(deathPose.IsValid, "The world-space Heart needs a valid camera projection.");
+            combat.DebugExpireTimer();
+            Assert.AreEqual(deathPose.ViewportCenter, combat.LastDefeatHeartPose.ViewportCenter);
+            var retry = GameplayUIRoot.Instance.CombatRetry;
+            yield return Until(() => retry.IsReadyToRetry);
+            var heart = (RectTransform)retry.transform.Find("Retry Panel/Retry Content/Broken Heart");
+            Assert.That(Vector2.Distance(deathPose.ViewportCenter, heart.anchorMin), Is.LessThan(.0001f));
+            Assert.IsFalse(combat.IsPlaying);
+            Assert.AreEqual(Audere.GameplayInput.GameplayInputMode.Modal,
+                GameplayUIRoot.Instance.InputGate.CurrentMode);
+            var button = retry.GetComponentInChildren<UnityEngine.UI.Button>(true);
+            button.onClick.Invoke();
+            button.onClick.Invoke();
+            yield return Until(() => combat.CurrentState == CombatController.State.Playing, true);
+            Assert.AreNotSame(previousAttempt, combat.EnemyRuntime);
+            Assert.AreEqual(0, combat.EnemyRuntime.PhaseIndex);
+            Assert.AreEqual(19, combat.EnemyHealth);
+            Assert.IsFalse(retry.IsShowing);
+            Assert.IsFalse(combat.LastDefeatHeartPose.IsValid, "Retry must clear the previous death snapshot.");
+            step.Cancel();
+            yield return null;
+            Assert.AreEqual(0, GameplayUIRoot.Instance.InputGate.ActiveClaimCount);
+            LogAssert.NoUnexpectedReceived();
+        }
+
         private static IEnumerator LifecycleChecks()
         {
             Services();var scene=SceneManager.GetActiveScene();var a=All<Transform>(scene).Single(x=>x.name=="Audere");var position=a.position;var rotation=a.rotation;
             var shadow=a.GetComponentsInChildren<SpriteRenderer>().Single(x=>x.sortingOrder==4).transform;var shadowPosition=shadow.position;var shadowScale=shadow.lossyScale;
             var fall=All<CharacterPoseStep>(scene).Single(x=>x.name=="050_AudereFalls");
             // EnterPlayMode can have a long first frame. Keep this cancellation probe mid-pose.
-            typeof(CharacterPoseStep).GetField("duration",Private).SetValue(fall,1.5f);
+            typeof(CharacterPoseStep).GetField("duration",Private).SetValue(fall,8f);
             yield return null;yield return null;
             Assert.IsTrue(fall.Play());yield return new WaitForSecondsRealtime(.15f);
             Assert.Less(Vector3.Distance(shadowPosition,shadow.position),.0001f);Assert.Less(Vector3.Distance(shadowScale,shadow.lossyScale),.0001f);fall.Cancel();
@@ -153,13 +216,17 @@ namespace Audere.Story.Editor.Tests
             foreach(var group in All<CanvasGroup>(scene).Where(x=>x.name=="Fade"&&x.transform.parent!=null&&x.transform.parent.name=="Scene Transition Overlay")){group.alpha=0;group.blocksRaycasts=false;}
             var mode=All<Audere.World.WorldModeController>(scene).Single();mode.ApplyModeImmediate(Audere.World.WorldGameplayMode.Combat);yield return null;
             var step=All<CombatStep>(scene).Single();var c=step.CombatController;Assert.IsTrue(step.Play());
-            yield return Until(()=>c.CurrentState==CombatController.State.Playing);Assert.IsInstanceOf<OscillatingHandWallMove>(c.EnemyRuntime.CurrentMove);
-            yield return Until(()=>c.BoardView.HasForcedPlayerControl,false,15);yield return Capture("clasp-hold");step.Cancel();yield return null;
+            yield return Until(()=>c.CurrentState==CombatController.State.Playing,true);Assert.IsInstanceOf<OscillatingHandWallMove>(c.EnemyRuntime.CurrentMove);
+            yield return Until(()=>c.EnemyRuntime.CurrentMove is ConvergingHandsMove,false,15);
+            System.IO.Directory.CreateDirectory("Temp/Day4Crowd");
+            yield return Capture("clasp-chase");step.Cancel();yield return null;
             Assert.IsFalse(c.BoardView.HasForcedPlayerControl);Assert.IsFalse(c.BoardView.HasForcedMovementProtection);Assert.AreEqual(0,GameplayUIRoot.Instance.InputGate.ActiveClaimCount);
-            Assert.IsTrue(step.Play());yield return Until(()=>c.CurrentState==CombatController.State.Playing);c.DebugExpireTimer();
-            yield return Until(()=>GameplayUIRoot.Instance.CombatRetry.IsShowing);
+            Assert.IsTrue(step.Play());yield return Until(()=>c.CurrentState==CombatController.State.Playing,true);c.DebugExpireTimer();
+            yield return Until(()=>GameplayUIRoot.Instance.CombatRetry.IsReadyToRetry);
             var button=GameplayUIRoot.Instance.CombatRetry.GetComponentInChildren<UnityEngine.UI.Button>(true);button.onClick.Invoke();button.onClick.Invoke();yield return null;
-            Assert.AreEqual(21,c.EnemyHealth);Assert.Greater(c.PlayerTime,88f);Assert.AreEqual(0,c.EnemyRuntime.PhaseIndex);
+            Assert.AreEqual(19,c.EnemyHealth);Assert.Greater(c.PlayerTime,c.ActiveMaximumTime-2f);Assert.AreEqual(0,c.EnemyRuntime.PhaseIndex);
+            // Retry replays the opening speech before spawning dice; finish that pause first.
+            yield return Until(()=>c.CurrentState==CombatController.State.Playing,true);
             // Exercise the real cursor-overlap/catch path, without replacing symbols or applying debug damage.
             int caught=0, currentBatch=-1, attacks=0, firstBatch=c.BatchIndex;
             double catchDeadline=EditorApplication.timeSinceStartup+18;
@@ -204,48 +271,83 @@ namespace Audere.Story.Editor.Tests
             finally { Object.DestroyImmediate(board.gameObject); }
         }
 
-        [TestCase(.2f)] [TestCase(1f)] [TestCase(2.1f)] [TestCase(3.9f)] [TestCase(5.2f)]
-        public void Clasp_ProtectedFiniteHoldThenReleasesAndCancels(float until)
+        [Test]
+        public void Clasp_DodgedHandsFadeWithoutHoldingOrStabbing()
         {
             var board=Object.Instantiate(AssetDatabase.LoadAssetAtPath<CombatBoardView>("Assets/_Audere/Prefabs/Combat/World/CombatBoard.prefab"));
             try
             {
                 board.gameObject.SetActive(true);Canvas.ForceUpdateCanvases();board.CatchCursor.anchoredPosition=Vector2.zero;
                 var move=AssetDatabase.LoadAssetAtPath<ConvergingHandsMove>(Day4CrowdSetupTool.Folder+"/Move_ClaspAndStab.asset");
-                if(Mathf.Approximately(until,2.1f))board.CatchCursor.anchoredPosition=board.PlayArea.rect.max-Vector2.one*4f;
                 var execution=move.CreateExecution(new CombatMoveExecutionContext(board,null,new SystemCombatRandom(18),211,1));
-                var playerView=board.GetComponentInChildren<CombatPlayerView>();playerView.ResetPlayer();
-                bool held=false, stabbed=false;int protectedHits=0;bool sawActiveStab=false;
-                for(float time=0;time<until;time+=.02f)
+                board.GetComponentInChildren<CombatPlayerView>().ResetPlayer();
+                Rect area=board.PlayArea.rect;
+                Vector2[] corners={
+                    new Vector2(area.xMin+35f,area.yMin+35f),
+                    new Vector2(area.xMax-35f,area.yMin+35f),
+                    new Vector2(area.xMax-35f,area.yMax-35f),
+                    new Vector2(area.xMin+35f,area.yMax-35f)};
+                int peakHands=0,totalHits=0;
+                for(int frame=0;frame<Mathf.CeilToInt(move.Duration/.02f)+2&&!execution.IsComplete;frame++)
+                {
+                    var live=board.GetComponentsInChildren<CombatBulletView>();
+                    if(live.Length>0)
+                        board.CatchCursor.anchoredPosition=corners.OrderByDescending(
+                            point=>Vector2.Distance(point,live[0].RectTransform.anchoredPosition)).First();
+                    execution.Tick(.02f);
+                    totalHits+=board.TickBullets(.02f,.65f);
+                    peakHands=Mathf.Max(peakHands,board.GetComponentsInChildren<CombatBulletView>().Length);
+                    Assert.IsFalse(board.HasForcedPlayerControl,"A dodge must keep mouse control.");
+                }
+                Assert.IsTrue(execution.IsComplete);
+                Assert.AreEqual(1,peakHands,"Pursuers should arrive one after another.");
+                Assert.AreEqual(0,totalHits);
+                Assert.IsFalse(board.GetComponentsInChildren<CombatBulletView>().Any());
+            }
+            finally { Object.DestroyImmediate(board.gameObject); }
+        }
+
+        [Test]
+        public void Clasp_CaptureOnlyOnContactThenStabsAndReleases()
+        {
+            var board=Object.Instantiate(AssetDatabase.LoadAssetAtPath<CombatBoardView>("Assets/_Audere/Prefabs/Combat/World/CombatBoard.prefab"));
+            try
+            {
+                board.gameObject.SetActive(true);Canvas.ForceUpdateCanvases();board.CatchCursor.anchoredPosition=Vector2.zero;
+                var move=AssetDatabase.LoadAssetAtPath<ConvergingHandsMove>(Day4CrowdSetupTool.Folder+"/Move_ClaspAndStab.asset");
+                var execution=move.CreateExecution(new CombatMoveExecutionContext(board,null,new SystemCombatRandom(18),211,1));
+                board.GetComponentInChildren<CombatPlayerView>().ResetPlayer();
+                bool captured=false,sawStabs=false;int hits=0;
+                for(int frame=0;frame<Mathf.CeilToInt(move.Duration/.02f)+2&&!execution.IsComplete;frame++)
                 {
                     execution.Tick(.02f);
-                    var bypassingHands=board.GetComponentsInChildren<CombatBulletView>()
-                        .Where(x=>x.BypassesForcedMovementProtection).ToArray();
-                    bool hasBypassingHand=bypassingHands.Length>0;
-                    foreach(var hand in bypassingHands)
-                    {
-                        sawActiveStab|=hand.CollisionActive;
-                    }
-                    int hits=board.TickBullets(.02f,1f);
-                    if(board.HasForcedPlayerControl)
-                    {
-                        held=true;protectedHits+=hits;Assert.IsTrue(board.HasForcedMovementProtection);
-                        if(hits>0)Assert.IsTrue(hasBypassingHand,"Only a stab hand may hit through clasp protection.");
-                        Vector2 position=board.CatchCursor.anchoredPosition;board.UpdateCursor(new Vector2(20,20));Assert.AreEqual(position,board.CatchCursor.anchoredPosition);
-                        stabbed|=board.GetComponentsInChildren<CombatBulletView>().Length>3;
-                    }
+                    captured|=board.HasForcedPlayerControl;
+                    sawStabs|=captured&&board.GetComponentsInChildren<CombatBulletView>().Length>1;
+                    hits+=board.TickBullets(.02f,.65f);
                 }
-                if(until>1f)Assert.IsTrue(held);
-                if(until>2f){Assert.IsTrue(stabbed);Assert.IsTrue(sawActiveStab);
-                    Assert.Greater(protectedHits,0,"Stab hands must damage the player during the protected clasp hold.");}
-                if(Mathf.Approximately(until,2.1f))
-                {
-                    var r=board.PlayArea.rect;Assert.Less(board.CatchCursor.anchoredPosition.x,r.xMax-40f);
-                    Assert.Less(board.CatchCursor.anchoredPosition.y,r.yMax-40f);
-                }
-                if(until>3.8f)Assert.IsFalse(board.HasForcedPlayerControl);
+                Assert.IsTrue(captured,"An unmoving Heart should be caught by a pursuer.");
+                Assert.IsTrue(sawStabs,"Stabs should spawn only after a catch.");
+                Assert.AreEqual(1,hits,"One caught sequence should apply one TIME hit.");
+                Assert.IsTrue(execution.IsComplete);
+                Assert.IsFalse(board.HasForcedPlayerControl);
+                Assert.IsFalse(board.GetComponentsInChildren<CombatBulletView>().Any());
+            }
+            finally { Object.DestroyImmediate(board.gameObject); }
+        }
+
+        [TestCase(.2f)] [TestCase(.8f)] [TestCase(1.8f)]
+        public void Clasp_CancelReturnsAllHandsAndReleasesControl(float until)
+        {
+            var board=Object.Instantiate(AssetDatabase.LoadAssetAtPath<CombatBoardView>("Assets/_Audere/Prefabs/Combat/World/CombatBoard.prefab"));
+            try
+            {
+                board.gameObject.SetActive(true);Canvas.ForceUpdateCanvases();board.CatchCursor.anchoredPosition=Vector2.zero;
+                var move=AssetDatabase.LoadAssetAtPath<ConvergingHandsMove>(Day4CrowdSetupTool.Folder+"/Move_ClaspAndStab.asset");
+                var execution=move.CreateExecution(new CombatMoveExecutionContext(board,null,new SystemCombatRandom(18),211,1));
+                for(float time=0;time<until;time+=.02f){execution.Tick(.02f);board.TickBullets(.02f,.65f);}
                 execution.Cancel();execution.Cancel();board.ClearCombatRuntime();
-                Assert.IsFalse(board.HasForcedPlayerControl);Assert.IsFalse(board.HasForcedMovementProtection);
+                Assert.IsFalse(board.HasForcedPlayerControl);
+                Assert.IsFalse(board.HasForcedMovementProtection);
                 Assert.IsFalse(board.GetComponentsInChildren<CombatBulletView>().Any());
             }
             finally { Object.DestroyImmediate(board.gameObject); }
@@ -280,6 +382,79 @@ namespace Audere.Story.Editor.Tests
             field.Shutdown();yield return null;Assert.IsFalse(field.IsPresenting);
             Assert.IsFalse(board.GetComponentsInChildren<CombatBulletView>().Any());
             LogAssert.NoUnexpectedReceived();yield return new ExitPlayMode();
+        }
+
+        [UnityTest]
+        public IEnumerator MountDive_ProductionVisualsBoundsAndDisableCleanup()
+        {
+            var scene=EditorSceneManager.OpenScene(Day4CrowdSetupTool.ScenePath);
+            var so=new SerializedObject(All<StoryDirector>(scene).Single());so.FindProperty("playOnStart").boolValue=false;so.ApplyModifiedPropertiesWithoutUndo();
+            yield return new EnterPlayMode();yield return null;Services();scene=SceneManager.GetActiveScene();
+            System.IO.Directory.CreateDirectory("Temp/CrowdPhase2QA");
+            foreach(var g in All<CanvasGroup>(scene).Where(x=>x.name=="Cover"||x.name=="Fade")){g.alpha=0;g.blocksRaycasts=false;}
+            All<Audere.World.WorldModeController>(scene).Single().ApplyModeImmediate(Audere.World.WorldGameplayMode.Combat);
+            var board=All<CombatBoardView>(scene).Single();
+            var enemy=AssetDatabase.LoadAssetAtPath<CombatEnemyDefinition>(Day4CrowdSetupTool.Folder+"/Enemy_Crowd.asset");
+            board.PrepareEncounter(enemy.DisplayName);board.SetEncounterPresentationVisible(true);board.SetCursorVisible(true);
+            var actor=board.SpawnEnemyActor(enemy.ActorPrefab,921);actor.Initialize(new CombatEnemyMechanicContext(board,921));
+            board.GetComponentInChildren<CombatPlayerView>(true).ResetPlayer();board.CatchCursor.anchoredPosition=new Vector2(-280,0);
+            Transform mount=actor.transform.parent;Vector3 home=mount.localPosition,scale=actor.VisualRoot.localScale;
+            var move=enemy.GetPhase(1).DamageReactionMove;
+            var execution=move.CreateExecution(new CombatMoveExecutionContext(board,actor,new SystemCombatRandom(52),921,2));
+            float clock=0;
+            foreach(var at in new[]{.38f,.74f,.98f,1.3f,1.95f})
+            {
+                while(clock<at){float dt=Mathf.Min(.01f,at-clock);execution.Tick(dt);board.TickBullets(dt,.65f);clock+=dt;}
+                Canvas.ForceUpdateCanvases();yield return null;
+                ScreenCapture.CaptureScreenshot("Temp/CrowdPhase2QA/dive-"+at.ToString("0.00",System.Globalization.CultureInfo.InvariantCulture)+".png");
+                yield return new WaitForSecondsRealtime(.12f);
+                Assert.AreEqual(scale,actor.VisualRoot.localScale);
+                if(at==.38f)Assert.IsTrue(board.IsAttackWarningVisible);
+                if(at==.74f)Assert.IsFalse(board.IsAttackWarningVisible);
+                if(at==.98f)
+                {
+                    var camera=All<Audere.World.WorldModeController>(scene).Single();
+                    var cam=(Camera)new SerializedObject(camera).FindProperty("worldCamera").objectReferenceValue;
+                    foreach(var size in new[]{new Vector2Int(1280,720),new Vector2Int(960,720),new Vector2Int(1680,720)})
+                        CaptureCamera(cam,size,"Temp/CrowdPhase2QA/split-"+size.x+"x"+size.y+".png",board);
+                }
+            }
+            Assert.IsFalse(board.IsMountDiveActive);Assert.AreEqual(0,board.ActiveMountEchoes);Assert.Less(Vector3.Distance(home,mount.localPosition),.001f);
+            execution=move.CreateExecution(new CombatMoveExecutionContext(board,actor,new SystemCombatRandom(52),921,2));
+            execution.Tick(.75f);Assert.IsTrue(board.IsMountDiveActive);board.gameObject.SetActive(false);yield return null;
+            Assert.IsFalse(board.IsMountDiveActive);Assert.AreEqual(0,board.BoardSeparation);Assert.AreEqual(0,board.ActiveMountEchoes);
+            Assert.Less(Vector3.Distance(home,mount.localPosition),.001f);execution.Cancel();board.gameObject.SetActive(true);
+            board.PrepareEncounter(enemy.DisplayName);board.SetEncounterPresentationVisible(true);board.SetCursorVisible(true);
+            actor=board.SpawnEnemyActor(enemy.ActorPrefab,922);
+            foreach(var entry in enemy.GetPhase(1).MoveSet.Entries)
+            {
+                var basic=entry.Move.CreateExecution(new CombatMoveExecutionContext(board,actor,new SystemCombatRandom(52),922,2));
+                for(int i=0;i<160;i++){basic.Tick(.01f);board.TickBullets(.01f,.65f);}
+                yield return null;ScreenCapture.CaptureScreenshot("Temp/CrowdPhase2QA/"+entry.Move.name+".png");yield return new WaitForSecondsRealtime(.12f);
+                basic.Cancel();Assert.IsEmpty(board.GetComponentsInChildren<CombatBulletView>());
+            }
+            var clasp=AssetDatabase.LoadAssetAtPath<ConvergingHandsMove>(Day4CrowdSetupTool.Folder+"/Move_ClaspAndStab.asset");
+            var reach=clasp.CreateExecution(new CombatMoveExecutionContext(board,actor,new SystemCombatRandom(52),922,2));
+            reach.Tick(.01f);reach.Tick(.2f);Assert.IsTrue(board.IsAttackWarningVisible);
+            yield return null;ScreenCapture.CaptureScreenshot("Temp/CrowdPhase2QA/hand-warning.png");yield return new WaitForSecondsRealtime(.12f);
+            reach.Cancel();Assert.IsFalse(board.IsAttackWarningVisible);
+            board.ClearCombatRuntime();LogAssert.NoUnexpectedReceived();yield return new ExitPlayMode();
+        }
+
+        private static void CaptureCamera(Camera cam,Vector2Int size,string path,CombatBoardView board)
+        {
+            var previous=cam.targetTexture;float aspect=cam.aspect;var active=RenderTexture.active;
+            var rt=RenderTexture.GetTemporary(size.x,size.y,24);
+            var texture=new Texture2D(size.x,size.y,TextureFormat.RGB24,false);
+            try
+            {
+                cam.targetTexture=rt;cam.aspect=size.x/(float)size.y;Canvas.ForceUpdateCanvases();cam.Render();RenderTexture.active=rt;
+                texture.ReadPixels(new Rect(0,0,size.x,size.y),0,0);texture.Apply();System.IO.File.WriteAllBytes(path,texture.EncodeToPNG());
+                Rect area=board.PlayArea.rect;
+                foreach(var p in new[]{new Vector2(area.xMin-board.BoardSeparation,area.yMin),new Vector2(area.xMax+board.BoardSeparation,area.yMax)})
+                {Vector3 v=cam.WorldToViewportPoint(board.PlayArea.TransformPoint(p));Assert.That(v.x,Is.InRange(0f,1f));Assert.That(v.y,Is.InRange(0f,1f));}
+            }
+            finally{cam.targetTexture=previous;cam.aspect=aspect;RenderTexture.active=active;Object.Destroy(texture);RenderTexture.ReleaseTemporary(rt);}
         }
 
         private static void AssertNoCornerPull(CombatMoveDefinition move)

@@ -319,8 +319,13 @@ namespace Audere.Puzzle.PathPieces
                 var pair = puzzle.Cooperative;
                 Vector2Int a = origin + GridRotationUtility.Rotate(selectedPiece.EndpointA, rotation);
                 Vector2Int b = origin + GridRotationUtility.Rotate(selectedPiece.EndpointB, rotation);
-                mover = pair.ActorAtStart(a, false) ?? pair.ActorAtStart(b, false);
-                if (mover == null) return PlacementResult.Invalid("Nối một đầu path vào ô của người chưa tới đích.");
+                mover = pair.ActorAtStart(a) ?? pair.ActorAtStart(b);
+                if (mover == null)
+                    return PlacementResult.Invalid(pair.NeedsOpeningActor
+                        ? pair.FirstActor == CooperativePuzzleSession.OpeningActor.Audere
+                            ? "Để Audere giữ ô đỏ trước."
+                            : "Để Bianca giữ ô đỏ trước."
+                        : "Nối một đầu path vào ô của người chưa tới đích.");
             }
             return PathPlacementValidator.Validate(selectedPiece, origin, rotation, mover.GridPosition, board, mover);
         }

@@ -30,6 +30,60 @@ namespace Audere.Combat.Editor.Tests
             }
         }
 
+        private sealed class OneTickOpeningMove : CombatMoveDefinition
+        {
+            public override ICombatMoveExecution CreateExecution(CombatMoveExecutionContext context) => new Execution();
+            private sealed class Execution : ICombatMoveExecution
+            {
+                public bool IsComplete { get; private set; }
+                public void Tick(float dt) { if (dt > 0f) IsComplete = true; }
+                public void Cancel() => IsComplete = true;
+            }
+        }
+
+        [Test]
+        public void OpeningMove_HoldsDamageAndDice_Pauses_ThenResumesSamePhase_AndRestarts()
+        {
+            var runtime = CreateRuntime(CombatPhasePolicy.SharedHealthThresholds, 10, ("final", 10, 0, 5f));
+            var regular = runtime.CurrentMove;
+            SetField(runtime.CurrentPhase, "openingMove", Create<OneTickOpeningMove>());
+            runtime.RestartFromBeginning();
+            int version = runtime.PhaseVersion;
+            Assert.IsTrue(runtime.IsOpeningMove);
+            Assert.IsFalse(runtime.ShouldSpawnDice);
+            Assert.AreEqual(CombatEnemyProgression.None, runtime.ApplyDamage(99, out int applied));
+            Assert.AreEqual(0, applied);
+            runtime.Tick(.1f);
+            runtime.PauseForDialogue(); runtime.Tick(20f);
+            Assert.IsTrue(runtime.IsOpeningMove);
+            runtime.ResumeFromDialogue(); runtime.Tick(.4f);
+            Assert.IsFalse(runtime.IsOpeningMove);
+            Assert.IsTrue(runtime.AcceptsDamage);
+            Assert.IsTrue(runtime.ShouldSpawnDice);
+            Assert.AreEqual(version, runtime.PhaseVersion);
+            Assert.AreSame(regular, runtime.CurrentMove);
+            runtime.RestartFromBeginning();
+            Assert.IsTrue(runtime.IsOpeningMove);
+            runtime.Cancel();
+        }
+
+        [Test]
+        public void DiceDelay_WaitsForDialogueEvenWhenItsDurationHasAlreadyElapsed()
+        {
+            var runtime = CreateRuntime(CombatPhasePolicy.PerPhaseHealth, 2, ("phase", 2, 0, 5f));
+            var go = new GameObject("Delay controller"); go.SetActive(false); cleanup.Add(go);
+            var controller = go.AddComponent<CombatController>();
+            SetField(controller, "enemyRuntime", runtime); SetField(controller, "isPlaying", true);
+            var state = typeof(CombatController).GetProperty("CurrentState");
+            var wait = typeof(CombatController).GetMethod("WaitForCombatActiveDelay", BindingFlags.Instance | BindingFlags.NonPublic);
+            state.SetValue(controller, CombatController.State.DialoguePause);
+            var routine = (System.Collections.IEnumerator)wait.Invoke(controller, new object[] { 0f, runtime.SessionVersion, runtime.PhaseVersion });
+            Assert.IsTrue(routine.MoveNext(), "A stagger ending beside a dialogue pause must not truncate the next die.");
+            state.SetValue(controller, CombatController.State.Playing);
+            Assert.IsFalse(routine.MoveNext());
+            SetField(controller, "isPlaying", false); runtime.Cancel();
+        }
+
         private sealed class FixedRandom : ICombatRandom
         {
             private readonly float value;
@@ -203,6 +257,8 @@ namespace Audere.Combat.Editor.Tests
             CombatRetryView view = CreateRetryView(out Button button);
             int calls = 0;
             Assert.IsTrue(view.Show(view, () => calls++));
+            typeof(CombatRetryView).GetMethod("TickPresentation", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(view, new object[] { 10f });
             MethodInfo click = typeof(CombatRetryView).GetMethod(
                 "HandleRetryClicked", BindingFlags.Instance | BindingFlags.NonPublic);
             click.Invoke(view, null);
@@ -698,7 +754,8 @@ namespace Audere.Combat.Editor.Tests
             Assert.AreEqual(.75f, encounter.VictoryFadeDuration, .001f,
                 "Khoảng Lặng must visibly reach zero before combat returns to Story mode.");
             Assert.IsNotNull(encounter.TutorialData);
-            Assert.AreEqual(120f, encounter.TutorialData.PlayerTime, .001f);
+            Assert.AreEqual(30f, encounter.TutorialData.PlayerTime, .001f,
+                "Guided TIME demonstrations must make the three-second change visible.");
             Assert.AreEqual(1, encounter.TutorialData.EnemyDefinition.PhaseCount);
             Assert.AreEqual(20, encounter.TutorialData.EnemyDefinition.GetPhase(0).MaxHealth);
             Assert.AreEqual(3, encounter.TutorialData.OpeningDice.Count);
@@ -1368,13 +1425,13 @@ namespace Audere.Combat.Editor.Tests
         {
             var data = AssetDatabase.LoadAssetAtPath<CombatEncounterData>(Audere.EditorTools.BiancaCombatAuthoring.EncounterPath);
             Assert.IsNotNull(data);
-            Assert.AreEqual(90f, data.EncounterDuration);
+            Assert.AreEqual(150f, data.EncounterDuration);
             Assert.AreEqual(3, data.DicePerBatch);
             Assert.AreEqual(2, data.MaximumAttacksPerBatch);
             var enemy = data.EnemyDefinition;
             Assert.IsTrue(enemy.Validate(out string error), error);
-            CollectionAssert.AreEqual(new[] { 6, 6, 2, 2, 0 }, enemy.Phases.Select(p => p.SharedExitThreshold).ToArray());
-            CollectionAssert.AreEqual(new[] { true, false, true, false, true }, enemy.Phases.Select(p => p.SpawnDice).ToArray());
+            CollectionAssert.AreEqual(new[] { 18, 9, 0 }, enemy.Phases.Select(p => p.SharedExitThreshold).ToArray());
+            CollectionAssert.AreEqual(new[] { true, true, true }, enemy.Phases.Select(p => p.SpawnDice).ToArray());
             for (int p = 0; p < enemy.PhaseCount; p++)
             foreach (var cue in enemy.GetPhase(p).DialogueCues)
             foreach (var dialogue in cue.Sequence)
@@ -1666,6 +1723,20 @@ namespace Audere.Combat.Editor.Tests
             SetObject(view, "retryRoot", panel);
             SetObject(view, "messageText", textObject.GetComponent<TextMeshProUGUI>());
             SetObject(view, "retryButton", button);
+            SetObject(view, "presentation", Create<CombatRetryPresentationProfile>());
+            SetObject(view, "inputGate", root.AddComponent<Audere.GameplayInput.GameplayInputGate>());
+            SetObject(view, "crackSource", root.AddComponent<AudioSource>());
+            SetObject(view, "backgroundCover", panel.AddComponent<Image>());
+            SetObject(view, "retryButtonGroup", buttonObject.AddComponent<CanvasGroup>());
+            GameObject heart = new GameObject("Heart Visual", typeof(RectTransform), typeof(Image));
+            heart.transform.SetParent(panel.transform, false);
+            SetObject(view, "intactHeart", heart.GetComponent<Image>());
+            GameObject left = new GameObject("Left Half", typeof(RectTransform), typeof(CombatHeartHalfGraphic));
+            left.transform.SetParent(panel.transform, false);
+            SetObject(view, "leftHeart", left.GetComponent<CombatHeartHalfGraphic>());
+            GameObject right = new GameObject("Right Half", typeof(RectTransform), typeof(CombatHeartHalfGraphic));
+            right.transform.SetParent(panel.transform, false);
+            SetObject(view, "rightHeart", right.GetComponent<CombatHeartHalfGraphic>());
             root.SetActive(true);
             return view;
         }

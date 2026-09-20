@@ -5,8 +5,8 @@
 - **Design Intent:** `Khoảng Lặng` is the display name of the current D1 Classroom combat
   prototype and is placed immediately after Timor takes over Audere's unanswered pause.
 - **Established implementation state:** `DialogueCharacterId.KhoangLang = 5` exists as a
-  stable technical hook. The catalog temporarily reuses Audere's portrait and must remain marked
-  `PLACEHOLDER`. The prototype uses one authored
+  stable technical hook. The catalog uses `Audere_Creepy_0` from `Audere_Creepy.png`, as requested
+  by Xuân. Narrative content remains `PLACEHOLDER`. The prototype uses one authored
   `6 HP` combat phase, loops three projectile moves, and uses
   `Enemy_KhoangLang_PLACEHOLDER.prefab`.
 - **Established implementation state:** after the isolated tutorial, short Khoảng Lặng lines use

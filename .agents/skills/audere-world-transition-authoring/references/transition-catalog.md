@@ -82,7 +82,8 @@ independent future tuning.
 
 ## Day4 Crowd classroom
 
-- `140_D4_Classroom/D4_CLASSROOM_CROWD/070_TheRoomBecomesPressure`: shared Dreamy Disorientation, Story→Combat, focus Audere lying renderer. Profile unchanged.
+- `140_D4_Classroom/D4_CLASSROOM_CROWD/065_TheFloorFallsAway/Falling room sequence/070_TheRoomBecomesPressure`: shared Dreamy Disorientation, Story→Combat, focus Audere falling renderer. Fullscreen profile unchanged.
+- Before that hand-off, `065_TheFloorFallsAway` owns the requested **Design Intent** of an emotional fall: camera and masks become black, floor tiles split into sprite fragments, desks drift upward, and pixel streaks continue through player-paced dialogue. Environmental settings live in shared `Assets/_Audere/Data/Transitions/FallingRoom_Classroom.asset` (`FallingRoomProfile`); this is separate from the fullscreen shader profile. The child event stages Audere with `CharacterPoseStep`, holds briefly, plays `Dialogue_D4_FALLING`, then runs the shared transition. Completion/cancel restores the room, camera, masks, shadow, actor pose and desk sorting; combat input belongs to the following `080_TheCrowd`.
 - `090_TheNoiseFallsAway` neutral0.9s cover → `100_BackInTheClassroom` Story → Bianca placed under cover → reveal0.9s.
 - `200_EveningCover` neutral1.15s → `150_D4_Home_Evening` covered arrival/reveal1.2s. Evening opening continues with Timor Shadow below. See Docs17.
 

@@ -15,7 +15,15 @@ namespace Audere.Dialogue
         private Coroutine portraitGlitch;
         private Sprite settledPortrait;
         private Vector3 settledPortraitPosition;
+        private Vector2 authoredPortraitPosition;
+        private bool hasPortraitPosition;
         public DialogueBubbleView Bubble => bubble;
+
+        public void SetPortraitVisibleForLayout(bool visible)
+        {
+            if (characterImage != null)
+                characterImage.enabled = visible && characterImage.sprite != null;
+        }
 
         private void StopPortraitGlitch()
         {
@@ -51,6 +59,13 @@ namespace Audere.Dialogue
 
             StopPortraitGlitch();
             Sprite portrait = portraitOverride != null ? portraitOverride : character.Portrait;
+            if (!hasPortraitPosition)
+            {
+                authoredPortraitPosition = characterImage.rectTransform.anchoredPosition;
+                hasPortraitPosition = true;
+            }
+            characterImage.rectTransform.anchoredPosition =
+                authoredPortraitPosition + Vector2.up * character.PortraitVerticalOffset;
             characterImage.sprite = portrait;
             characterImage.enabled = portrait != null;
         }

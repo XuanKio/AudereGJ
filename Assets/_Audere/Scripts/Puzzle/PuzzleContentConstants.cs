@@ -25,7 +25,7 @@ namespace Audere.Puzzle
 
         public static class Hand
         {
-            public const int MaxSlots = 4;
+            public const int MaxSlots = 5;
         }
 
         public static class AssetPaths

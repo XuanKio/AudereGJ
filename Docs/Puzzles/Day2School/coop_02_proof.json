@@ -1,50 +1,10 @@
 {
   "solved": true,
-  "solution_count": 8,
-  "distinct_first": 6,
-  "winning_first": 2,
+  "solution_count": 2,
+  "distinct_first": 2,
+  "winning_first": 1,
   "traps": [
     {
-      "actor": "Audere",
-      "source_index": 1,
-      "piece": "l-corner-3",
-      "rotation": 180,
-      "path": [
-        [
-          1,
-          0
-        ],
-        [
-          1,
-          1
-        ],
-        [
-          2,
-          1
-        ]
-      ]
-    },
-    {
-      "actor": "Audere",
-      "source_index": 1,
-      "piece": "l-corner-3",
-      "rotation": 90,
-      "path": [
-        [
-          1,
-          0
-        ],
-        [
-          1,
-          1
-        ],
-        [
-          0,
-          1
-        ]
-      ]
-    },
-    {
       "actor": "Bianca",
       "source_index": 1,
       "piece": "l-corner-3",
@@ -61,30 +21,6 @@
         [
           1,
           0
-        ]
-      ]
-    },
-    {
-      "actor": "Bianca",
-      "source_index": 2,
-      "piece": "line-4",
-      "rotation": 0,
-      "path": [
-        [
-          0,
-          1
-        ],
-        [
-          1,
-          1
-        ],
-        [
-          2,
-          1
-        ],
-        [
-          3,
-          1
         ]
       ]
     }
@@ -92,318 +28,6 @@
   "solutions": [
     [
       {
-        "actor": "Audere",
-        "source_index": 0,
-        "piece": "line-2",
-        "rotation": 90,
-        "path": [
-          [
-            1,
-            0
-          ],
-          [
-            1,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Bianca",
-        "source_index": 2,
-        "piece": "line-4",
-        "rotation": 0,
-        "path": [
-          [
-            0,
-            1
-          ],
-          [
-            1,
-            1
-          ],
-          [
-            2,
-            1
-          ],
-          [
-            3,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Audere",
-        "source_index": 1,
-        "piece": "l-corner-3",
-        "rotation": 0,
-        "path": [
-          [
-            1,
-            1
-          ],
-          [
-            2,
-            1
-          ],
-          [
-            2,
-            2
-          ]
-        ]
-      },
-      {
-        "actor": "Bianca",
-        "source_index": 3,
-        "piece": "line-2",
-        "rotation": 0,
-        "path": [
-          [
-            3,
-            1
-          ],
-          [
-            4,
-            1
-          ]
-        ]
-      }
-    ],
-    [
-      {
-        "actor": "Audere",
-        "source_index": 0,
-        "piece": "line-2",
-        "rotation": 90,
-        "path": [
-          [
-            1,
-            0
-          ],
-          [
-            1,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Bianca",
-        "source_index": 2,
-        "piece": "line-4",
-        "rotation": 0,
-        "path": [
-          [
-            0,
-            1
-          ],
-          [
-            1,
-            1
-          ],
-          [
-            2,
-            1
-          ],
-          [
-            3,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Bianca",
-        "source_index": 3,
-        "piece": "line-2",
-        "rotation": 0,
-        "path": [
-          [
-            3,
-            1
-          ],
-          [
-            4,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Audere",
-        "source_index": 1,
-        "piece": "l-corner-3",
-        "rotation": 0,
-        "path": [
-          [
-            1,
-            1
-          ],
-          [
-            2,
-            1
-          ],
-          [
-            2,
-            2
-          ]
-        ]
-      }
-    ],
-    [
-      {
-        "actor": "Audere",
-        "source_index": 0,
-        "piece": "line-2",
-        "rotation": 90,
-        "path": [
-          [
-            1,
-            0
-          ],
-          [
-            1,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Bianca",
-        "source_index": 3,
-        "piece": "line-2",
-        "rotation": 0,
-        "path": [
-          [
-            0,
-            1
-          ],
-          [
-            1,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Audere",
-        "source_index": 1,
-        "piece": "l-corner-3",
-        "rotation": 0,
-        "path": [
-          [
-            1,
-            1
-          ],
-          [
-            2,
-            1
-          ],
-          [
-            2,
-            2
-          ]
-        ]
-      },
-      {
-        "actor": "Bianca",
-        "source_index": 2,
-        "piece": "line-4",
-        "rotation": 0,
-        "path": [
-          [
-            1,
-            1
-          ],
-          [
-            2,
-            1
-          ],
-          [
-            3,
-            1
-          ],
-          [
-            4,
-            1
-          ]
-        ]
-      }
-    ],
-    [
-      {
-        "actor": "Audere",
-        "source_index": 0,
-        "piece": "line-2",
-        "rotation": 90,
-        "path": [
-          [
-            1,
-            0
-          ],
-          [
-            1,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Bianca",
-        "source_index": 3,
-        "piece": "line-2",
-        "rotation": 0,
-        "path": [
-          [
-            0,
-            1
-          ],
-          [
-            1,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Bianca",
-        "source_index": 2,
-        "piece": "line-4",
-        "rotation": 0,
-        "path": [
-          [
-            1,
-            1
-          ],
-          [
-            2,
-            1
-          ],
-          [
-            3,
-            1
-          ],
-          [
-            4,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Audere",
-        "source_index": 1,
-        "piece": "l-corner-3",
-        "rotation": 0,
-        "path": [
-          [
-            1,
-            1
-          ],
-          [
-            2,
-            1
-          ],
-          [
-            2,
-            2
-          ]
-        ]
-      }
-    ],
-    [
-      {
         "actor": "Bianca",
         "source_index": 0,
         "piece": "line-2",
@@ -440,6 +64,26 @@
         ]
       },
       {
+        "actor": "Bianca",
+        "source_index": 2,
+        "piece": "l-corner-3",
+        "rotation": 0,
+        "path": [
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            2,
+            2
+          ]
+        ]
+      },
+      {
         "actor": "Audere",
         "source_index": 3,
         "piece": "line-2",
@@ -457,21 +101,21 @@
       },
       {
         "actor": "Bianca",
-        "source_index": 2,
-        "piece": "line-4",
-        "rotation": 0,
+        "source_index": 4,
+        "piece": "l-corner",
+        "rotation": 90,
         "path": [
           [
-            1,
-            1
-          ],
-          [
             2,
-            1
+            2
           ],
           [
             3,
-            1
+            2
+          ],
+          [
+            4,
+            2
           ],
           [
             4,
@@ -520,80 +164,6 @@
       {
         "actor": "Bianca",
         "source_index": 2,
-        "piece": "line-4",
-        "rotation": 0,
-        "path": [
-          [
-            1,
-            1
-          ],
-          [
-            2,
-            1
-          ],
-          [
-            3,
-            1
-          ],
-          [
-            4,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Audere",
-        "source_index": 3,
-        "piece": "line-2",
-        "rotation": 90,
-        "path": [
-          [
-            2,
-            1
-          ],
-          [
-            2,
-            2
-          ]
-        ]
-      }
-    ],
-    [
-      {
-        "actor": "Bianca",
-        "source_index": 0,
-        "piece": "line-2",
-        "rotation": 0,
-        "path": [
-          [
-            0,
-            1
-          ],
-          [
-            1,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Audere",
-        "source_index": 3,
-        "piece": "line-2",
-        "rotation": 90,
-        "path": [
-          [
-            1,
-            0
-          ],
-          [
-            1,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Audere",
-        "source_index": 1,
         "piece": "l-corner-3",
         "rotation": 0,
         "path": [
@@ -613,42 +183,24 @@
       },
       {
         "actor": "Bianca",
-        "source_index": 2,
-        "piece": "line-4",
-        "rotation": 0,
+        "source_index": 4,
+        "piece": "l-corner",
+        "rotation": 90,
         "path": [
           [
-            1,
-            1
-          ],
-          [
             2,
-            1
+            2
           ],
           [
             3,
-            1
+            2
           ],
           [
             4,
-            1
-          ]
-        ]
-      }
-    ],
-    [
-      {
-        "actor": "Bianca",
-        "source_index": 0,
-        "piece": "line-2",
-        "rotation": 0,
-        "path": [
-          [
-            0,
-            1
+            2
           ],
           [
-            1,
+            4,
             1
           ]
         ]
@@ -659,50 +211,6 @@
         "piece": "line-2",
         "rotation": 90,
         "path": [
-          [
-            1,
-            0
-          ],
-          [
-            1,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Bianca",
-        "source_index": 2,
-        "piece": "line-4",
-        "rotation": 0,
-        "path": [
-          [
-            1,
-            1
-          ],
-          [
-            2,
-            1
-          ],
-          [
-            3,
-            1
-          ],
-          [
-            4,
-            1
-          ]
-        ]
-      },
-      {
-        "actor": "Audere",
-        "source_index": 1,
-        "piece": "l-corner-3",
-        "rotation": 0,
-        "path": [
-          [
-            1,
-            1
-          ],
           [
             2,
             1
@@ -717,7 +225,6 @@
   ],
   "all_solutions_use_both": true,
   "first_actors": [
-    "Audere",
     "Bianca"
   ],
   "single_actor_projection_solutions": [

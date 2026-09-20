@@ -141,23 +141,11 @@ S . # # #
 - Intended route: LCorner4 up/up/right → Line2 down → LCorner3 up/right → Line3
   right through the two red cells to Goal.
 
-### Bus stop
+### Bus stop — compact revision, 2026-09-20
 
-```text
-# . . . . . G
-# . . . # R #
-# . . . R . .
-S R # # # . .
-```
-
-- Start `(0,0)`, Goal `(6,3)`.
-- Pieces: Line4 → LCorner → Line3 → Line2.
-- Solver: 1 solution, 5 trap first moves.
-- The vertical branch and short early pieces are valid-looking starts but cannot finish
-  after consuming the red route.
-
-Reproducible solver specs live under
-`.agents/skills/audere-puzzle-map-generator/examples/`.
+4×3 bounds, nine cells and one red tile `(1,0)`. Start `(0,0)`, Goal `(3,2)`.
+Hand order: Line3, LCorner4, LCorner3. Intended order: LCorner3 → LCorner4 → Line3.
+The solver finds one solution and two trap first moves. See `docs/Puzzles/ShortBus/README.md` for the route and preservation checks. The bus-stop goal and its scenery keep their authored world positions.
 
 ## Authoring and replay
 

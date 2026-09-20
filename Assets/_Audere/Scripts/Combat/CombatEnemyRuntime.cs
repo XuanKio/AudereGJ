@@ -42,6 +42,9 @@ namespace Audere.Combat
         private int capturedBatchesInPhase;
         private bool batchProgressionPending;
         private bool healthProgressionPending;
+        private bool playingDamageReaction;
+        private bool playingOpeningMove;
+        private int queuedDamageReactions;
 
         public CombatEnemyRuntime(
             CombatEnemyDefinition definition,
@@ -85,10 +88,11 @@ namespace Audere.Combat
         public int MoveVersion { get; private set; }
         public bool ShowsHealth => definition.PhasePolicy != CombatPhasePolicy.TimedSequence;
         public bool AcceptsDamage => State == CombatEnemyRuntimeState.Playing && ShowsHealth &&
-            !CurrentPhase.AdvanceOnMoveComplete && !healthProgressionPending;
+            !CurrentPhase.AdvanceOnMoveComplete && !healthProgressionPending && !playingOpeningMove;
         public bool UsesCapturedBatchProgression => definition.PhasePolicy == CombatPhasePolicy.CapturedDiceBatchSequence;
         public bool IsBatchProgressionPending => batchProgressionPending;
-        public bool ShouldSpawnDice => CurrentPhase != null && CurrentPhase.SpawnDice;
+        public bool ShouldSpawnDice => CurrentPhase != null && CurrentPhase.SpawnDice && !playingOpeningMove;
+        public bool IsOpeningMove => playingOpeningMove;
         public CombatDiceBatchDefinition CurrentDiceBatch => UsesCapturedBatchProgression ? CurrentPhase?.DiceBatch : null;
         public bool CanPlayerBeDefeated => CurrentPhase != null && CurrentPhase.AllowsPlayerDefeat && !HasUnresolvedPlayerDefeatGate();
         public float HealthMultiplier => healthMultiplier;
@@ -124,6 +128,8 @@ namespace Audere.Combat
         {
             if (State != CombatEnemyRuntimeState.Playing)
                 return;
+
+            board.TickMoveRecovery(activeDeltaTime);
 
             // Resolve a threshold held by required dialogue on the first active tick after
             // the controller releases its dialogue pause. Do not require another hit or
@@ -181,7 +187,7 @@ namespace Audere.Combat
                 activeMove = CurrentMove.CreateExecution(new CombatMoveExecutionContext(
                     board, actor, random, SessionVersion, PhaseVersion));
             activeMove?.Tick(activeDeltaTime);
-            if (activeMove != null && activeMove.IsComplete && CurrentPhase.AdvanceOnMoveComplete)
+            if (activeMove != null && activeMove.IsComplete && CurrentPhase.AdvanceOnMoveComplete && !playingOpeningMove)
             {
                 BeginProgression(CombatEnemyProgression.PhaseBreak);
                 return;
@@ -191,6 +197,18 @@ namespace Audere.Combat
         }
 
         public CombatEnemyProgression ApplyDamage(int amount, out int appliedDamage)
+        {
+            var progression = ApplyDamageCore(amount, out appliedDamage);
+            if (progression == CombatEnemyProgression.None && appliedDamage > 0 &&
+                State == CombatEnemyRuntimeState.Playing && !healthProgressionPending && CurrentPhase.DamageReactionMove != null)
+            {
+                if (playingDamageReaction) queuedDamageReactions++;
+                else StartDamageReaction();
+            }
+            return progression;
+        }
+
+        private CombatEnemyProgression ApplyDamageCore(int amount, out int appliedDamage)
         {
             appliedDamage = 0;
             if (!AcceptsDamage || amount <= 0)
@@ -253,6 +271,9 @@ namespace Audere.Combat
         {
             if (State != CombatEnemyRuntimeState.TransitioningPhase)
                 return;
+            // The controller normally drains recovery before calling this. Direct runtime
+            // callers still enter a settled board, without inheriting the old move's delay.
+            board.TickMoveRecovery(.4f);
             EnterPhase(PhaseIndex + 1);
         }
 
@@ -370,7 +391,15 @@ namespace Audere.Combat
             MoveVersion = 0;
             actor.EnterPhase(phase, PhaseIndex);
             State = CombatEnemyRuntimeState.Playing;
-            StartNextMove();
+            playingOpeningMove = phase.OpeningMove != null;
+            if (playingOpeningMove)
+            {
+                CurrentMove = phase.OpeningMove;
+                MoveVersion++;
+                moveLeadInRemaining = Mathf.Max(.4f, CurrentMove.LeadInDuration);
+            }
+            else if (phase.DamageReactionOnEnter && phase.DamageReactionMove != null) StartDamageReaction();
+            else StartNextMove();
         }
 
         private CombatEnemyProgression BeginProgression(CombatEnemyProgression progression)
@@ -382,7 +411,8 @@ namespace Audere.Combat
             State = progression == CombatEnemyProgression.Victory
                 ? CombatEnemyRuntimeState.Completed
                 : CombatEnemyRuntimeState.TransitioningPhase;
-            CancelActiveMove();
+            if (progression == CombatEnemyProgression.PhaseBreak) RetireActiveMove();
+            else CancelActiveMove();
             if (progression == CombatEnemyProgression.PhaseBreak)
                 actor.ExitPhase(CurrentPhase, PhaseIndex);
             return progression;
@@ -393,16 +423,22 @@ namespace Audere.Combat
             if (State != CombatEnemyRuntimeState.Playing)
                 return;
 
-            activeMove?.Cancel();
-            // A new attack starts from a clean board. This makes the authored
-            // lead-in a real breathing beat instead of letting old hazards fill it.
-            board?.ClearRuntimeBullets(SessionVersion, PhaseVersion);
+            if (queuedDamageReactions > 0)
+            {
+                queuedDamageReactions--;
+                StartDamageReaction();
+                return;
+            }
+            playingDamageReaction = false;
+
+            playingOpeningMove = false;
+            if (CurrentMove != null) RetireActiveMove();
 
             CombatMoveDefinition move = moveSelector.Next();
             CurrentMove = move;
             MoveVersion++;
 
-            moveLeadInRemaining = move.LeadInDuration;
+            moveLeadInRemaining = Mathf.Max(board.IsRecoveringMove ? .4f : 0f, move.LeadInDuration);
             activeMove = moveLeadInRemaining > 0f ? null : move.CreateExecution(new CombatMoveExecutionContext(
                 board, actor, random, SessionVersion, PhaseVersion));
         }
@@ -423,6 +459,29 @@ namespace Audere.Combat
             activeMove?.Cancel();
             activeMove = null;
             CurrentMove = null;
+            queuedDamageReactions = 0;
+            playingDamageReaction = false;
+            playingOpeningMove = false;
+        }
+
+        private void RetireActiveMove()
+        {
+            board.CaptureMoveExit();
+            activeMove?.Cancel();
+            activeMove = null;
+            board.ClearRuntimeBullets(SessionVersion, PhaseVersion);
+            board.RestoreMoveExitPose();
+        }
+
+        private void StartDamageReaction()
+        {
+            activeMove?.Cancel();
+            board.ClearRuntimeBullets(SessionVersion, PhaseVersion);
+            CurrentMove = CurrentPhase.DamageReactionMove;
+            MoveVersion++;
+            moveLeadInRemaining = 0f;
+            playingDamageReaction = true;
+            activeMove = CurrentMove.CreateExecution(new CombatMoveExecutionContext(board, actor, random, SessionVersion, PhaseVersion));
         }
 
         private int ScaleHealth(int authoredHealth)

@@ -28,12 +28,12 @@
   ],
   "cells": [
     [
-      1,
-      0
-    ],
-    [
       0,
       1
+    ],
+    [
+      1,
+      0
     ],
     [
       1,
@@ -52,6 +52,14 @@
       1
     ],
     [
+      3,
+      2
+    ],
+    [
+      4,
+      2
+    ],
+    [
       2,
       2
     ]
@@ -59,6 +67,10 @@
   "cooperative_red_cells": [
     [
       1,
+      1
+    ],
+    [
+      2,
       1
     ]
   ],
@@ -95,7 +107,7 @@
       ]
     },
     {
-      "id": "line-4",
+      "id": "l-corner-3",
       "path": [
         [
           0,
@@ -106,12 +118,8 @@
           0
         ],
         [
-          2,
-          0
-        ],
-        [
-          3,
-          0
+          1,
+          1
         ]
       ]
     },
@@ -127,10 +135,30 @@
           0
         ]
       ]
+    },
+    {
+      "id": "l-corner",
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ]
     }
   ],
   "require_all": true,
-  "allow_shared_cells": true,
-  "lock_arrived_actors": true,
-  "source_scene": "Assets/_Audere/Scenes/60_D2_School_Morning.unity"
+  "opening_actor": "Bianca",
+  "shared_cell_priority": "Audere"
 }

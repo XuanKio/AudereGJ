@@ -41,43 +41,33 @@
     ],
     [
       2,
-      1
+      2
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      1,
+      2
+    ],
+    [
+      3,
+      2
     ],
     [
       3,
       1
-    ],
-    [
-      2,
-      2
     ]
   ],
   "cooperative_red_cells": [
     [
       1,
-      1
-    ],
-    [
-      2,
-      1
+      2
     ]
   ],
   "one_use_cells": [],
-  "gates": [],
   "pieces": [
-    {
-      "id": "line-2",
-      "path": [
-        [
-          0,
-          0
-        ],
-        [
-          1,
-          0
-        ]
-      ]
-    },
     {
       "id": "l-corner-3",
       "path": [
@@ -113,6 +103,27 @@
       ]
     },
     {
+      "id": "l-corner",
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ]
+    },
+    {
       "id": "line-2",
       "path": [
         [
@@ -127,6 +138,6 @@
     }
   ],
   "require_all": true,
-  "allow_shared_cells": true,
-  "lock_arrived_actors": true
+  "opening_actor": "Audere",
+  "shared_cell_priority": "Audere"
 }

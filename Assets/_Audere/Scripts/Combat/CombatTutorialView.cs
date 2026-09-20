@@ -42,9 +42,22 @@ namespace Audere.Combat
         private Vector2 authoredPosition;
         private bool capturedPosition;
         private int presentationVersion;
+        private bool guidedInstructionVisible;
+        private bool guidedContentWasActive;
+        private RectTransform guidedBoardTarget;
+        private RectTransform guidedTimerTarget;
+        private RectTransform guidedPanel;
+        private RectTransform guidedFocusOutline;
+        private TMP_Text guidedInstructionText;
+        private TMP_Text guidedProgressText;
+        private Image guidedAccent;
+        private readonly Image[] guidedFocusEdges = new Image[4];
+        private readonly Vector3[] guidedWorldCorners = new Vector3[4];
+        private bool guidedSuccess;
 
         public bool IsVisible => group != null && group.alpha > .001f;
-        public string CurrentInstruction => instructionText != null ? instructionText.text : string.Empty;
+        public string CurrentInstruction => guidedInstructionVisible && guidedInstructionText != null
+            ? guidedInstructionText.text : instructionText != null ? instructionText.text : string.Empty;
         public CombatTutorialFocus CurrentFocus => currentFocus;
 
         private void Awake()
@@ -57,6 +70,11 @@ namespace Audere.Combat
 
         private void LateUpdate()
         {
+            if (guidedInstructionVisible)
+            {
+                UpdateGuidedLayout();
+                return;
+            }
             if (!IsVisible || focusTarget == null ||
                 (currentFocus != CombatTutorialFocus.Time && currentFocus != CombatTutorialFocus.StunZone))
                 return;
@@ -80,6 +98,7 @@ namespace Audere.Combat
             BuildDicePreviews();
             presentationVersion++;
             StopPresentation();
+            HideGuidedVisuals();
 
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -101,6 +120,66 @@ namespace Audere.Combat
             // authored call sites, but never auto-hide here.
             _ = visibleDuration;
             presentationRoutine = StartCoroutine(Present(presentationVersion));
+        }
+
+        public void SetGuidedBoardTarget(RectTransform target)
+        {
+            guidedBoardTarget = target;
+            CombatBoardView board = target != null ? target.GetComponentInParent<CombatBoardView>() : null;
+            guidedTimerTarget = board != null ? board.TimerFocusTarget : null;
+            if (guidedInstructionVisible)
+                UpdateGuidedLayout();
+        }
+
+        /// <summary>Persistent action hint. Does not claim input or dim the practice board.</summary>
+        public void ShowGuidedInstruction(string text, int step, int total, RectTransform focusTarget = null)
+        {
+            ResolveReferences();
+            CapturePosition();
+            presentationVersion++;
+            StopPresentation();
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                ForceHide();
+                return;
+            }
+            BuildGuidedVisuals();
+            gameObject.SetActive(true);
+            ConfigureFocus(CombatTutorialFocus.None, currentShowcasedSymbol, null);
+            this.focusTarget = focusTarget;
+            if (guidedBoardTarget == null && focusTarget != null)
+            {
+                CombatBoardView board = focusTarget.GetComponentInParent<CombatBoardView>();
+                if (board != null)
+                    SetGuidedBoardTarget(board.PlayArea);
+            }
+            if (content != null)
+            {
+                if (!guidedInstructionVisible)
+                    guidedContentWasActive = content.gameObject.activeSelf;
+                content.gameObject.SetActive(false);
+            }
+            guidedInstructionVisible = true;
+            guidedSuccess = false;
+            guidedInstructionText.text = text.Trim();
+            guidedInstructionText.fontStyle &= ~FontStyles.Strikethrough;
+            guidedProgressText.text = Mathf.Clamp(step, 1, Mathf.Max(1, total)).ToString("00") +
+                " / " + Mathf.Max(1, total).ToString("00");
+            guidedPanel.gameObject.SetActive(true);
+            group.interactable = false;
+            group.blocksRaycasts = false;
+            group.alpha = 1f;
+            UpdateGuidedLayout();
+        }
+
+        /// <summary>Brief visual acknowledgement while the owner decides when to advance.</summary>
+        public void ShowGuidedSuccess()
+        {
+            if (!guidedInstructionVisible)
+                return;
+            guidedSuccess = true;
+            guidedInstructionText.fontStyle |= FontStyles.Strikethrough;
+            UpdateGuidedLayout();
         }
 
         public void ForceHide()
@@ -153,6 +232,7 @@ namespace Audere.Combat
         {
             ResolveReferences();
             CapturePosition();
+            HideGuidedVisuals();
             if (group != null)
             {
                 group.alpha = 0f;
@@ -167,6 +247,190 @@ namespace Audere.Combat
             if (instructionText != null)
                 instructionText.text = string.Empty;
             ConfigureFocus(CombatTutorialFocus.None, currentShowcasedSymbol, null);
+        }
+
+        private void HideGuidedVisuals()
+        {
+            if (guidedInstructionVisible && content != null)
+                content.gameObject.SetActive(guidedContentWasActive);
+            guidedInstructionVisible = false;
+            guidedSuccess = false;
+            if (guidedPanel != null)
+                guidedPanel.gameObject.SetActive(false);
+            if (guidedFocusOutline != null)
+                guidedFocusOutline.gameObject.SetActive(false);
+        }
+
+        private void BuildGuidedVisuals()
+        {
+            if (guidedPanel != null)
+                return;
+            guidedPanel = CreateGuidedRect("Guided Instruction (runtime)", transform);
+            Image background = guidedPanel.gameObject.AddComponent<Image>();
+            background.color = new Color(.045f, .035f, .075f, .96f);
+            background.raycastTarget = false;
+
+            RectTransform accentRect = CreateGuidedRect("Progress Accent", guidedPanel);
+            accentRect.anchorMin = new Vector2(0f, 0f);
+            accentRect.anchorMax = new Vector2(0f, 1f);
+            accentRect.pivot = new Vector2(0f, .5f);
+            accentRect.sizeDelta = new Vector2(3f, 0f);
+            guidedAccent = accentRect.gameObject.AddComponent<Image>();
+            guidedAccent.raycastTarget = false;
+
+            guidedProgressText = CreateGuidedText("Progress", guidedPanel, 20f);
+            RectTransform progress = guidedProgressText.rectTransform;
+            progress.anchorMin = progress.anchorMax = new Vector2(0f, 1f);
+            progress.pivot = new Vector2(0f, 1f);
+            progress.anchoredPosition = new Vector2(22f, -12f);
+            progress.sizeDelta = new Vector2(130f, 28f);
+            guidedProgressText.alignment = TextAlignmentOptions.TopLeft;
+            guidedProgressText.color = new Color(.73f, .80f, .85f, 1f);
+
+            guidedInstructionText = CreateGuidedText("Action", guidedPanel, 28f);
+            RectTransform action = guidedInstructionText.rectTransform;
+            action.anchorMin = Vector2.zero;
+            action.anchorMax = Vector2.one;
+            action.offsetMin = new Vector2(22f, 12f);
+            action.offsetMax = new Vector2(-22f, -43f);
+            guidedInstructionText.alignment = TextAlignmentOptions.MidlineLeft;
+            guidedInstructionText.enableAutoSizing = true;
+            guidedInstructionText.fontSizeMin = 23f;
+            guidedInstructionText.fontSizeMax = 28f;
+            guidedInstructionText.textWrappingMode = TextWrappingModes.Normal;
+            guidedInstructionText.overflowMode = TextOverflowModes.Overflow;
+
+            guidedFocusOutline = CreateGuidedRect("Guided Focus (runtime)", transform);
+            guidedFocusOutline.SetAsFirstSibling();
+            for (int i = 0; i < guidedFocusEdges.Length; i++)
+            {
+                RectTransform edge = CreateGuidedRect("Edge " + i, guidedFocusOutline);
+                guidedFocusEdges[i] = edge.gameObject.AddComponent<Image>();
+                guidedFocusEdges[i].raycastTarget = false;
+            }
+        }
+
+        private static RectTransform CreateGuidedRect(string objectName, Transform parent)
+        {
+            RectTransform rect = new GameObject(objectName, typeof(RectTransform)).GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            rect.anchorMin = rect.anchorMax = new Vector2(.5f, .5f);
+            rect.pivot = new Vector2(.5f, .5f);
+            return rect;
+        }
+
+        private TMP_Text CreateGuidedText(string objectName, Transform parent, float fontSize)
+        {
+            RectTransform rect = CreateGuidedRect(objectName, parent);
+            TextMeshProUGUI text = rect.gameObject.AddComponent<TextMeshProUGUI>();
+            if (instructionText != null)
+            {
+                text.font = instructionText.font;
+                text.fontSharedMaterial = instructionText.fontSharedMaterial;
+            }
+            text.fontSize = fontSize;
+            text.color = new Color(.96f, .95f, .98f, 1f);
+            text.raycastTarget = false;
+            return text;
+        }
+
+        private void UpdateGuidedLayout()
+        {
+            if (rootRect == null || guidedPanel == null)
+                return;
+            Rect bounds = rootRect.rect;
+            float width = Mathf.Min(680f, Mathf.Max(240f, bounds.width - 48f));
+            float height = 160f;
+            guidedPanel.sizeDelta = new Vector2(width, height);
+            Vector2 position = new Vector2(bounds.center.x, bounds.yMin + 24f + height * .5f);
+            if (TryGetGuidedBounds(guidedBoardTarget, out Rect boardBounds))
+            {
+                float bottom = boardBounds.yMin;
+                // Reserve TIME's slot before it is revealed so the instruction does not jump sides.
+                if (guidedTimerTarget != null &&
+                    TryGetGuidedBounds(guidedTimerTarget, out Rect timerBounds))
+                    bottom = Mathf.Min(bottom, timerBounds.yMin);
+                position = new Vector2(boardBounds.center.x, bottom - 24f - height * .5f);
+                // Keep the lesson clear of TIME when a short viewport has no room underneath.
+                if (position.y - height * .5f < bounds.yMin + 24f)
+                {
+                    float rightSpace = bounds.xMax - boardBounds.xMax - 48f;
+                    float leftSpace = boardBounds.xMin - bounds.xMin - 48f;
+                    bool right = rightSpace >= leftSpace;
+                    float sideWidth = Mathf.Min(width, right ? rightSpace : leftSpace);
+                    if (sideWidth >= 460f)
+                    {
+                        width = sideWidth;
+                        height = Mathf.Max(height, guidedInstructionText.GetPreferredValues(
+                            guidedInstructionText.text, width - 44f, 0f).y + 55f);
+                        guidedPanel.sizeDelta = new Vector2(width, height);
+                        position = new Vector2(right ? boardBounds.xMax + 24f + width * .5f
+                            : boardBounds.xMin - 24f - width * .5f, boardBounds.center.y);
+                    }
+                }
+            }
+            position.x = Mathf.Clamp(position.x, bounds.xMin + 24f + width * .5f, bounds.xMax - 24f - width * .5f);
+            position.y = Mathf.Clamp(position.y, bounds.yMin + 24f + height * .5f, bounds.yMax - 24f - height * .5f);
+            guidedPanel.anchoredPosition = position - bounds.center;
+
+            bool success = guidedSuccess;
+            Color accent = success ? new Color(.57f, 1f, .73f, 1f) : new Color(.74f, .84f, 1f, .92f);
+            guidedAccent.color = accent;
+            guidedProgressText.color = success ? accent : new Color(.73f, .80f, .85f, 1f);
+            Rect focusBounds = default;
+            bool showFocus = focusTarget != null && focusTarget.gameObject.activeInHierarchy &&
+                TryGetGuidedBounds(focusTarget, out focusBounds);
+            guidedFocusOutline.gameObject.SetActive(showFocus);
+            if (!showFocus)
+                return;
+            float pad = 7f;
+            float xMin = Mathf.Max(bounds.xMin + 4f, focusBounds.xMin - pad);
+            float xMax = Mathf.Min(bounds.xMax - 4f, focusBounds.xMax + pad);
+            float yMin = Mathf.Max(bounds.yMin + 4f, focusBounds.yMin - pad);
+            float yMax = Mathf.Min(bounds.yMax - 4f, focusBounds.yMax + pad);
+            guidedFocusOutline.anchoredPosition = new Vector2((xMin + xMax) * .5f, (yMin + yMax) * .5f) - bounds.center;
+            guidedFocusOutline.sizeDelta = new Vector2(Mathf.Max(1f, xMax - xMin), Mathf.Max(1f, yMax - yMin));
+            Vector2 size = guidedFocusOutline.sizeDelta;
+            SetGuidedEdge(0, new Vector2(0f, size.y * .5f), new Vector2(size.x, 2f));
+            SetGuidedEdge(1, new Vector2(0f, -size.y * .5f), new Vector2(size.x, 2f));
+            SetGuidedEdge(2, new Vector2(-size.x * .5f, 0f), new Vector2(2f, size.y));
+            SetGuidedEdge(3, new Vector2(size.x * .5f, 0f), new Vector2(2f, size.y));
+            accent.a *= .70f + .15f * Mathf.Sin(Time.unscaledTime * 4f);
+            for (int i = 0; i < guidedFocusEdges.Length; i++)
+                guidedFocusEdges[i].color = accent;
+        }
+
+        private void SetGuidedEdge(int index, Vector2 position, Vector2 size)
+        {
+            RectTransform rect = guidedFocusEdges[index].rectTransform;
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+        }
+
+        private bool TryGetGuidedBounds(RectTransform target, out Rect bounds)
+        {
+            bounds = default;
+            if (target == null || rootRect == null)
+                return false;
+            Canvas sourceCanvas = target.GetComponentInParent<Canvas>();
+            Camera sourceCamera = sourceCanvas != null && sourceCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? sourceCanvas.worldCamera != null ? sourceCanvas.worldCamera : Camera.main : null;
+            Canvas overlayCanvas = GetComponentInParent<Canvas>();
+            Camera overlayCamera = overlayCanvas != null && overlayCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                ? overlayCanvas.worldCamera : null;
+            target.GetWorldCorners(guidedWorldCorners);
+            Vector2 min = new Vector2(float.PositiveInfinity, float.PositiveInfinity);
+            Vector2 max = new Vector2(float.NegativeInfinity, float.NegativeInfinity);
+            for (int i = 0; i < guidedWorldCorners.Length; i++)
+            {
+                Vector2 screen = RectTransformUtility.WorldToScreenPoint(sourceCamera, guidedWorldCorners[i]);
+                if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rootRect, screen, overlayCamera, out Vector2 local))
+                    return false;
+                min = Vector2.Min(min, local);
+                max = Vector2.Max(max, local);
+            }
+            bounds = Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+            return true;
         }
 
         private IEnumerator Present(int version)

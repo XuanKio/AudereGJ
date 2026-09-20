@@ -79,13 +79,19 @@ namespace Audere.Combat
                     {
                         if (h.Bullet == null || !h.Bullet.gameObject.activeSelf || h.Bullet.PoolLeaseVersion != h.Lease) continue;
                         Vector2 origin = h.Bullet.RectTransform.anchoredPosition;
+                        float bulletDiameter = data.bulletPrefab.GetComponent<RectTransform>().rect.width;
+                        float radius = CombatVolleySpawnLayout.RadialRadius(
+                            data.bulletsPerVolley, bulletDiameter, 4f);
+                        origin = CombatVolleySpawnLayout.FitCircleCenter(
+                            context.Board.PlayArea.rect, origin, radius, bulletDiameter * .5f);
                         for (int i = 0; i < data.bulletsPerVolley; i++)
                         {
                             // One broad missing sector keeps the ring readable, even at full density.
                             if (i == (beat + emittedVolleys) % data.bulletsPerVolley || i == (beat + emittedVolleys + 1) % data.bulletsPerVolley) continue;
                             float a = (i * 360f / data.bulletsPerVolley + emittedVolleys * 12f) * Mathf.Deg2Rad;
-                            context.Board.SpawnEnemyBullet(data.bulletPrefab, origin,
-                                new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * data.bulletSpeed, context.SessionVersion, context.PhaseVersion);
+                            Vector2 direction = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+                            context.Board.SpawnEnemyBullet(data.bulletPrefab, origin + direction * radius,
+                                direction * data.bulletSpeed, context.SessionVersion, context.PhaseVersion);
                         }
                     }
                     emittedVolleys++;

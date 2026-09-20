@@ -73,6 +73,12 @@ namespace Audere.Combat
                 { error = $"Enemy '{enemyId}' special '{phase.PhaseId}' must disable regular dice and have a following phase."; return false; }
                 if (phase.MoveSet == null) { error = $"Enemy '{enemyId}' phase '{phase.PhaseId}' has no moveset."; return false; }
                 if (!phase.MoveSet.Validate(out string moveError)) { error = $"Enemy '{enemyId}' phase '{phase.PhaseId}': {moveError}"; return false; }
+                if (phase.DamageReactionOnEnter && phase.DamageReactionMove == null)
+                { error = $"Enemy '{enemyId}' phase '{phase.PhaseId}' requires its entry reaction move."; return false; }
+                if (phase.DamageReactionMove != null && !phase.DamageReactionMove.Validate(out moveError))
+                { error = $"Enemy '{enemyId}' phase '{phase.PhaseId}' reaction: {moveError}"; return false; }
+                if (phase.OpeningMove != null && !phase.OpeningMove.Validate(out moveError))
+                { error = $"Enemy '{enemyId}' phase '{phase.PhaseId}' opening: {moveError}"; return false; }
                 IReadOnlyList<CombatDialogueCue> cues = phase.DialogueCues;
                 if (cues == null) continue;
                 for (int cueIndex = 0; cueIndex < cues.Count; cueIndex++)

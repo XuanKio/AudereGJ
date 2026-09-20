@@ -235,12 +235,16 @@ namespace Audere.Story.Steps
             }
 
             isWaitingForRetry = true;
+            Texture2D backdrop = controller.TakeDefeatBackdrop();
             bool shown = activeRetryView.Show(
                 this,
-                () => HandleRetryRequested(execution, controller));
+                () => HandleRetryRequested(execution, controller),
+                controller.LastDefeatHeartPose, backdrop);
 
             if (shown)
                 return;
+
+            if (backdrop != null) Destroy(backdrop);
 
             isWaitingForRetry = false;
             FinishWith(CombatResultBehaviour.Fail);

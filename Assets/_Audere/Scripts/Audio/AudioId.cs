@@ -46,6 +46,7 @@ namespace Audere.Audio
         Enemy_Hurt = 5004,
         Enemy_BulletVolley = 5005,
         Enemy_LaserVolley = 5006,
+        Player_HeartBreak = 5007,
 
         // Music - 9000
         Music_MainMenu = 9001,

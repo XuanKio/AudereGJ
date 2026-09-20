@@ -47,7 +47,7 @@ namespace Audere.Core
                 authoredHealth * GetEnemyHealthMultiplier(difficulty)));
         }
 
-public static float ScalePlayerTime(float authoredTime, GameDifficulty difficulty)
+        public static float ScalePlayerTime(float authoredTime, GameDifficulty difficulty)
         {
             EnsureSupported(difficulty);
             float difficultyMultiplier = difficulty == GameDifficulty.Hard

@@ -32,21 +32,19 @@ The player chooses Audere's phrasing. All three accept the same task; no refusal
 
 ## Cooperative return with supplies
 
-The classroom now auto-continues into `D2_SCHOOL_COOP_01 → 02 → 03`, then `D2_SCHOOL_WRONG_SUPPLIES`. A neutral fade establishes that the supplies have been collected and are being carried back. Both actors share the path hand, but a path connects directly to whoever should move; there is no actor selection UI and no Retry button. Same-cell drops choose one unfinished actor randomly, once per drop.
+**Current Design Intent — 2026-09-20:** classroom → `D2_SCHOOL_COOP_01` → `D2_SCHOOL_WRONG_SUPPLIES`. The former three boards are merged into one 5×3 board with nine cells, two shared red tiles and five cards.
 
-Only ordinary tile visuals, shared red coloring, and A/B goal labels remain. Red tiles require the first carrier to hold while the other crosses, and disappear completely once both have entered and exited. A holder leaving too early also removes the stranded tile, since neither actor can enter it again. Falling or using the last path without completing the pair resets every tile and both carriers. Full layouts, solver proofs and exact two-actor Goal→Start continuity are in `Docs/Puzzles/Day2School/README.md`.
+Bianca holds the first red tile, Audere crosses and holds the second, then Bianca temporarily uses Audere's destination before the two finish separately. Hand order does not reveal the route. The opening dialogue and the short exchange after the second placement match the actual holder. Shared-cell preview/drop selects unfinished Audere; arrival leaves only the unfinished partner movable.
 
-The current easier revision has **one shared red tile per board**, with four cards retained. Backspace can restart an active attempt. Entry uses a `0.30 s` fade out and `0.40 s` reveal; the only top objective is `Giúp Audere và Bianca lấy đồ về lớp`. The separate Supplies Return Board is hidden during COOP, then enabled by its original later StoryStep. No Bianca combat content is rebuilt by this revision.
-
-Each puzzle interleaves a short practical encouragement after the second completed path. The arriving actor fades at their own goal; the other continues alone until both are finished. A covered fade restores both on the next board. The camera never follows either carrier while solving, and all three boards fit inside the puzzle mask. Both bodies separate slightly and use distinct draw order if they share a logical cell.
+One shared hand, player and path runtime remain. Falling, exhausting cards too early or Backspace resets the attempt. The camera stays fixed; both A/B destinations fit the puzzle mask. Entry keeps the existing neutral fade and short objective. The separate return floor stays hidden during the puzzle. Existing wrong-supplies staging and Bianca combat are preserved. See `docs/Puzzles/Day2School/README.md` for current coordinates, solution and historical layout snapshots.
 
 ## Wrong supplies and Bianca combat opening
 
-After the third puzzle a neutral fade stages Audere and Bianca facing one another on two separate authored tiles. Audere notices the wrong class label, startles vertically with a grounded shadow, and stops. Bianca only identifies the other box; she does not scold or diagnose Audere. Timor interprets the small mistake as having inconvenienced her, recalls his advice to remain in class, and asks what Bianca might now think. Bianca's only interruption is `Audere?`.
+After the merged cooperative puzzle a neutral fade stages Audere and Bianca facing one another on two separate authored tiles. Audere notices the wrong class label, startles vertically with a grounded shadow, and stops. Bianca only identifies the other box; she does not scold or diagnose Audere. Timor interprets the small mistake as having inconvenienced her, recalls his advice to remain in class, and asks what Bianca might now think. Bianca's only interruption is `Audere?`. See the current single-board layout in [Day2School](Puzzles/Day2School/README.md).
 
 `220_EnterBiancaPressure` directly references the same shared `WorldTransition_DreamyDisorientation` profile used in Scene 40. The scene directly owns the Bianca enemy prefab under `Combat Root/CombatBoard/Enemy/Enemy Mount`; no runtime replacement actor is spawned. Story/puzzle visuals hide when Combat takes ownership.
 
-**Design Intent / placeholder:** `CombatEncounter_D2_BIANCA_SUPPLIES_PLACEHOLDER` is a separate Bianca encounter, using the existing generic sample moveset (one 12-HP phase, 45 seconds, normal defeat/Retry). No hostile Bianca dialogue, forced defeat, new bespoke attack design, or narrative meaning of victory has been established. Victory returns to the two-tile story staging without inventing a subsequent conversation. Boss-specific tuning and the story after combat remain unresolved.
+**Design Intent (current):** `CombatEncounter_D2_BIANCA_SUPPLIES_PLACEHOLDER` keeps its original filename/GUID and now uses the dedicated three-phase encounter described below. Its distorted Bianca speech expresses Audere's feared interpretation; it does not establish hostility from the real Bianca. Victory returns to the existing two-tile staging and authored post-combat dialogue. Current balance and mechanics are in `Docs/06_CombatGameplay.md`.
 
 ## Authoring contract
 
@@ -78,7 +76,7 @@ After the third puzzle a neutral fade stages Audere and Bianca facing one anothe
 
 ### Cooperative puzzle and red-tile verification — 2026-08-28
 
-The two-red layout counts below are historical; the later one-red revision and its verification are documented in `Docs/Puzzles/Day2School/README.md`.
+The two-red layout counts below are historical; the current redesigned boards and their verification are documented in `Docs/Puzzles/Day2School/README.md`.
 
 - Final focused suite: 12/12 School + Day2Home tests passed after the shared Editor compile/batch conflict was resolved. Tests cover direct references, choice cancellation, fully hidden red tiles, restoration of authored renderer state, held/shared red cells, individual arrival fade/lock, falling and out-of-pieces auto-reset.
 - Serialized board solver reports 2, 1 and 1 solutions. Each consumes all four cards and requires both actors to cross both red tiles.
@@ -91,12 +89,12 @@ The two-red layout counts below are historical; the later one-red revision and i
 
 **Design Intent:** the boss speaks Audere's feared interpretation, then the real Bianca answers a small direct question. This does not establish that Bianca secretly judges Audere.
 
-- `D2_SCHOOL_WRONG_SUPPLIES` now binds the dedicated 10HP/90TIME encounter, Wrong Box at 6HP, returning bullets at 2HP, and the supplied creepy portrait/aseprite art. Mechanics are described in Docs/06_CombatGameplay.md.
+- Current combat revision (2026-09-20): `D2_SCHOOL_WRONG_SUPPLIES` binds the dedicated 30HP/150TIME encounter, with phase boundaries at 18HP and 9HP. Phase 2 uses a silent side layout and sweeping bow arms; phase 3 centers Bianca before dialogue and opens with Wrong Box, then ribbon weave/corner blooms. Existing creepy portraits, projection wording and post-combat Story steps are preserved. Mechanics are described in Docs/06_CombatGameplay.md.
 - Under the post-victory cover, the existing return anchors put Audere at x=-0.25 and Bianca at x=0.25 on their respective adjacent tiles. Their authored facing steps point toward one another. No new board/actor generation is used at runtime.
 - Four scene-first dialogue assets cover Bianca checking on Audere, Timor discouraging the question, Audere asking, and “...Cậu cũng đâu biết.” The user's meaning is preserved; speech beats are split to at most 42 characters and use existing portraits. The sequence ends in a 0.9-second neutral fade.
 - The dedicated author preserves puzzle/BGM wiring and `allowChildFadeFallback=false`. A Play-discovered inactive `CombatBoard` override was corrected; Combat Root continues to control visibility.
 
-**Verification:** instrumented Play used actual cursor catch/reroll/choice handlers with the natural RNG and timer, plus accelerated Story dialogue. The successful attempt performed 27 catches, 6 rerolls, Wrong Box success → failure → success, all five phases, and returning waves 1/2/3. Retry restored 10HP/90TIME; enemy fade was sampled; the full StoryEvent reached Completed. Cleanup readback: no active bullets, no playing combat/dialogue/Retry, TIME scale 1, Battle Box width restored to 1, final cover alpha 1. Separate portrait playback observed both creepy/normal sprites, an active glitch, and a settled transform. Screenshots/logs are in `Temp/BiancaQA`.
+**Historical verification (August, before the three-phase redesign):** instrumented Play used actual cursor catch/reroll/choice handlers with the natural RNG and timer, plus accelerated Story dialogue. The successful attempt performed 27 catches, 6 rerolls, Wrong Box success → failure → success, all five phases, and returning waves 1/2/3. Retry restored 10HP/90TIME; enemy fade was sampled; the full StoryEvent reached Completed. Cleanup readback: no active bullets, no playing combat/dialogue/Retry, TIME scale 1, Battle Box width restored to 1, final cover alpha 1. Separate portrait playback observed both creepy/normal sprites, an active glitch, and a settled transform. Screenshots/logs are in `Temp/BiancaQA`.
 
 Visual QA was at 1920×1080 (16:9). Full manual balancing and 4:3/ultrawide visual playthroughs were not performed.
 

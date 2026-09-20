@@ -63,7 +63,7 @@ namespace Audere.Combat.Editor
             ConvergingSideCorridorMove sideMove = EnsureSideSweepMove();
             CombatMoveSet moveSet = ConfigureProductionMoveSet(sideMove);
             ConfigureProductionEnemy(moveSet, sideMove, opening, sideSweep, anchor, anxiety);
-            ConfigureKhoangLangPlaceholderPortrait();
+            ConfigureKhoangLangPortrait();
             RemoveLegacyCombatBarkUi();
             ConfigureAnxietyLayer();
             AssetDatabase.SaveAssets();
@@ -226,20 +226,20 @@ namespace Audere.Combat.Editor
             return data;
         }
 
-        private static void ConfigureKhoangLangPlaceholderPortrait()
+        private static void ConfigureKhoangLangPortrait()
         {
             DialogueCharacterCatalog catalog = AssetDatabase.LoadAssetAtPath<DialogueCharacterCatalog>(CatalogPath);
             if (catalog == null) throw new MissingReferenceException($"Missing catalog at '{CatalogPath}'.");
             SerializedObject serialized = new SerializedObject(catalog);
             SerializedProperty entries = serialized.FindProperty("characters");
-            Sprite auderePortrait = null;
+            Sprite khoangLangPortrait = AssetDatabase.LoadAllAssetsAtPath(
+                "Assets/_Audere/AssetGame/Audere/Audere_Creepy.png").OfType<Sprite>()
+                .Single(sprite => sprite.name == "Audere_Creepy_0");
             int khoangLangIndex = -1;
             for (int i = 0; i < entries.arraySize; i++)
             {
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
                 DialogueCharacterId character = (DialogueCharacterId)entry.FindPropertyRelative("character").enumValueIndex;
-                if (character == DialogueCharacterId.Audere)
-                    auderePortrait = entry.FindPropertyRelative("portrait").objectReferenceValue as Sprite;
                 if (character == DialogueCharacterId.KhoangLang)
                     khoangLangIndex = i;
             }
@@ -251,7 +251,7 @@ namespace Audere.Combat.Editor
             SerializedProperty khoangLang = entries.GetArrayElementAtIndex(khoangLangIndex);
             khoangLang.FindPropertyRelative("character").enumValueIndex = (int)DialogueCharacterId.KhoangLang;
             khoangLang.FindPropertyRelative("displayName").stringValue = "Khoảng Lặng";
-            khoangLang.FindPropertyRelative("portrait").objectReferenceValue = auderePortrait;
+            khoangLang.FindPropertyRelative("portrait").objectReferenceValue = khoangLangPortrait;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(catalog);
         }

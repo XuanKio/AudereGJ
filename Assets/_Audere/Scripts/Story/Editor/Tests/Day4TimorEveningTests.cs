@@ -7,6 +7,7 @@ using Audere.Audio;
 using Audere.Combat;
 using Audere.Core;
 using Audere.Dialogue;
+using Audere.GameplayInput;
 
 using Audere.UI;
 using Audere.Story.Steps;
@@ -115,14 +116,14 @@ namespace Audere.Story.Editor.Tests
    var finalCanvas=All<CanvasGroup>(s).Single(x=>x.name=="FINAL CUTSCENE");
    var tileRoot=All<Transform>(s).Single(x=>x.name=="ENDING TILES");
    var endingTiles=tileRoot.Cast<Transform>().OrderBy(x=>x.name).ToArray();
-   Assert.AreEqual(8,endingTiles.Length);
+   Assert.AreEqual(21,endingTiles.Length);
    float minTileSpacing=endingTiles.SelectMany((a,i)=>endingTiles.Skip(i+1)
     .Select(b=>Vector2.Distance(a.position,b.position))).Min();
    float maxTileDiameter=endingTiles.Select(x=>x.GetComponentInChildren<SpriteRenderer>(true).bounds.size)
     .Max(size=>Mathf.Max(size.x,size.y));
    Assert.GreaterOrEqual(minTileSpacing,.249f,"Ending tiles must keep Scene80 Dream world spacing.");
    Assert.Greater(minTileSpacing,maxTileDiameter,"Ending tiles overlap in world space.");
-   Assert.IsNotNull(finalCanvas.GetComponentInChildren<MainMenuBackgroundParallax>(true));
+   Assert.IsNull(finalCanvas.GetComponentInChildren<MainMenuBackgroundParallax>(true));
    var finalCanvasComponent=finalCanvas.GetComponent<Canvas>();
    var finalImage=finalCanvas.GetComponentsInChildren<UnityEngine.UI.Image>(true)
     .Single(x=>x.name=="final_cutscene");
@@ -131,6 +132,7 @@ namespace Audere.Story.Editor.Tests
    Assert.AreEqual(Vector2.one,finalRect.anchorMax);
    Assert.AreEqual(Vector2.zero,finalRect.offsetMin);
    Assert.AreEqual(Vector2.zero,finalRect.offsetMax);
+   Assert.AreEqual(Vector3.one,finalRect.localScale);
    Assert.IsTrue(finalImage.preserveAspect);
    Assert.AreEqual(16f/9f,finalImage.sprite.rect.width/finalImage.sprite.rect.height,.001f);
    Assert.AreEqual(RenderMode.ScreenSpaceOverlay,finalCanvasComponent.renderMode);
@@ -138,14 +140,45 @@ namespace Audere.Story.Editor.Tests
    Assert.AreEqual(new Rect(0f,0f,1f,1f),mainCamera.rect);
    Assert.AreEqual(16f/9f,mainCamera.aspect,.001f);
     var credits=All<CanvasGroup>(s).Single(x=>x.name=="CREDITS");
+    var whiteCover=All<CanvasGroup>(s).Single(x=>x.name=="ENDING WHITE COVER");
     Assert.Greater(finalCanvasComponent.sortingOrder,1000);
+    Assert.Less(whiteCover.GetComponent<Canvas>().sortingOrder,finalCanvasComponent.sortingOrder);
+    Assert.Greater(whiteCover.GetComponent<Canvas>().sortingOrder,1000);
     Assert.Greater(credits.GetComponent<Canvas>().sortingOrder,finalCanvasComponent.sortingOrder);
     StringAssert.Contains("tuổi nổi loạn",credits.GetComponentInChildren<TMPro.TMP_Text>(true).text);
     var motions=All<CharacterMotionStep>(s).Where(x=>x.transform.IsChildOf(story.transform)).ToArray();
     Assert.AreEqual(5,motions.Length);
     Assert.IsTrue(motions.All(x=>x.Actor!=null&&x.TargetTransform!=null&&x.ActorRenderer!=null&&x.GroundedShadow!=null));
     Assert.AreEqual(4,motions.Count(x=>x.MotionMode==CharacterMotionMode.TravelToTarget));
-    Assert.AreEqual("400_EndGameFade",story.transform.GetChild(story.transform.childCount-1).name);
+    Assert.AreEqual("410_ReturnToMainMenu",story.transform.GetChild(story.transform.childCount-1).name);
+    var dodge=All<CreditsDodgeStep>(s).Single();
+    Assert.AreEqual(30f,dodge.Duration);
+    Assert.AreSame(credits.transform,dodge.CreditsCanvas);
+    Assert.AreSame(credits.GetComponentInChildren<TMPro.TextMeshProUGUI>(true),dodge.CreditsText);
+    Assert.AreSame(All<CombatPlayerView>(s).Single()
+     .GetComponentsInChildren<UnityEngine.UI.Image>(true)
+     .Single(image=>image.name=="Heart Visual"),
+     new SerializedObject(dodge).FindProperty("heartVisual").objectReferenceValue);
+    var prelude=All<CreditsPreludeStep>(s).Single();
+    Assert.AreEqual(11f,prelude.ScrollDuration);
+    Assert.AreEqual(1.5f,prelude.ShakeDuration);
+    var follow=All<StoryCameraFollow2D>(s).Single();
+    Assert.IsFalse(follow.gameObject.activeSelf);
+    Assert.AreSame(All<SpriteRenderer>(s).Single(x=>x.name=="Audere").transform,follow.Target);
+    var mask=mainCamera.transform.Find("PuzzleViewportMask").gameObject;
+    var followStep=All<SetActiveStep>(s).Single(x=>x.name=="185_FollowAudereBeyondTheFrame");
+    CollectionAssert.Contains(followStep.ObjectsToEnable,follow.gameObject);
+    CollectionAssert.Contains(followStep.ObjectsToDisable,mask);
+    var load=All<SceneLoadStep>(s).Single(x=>x.name=="410_ReturnToMainMenu");
+    Assert.AreEqual(GameScenes.MainMenu,new SerializedObject(load).FindProperty("sceneName").stringValue);
+    Assert.Less(story.transform.Find("165_HideGameplayUI").GetSiblingIndex(),
+      story.transform.Find("170_CombatFallsAway").GetSiblingIndex());
+    float previousX=float.NegativeInfinity;
+    for(int i=1;i<=4;i++)
+    {
+     float x=All<Transform>(s).Single(t=>t.name=="Audere_Path_"+i.ToString("00")).position.x;
+     Assert.Greater(x,previousX);previousX=x;
+    }
    foreach(var c in All<MonoBehaviour>(s).Where(x=>x!=null))
    {
     var so=new SerializedObject(c);var it=so.GetIterator();while(it.NextVisible(true))if(it.propertyType==SerializedPropertyType.ObjectReference)
@@ -180,11 +213,18 @@ namespace Audere.Story.Editor.Tests
    runtime.Cancel();combat.BoardView.ClearCombatRuntime();
   }
 
-[UnityTest]
+  [UnityTest]
   public IEnumerator FinalBoss_TailMemoriesVictoryAndCreditsPlayThrough()
   {
-   EditorSceneManager.OpenScene(Day4TimorEveningSetupTool.ScenePath);
-   yield return new EnterPlayMode();yield return null;
+   var authoredScene=EditorSceneManager.OpenScene(Day4TimorEveningSetupTool.ScenePath);
+   var dodgeSettings=new SerializedObject(All<CreditsDodgeStep>(authoredScene).Single());
+   dodgeSettings.FindProperty("duration").floatValue=3f;
+   dodgeSettings.ApplyModifiedPropertiesWithoutUndo();
+   var preludeSettings=new SerializedObject(All<CreditsPreludeStep>(authoredScene).Single());
+   preludeSettings.FindProperty("scrollDuration").floatValue=1.5f;
+   preludeSettings.FindProperty("shakeDuration").floatValue=1f;
+   preludeSettings.ApplyModifiedPropertiesWithoutUndo();
+   yield return new EnterPlayMode();yield return null;Services();
    var s=SceneManager.GetActiveScene();
    var director=All<StoryDirector>(s).Single();
    var combat=All<CombatController>(s).Single();
@@ -223,29 +263,63 @@ namespace Audere.Story.Editor.Tests
     !combat.IsPlaying,true,30);
    yield return Until(()=>Step(director)=="200_AudereChoosesToStand",true,25);
    Assert.IsFalse(combat.IsPlaying);
+   Assert.IsFalse(GameplayUIRoot.Instance.GameplayCanvas.enabled);
+   var camera=All<Camera>(s).Single(x=>x.CompareTag("MainCamera"));
+   var mask=camera.transform.Find("PuzzleViewportMask").gameObject;
+   var follow=All<StoryCameraFollow2D>(s).Single();
+   Assert.IsFalse(mask.activeSelf);
+   Assert.IsTrue(follow.gameObject.activeSelf);
    Assert.IsFalse(combat.BoardView.HasForcedPlayerControl);
    Assert.IsFalse(combat.BoardView.GetComponentsInChildren<CombatBulletView>().Any());
-   yield return Until(()=>Step(director)=="210_ThePathOpensOutward",true,8);
-   yield return new WaitForSecondsRealtime(.75f);yield return Capture("150-path-opens");
-   yield return Until(()=>Step(director)=="230_AudereStepsOntoThePath",true,15);
+   yield return Until(()=>Step(director)=="210_AudereWalksIntoTheLight",true,8);
+   yield return new WaitForSecondsRealtime(.6f);
+   yield return Capture("150-path-opens");
    var audere=All<SpriteRenderer>(s).Single(x=>x.name=="Audere");
    var shadow=audere.GetComponentsInChildren<SpriteRenderer>(true).Single(x=>x!=audere).transform;
-   Vector3 shadowOffset=shadow.position-audere.transform.position;
-   yield return Until(()=>Step(director)=="300_TimorMayComeAlong",true,15);
+   float shadowGroundY=shadow.position.y;
+   var walk=All<ContinuousTileWalkStep>(s).Single();
+   yield return Until(()=>walk.CurrentState==StoryStepState.Completed,true,15);
    Assert.Less(Vector3.Distance(audere.transform.position,
-    All<Transform>(s).Single(x=>x.name=="Audere_Path_04").position),.001f);
-   Assert.Less(Vector3.Distance(shadow.position-audere.transform.position,shadowOffset),.001f);
+    All<Transform>(s).Single(x=>x.name=="Audere_Path_18").position),.001f);
+   Assert.Less(Mathf.Abs(camera.transform.position.x-audere.transform.position.x),.15f);
+   Assert.AreEqual(shadowGroundY,shadow.position.y,.001f);
+   yield return Until(()=>Step(director)=="340_FinalImageAppears",true,15);
+   Assert.AreEqual(1f,All<CanvasGroup>(s).Single(x=>x.name=="ENDING WHITE COVER").alpha,.001f);
    yield return Until(()=>Step(director)=="350_HoldFinalImage",true,15);
    var final=All<CanvasGroup>(s).Single(x=>x.name=="FINAL CUTSCENE");
    Assert.IsTrue(final.gameObject.activeInHierarchy);Assert.Greater(final.alpha,.99f);
    Assert.Greater(final.GetComponent<Canvas>().sortingOrder,1000);
    yield return Capture("150-final-cutscene");
-   yield return Until(()=>Step(director)=="390_ThankYou",true,15);
+   yield return Until(()=>Step(director)=="390_CreditsScrollAndShake",true,15);
    var credits=All<CanvasGroup>(s).Single(x=>x.name=="CREDITS");
    Assert.IsTrue(credits.gameObject.activeInHierarchy);Assert.Greater(credits.alpha,.99f);
+   yield return new WaitForSecondsRealtime(.5f);
+   Assert.AreNotEqual(0f,credits.GetComponentInChildren<TMPro.TextMeshProUGUI>().rectTransform.anchoredPosition.y);
    yield return Capture("150-credits");
-   yield return Until(()=>director.CurrentEvent==null,true,20);
-   Assert.AreEqual(0,GameplayUIRoot.Instance.InputGate.ActiveClaimCount);
+   yield return Until(()=>Step(director)=="395_DodgeTheCredits",true,8);
+   Assert.AreEqual(GameplayInputMode.CreditsDodge,GameplayUIRoot.Instance.InputGate.CurrentMode);
+   Assert.AreEqual(AudioId.Music_Exploration,AudioService.Instance.CurrentMusicId);
+   yield return new WaitForSecondsRealtime(.3f);
+   var field=All<RectTransform>(s).Single(x=>x.name=="Credit Dodge Field");
+   Assert.Greater(field.rect.width,credits.GetComponent<RectTransform>().rect.width*.95f);
+   Assert.IsNull(field.GetComponent<UnityEngine.UI.Image>());
+   var heart=field.GetComponentsInChildren<UnityEngine.UI.Image>(true)
+    .Single(image=>image.name=="Heart Visual");
+   Assert.IsTrue(heart.gameObject.activeInHierarchy);
+   Assert.AreSame(All<CombatPlayerView>(s).Single()
+    .GetComponentsInChildren<UnityEngine.UI.Image>(true)
+    .Single(image=>image.name=="Heart Visual").sprite,heart.sprite);
+   Assert.IsTrue(field.GetComponentsInChildren<TMPro.TextMeshProUGUI>()
+    .Any(label=>label.name=="Credit Line"));
+   yield return new WaitForSecondsRealtime(.95f);
+   Assert.IsTrue(field.GetComponentsInChildren<TMPro.TextMeshProUGUI>()
+    .Any(label=>label.name=="Credit Word"));
+   yield return new WaitForSecondsRealtime(.75f);
+   Assert.IsTrue(field.GetComponentsInChildren<TMPro.TextMeshProUGUI>()
+    .Any(label=>label.name=="Credit Letter"));
+   yield return Capture("150-credits-dodge");
+   yield return Until(()=>SceneManager.GetActiveScene().name==GameScenes.MainMenu,true,12);
+   yield return Until(()=>GameplayUIRoot.Instance==null,true,2);
    LogAssert.NoUnexpectedReceived();yield return new ExitPlayMode();
   }
 

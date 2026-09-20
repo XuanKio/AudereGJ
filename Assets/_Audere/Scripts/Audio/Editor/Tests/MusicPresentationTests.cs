@@ -80,6 +80,24 @@ namespace Audere.Audio.Editor.Tests
         }
 
         [Test]
+        public void CreditsBoost_RaisesBgmWithoutChangingCoverOrSavedVolume()
+        {
+            GameObject credits = NewObject("Credits");
+            float savedVolume = PlayerPrefs.GetFloat(AudioService.MusicVolumePrefKey);
+            state.SetBoost(credits, 1.3f);
+            Assert.AreEqual(1.3f, state.Boost, .0001f);
+            Assert.AreEqual(1f, state.Gain);
+            Assert.AreEqual(savedVolume, PlayerPrefs.GetFloat(AudioService.MusicVolumePrefKey));
+
+            CanvasGroup cover = Cover(1f);
+            Assert.AreEqual(0f, state.Gain);
+            cover.alpha = 0f;
+            state.Release(credits);
+            Assert.AreEqual(1f, state.Boost);
+            Assert.AreEqual(1f, state.Gain);
+        }
+
+        [Test]
         public void OverlappingOwners_CannotResumeEachOther()
         {
             CanvasGroup cover = Cover(.8f);

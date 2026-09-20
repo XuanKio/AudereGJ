@@ -1,9 +1,25 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Audere.Dialogue;
 
 namespace Audere.Combat
 {
+    public enum CombatTutorialLessonKind { Move, Time, Damage, Heal, Attack, Reroll, Shield, Dodge, StunCatch, StunReroll, Finish }
+
+    [Serializable]
+    public sealed class CombatTutorialLesson
+    {
+        [SerializeField] private string id;
+        [SerializeField] private CombatTutorialLessonKind kind;
+        [SerializeField] private DialogueData dialogue;
+        [SerializeField, TextArea] private string instruction;
+        public string Id => id;
+        public CombatTutorialLessonKind Kind => kind;
+        public DialogueData Dialogue => dialogue;
+        public string Instruction => instruction;
+    }
+
     [CreateAssetMenu(menuName = "Audere/Combat/Tutorial Data", fileName = "CombatTutorial_New")]
     public sealed class CombatTutorialData : ScriptableObject
     {
@@ -12,12 +28,21 @@ namespace Audere.Combat
         [SerializeField, Min(1f)] private float playerTime = 120f;
         [SerializeField] private CombatSymbol[] openingDice;
         [SerializeField] private CombatDialogueCue[] cues;
+        [Header("Guided practice (opt-in)")]
+        [SerializeField] private bool useGuidedLessons;
+        [SerializeField, Min(260f)] private float squareBoardSize = 400f;
+        [SerializeField] private CombatBulletView demonstrationBullet;
+        [SerializeField] private CombatTutorialLesson[] guidedLessons;
 
         public string TutorialId => tutorialId;
         public CombatEnemyDefinition EnemyDefinition => enemyDefinition;
         public float PlayerTime => playerTime;
         public IReadOnlyList<CombatSymbol> OpeningDice => openingDice;
         public IReadOnlyList<CombatDialogueCue> Cues => cues;
+        public bool UseGuidedLessons => useGuidedLessons;
+        public float SquareBoardSize => squareBoardSize;
+        public CombatBulletView DemonstrationBullet => demonstrationBullet;
+        public IReadOnlyList<CombatTutorialLesson> GuidedLessons => guidedLessons;
 
         public bool Validate(out string error)
         {
@@ -45,6 +70,22 @@ namespace Audere.Combat
             {
                 error = $"Combat tutorial '{tutorialId}' requires Player Time greater than zero.";
                 return false;
+            }
+            if (useGuidedLessons)
+            {
+                if (squareBoardSize < 260f || demonstrationBullet == null || guidedLessons == null || guidedLessons.Length == 0)
+                { error = $"Combat tutorial '{tutorialId}' requires a usable square board, demonstration bullet and lessons."; return false; }
+                var ids = new HashSet<string>(StringComparer.Ordinal);
+                for (int i = 0; i < guidedLessons.Length; i++)
+                {
+                    var lesson = guidedLessons[i];
+                    if (lesson == null || string.IsNullOrWhiteSpace(lesson.Id) || !ids.Add(lesson.Id) ||
+                        lesson.Dialogue == null || string.IsNullOrWhiteSpace(lesson.Instruction) || !Enum.IsDefined(typeof(CombatTutorialLessonKind), lesson.Kind))
+                    { error = $"Combat tutorial '{tutorialId}' has an invalid guided lesson at {i}."; return false; }
+                }
+                if (guidedLessons[guidedLessons.Length - 1].Kind != CombatTutorialLessonKind.Finish)
+                { error = $"Combat tutorial '{tutorialId}' must finish with an explicit hand-off lesson."; return false; }
+                error = null; return true;
             }
             if (openingDice == null || openingDice.Length == 0)
             {

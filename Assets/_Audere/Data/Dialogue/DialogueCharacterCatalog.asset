@@ -16,24 +16,32 @@ MonoBehaviour:
   - character: 1
     displayName: Audere
     portrait: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+    portraitVerticalOffset: 0
   - character: 2
     displayName: Timor
     portrait: {fileID: 188140060781976214, guid: 8b9bf032ca2b2d745b01ed08e5c65d23, type: 3}
+    portraitVerticalOffset: 0
   - character: 3
     displayName: "C\xF4 gi\xE1o"
     portrait: {fileID: -8234531690603157784, guid: 991479b1422f0004c825ea3362e68224, type: 3}
+    portraitVerticalOffset: 0
   - character: 4
     displayName: Bianca
     portrait: {fileID: 7503800403365798388, guid: 03f69c0d5de4d5b4982fff343666a5cb, type: 3}
+    portraitVerticalOffset: 0
   - character: 5
     displayName: "Kho\u1EA3ng L\u1EB7ng"
-    portrait: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+    portrait: {fileID: -7822148443381894535, guid: 3fae121e78b6add4d93b15ab11fd97bb, type: 3}
+    portraitVerticalOffset: 0
   - character: 6
     displayName: Bianca
     portrait: {fileID: 6381855181040149290, guid: b0ed9cb7d9759054d9f7927c3491205d, type: 3}
+    portraitVerticalOffset: 0
   - character: 7
     displayName: "C\xF4 gi\xE1o"
     portrait: {fileID: -4037008909499468936, guid: 6d38537decfc13845ab624d43ad28856, type: 3}
+    portraitVerticalOffset: 0
   - character: 8
     displayName: "\u0110\xE1m \u0111\xF4ng"
     portrait: {fileID: 3787490157305779964, guid: 4987d6d90de1c1b468f2d948534fa623, type: 3}
+    portraitVerticalOffset: -16

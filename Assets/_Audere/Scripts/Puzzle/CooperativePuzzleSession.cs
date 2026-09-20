@@ -9,18 +9,23 @@ namespace Audere.Puzzle
     [DisallowMultipleComponent]
     public sealed class CooperativePuzzleSession : MonoBehaviour
     {
+        public enum OpeningActor { Audere, Bianca }
+
         [SerializeField] private PuzzleManager puzzle;
         [SerializeField] private GridPlayer partner;
         [SerializeField] private Transform partnerStart;
         [SerializeField] private BoardTile audereGoal;
         [SerializeField] private BoardTile partnerGoal;
         [SerializeField] private CooperativePuzzleControls controls;
+        [SerializeField] private OpeningActor openingActor = OpeningActor.Audere;
 
         public PuzzleManager Puzzle => puzzle;
         public GridPlayer Partner => partner;
         public Transform PartnerStart => partnerStart;
         public BoardTile AudereGoal => audereGoal;
         public BoardTile PartnerGoal => partnerGoal;
+        public OpeningActor FirstActor => openingActor;
+        public bool NeedsOpeningActor => completedPlacements == 0;
         [SerializeField] private Audere.Story.Steps.SpriteGroupFadeStep audereArrivalFade;
         [SerializeField] private Audere.Story.Steps.SpriteGroupFadeStep partnerArrivalFade;
         [SerializeField] private Audere.Story.Steps.SpriteGroupFadeStep audereRestore;
@@ -66,12 +71,17 @@ namespace Audere.Puzzle
             if (controls != null) controls.Unbind(this);
         }
 
-        // Preview stays deterministic; a shared-cell tie is rolled once, only on drop.
-        public GridPlayer ActorAtStart(Vector2Int cell, bool randomizeShared)
+        // Preview and drop use the same actor. Audere always owns a shared cell.
+        public GridPlayer ActorAtStart(Vector2Int cell)
         {
             bool a = puzzle != null && puzzle.Player != null && !audereArrived && puzzle.Player.GridPosition == cell;
             bool b = partner != null && !partnerArrived && partner.GridPosition == cell;
-            if (a && b) return randomizeShared && Random.Range(0, 2) == 1 ? partner : puzzle.Player;
+            if (a && b) return puzzle.Player;
+            if (completedPlacements == 0)
+            {
+                if (openingActor == OpeningActor.Audere) b = false;
+                else a = false;
+            }
             return a ? puzzle.Player : b ? partner : null;
         }
 
@@ -100,7 +110,14 @@ namespace Audere.Puzzle
         public Vector3 ArrivalOffset(GridPlayer mover, Vector2Int destination)
         {
             GridPlayer other = mover == partner ? puzzle.Player : partner;
-            return other != null && !HasArrived(other) && other.GridPosition == destination ? SplitOffset(mover) : Vector3.zero;
+            return other != null && SharesStandingSpace(other) && other.GridPosition == destination ? SplitOffset(mover) : Vector3.zero;
+        }
+
+        private bool SharesStandingSpace(GridPlayer actor)
+        {
+            if (!HasArrived(actor)) return true;
+            var fade = actor == partner ? partnerArrivalFade : audereArrivalFade;
+            return fade != null && fade.IsRunning;
         }
 
         private Vector3 SplitOffset(GridPlayer actor)
@@ -116,15 +133,19 @@ namespace Audere.Puzzle
             if (puzzle == null || partner == null || puzzle.Player == null ||
                 puzzle.CurrentState == PuzzleManager.State.Idle || puzzle.CurrentState == PuzzleManager.State.Completed) return;
             GridPlayer audere = puzzle.Player;
-            bool sharing = !audereArrived && !partnerArrived && (audere.GridPosition == partner.GridPosition ||
+            bool sharing = SharesStandingSpace(audere) && SharesStandingSpace(partner) && (audere.GridPosition == partner.GridPosition ||
                 (audere.IsMoving && audere.MotionTargetCell == partner.GridPosition) ||
                 (partner.IsMoving && partner.MotionTargetCell == audere.GridPosition));
             // Logical cells never change here. Only the two settled presentations separate.
             // Sort the whole actor (body + grounded shadow) by its floor position,
             // never by the temporary hop height. Equal rows keep a stable tie.
             bool audereInFront = audere.GroundSortY < partner.GroundSortY - .0001f;
-            audere.SetStandingPresentation(sharing ? SplitOffset(audere) : Vector3.zero, audereInFront ? 6 : 5);
-            partner.SetStandingPresentation(sharing ? SplitOffset(partner) : Vector3.zero, audereInFront ? 5 : 6);
+            // Arrival keeps the actor at its separate landing pose while it fades.
+            // Finished actors no longer follow the shared-cell presentation updates.
+            if (!audereArrived)
+                audere.SetStandingPresentation(sharing ? SplitOffset(audere) : Vector3.zero, audereInFront ? 6 : 5);
+            if (!partnerArrived)
+                partner.SetStandingPresentation(sharing ? SplitOffset(partner) : Vector3.zero, audereInFront ? 5 : 6);
         }
 
     }

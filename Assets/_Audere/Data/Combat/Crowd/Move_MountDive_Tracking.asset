@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d7fcf2f39b990a47a918093465e9be4, type: 3}
+  m_Name: Move_MountDive_Tracking
+  m_EditorClassIdentifier: 
+  duration: 5.58
+  leadInDuration: 0.25
+  impactOffsets:
+  - 0
+  - 0
+  aimAtPlayer: 1
+  windup: 0.78
+  plunge: 0.36
+  hold: 0.32
+  returnDuration: 0.58
+  recovery: 0.75
+  separationFraction: 0.11
+  bodyWidthFraction: 0.22
+  bodyHeight: 148
+  rainbowEchoMaterial: {fileID: 2100000, guid: a0a341b19f69d20438c9ebe7c43e121d, type: 2}

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Audere.Combat;
+using Audere.Core;
 using Audere.Dialogue;
 
 using Audere.UI;
@@ -51,11 +52,25 @@ foreach (Image image in actor.Graphics.OfType<Image>())
 
             StoryEvent story = All<StoryEvent>(scene).Single();
             RemoveTailAfter(story.transform, "160_TimorAgain");
-            AuthorEnding(scene, story.transform, combatStep);
+            AuthorEnding(scene, story.transform);
             foreach (DialogueStep dialogue in All<DialogueStep>(scene))
                 Set(dialogue, "dialogueController", All<DialogueController>(scene).Single());
 
             AssetDatabase.SaveAssets();
+            EditorSceneManager.SaveScene(scene);
+        }
+
+        [MenuItem("Audere/Story/Author Active Day4 Timor Ending Only")]
+        public static void AuthorActiveEndingOnly()
+        {
+            Scene scene = SceneManager.GetActiveScene();
+            if (scene.path != Day4TimorEveningSetupTool.ScenePath || scene.isDirty ||
+                EditorApplication.isPlaying || EditorApplication.isCompiling)
+                throw new InvalidOperationException("Open saved Scene150 in Edit Mode.");
+
+            StoryEvent story = All<StoryEvent>(scene).Single();
+            RemoveTailAfter(story.transform, "160_TimorAgain");
+            AuthorEnding(scene, story.transform);
             EditorSceneManager.SaveScene(scene);
         }
 
@@ -327,7 +342,7 @@ foreach (Image image in actor.Graphics.OfType<Image>())
             EditorUtility.SetDirty(rect);
         }
 
-private static void AuthorEnding(Scene scene, Transform parent, CombatStep combatStep)
+        private static void AuthorEnding(Scene scene, Transform parent)
         {
             WorldModeController mode = All<WorldModeController>(scene).Single();
             CanvasGroup cover = All<CanvasGroup>(scene).Single(x => x.name == "Fade" &&
@@ -339,21 +354,23 @@ private static void AuthorEnding(Scene scene, Transform parent, CombatStep comba
             Transform groundedShadow = audere.GetComponentsInChildren<SpriteRenderer>(true)
                 .Single(x => x != audere).transform;
 
-            DialogueData promise = D("CONTINUE_PROMISE", "Audere_smiled.png", "TimorBuon.png",
-                "L|Timor.",
-                "R|…Ừ.");
-            DialogueData firstStep = D("CONTINUE_STEP_01", "Audere_smiled.png", "TimorBuon.png",
-                "L|Hãy cùng tớ đi tiếp nhé.");
-            DialogueData secondStep = D("CONTINUE_STEP_02", "Audere_smiled.png", "TimorBuon.png",
-                "L|Dù phía trước có khó đến đâu.");
-            DialogueData thirdStep = D("CONTINUE_STEP_03", "Audere_smiled.png", "TimorBuon.png",
-                "L|Tớ sẽ tự bước.");
-            DialogueData finalStep = D("CONTINUE_STEP_04", "Audere_smiled.png", "TimorBuon.png",
-                "L|Cậu có thể đi cùng.");
-
+            Set(Step<GameplayUiVisibilityStep>(parent, "165_HideGameplayUI"), "visible", false);
             Fade(parent, "170_CombatFallsAway", cover, 1f, .85f);
             Set(Step<WorldModeStep>(parent, "180_ReturnToTheQuietRoom"),
                 "worldModeController", mode, "targetMode", (int)WorldGameplayMode.Story);
+            Camera storyCamera = All<Camera>(scene).Single(x => x.CompareTag("MainCamera"));
+            GameObject mask = storyCamera.transform.Find("PuzzleViewportMask").gameObject;
+            Transform oldFollow = storyCamera.transform.Find("Ending Camera Follow");
+            if (oldFollow != null) Object.DestroyImmediate(oldFollow.gameObject);
+            GameObject followObject = new GameObject("Ending Camera Follow");
+            followObject.transform.SetParent(storyCamera.transform, false);
+            followObject.SetActive(false);
+            StoryCameraFollow2D follow = followObject.AddComponent<StoryCameraFollow2D>();
+            Set(follow, "worldCamera", storyCamera, "target", audere.transform,
+                "puzzleViewportMask", mask, "ownerEvent", parent.GetComponent<StoryEvent>(),
+                "framingOffset", new Vector2(0f, .17f), "smoothTime", .24f);
+            Active(parent, "185_FollowAudereBeyondTheFrame",
+                new[] { followObject }, new[] { mask });
             List<Transform> endingTiles = AuthorEndingTiles(stage);
             Fade(parent, "190_AudereReturns", cover, 0f, 1.05f);
 
@@ -365,52 +382,70 @@ private static void AuthorEnding(Scene scene, Transform parent, CombatStep comba
                 "landingDuration", .11f, "landingSquash", .09f, "landingWiden", .065f,
                 "useUnscaledTime", true, "facingMode", (int)CharacterFacingMode.Preserve);
 
-            BoardTileTransitionStep reveal = Step<BoardTileTransitionStep>(parent, "210_ThePathOpensOutward");
-            SetObjectArray(reveal, "objectsToReveal", endingTiles.Cast<Object>().ToArray());
-            Set(reveal, "transitionDuration", .27f, "staggerDelay", .035f,
-                "revealWaveDuration", 1.55f, "verticalOffset", .075f,
-                "revealOvershoot", .016f, "useUnscaledTime", true);
-            Talk(parent, "220_TimorAnswers", promise);
-            Wait(parent, "225_TheOpenPathSettles", .32f);
-
             Transform anchorRight = CreateEndingAnchor(stage, audere.transform,
-                endingTiles.Single(x => x.name == "Ending Tile 02"), "Audere_Path_01");
-            Transform anchorUpperRight = CreateEndingAnchor(stage, audere.transform,
-                endingTiles.Single(x => x.name == "Ending Tile 06"), "Audere_Path_02");
-            Transform anchorTop = CreateEndingAnchor(stage, audere.transform,
-                endingTiles.Single(x => x.name == "Ending Tile 03"), "Audere_Path_03");
-            Transform anchorUpperLeft = CreateEndingAnchor(stage, audere.transform,
-                endingTiles.Single(x => x.name == "Ending Tile 05"), "Audere_Path_04");
+                endingTiles[0], "Audere_Path_01");
+            Transform anchorFartherRight = CreateEndingAnchor(stage, audere.transform,
+                endingTiles[1], "Audere_Path_02");
+            Transform anchorNearEdge = CreateEndingAnchor(stage, audere.transform,
+                endingTiles[2], "Audere_Path_03");
+            Transform anchorRightEdge = CreateEndingAnchor(stage, audere.transform,
+                endingTiles[3], "Audere_Path_04");
 
+            RevealEndingTiles(parent, "210_TheFirstTilesOpen", endingTiles[0], endingTiles[4]);
             ConfigureTravel(Step<CharacterMotionStep>(parent, "230_AudereStepsOntoThePath"),
                 audere, groundedShadow, anchorRight, CharacterFacingMode.FollowHorizontalTravel);
-            Talk(parent, "240_ContinueTogether", firstStep);
+            RevealEndingTiles(parent, "240_ThePathOpensFurther", endingTiles[1], endingTiles[5]);
             ConfigureTravel(Step<CharacterMotionStep>(parent, "250_AudereKeepsWalking"),
-                audere, groundedShadow, anchorUpperRight, CharacterFacingMode.FollowHorizontalTravel);
-            Talk(parent, "260_WhateverComes", secondStep);
+                audere, groundedShadow, anchorFartherRight, CharacterFacingMode.FollowHorizontalTravel);
+            RevealEndingTiles(parent, "260_TheNextTilesOpen", endingTiles[2], endingTiles[6]);
             ConfigureTravel(Step<CharacterMotionStep>(parent, "270_AudereWalksWithoutAChoiceArrow"),
-                audere, groundedShadow, anchorTop, CharacterFacingMode.Preserve);
-            Talk(parent, "280_HerOwnStep", thirdStep);
+                audere, groundedShadow, anchorNearEdge, CharacterFacingMode.FollowHorizontalTravel);
+            RevealEndingTiles(parent, "280_TheRightEdgeOpens", endingTiles[3], endingTiles[7]);
             ConfigureTravel(Step<CharacterMotionStep>(parent, "290_AudereCrossesTheOpenTiles"),
-                audere, groundedShadow, anchorUpperLeft, CharacterFacingMode.FollowHorizontalTravel);
-            Talk(parent, "300_TimorMayComeAlong", finalStep);
-            Wait(parent, "310_HoldTheChoice", .9f);
+                audere, groundedShadow, anchorRightEdge, CharacterFacingMode.FollowHorizontalTravel);
+            Wait(parent, "310_HoldTheChoice", .55f);
 
+            CanvasGroup whiteGroup;
             GameObject finalCanvas;
             CanvasGroup finalGroup;
             GameObject creditsCanvas;
             CanvasGroup creditsGroup;
-            AuthorEndingPresentation(out finalCanvas, out finalGroup, out creditsCanvas, out creditsGroup);
+            TextMeshProUGUI creditsText;
+            AuthorEndingPresentation(out whiteGroup, out finalCanvas, out finalGroup,
+                out creditsCanvas, out creditsGroup, out creditsText);
 
-            Fade(parent, "320_FadeToFinalImage", cover, 1f, 1.05f);
+            Fade(parent, "320_FadeToWhite", whiteGroup, 1f, 1.45f, false);
             Active(parent, "330_ShowFinalCutscene", new[] { finalCanvas }, new GameObject[0]);
-            Fade(parent, "340_FinalImageAppears", finalGroup, 1f, 1.35f);
+            Fade(parent, "340_FinalImageAppears", finalGroup, 1f, 1.35f, false);
             Wait(parent, "350_HoldFinalImage", 4.2f);
-            Fade(parent, "360_FinalImageFades", finalGroup, 0f, 1.25f);
+            Fade(parent, "360_FinalImageFades", finalGroup, 0f, 1.25f, false);
             Active(parent, "370_OpenCredits", new[] { creditsCanvas }, new[] { finalCanvas });
-            Fade(parent, "380_CreditsAppear", creditsGroup, 1f, 1.6f);
-            Wait(parent, "390_ThankYou", 10.5f);
-            Fade(parent, "400_EndGameFade", creditsGroup, 0f, 2.2f);
+            Fade(parent, "380_CreditsAppear", creditsGroup, 1f, 1.6f, false);
+            CreditsPreludeStep prelude = Step<CreditsPreludeStep>(parent, "390_CreditsScrollAndShake");
+            Set(prelude, "creditsCanvas", creditsCanvas.transform as RectTransform,
+                "creditsText", creditsText, "scrollDuration", 11f, "shakeDuration", 1.5f,
+                "backgroundMusicBoost", 1.3f);
+            CreditsDodgeStep dodge = Step<CreditsDodgeStep>(parent, "395_DodgeTheCredits");
+            Image combatHeart = All<CombatPlayerView>(scene).Single()
+                .GetComponentsInChildren<Image>(true).Single(image => image.name == "Heart Visual");
+            Set(dodge, "creditsCanvas", creditsCanvas.transform as RectTransform,
+                "creditsText", creditsText,
+                "heartVisual", combatHeart,
+                "heartSprite", Sprite("HealthBar/kinh (1).aseprite"),
+                "duration", 30f, "backgroundMusicBoost", 1.3f);
+            Fade(parent, "400_EndGameFade", creditsGroup, 0f, 1.2f, false);
+            Set(Step<SceneLoadStep>(parent, "410_ReturnToMainMenu"),
+                "sceneName", GameScenes.MainMenu, "hidePuzzleUiBeforeLoad", true);
+            Day4EndingRippleAuthoring.Apply(scene);
+        }
+
+        private static void RevealEndingTiles(Transform parent, string name, params Transform[] tiles)
+        {
+            BoardTileTransitionStep step = Step<BoardTileTransitionStep>(parent, name);
+            SetObjectArray(step, "objectsToReveal", tiles.Cast<Object>().ToArray());
+            Set(step, "transitionDuration", .27f, "staggerDelay", .035f,
+                "revealWaveDuration", .48f, "verticalOffset", .075f,
+                "revealOvershoot", .016f, "useUnscaledTime", true);
         }
 
 private static List<Transform> AuthorEndingTiles(Transform stage)
@@ -427,10 +462,12 @@ private static List<Transform> AuthorEndingTiles(Transform stage)
             float localCellX = worldCellSize / Mathf.Max(.0001f, Mathf.Abs(root.lossyScale.x));
             float localCellY = worldCellSize / Mathf.Max(.0001f, Mathf.Abs(root.lossyScale.y));
             Vector3[] positions = {
-                new Vector3(-localCellX, 0f, 0f), new Vector3(localCellX, 0f, 0f),
-                new Vector3(0f, localCellY, 0f), new Vector3(0f, -localCellY, 0f),
-                new Vector3(-localCellX, localCellY, 0f), new Vector3(localCellX, localCellY, 0f),
-                new Vector3(-localCellX, -localCellY, 0f), new Vector3(localCellX, -localCellY, 0f)
+                new Vector3(localCellX, 0f, 0f), new Vector3(2f * localCellX, 0f, 0f),
+                new Vector3(3f * localCellX, 0f, 0f), new Vector3(4f * localCellX, 0f, 0f),
+                new Vector3(localCellX, localCellY, 0f),
+                new Vector3(2f * localCellX, -localCellY, 0f),
+                new Vector3(3f * localCellX, localCellY, 0f),
+                new Vector3(4f * localCellX, -localCellY, 0f)
             };
             List<Transform> result = new List<Transform>();
             for (int i = 0; i < positions.Length; i++)
@@ -447,7 +484,7 @@ private static List<Transform> AuthorEndingTiles(Transform stage)
                 result.Add(tile.transform);
             }
 
-            return result.OrderBy(x => x.localPosition.sqrMagnitude).ToList();
+            return result;
         }
 
 private static Transform CreateEndingAnchor(
@@ -491,40 +528,42 @@ private static Transform CreateEndingAnchor(
         }
 
 
-private static void AuthorEndingPresentation(out GameObject finalCanvas, out CanvasGroup finalGroup,
-            out GameObject creditsCanvas, out CanvasGroup creditsGroup)
+        private static void AuthorEndingPresentation(out CanvasGroup whiteGroup,
+            out GameObject finalCanvas, out CanvasGroup finalGroup,
+            out GameObject creditsCanvas, out CanvasGroup creditsGroup,
+            out TextMeshProUGUI creditsText)
         {
             Scene activeScene = SceneManager.GetActiveScene();
             foreach (GameObject existing in activeScene.GetRootGameObjects()
                 .Where(x => x.name == "DAY FOUR FINAL PRESENTATION" ||
-                    x.name == "FINAL CUTSCENE" || x.name == "CREDITS"))
+                    x.name == "FINAL CUTSCENE" || x.name == "CREDITS" ||
+                    x.name == "ENDING WHITE COVER"))
                 Object.DestroyImmediate(existing);
 
             GameObject root = new GameObject("DAY FOUR FINAL PRESENTATION");
             root.transform.localScale = Vector3.one;
 
-            // These canvases intentionally sit above the shared scene Fade (order 1000).
-            // The Fade remains the neutral cover; it must not hide the finale underneath it.
+            CanvasScreen("ENDING WHITE COVER", null, out whiteGroup, 1200);
+            ImageRect("White", whiteGroup.transform, Color.white,
+                Vector2.zero, Vector2.one);
+            whiteGroup.alpha = 0f;
+
+            // The white cover sits above the neutral scene fade and below the final image.
             finalCanvas = CanvasScreen("FINAL CUTSCENE", null, out finalGroup, 1300);
-            Image finalBackground = ImageRect("Black", finalCanvas.transform, Color.black,
+            Image finalBackground = ImageRect("White Background", finalCanvas.transform, Color.white,
                 Vector2.zero, Vector2.one);
             finalBackground.transform.SetAsFirstSibling();
             Image cutscene = ImageRect("final_cutscene", finalCanvas.transform, Color.white,
                 Vector2.zero, Vector2.one);
             cutscene.sprite = Sprite("Enemyy/final_cutscene.png");
-            cutscene.rectTransform.localScale = Vector3.one * 1.025f;
-            MainMenuBackgroundParallax parallax = cutscene.gameObject.AddComponent<MainMenuBackgroundParallax>();
-            Set(parallax, "background", cutscene.rectTransform,
-                "maxPointerOffset", new Vector2(20f, 12f), "followSharpness", 2.2f,
-                "idleDriftAmount", new Vector2(7f, 4f), "idleDriftSpeed", .08f,
-                "invertPointer", true);
+            cutscene.rectTransform.localScale = Vector3.one;
             cutscene.preserveAspect = true;
             finalGroup.alpha = 0f;
             finalCanvas.SetActive(false);
             finalCanvas.transform.localScale = Vector3.one;
 
             creditsCanvas = CanvasScreen("CREDITS", null, out creditsGroup, 1310);
-            ImageRect("Credits Black", creditsCanvas.transform, new Color(.012f, .008f, .025f, 1f),
+            ImageRect("Credits Black", creditsCanvas.transform, Color.black,
                 Vector2.zero, Vector2.one);
             GameObject textGo = new GameObject("Credits Text", typeof(RectTransform),
                 typeof(CanvasRenderer), typeof(TextMeshProUGUI));
@@ -533,7 +572,9 @@ private static void AuthorEndingPresentation(out GameObject finalCanvas, out Can
             rect.anchorMin = new Vector2(.12f, .055f);
             rect.anchorMax = new Vector2(.88f, .945f);
             rect.offsetMin = rect.offsetMax = Vector2.zero;
+            rect.anchoredPosition = new Vector2(0f, 2000f);
             TextMeshProUGUI text = textGo.GetComponent<TextMeshProUGUI>();
+            creditsText = text;
             text.text = "<size=82><b>AUDERE</b></size>\n" +
                 "<size=36><i>Một câu chuyện về tuổi nổi loạn, nỗi sợ,\n" +
                 "và khoảnh khắc ta chọn tự bước đi.</i></size>\n\n" +
@@ -843,8 +884,11 @@ private static void AuthorEndingPresentation(out GameObject finalCanvas, out Can
             SetObjectArray(step, "objectsToDisable", disable.Cast<Object>().ToArray());
         }
 
-        private static void Fade(Transform parent, string name, CanvasGroup group, float alpha, float duration) =>
-            Set(Step<CanvasFadeStep>(parent, name), "canvasGroup", group, "targetAlpha", alpha, "duration", duration);
+        private static void Fade(Transform parent, string name, CanvasGroup group, float alpha,
+            float duration, bool suppressMusicWhileOpaque = true) =>
+            Set(Step<CanvasFadeStep>(parent, name), "canvasGroup", group,
+                "targetAlpha", alpha, "duration", duration,
+                "suppressMusicWhileOpaque", suppressMusicWhileOpaque);
         private static void Wait(Transform parent, string name, float duration) =>
             Set(Step<WaitStep>(parent, name), "duration", duration);
         private static void Talk(Transform parent, string name, DialogueData data) =>

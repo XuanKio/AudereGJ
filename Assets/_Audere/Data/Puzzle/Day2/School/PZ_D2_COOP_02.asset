@@ -20,6 +20,7 @@ MonoBehaviour:
   availablePathPieces:
   - {fileID: 11400000, guid: 3dd3b65ac22be73408734f29b9e3e2a7, type: 2}
   - {fileID: 11400000, guid: 5683ce287b4d59b44a42c359e2cc90d4, type: 2}
-  - {fileID: 11400000, guid: a13d37b4f5c248f1a8c18a76bc5d9012, type: 2}
+  - {fileID: 11400000, guid: 5683ce287b4d59b44a42c359e2cc90d4, type: 2}
   - {fileID: 11400000, guid: 3dd3b65ac22be73408734f29b9e3e2a7, type: 2}
+  - {fileID: 11400000, guid: 89b89316f6d20d145915a623e26d28a4, type: 2}
   requireAllPathPieces: 1

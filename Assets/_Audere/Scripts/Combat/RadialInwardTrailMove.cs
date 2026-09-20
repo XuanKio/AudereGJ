@@ -71,6 +71,9 @@ namespace Audere.Combat
                 if (context.Board == null || !context.Board.isActiveAndEnabled) { Cancel(); return; }
                 elapsed += deltaTime;
                 if (elapsed >= data.Duration) { Cancel(); return; }
+                if (elapsed < data.telegraphDuration)
+                    context.Board.ShowAttackWarning(this, context.Board.PlayArea.rect.center, elapsed);
+                else context.Board.HideAttackWarning(this);
                 if (emitted) return;
                 emitted = true;
                 Rect field = context.Board.PlayArea.rect;
@@ -97,6 +100,7 @@ namespace Audere.Combat
                 if (cancelled) return;
                 cancelled = true;
                 if (context.Board == null) return;
+                context.Board.HideAttackWarning(this);
                 foreach (var lease in bullets) context.Board.ReturnEnemyBullet(lease.bullet, lease.lease);
                 context.Board.ClearStunTrails(context.SessionVersion, context.PhaseVersion, this);
             }

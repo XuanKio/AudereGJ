@@ -62,11 +62,17 @@ namespace Audere.Combat
                     if (!success)
                     {
                         float angle = context.Random.Range(0f, 360f);
+                        float bulletDiameter = data.projectilePrefab.GetComponent<RectTransform>().rect.width;
+                        float radius = CombatVolleySpawnLayout.RadialRadius(
+                            data.burstCount, bulletDiameter, 4f);
+                        origin = CombatVolleySpawnLayout.FitCircleCenter(
+                            context.Board.PlayArea.rect, origin, radius, bulletDiameter * .5f);
                         for (int n = 0; n < data.burstCount; n++)
                         {
                             float a = (angle + n * 360f / data.burstCount) * Mathf.Deg2Rad;
-                            context.Board.SpawnEnemyBullet(data.projectilePrefab, origin,
-                                new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * data.burstSpeed,
+                            Vector2 direction = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+                            context.Board.SpawnEnemyBullet(data.projectilePrefab, origin + direction * radius,
+                                direction * data.burstSpeed,
                                 context.SessionVersion, context.PhaseVersion, data.telegraphDuration);
                         }
                     }

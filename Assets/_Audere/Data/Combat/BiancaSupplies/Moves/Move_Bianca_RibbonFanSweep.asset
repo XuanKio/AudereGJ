@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5dad89e43e57394bbd501d7ac2f3379, type: 3}
+  m_Name: Move_Bianca_RibbonFanSweep
+  m_EditorClassIdentifier: 
+  duration: 12.8
+  leadInDuration: 0.65
+  projectilePrefab: {fileID: 9126691152138506455, guid: 1aa4ff28dc8d98c44a1105f73bbb28a9, type: 3}
+  ribbonsPerArm: 9
+  horizontalSpacing: 96
+  firstDistance: 48
+  telegraphDuration: 0.8
+  halfAngle: 35
+  strokeDuration: 1.05
+  turnDuration: 0.45
+  segmentDelay: 0.1
+  extensionDuration: 0.6

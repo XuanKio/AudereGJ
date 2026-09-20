@@ -31,6 +31,20 @@ namespace Audere.Dialogue
         public CombatTutorialView CombatTutorial => combatTutorial;
         public CombatRetryView CombatRetry => combatRetry;
 
+        public void SetGameplayCanvasVisible(bool visible)
+        {
+            ResolveReferences();
+            if (!visible)
+            {
+                dialogue?.ForceClose();
+                combatTutorial?.ForceHide();
+                combatRetry?.ForceHide();
+            }
+
+            if (gameplayCanvas != null)
+                gameplayCanvas.enabled = visible;
+        }
+
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -106,6 +120,14 @@ namespace Audere.Dialogue
 
         private void ApplyScenePresentation(Scene scene)
         {
+            SetGameplayCanvasVisible(true);
+            // This canvas survives scene loads. Match the scene-authored scaler even when
+            // arriving from another day instead of using the previous scene's setting.
+            if (gameplayCanvas != null && gameplayCanvas.TryGetComponent(out CanvasScaler scaler))
+                scaler.screenMatchMode = scene.name == GameScenes.Day4Classroom ||
+                    scene.name == GameScenes.Day4HomeEvening
+                    ? CanvasScaler.ScreenMatchMode.Expand
+                    : CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             if (puzzleUi == null)
                 return;
 

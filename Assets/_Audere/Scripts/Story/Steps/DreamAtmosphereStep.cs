@@ -11,6 +11,7 @@ namespace Audere.Story.Steps
         [SerializeField] private DreamAtmosphereView atmosphere;
         [SerializeField] private Action action;
         [SerializeField, Min(0f)] private float duration = 1.2f;
+        [SerializeField] private bool showPuzzleUi = true;
 
         protected override IEnumerator Execute()
         {
@@ -18,11 +19,11 @@ namespace Audere.Story.Steps
             if (action == Action.Begin)
             {
                 atmosphere.Begin();
-                if (GameplayUIRoot.Instance != null) GameplayUIRoot.Instance.PuzzleUi.gameObject.SetActive(true);
+                if (GameplayUIRoot.Instance != null) GameplayUIRoot.Instance.PuzzleUi.gameObject.SetActive(showPuzzleUi);
             }
             else if (action == Action.Stop)
             {
-                atmosphere.StopAndRestore();
+                atmosphere.ResetPresentation();
                 if (GameplayUIRoot.Instance != null) GameplayUIRoot.Instance.PuzzleUi.gameObject.SetActive(false);
             }
             else

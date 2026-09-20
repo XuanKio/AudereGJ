@@ -29,7 +29,7 @@ MonoBehaviour:
     portraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "\u0110\u1EEBng nh\xECn t\u1EDB l\xFAc n\xE0y\u2026"
+    text: "M\u1ECDi ng\u01B0\u1EDDi\u2026 \u0111\u1EEBng c\u01B0\u1EDDi m\xE0."
     characterOverride: 0
     portraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
     glitchPortraitTransition: 0

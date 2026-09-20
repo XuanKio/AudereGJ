@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5affead2d956ca94ebaa419ea07043d4, type: 3}
+  m_Name: Move_Bianca_RibbonWeave
+  m_EditorClassIdentifier: 
+  duration: 8.4
+  leadInDuration: 1.2
+  projectilePrefab: {fileID: 9126691152138506455, guid: 1aa4ff28dc8d98c44a1105f73bbb28a9, type: 3}
+  waveInterval: 1.8
+  flightDuration: 2.8
+  telegraphDuration: 0.7

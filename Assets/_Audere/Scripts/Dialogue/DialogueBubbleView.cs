@@ -21,6 +21,7 @@ namespace Audere.Dialogue
         private bool hasRestingPosition;
 
         public TMP_Text DialogueText => dialogueText;
+        public float MaximumPopScale => Mathf.Max(1f, popOvershootScale);
 
         private void Awake()
         {
@@ -112,7 +113,7 @@ namespace Audere.Dialogue
             if (canvasGroup != null)
                 canvasGroup.alpha = 1f;
         }
-
+        //Pop out animation is used when the dialogue bubble is dismissed, making it shrink and fade out smoothly.
         public IEnumerator PopOut()
         {
             if (!gameObject.activeSelf)

@@ -1,0 +1,171 @@
+{
+  "solved": true,
+  "solution_count": 2,
+  "solutions_truncated": false,
+  "total_piece_steps": 5,
+  "parity_matches": true,
+  "valid_first_move_count": 3,
+  "winning_first_move_count": 2,
+  "trap_first_move_count": 1,
+  "dead_end_state_count": 10,
+  "premature_goal_hit_count": 0,
+  "sample_trap_first_moves": [
+    {
+      "piece": "line-2",
+      "source_index": 1,
+      "rotation": 0,
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "end": [
+        1,
+        0
+      ]
+    }
+  ],
+  "sample_solutions": [
+    [
+      {
+        "piece": "line-3",
+        "source_index": 0,
+        "rotation": 0,
+        "path": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "end": [
+          2,
+          0
+        ]
+      },
+      {
+        "piece": "l-corner-3",
+        "source_index": 2,
+        "rotation": 0,
+        "path": [
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            3,
+            1
+          ]
+        ],
+        "end": [
+          3,
+          1
+        ]
+      },
+      {
+        "piece": "line-2",
+        "source_index": 1,
+        "rotation": 90,
+        "path": [
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "end": [
+          3,
+          2
+        ]
+      }
+    ],
+    [
+      {
+        "piece": "l-corner-3",
+        "source_index": 2,
+        "rotation": 0,
+        "path": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "end": [
+          1,
+          1
+        ]
+      },
+      {
+        "piece": "line-2",
+        "source_index": 1,
+        "rotation": 90,
+        "path": [
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            2
+          ]
+        ],
+        "end": [
+          1,
+          2
+        ]
+      },
+      {
+        "piece": "line-3",
+        "source_index": 0,
+        "rotation": 0,
+        "path": [
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "end": [
+          3,
+          2
+        ]
+      }
+    ]
+  ],
+  "one_use_cell_count": 0,
+  "board": " 2 . # # G\n 1 . # . #\n 0 S # # #\n   0 1 2 3"
+}

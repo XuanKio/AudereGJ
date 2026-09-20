@@ -29,6 +29,7 @@ namespace Audere.Audio
             return selected;
         }
         private readonly Dictionary<Object, float> ducks = new Dictionary<Object, float>();
+        private readonly Dictionary<Object, float> boosts = new Dictionary<Object, float>();
         private readonly List<Object> staleOwners = new List<Object>();
 
         public void TrackScreenFade(CanvasGroup group)
@@ -52,12 +53,18 @@ namespace Audere.Audio
             if (owner != null) ducks[owner] = Mathf.Clamp01(gain);
         }
 
+        public void SetBoost(Object owner, float gain)
+        {
+            if (owner != null) boosts[owner] = Mathf.Clamp(gain, 1f, 1.5f);
+        }
+
         public void Release(Object owner)
         {
             if (ReferenceEquals(owner, null)) return;
             combatOwners.Remove(owner);
             combatTracks.Remove(owner);
             ducks.Remove(owner);
+            boosts.Remove(owner);
         }
 
         public bool IsCombat
@@ -90,6 +97,22 @@ namespace Audere.Audio
             }
         }
 
+        public float Boost
+        {
+            get
+            {
+                float boost = 1f;
+                staleOwners.Clear();
+                foreach (KeyValuePair<Object, float> item in boosts)
+                {
+                    if (item.Key == null) staleOwners.Add(item.Key);
+                    else boost = Mathf.Max(boost, item.Value);
+                }
+                foreach (Object owner in staleOwners) boosts.Remove(owner);
+                return boost;
+            }
+        }
+
         public void Clear()
         {
             screenFades.Clear();
@@ -97,6 +120,7 @@ namespace Audere.Audio
             combatTracks.Clear();
             trackOrder = 0;
             ducks.Clear();
+            boosts.Clear();
             staleOwners.Clear();
         }
     }

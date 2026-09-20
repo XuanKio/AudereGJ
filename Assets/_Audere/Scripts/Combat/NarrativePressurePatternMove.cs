@@ -259,13 +259,30 @@ namespace Audere.Combat
                 float safeHalf = Mathf.Max(42f, rect.width * data.SafeGapFraction * .5f);
                 float playerX = context.Board.PlayerPosition.x;
                 int count = Mathf.Max(3, data.Intensity);
+                float minimumSpacing = data.ProjectilePrefab.GetComponent<RectTransform>().rect.width + 4f;
+                float[] columns = new float[count];
                 for (int i = 0; i < count; i++)
                 {
-                    float x = context.Random.Range(rect.xMin + 14f, rect.xMax - 14f);
-                    if (Mathf.Abs(x - playerX) < safeHalf)
-                        x = x < playerX ? playerX - safeHalf : playerX + safeHalf;
-                    x = Mathf.Clamp(x, rect.xMin + 14f, rect.xMax - 14f);
-                    Spawn(new Vector2(x, rect.yMax - 8f), Vector2.down * data.Speed);
+                    float bestX = rect.center.x;
+                    float bestSeparation = -1f;
+                    for (int attempt = 0; attempt < 24; attempt++)
+                    {
+                        float candidate = context.Random.Range(rect.xMin + 14f, rect.xMax - 14f);
+                        if (Mathf.Abs(candidate - playerX) < safeHalf)
+                            candidate = candidate < playerX ? playerX - safeHalf : playerX + safeHalf;
+                        candidate = Mathf.Clamp(candidate, rect.xMin + 14f, rect.xMax - 14f);
+                        float separation = float.PositiveInfinity;
+                        for (int previous = 0; previous < i; previous++)
+                            separation = Mathf.Min(separation, Mathf.Abs(candidate - columns[previous]));
+                        if (separation > bestSeparation)
+                        {
+                            bestX = candidate;
+                            bestSeparation = separation;
+                        }
+                        if (separation >= minimumSpacing) break;
+                    }
+                    columns[i] = bestX;
+                    Spawn(new Vector2(bestX, rect.yMax - 8f), Vector2.down * data.Speed);
                 }
             }
 
@@ -393,10 +410,18 @@ namespace Audere.Combat
 
             private void SpawnFan(Vector2 origin, Vector2 baseDirection, int count, float spread)
             {
+                Vector2 lateral = Vector2.Perpendicular(baseDirection.normalized);
+                if (lateral.sqrMagnitude < .001f) lateral = Vector2.right;
+                float spacing = data.Spacing;
+                origin = CombatVolleySpawnLayout.FitCenter(context.Board.PlayArea.rect,
+                    origin, lateral, count, ref spacing, 10f);
                 for (int i = 0; i < count; i++)
                 {
                     float t = count <= 1 ? .5f : i / (float)(count - 1);
-                    Spawn(origin, Rotate(baseDirection, Mathf.Lerp(-spread, spread, t)) * data.Speed);
+                    Vector2 separatedOrigin = origin + lateral *
+                        ((i - (count - 1) * .5f) * spacing);
+                    Spawn(separatedOrigin,
+                        Rotate(baseDirection, Mathf.Lerp(-spread, spread, t)) * data.Speed);
                 }
             }
 

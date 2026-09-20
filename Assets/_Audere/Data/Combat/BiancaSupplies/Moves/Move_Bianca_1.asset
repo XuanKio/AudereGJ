@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Move_Bianca_1
   m_EditorClassIdentifier: 
   duration: 6.6
-  leadInDuration: 2.2
+  leadInDuration: 1.2
   children:
   - {fileID: 11400000, guid: 60111873b87005a4c9b932f006f14341, type: 2}
   - {fileID: 11400000, guid: d16be72ad0ca88d43a75b14eef7193f1, type: 2}

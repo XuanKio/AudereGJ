@@ -321,6 +321,7 @@ namespace Audere.Combat.Editor
                 rootSerialized.ApplyModifiedPropertiesWithoutUndo();
                 panel.SetActive(false);
                 retryUi.transform.SetAsLastSibling();
+                CombatRetryPresentationAuthoring.Configure(root, CombatRetryPresentationAuthoring.GetOrCreateProfile());
                 PrefabUtility.SaveAsPrefabAsset(root, UiPath);
             }
             finally { PrefabUtility.UnloadPrefabContents(root); }
@@ -421,7 +422,9 @@ namespace Audere.Combat.Editor
             SerializedProperty entry = entries.GetArrayElementAtIndex(entries.arraySize - 1);
             entry.FindPropertyRelative("character").enumValueIndex = (int)DialogueCharacterId.KhoangLang;
             entry.FindPropertyRelative("displayName").stringValue = "Khoảng Lặng";
-            entry.FindPropertyRelative("portrait").objectReferenceValue = null;
+            entry.FindPropertyRelative("portrait").objectReferenceValue = AssetDatabase.LoadAllAssetsAtPath(
+                "Assets/_Audere/AssetGame/Audere/Audere_Creepy.png").OfType<Sprite>()
+                .Single(sprite => sprite.name == "Audere_Creepy_0");
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(catalog);
         }

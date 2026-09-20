@@ -12,7 +12,7 @@ namespace Audere.Combat
     public enum CombatResult { Victory, Defeat, Cancelled, Special }
 
     [DisallowMultipleComponent]
-    public sealed class CombatController : MonoBehaviour
+    public sealed partial class CombatController : MonoBehaviour
     {
         public enum State { Idle, EncounterIntro, Playing, PhaseTransition, DialoguePause, Victory, Defeat, Special }
 
@@ -51,6 +51,17 @@ namespace Audere.Combat
         private Coroutine resultPresentationRoutine;
         private int observedMoveVersion;
         private GameDifficulty activeDifficulty = GameDifficulty.Easy;
+        public CombatHeartScreenPose LastDefeatHeartPose { get; private set; }
+        private Texture2D defeatBackdrop;
+        public Texture2D TakeDefeatBackdrop()
+        {
+            Texture2D snapshot = defeatBackdrop;
+            defeatBackdrop = null;
+            return snapshot;
+        }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private int debugVictoryKeyPressCount;
+#endif
 
         private readonly struct PendingCombatCue
         {
@@ -97,6 +108,11 @@ namespace Audere.Combat
 
         private void Update()
         {
+            if (guidedTutorialRunning)
+            {
+                TickGuidedTutorial(Time.deltaTime);
+                return;
+            }
             if (tutorialInstructionAwaitingInteraction)
             {
                 if (HasCombatInput() && (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)))
@@ -104,6 +120,14 @@ namespace Audere.Combat
                 return;
             }
             if (CurrentState != State.Playing || encounterData == null || boardView == null || enemyRuntime == null) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (!tutorialActive && encounterData.OutcomeRules.Allows(CombatResult.Victory) &&
+                HasCombatInput() && Input.GetKeyDown(KeyCode.K) && ++debugVictoryKeyPressCount >= 5)
+            {
+                EndCombat(State.Victory);
+                return;
+            }
+#endif
             boardView.SetAttackAudioPaused(Time.timeScale <= 0f);
             float deltaTime = Time.deltaTime;
             float timeScale = tutorialActive ? tutorialTimeScale : 1f;
@@ -122,10 +146,15 @@ namespace Audere.Combat
                 cursorWasStunned = cursorIsStunned;
             }
             boardView.TickHeartFeedback(deltaTime);
-            TickDice(deltaTime);
             enemyRuntime.ObservePlayerTime(encounterTimeRemaining, ResolveActiveMaximumTime());
             int healthBeforeTick = enemyRuntime.CurrentHealth;
+            bool wasMountDiveActive=boardView.IsMountDiveActive;
+            bool wasOpeningMove = enemyRuntime.IsOpeningMove;
             enemyRuntime.Tick(deltaTime);
+            if (wasOpeningMove && !enemyRuntime.IsOpeningMove && enemyRuntime.ShouldSpawnDice && enemyRuntime.State == CombatEnemyRuntimeState.Playing)
+                ScheduleNextBatch(encounterData.BatchRespawnDelay);
+            if(hasCombatInput && (wasMountDiveActive || boardView.IsMountDiveActive))boardView.UpdateCursor(Input.mousePosition);
+            TickDice(deltaTime);
             if (healthBeforeTick != enemyRuntime.CurrentHealth) UpdateEnemyHealthImmediate();
             boardView.TickAnxietyText(deltaTime);
             QueueMoveStartCueIfNeeded();
@@ -203,7 +232,7 @@ namespace Audere.Combat
         {
             ResetRuntimeState(false);
             AudioService.Instance?.SetCombatMusicOwner(this, true, encounterData.Music, 1);
-            tutorialActive = encounterData.TutorialData != null;
+            tutorialActive = encounterData.TutorialData != null && !completedGuidedTutorials.Contains(encounterData.TutorialData);
             tutorialOpeningBatchPending = tutorialActive;
             encounterTimeRemaining = ResolveActiveMaximumTime();
             batchIndex = 0;
@@ -215,7 +244,7 @@ namespace Audere.Combat
             HideTutorialInstruction();
             boardView.ClearCombatRuntime();
             boardView.PrepareEncounter(encounterData.EnemyDisplayName);
-            if (tutorialActive)
+            if (tutorialActive && !encounterData.TutorialData.UseGuidedLessons)
                 boardView.ShowTutorialStunZone();
             try
             {
@@ -240,6 +269,11 @@ namespace Audere.Combat
             boardView.SetEnemyHealthVisible(enemyRuntime.ShowsHealth);
             UpdateEnemyHealthImmediate();
             boardView.SetEncounterPresentationVisible(true);
+            if (tutorialActive && encounterData.TutorialData.UseGuidedLessons)
+            {
+                StartCoroutine(RunGuidedTutorial(sessionVersion));
+                return;
+            }
             observedMoveVersion = enemyRuntime.CurrentMove != null && enemyRuntime.CurrentMove.LeadInDuration > 0f ? 0 : enemyRuntime.MoveVersion;
             CurrentState = State.EncounterIntro;
             StartCoroutine(EncounterIntro(sessionVersion));
@@ -247,6 +281,8 @@ namespace Audere.Combat
 
         private IEnumerator EncounterIntro(int sessionVersion)
         {
+            yield return boardView.TransitionPhasePresentation(enemyRuntime.CurrentPhase.Presentation);
+            if (!SessionIsCurrent(sessionVersion)) yield break;
             yield return boardView.PlayEnemyIntro();
             yield return new WaitForSecondsRealtime(.12f);
             if (!SessionIsCurrent(sessionVersion) || CurrentState != State.EncounterIntro) yield break;
@@ -285,12 +321,11 @@ namespace Audere.Combat
 
         private void TickDice(float deltaTime)
         {
-            Rect playRect = boardView.PlayArea != null ? boardView.PlayArea.rect : default;
             for (int i = activeDice.Count - 1; i >= 0; i--)
             {
                 CombatDieView die = activeDice[i];
                 if (die == null || die.IsCaptured || !die.gameObject.activeInHierarchy) { activeDice.RemoveAt(i); continue; }
-                die.TickMovement(playRect, deltaTime);
+                die.TickMovement(boardView.GetDiceMovementBounds(die.RectTransform.anchoredPosition), deltaTime);
             }
             int iterations = Mathf.Clamp(diceCollisionIterations, 1, 4);
             for (int iteration = 0; iteration < iterations; iteration++)
@@ -308,7 +343,8 @@ namespace Audere.Combat
             for (int i = 0; i < activeDice.Count; i++)
             {
                 CombatDieView die = activeDice[i];
-                if (die != null && !die.IsCaptured && !die.IsRerolling && die.gameObject.activeInHierarchy) die.ConstrainToBounds(playRect);
+                if (die != null && !die.IsCaptured && !die.IsRerolling && die.gameObject.activeInHierarchy)
+                    die.ConstrainToBounds(boardView.GetDiceMovementBounds(die.RectTransform.anchoredPosition));
             }
         }
 
@@ -345,6 +381,7 @@ namespace Audere.Combat
             if (die == null || die.IsCaptured || !activeDice.Remove(die)) return;
             CombatSymbol symbol = die.Symbol;
             if (symbol == CombatSymbol.Attack) capturedAttacksInBatch++;
+            boardView.PlayDiceCatchVfx(die);
             die.PlayCaptured();
             AudioService.Instance?.Play(AudioId.Dice_Catch);
             ApplyImmediateDiceEffect(symbol);
@@ -401,8 +438,15 @@ namespace Audere.Combat
             pendingCombatCues.Clear();
             StopAutoDialogue();
             HideTutorialInstruction();
+            boardView.CaptureDiceExit();
             StopBatchAndClearDice();
             boardView.ClearRuntimeBullets(sessionVersion, oldPhaseVersion);
+            while (boardView.IsRecoveringMove)
+            {
+                if (!PhaseIsCurrent(sessionVersion, oldPhaseVersion)) yield break;
+                boardView.TickMoveRecovery(Time.unscaledDeltaTime);
+                yield return null;
+            }
             CombatDialogueCue exitCue = FindTriggeredCue(CombatDialogueCueTrigger.PhaseExit);
             if (exitCue != null && exitCue.PausesCombatForPresentation)
             {
@@ -428,6 +472,8 @@ namespace Audere.Combat
             ApplyCurrentPhaseTimeFloor();
             UpdateEnemyHealthImmediate();
             int newPhaseVersion = enemyRuntime.PhaseVersion;
+            yield return boardView.TransitionPhasePresentation(enemyRuntime.CurrentPhase.Presentation);
+            if (!PhaseIsCurrent(sessionVersion, newPhaseVersion)) yield break;
             CombatDialogueCue enterCue = FindTriggeredCue(CombatDialogueCueTrigger.PhaseEnter);
             if (enterCue != null && enterCue.PausesCombatForPresentation)
             {
@@ -636,7 +682,7 @@ namespace Audere.Combat
 
         private void QueueMoveStartCueIfNeeded()
         {
-            if (enemyRuntime == null || observedMoveVersion == enemyRuntime.MoveVersion)
+            if (enemyRuntime == null || boardView.IsRecoveringMove || observedMoveVersion == enemyRuntime.MoveVersion)
                 return;
             observedMoveVersion = enemyRuntime.MoveVersion;
             CombatDialogueCue cue = FindTriggeredCue(
@@ -670,6 +716,7 @@ namespace Audere.Combat
             CombatMoveDefinition triggerMove = null,
             string completedCueId = null)
         {
+            if (guidedTutorialRunning) return null;
             IReadOnlyList<CombatDialogueCue> cues = tutorialActive
                 ? encounterData?.TutorialData?.Cues
                 : enemyRuntime?.CurrentPhase?.DialogueCues;
@@ -850,6 +897,8 @@ namespace Audere.Combat
             if (!PhaseIsCurrent(sessionVersion, phaseVersion) || encounterData == null || boardView == null)
                 return;
 
+            if (encounterData.TutorialData.UseGuidedLessons) completedGuidedTutorials.Add(encounterData.TutorialData);
+            ResetGuidedTutorial();
             CurrentState = State.PhaseTransition;
             pendingCombatCues.Clear();
             HideTutorialInstruction();
@@ -1028,7 +1077,7 @@ namespace Audere.Combat
         private IEnumerator WaitForCombatActiveDelay(float duration, int sessionVersion, int phaseVersion)
         {
             float elapsed = 0f;
-            while (elapsed < duration && PhaseIsCurrent(sessionVersion, phaseVersion))
+            while ((elapsed < duration || CurrentState == State.DialoguePause) && PhaseIsCurrent(sessionVersion, phaseVersion))
             {
                 if (CurrentState == State.Playing)
                     elapsed += Time.deltaTime;
@@ -1055,6 +1104,8 @@ namespace Audere.Combat
                 : result == State.Defeat ? CombatResult.Defeat : CombatResult.Special;
             if (encounterData != null && !encounterData.OutcomeRules.Allows(combatResult))
                 return;
+            LastDefeatHeartPose = result == State.Defeat && boardView != null
+                ? boardView.CapturePlayerHeartPose() : default;
             CurrentState = result;
             if (result == State.Defeat && encounterData.DefeatPresentation != null &&
                 encounterData.DefeatPresentation.IsConfigured)
@@ -1083,8 +1134,36 @@ namespace Audere.Combat
                 return;
             }
             if (result == State.Victory) enemyRuntime?.CompleteVictory();
+            if (result == State.Defeat && encounterData.OutcomeRules.ShowRetryOnDefeat)
+            {
+                StartCoroutine(CaptureDefeatBackdropAndComplete(playRequestVersion));
+                return;
+            }
             StopEncounterRuntime();
             Complete(combatResult);
+        }
+
+        private IEnumerator CaptureDefeatBackdropAndComplete(int request)
+        {
+            // Keep the rendered fight until capture; the real Heart is replaced by Retry's
+            // split sprite, so it must not remain baked into the frozen background.
+            boardView.ActiveEnemyActor?.SetPaused(true);
+            boardView.SetCursorVisible(false);
+            boardView.SetAttackAudioPaused(true);
+            yield return new WaitForEndOfFrame();
+            if (!isPlaying || request != playRequestVersion || CurrentState != State.Defeat) yield break;
+            defeatBackdrop = ScreenCapture.CaptureScreenshotAsTexture();
+            StopEncounterRuntime(false);
+            Complete(CombatResult.Defeat);
+            ReleaseDefeatBackdrop(); // A Retry callback takes ownership synchronously.
+        }
+
+        private void ReleaseDefeatBackdrop()
+        {
+            if (defeatBackdrop == null) return;
+            if (Application.isPlaying) Destroy(defeatBackdrop);
+            else DestroyImmediate(defeatBackdrop);
+            defeatBackdrop = null;
         }
 
         private void StopAutoDialogue()
@@ -1156,6 +1235,11 @@ namespace Audere.Combat
             if (!isPlaying || requestVersion != playRequestVersion || CurrentState != expectedState)
                 yield break;
             resultPresentationRoutine = null;
+            if (result == CombatResult.Defeat && encounterData.OutcomeRules.ShowRetryOnDefeat)
+            {
+                yield return CaptureDefeatBackdropAndComplete(requestVersion);
+                yield break;
+            }
             StopEncounterRuntime(false);
             Complete(result);
         }
@@ -1173,6 +1257,8 @@ namespace Audere.Combat
 
         private void ResetRuntimeState(bool resetLifecycleState = true)
         {
+            ReleaseDefeatBackdrop();
+            LastDefeatHeartPose = default;
             AudioService.Instance?.ReleaseMusicOwner(this);
             StopEncounterRuntime();
             encounterTimeRemaining = 0f;
@@ -1199,6 +1285,7 @@ namespace Audere.Combat
 
         private void StopEncounterRuntime(bool stopCoroutines = true)
         {
+            ResetGuidedTutorial();
             if (stopCoroutines)
                 StopAllCoroutines();
             resultPresentationRoutine = null;
@@ -1212,6 +1299,9 @@ namespace Audere.Combat
             tutorialOpeningBatchPending = false;
             activeAutoDialogueRoutine = null;
             observedMoveVersion = 0;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            debugVictoryKeyPressCount = 0;
+#endif
             HideTutorialInstruction();
             GameplayUIRoot.Instance?.Dialogue?.ForceClose();
             enemyRuntime?.Cancel();

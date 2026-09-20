@@ -2,9 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Audere.Audio;
+using Audere.Core;
 using Audere.GameplayInput;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace Audere.Dialogue
 {
@@ -54,12 +57,16 @@ namespace Audere.Dialogue
         private float autoMinimumLineDuration;
         private float autoCharactersPerSecond;
         private float autoInterLineGap;
+        private Vector2 leftSlotPosition, rightSlotPosition;
+        private Vector2 leftBubblePosition, rightBubblePosition;
+        private bool viewportLayoutCaptured, viewportLayoutApplied;
 
         public bool IsPlaying => playbackRoutine != null;
 
         private void Awake()
         {
             EnsureTypewriterAudioSource();
+            CaptureViewportLayout();
             HideImmediately();
         }
 
@@ -67,6 +74,111 @@ namespace Audere.Dialogue
         {
             if (IsPlaying && SkipPressed())
                 cancellationRequested = true;
+        }
+
+        private void LateUpdate() => FitDay4DialogueOutsideViewport();
+
+        private void CaptureViewportLayout()
+        {
+            if (leftSlot == null || rightSlot == null || leftSlot.Bubble == null || rightSlot.Bubble == null)
+                return;
+            leftSlotPosition = ((RectTransform)leftSlot.transform).anchoredPosition;
+            rightSlotPosition = ((RectTransform)rightSlot.transform).anchoredPosition;
+            leftBubblePosition = ((RectTransform)leftSlot.Bubble.transform).anchoredPosition;
+            rightBubblePosition = ((RectTransform)rightSlot.Bubble.transform).anchoredPosition;
+            viewportLayoutCaptured = true;
+        }
+
+        private void FitDay4DialogueOutsideViewport()
+        {
+            if (!viewportLayoutCaptured) return;
+            Scene scene = SceneManager.GetActiveScene();
+            Camera camera = Camera.main;
+            Transform mask = camera != null ? camera.transform.Find("PuzzleViewportMask") : null;
+            if ((scene.name != GameScenes.Day4Classroom && scene.name != GameScenes.Day4HomeEvening) ||
+                mask == null || !mask.gameObject.activeInHierarchy)
+            {
+                RestoreViewportLayout();
+                return;
+            }
+
+            SpriteRenderer leftMask = mask.Find("Mask Left")?.GetComponent<SpriteRenderer>();
+            SpriteRenderer rightMask = mask.Find("Mask Right")?.GetComponent<SpriteRenderer>();
+            SpriteRenderer bottomMask = mask.Find("Mask Bottom")?.GetComponent<SpriteRenderer>();
+            Canvas canvas = GetComponentInParent<Canvas>()?.rootCanvas;
+            RectTransform parent = transform as RectTransform;
+            if (leftMask == null || rightMask == null || bottomMask == null || canvas == null || parent == null)
+            {
+                RestoreViewportLayout();
+                return;
+            }
+
+            float leftEdge = camera.WorldToScreenPoint(leftMask.bounds.max).x;
+            float rightEdge = camera.WorldToScreenPoint(rightMask.bounds.min).x;
+            float bottomEdge = camera.WorldToScreenPoint(bottomMask.bounds.max).y;
+            RectTransform leftBubble = (RectTransform)leftSlot.Bubble.transform;
+            RectTransform rightBubble = (RectTransform)rightSlot.Bubble.transform;
+            // Reserve the pop's full extent; animated scale must not move the portrait's parent.
+            float leftLayoutScale = leftSlot.Bubble.MaximumPopScale;
+            float rightLayoutScale = rightSlot.Bubble.MaximumPopScale;
+            float bubbleWidth = Mathf.Max(leftBubble.rect.width * leftLayoutScale,
+                rightBubble.rect.width * rightLayoutScale) * canvas.scaleFactor;
+            const float margin = 2f;
+            float gutter = Mathf.Min(leftEdge, Screen.width - rightEdge);
+            RectTransform left = (RectTransform)leftSlot.transform;
+            RectTransform right = (RectTransform)rightSlot.transform;
+            if (gutter + 12f >= bubbleWidth)
+            {
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(parent,
+                    new Vector2(leftEdge - margin, Screen.height * .5f), null, out Vector2 leftLimit);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(parent,
+                    new Vector2(rightEdge + margin, Screen.height * .5f), null, out Vector2 rightLimit);
+                left.anchoredPosition = new Vector2(leftLimit.x -
+                    (leftBubblePosition.x + leftBubble.rect.width * .5f * leftLayoutScale),
+                    leftSlotPosition.y);
+                right.anchoredPosition = new Vector2(rightLimit.x -
+                    (rightBubblePosition.x - rightBubble.rect.width * .5f * rightLayoutScale),
+                    rightSlotPosition.y);
+                leftSlot.SetPortraitVisibleForLayout(true);
+                rightSlot.SetPortraitVisibleForLayout(true);
+            }
+            else
+            {
+                // Keep the authored size. Use the bottom black strip when the side
+                // columns cannot hold the bubble; its pop may crop a few bottom pixels.
+                float bubbleHalfHeight = Mathf.Max(GetVisibleBubbleHeight(leftBubble) * leftLayoutScale,
+                    GetVisibleBubbleHeight(rightBubble) * rightLayoutScale) * canvas.scaleFactor * .5f;
+                float bubbleCenterY = Mathf.Min(Mathf.Max(0f, bottomEdge) * .5f,
+                    bottomEdge - margin - bubbleHalfHeight);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(parent,
+                    new Vector2(Screen.width * .5f, bubbleCenterY),
+                    null, out Vector2 bottomCenter);
+                left.anchoredPosition = bottomCenter - leftBubblePosition;
+                right.anchoredPosition = bottomCenter - rightBubblePosition;
+                leftSlot.SetPortraitVisibleForLayout(false);
+                rightSlot.SetPortraitVisibleForLayout(false);
+            }
+            viewportLayoutApplied = true;
+        }
+
+        private static float GetVisibleBubbleHeight(RectTransform bubble)
+        {
+            Image image = bubble.GetComponent<Image>();
+            Sprite sprite = image != null ? image.sprite : null;
+            if (image == null || sprite == null || !image.preserveAspect)
+                return bubble.rect.height;
+            return Mathf.Min(bubble.rect.height,
+                bubble.rect.width * sprite.rect.height / sprite.rect.width);
+        }
+
+        private void RestoreViewportLayout()
+        {
+            if (!viewportLayoutApplied) return;
+            ((RectTransform)leftSlot.transform).anchoredPosition = leftSlotPosition;
+            ((RectTransform)rightSlot.transform).anchoredPosition = rightSlotPosition;
+            leftSlot.SetPortraitVisibleForLayout(true);
+            rightSlot.SetPortraitVisibleForLayout(true);
+            viewportLayoutApplied = false;
         }
 
         private void OnDisable()

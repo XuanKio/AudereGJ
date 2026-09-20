@@ -16,13 +16,15 @@ MonoBehaviour:
   displayName: "\u0110\xE1m \u0111\xF4ng"
   actorPrefab: {fileID: 7455955963728027949, guid: eaf714f66a44263468d58ee647cbed5d, type: 3}
   phasePolicy: 1
-  sharedMaxHealth: 21
+  sharedMaxHealth: 19
   phases:
   - phaseId: everyone-is-looking
     maxHealth: 0
     sharedExitThreshold: 10
     duration: 0
     moveSet: {fileID: 11400000, guid: 96a1279525e6a1543b090d839fb53c9c, type: 2}
+    damageReactionMove: {fileID: 0}
+    damageReactionOnEnter: 0
     dialogueCues:
     - cueId: crowd-timor-returns
       oneShotKey: 
@@ -59,11 +61,28 @@ MonoBehaviour:
     allowsPlayerDefeat: 1
     minimumPlayerTimeOnEnter: 0
     playerTimeExitFraction: 0
+  - phaseId: nowhere-to-hide
+    maxHealth: 0
+    sharedExitThreshold: 3
+    duration: 0
+    moveSet: {fileID: 11400000, guid: c9c0b9fa3042d9942801ee1b317a4ef2, type: 2}
+    damageReactionMove: {fileID: 11400000, guid: 882201ca5f7485d4e832f182a8daa170, type: 2}
+    damageReactionOnEnter: 1
+    dialogueCues: []
+    diceBatch: {fileID: 0}
+    requiredCapturedBatches: 0
+    spawnDice: 1
+    advanceOnMoveComplete: 0
+    allowsPlayerDefeat: 1
+    minimumPlayerTimeOnEnter: 0
+    playerTimeExitFraction: 0
   - phaseId: one-real-voice
     maxHealth: 0
     sharedExitThreshold: 0
     duration: 0
     moveSet: {fileID: 11400000, guid: 34adc1a3e5e8d9949981389ece1b5905, type: 2}
+    damageReactionMove: {fileID: 0}
+    damageReactionOnEnter: 0
     dialogueCues:
     - cueId: crowd-bianca-real-voice
       oneShotKey: 

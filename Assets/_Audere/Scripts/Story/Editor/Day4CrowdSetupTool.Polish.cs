@@ -16,6 +16,34 @@ namespace Audere.Story.Editor
 {
     public static partial class Day4CrowdSetupTool
     {
+        [MenuItem("Audere/Combat/Apply Crowd Dodge Phase Balance")]
+        public static void ApplyCrowdDodgePhaseBalance()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+                throw new InvalidOperationException("Crowd combat assets can only be edited in ready Edit Mode.");
+            ApplyCrowdDodgePhaseBalanceAssets();
+            AssetDatabase.SaveAssets();
+            Debug.Log("[Day4CrowdSetupTool] Crowd chase and phase balance applied without changing a scene.");
+        }
+
+        private static void ApplyCrowdDodgePhaseBalanceAssets()
+        {
+            var clasp = AssetDatabase.LoadAssetAtPath<ConvergingHandsMove>(Folder + "/Move_ClaspAndStab.asset");
+            var palms = AssetDatabase.LoadAssetAtPath<GraspingHandsMove>(Folder + "/Move_Palms.asset");
+            var rush = AssetDatabase.LoadAssetAtPath<LinearProjectilePatternMove>(Folder + "/Move_RushingVoices.asset");
+            var waves = AssetDatabase.LoadAssetAtPath<OscillatingHandWallMove>(Folder + "/Move_HandWaves.asset");
+            var shifting = AssetDatabase.LoadAssetAtPath<CompositeCombatMove>(Folder + "/Move_ShiftingPalms.asset");
+            if (clasp == null || palms == null || rush == null || waves == null || shifting == null)
+                throw new MissingReferenceException("Crowd move assets are missing; run the scene authoring once first.");
+            ApplyCrowdCatchPolish();
+            Set(palms,"duration",7f,"warning",.65f,"strike",.55f,"hold",.55f,"retreat",.5f,"rest",.3f,"handsPerBeat",2,"palmVolleys",1,"bulletsPerVolley",10,"bulletSpeed",112f,"sweepDegrees",30f);
+            Set(rush,"duration",5f,"shotInterval",.62f,"projectilesPerShot",3,"spacing",70f,"speed",155f);
+            Save(clasp,Folder + "/Move_ClaspAndStab.asset");
+            Save(palms,Folder + "/Move_Palms.asset");
+            Save(rush,Folder + "/Move_RushingVoices.asset");
+            MoveSet("Crowded",waves,clasp,rush,shifting);
+        }
+
         [MenuItem("Audere/Story/Polish Active Day4 Crowd Hands And Background")]
         public static void PolishActive()
         {
@@ -37,11 +65,8 @@ namespace Audere.Story.Editor
             Set(wave,"handPrefab",hand,"duration",7.3f,"warning",.8f,"handsPerSide",8,"period",2.3f,"meanDepth",.27f,"amplitude",.14f);
             Save(wave,Folder + "/Move_HandWaves.asset");
             var clasp = New<ConvergingHandsMove>(Folder + "/Move_ClaspAndStab.asset");
-            Set(clasp,"handPrefab",hand,"duration",5.1f,"gripHands",3,"warning",.9f,"closeDuration",.45f,"holdDuration",2.4f,"releaseDuration",.55f,"stabInterval",.34f,"stabWarning",.3f);
-            Save(clasp,Folder + "/Move_ClaspAndStab.asset");
-            MoveSet("Crowded",wave,clasp,
-                AssetDatabase.LoadAssetAtPath<CombatMoveDefinition>(Folder+"/Move_ShiftingPalms.asset"),
-                AssetDatabase.LoadAssetAtPath<CombatMoveDefinition>(Folder+"/Move_RushingVoices.asset"));
+            Set(clasp,"handPrefab",hand); Save(clasp,Folder + "/Move_ClaspAndStab.asset");
+            ApplyCrowdDodgePhaseBalanceAssets();
 
             var mode=All<WorldModeController>(scene).Single();
             Set(mode,"storyUsesPuzzleViewportMask",true);
@@ -66,7 +91,7 @@ namespace Audere.Story.Editor
             mat.SetColor("_Color",new Color(.42f,.32f,.48f,1f));EditorUtility.SetDirty(mat);image.material=mat;
             var field=Component<DriftingSpriteField>(backdrop);
             Set(field,"image",image,"fieldMaterial",mat);
-            var fieldSo=new SerializedObject(field);var op=fieldSo.FindProperty("phaseOpacity");op.arraySize=2;op.GetArrayElementAtIndex(0).floatValue=.55f;op.GetArrayElementAtIndex(1).floatValue=.18f;fieldSo.ApplyModifiedPropertiesWithoutUndo();
+            var fieldSo=new SerializedObject(field);var op=fieldSo.FindProperty("phaseOpacity");op.arraySize=3;op.GetArrayElementAtIndex(0).floatValue=.55f;op.GetArrayElementAtIndex(1).floatValue=.6f;op.GetArrayElementAtIndex(2).floatValue=.18f;fieldSo.ApplyModifiedPropertiesWithoutUndo();
             var board=All<CombatBoardView>(scene).Single();
             var actor=(CombatEnemyActor)new SerializedObject(board).FindProperty("authoredEnemyActor").objectReferenceValue;
             var actorSo=new SerializedObject(actor);var modules=actorSo.FindProperty("mechanicModules");
@@ -83,6 +108,7 @@ namespace Audere.Story.Editor
             for(int i=1;i<lines.arraySize;i++)lines.GetArrayElementAtIndex(i).FindPropertyRelative("portraitOverride").objectReferenceValue=Sprite("Audere/Audere_Scared.png");
             thoughtSo.ApplyModifiedPropertiesWithoutUndo();EditorUtility.SetDirty(thought);
             Order(story.transform); AssetDatabase.SaveAssets();EditorSceneManager.MarkSceneDirty(scene);EditorSceneManager.SaveScene(scene);
+            ApplyFallingRoomActive();
         }
     }
 }

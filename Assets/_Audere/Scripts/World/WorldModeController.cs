@@ -108,6 +108,22 @@ namespace Audere.World
         public void ShowCombat() => SwitchTo(WorldGameplayMode.Combat);
         public void ShowStory() => SwitchTo(WorldGameplayMode.Story);
 
+        public void DebugShowCombatImmediate()
+        {
+            if (transitionRoutine != null) StopCoroutine(transitionRoutine);
+            transitionRoutine = null;
+            CompleteTransition();
+            // Story camera constraints must not pull the combat camera back to the puzzle.
+            if (worldCamera != null)
+            {
+                var constraint = worldCamera.GetComponent<UnityEngine.Animations.PositionConstraint>();
+                if (constraint != null) constraint.enabled = false;
+                var storyFollow = worldCamera.GetComponent<StoryCameraFollow2D>();
+                if (storyFollow != null) storyFollow.enabled = false;
+            }
+            ApplyModeImmediate(WorldGameplayMode.Combat);
+        }
+
         public void SwitchTo(WorldGameplayMode nextMode)
         {
             if (nextMode == CurrentMode && !IsTransitioning)

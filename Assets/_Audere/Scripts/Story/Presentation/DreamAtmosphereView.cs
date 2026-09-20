@@ -19,6 +19,8 @@ namespace Audere.Story.Presentation
         [SerializeField, Range(0f, 2f)] private float parallax = .85f;
         [SerializeField, Min(0f)] private float floatHeight = .055f;
         [SerializeField, Min(0f)] private float textDrift = .04f;
+        [Tooltip("Ascending pressure threshold for each scene-authored murmur. Empty preserves legacy presentation.")]
+        [SerializeField] private float[] murmurThresholds = new float[0];
 
         [SerializeField, Min(0f)] private float horizontalDrift;
         [SerializeField, Min(0f)] private float floatRotation;
@@ -32,6 +34,15 @@ namespace Audere.Story.Presentation
         private bool captured;
         public bool IsRunning { get; private set; }
         public float Chaos { get; private set; }
+        public float Pressure { get; private set; }
+        private float fallDrop, enclosure;
+
+        public void SetPressure(float value) => Pressure = Mathf.Clamp01(value);
+        public void SetFall(float drop, float progress)
+        {
+            fallDrop = drop;
+            enclosure = Mathf.Clamp01(progress);
+        }
 
         private void Capture()
         {
@@ -62,17 +73,24 @@ namespace Audere.Story.Presentation
                 textPositions[i] = text.transform.position;
                 textRotations[i] = text.transform.rotation;
                 textColors[i] = text.color;
-                text.ForceMeshUpdate(true);
-                textMeshes[i] = text.textInfo.CopyMeshInfoVertexData();
+                // Hidden TMP objects may not have initialized their vertex arrays yet.
+                // Capture authored presentation now; cache glyph geometry only after activation.
             }
             captured = true;
         }
 
         public void Begin()
         {
+            ResetPresentation();
+            IsRunning = true;
+        }
+
+        public void ResetPresentation()
+        {
+            // Prepare while the dream roots are still hidden, before the glass reveals them.
+            // A plain StopAndRestore on first load had nothing captured and left all 64 texts visible.
             Capture();
             StopAndRestore();
-            IsRunning = true;
         }
 
         public void SetChaos(float value)
@@ -96,7 +114,7 @@ namespace Audere.Story.Presentation
             elapsed += Time.unscaledDeltaTime;
             float travel = player.transform.position.x - playerStart.position.x;
             // X only: a hop never shakes the camera, and the authored Y/framing remains unchanged.
-            Vector3 cameraPose = cameraStart.position + Vector3.right * travel;
+            Vector3 cameraPose = cameraStart.position + Vector3.right * travel + Vector3.up * fallDrop;
             worldCamera.transform.position = cameraPose;
             for (int i = 0; i < floatingTiles.Length; i++)
             {
@@ -118,11 +136,24 @@ namespace Audere.Story.Presentation
                 Vector3 pose = textPositions[i];
                 float offset = pose.x - cameraStart.position.x - travel * parallax - elapsed * textDrift;
                 pose.x = cameraPose.x + Mathf.Repeat(offset + textRepeatWidth * .5f, textRepeatWidth) - textRepeatWidth * .5f;
-                pose.y += Mathf.Sin(elapsed * (1f + Chaos * 2f) + i) * (.025f + Chaos * .12f);
+                float intensity = Mathf.Max(Chaos, Pressure);
+                pose.y += fallDrop + Mathf.Sin(elapsed * (1f + intensity * 2f) + i) * (.025f + intensity * .12f);
+                if (enclosure > 0f)
+                {
+                    float angle = i * 2.399963f + elapsed * (i % 2 == 0 ? .24f : -.19f);
+                    float radius = .55f + (i % 6) * .17f;
+                    Vector3 ring = player.transform.position + new Vector3(Mathf.Cos(angle) * radius * 1.65f,
+                        Mathf.Sin(angle) * radius, pose.z - player.transform.position.z);
+                    pose = Vector3.Lerp(pose, ring, enclosure);
+                }
                 text.transform.position = pose;
                 text.transform.rotation = textRotations[i] * Quaternion.Euler(0f, 0f,
-                    Mathf.Sin(elapsed * (1f + Chaos * 3f) + i * 2f) * (2f + Chaos * 15f));
-                text.color = Fade(textColors[i], 1f + Chaos * .7f);
+                    Mathf.Sin(elapsed * (1f + intensity * 3f) + i * 2f) * (2f + intensity * 22f));
+                float visibility = murmurThresholds.Length == murmurs.Length
+                    ? Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((Pressure - murmurThresholds[i]) / .12f)) : 1f;
+                text.color = Fade(textColors[i], visibility * (1f + intensity * 1.6f));
+                // TMP rebuilds dirty colors at PreRender. Generate now so it cannot overwrite the warped vertices later.
+                if (text.havePropertiesChanged) text.ForceMeshUpdate();
                 WarpText(i);
             }
         }
@@ -130,8 +161,18 @@ namespace Audere.Story.Presentation
         private void WarpText(int index)
         {
             TMP_Text text = murmurs[index];
+            if (!text.isActiveAndEnabled) return;
+            if (textMeshes[index] == null)
+            {
+                text.ForceMeshUpdate();
+                var info = text.textInfo.meshInfo;
+                if (info == null || info.Length == 0) return;
+                for (int m = 0; m < info.Length; m++) if (info[m].vertices == null) return;
+                textMeshes[index] = text.textInfo.CopyMeshInfoVertexData();
+            }
             var source = textMeshes[index];
             var mesh = text.textInfo.meshInfo;
+            float intensity = Mathf.Max(Chaos, Pressure);
             for (int m = 0; m < mesh.Length && m < source.Length; m++)
             {
                 var vertices = mesh[m].vertices;
@@ -140,8 +181,8 @@ namespace Audere.Story.Presentation
                 for (int v = 0; v < count; v++)
                 {
                     Vector3 p = original[v];
-                    p.y += Mathf.Sin(p.x * 5f + elapsed * (1.3f + Chaos * 4f) + index) * (.012f + Chaos * .04f);
-                    p.x += Mathf.Sin(p.y * 6f + elapsed * 1.5f + index) * (.006f + Chaos * .02f);
+                    p.y += Mathf.Sin(p.x * 5f + elapsed * (1.3f + intensity * 4f) + index) * (.005f + intensity * .065f);
+                    p.x += Mathf.Sin(p.y * 6f + elapsed * 1.5f + index) * (.003f + intensity * .035f);
                     vertices[v] = p;
                 }
             }
@@ -153,6 +194,8 @@ namespace Audere.Story.Presentation
             IsRunning = false;
             elapsed = 0f;
             Chaos = 0f;
+            Pressure = 0f;
+            fallDrop = enclosure = 0f;
             if (!captured) return;
             for (int i = 0; i < floatingTiles.Length; i++)
                 if (floatingTiles[i] != null)
@@ -167,8 +210,8 @@ namespace Audere.Story.Presentation
                 if (murmurs[i] != null)
                 {
                     murmurs[i].transform.SetPositionAndRotation(textPositions[i], textRotations[i]);
-                    murmurs[i].color = textColors[i];
-                    murmurs[i].ForceMeshUpdate(true);
+                    murmurs[i].color = Fade(textColors[i], murmurThresholds.Length == murmurs.Length && murmurThresholds[i] > 0f ? 0f : 1f);
+                    if (murmurs[i].isActiveAndEnabled) murmurs[i].ForceMeshUpdate();
                 }
             if (worldCamera != null && cameraStart != null) worldCamera.transform.position = cameraStart.position;
         }

@@ -15,10 +15,12 @@ namespace Audere.Dialogue
             [SerializeField] private DialogueCharacterId character;
             [SerializeField] private string displayName;
             [SerializeField] private Sprite portrait;
+            [SerializeField] private float portraitVerticalOffset;
 
             public DialogueCharacterId Character => character;
             public string DisplayName => displayName;
             public Sprite Portrait => portrait;
+            public float PortraitVerticalOffset => portraitVerticalOffset;
         }
 
         [SerializeField] private List<Entry> characters = new List<Entry>();

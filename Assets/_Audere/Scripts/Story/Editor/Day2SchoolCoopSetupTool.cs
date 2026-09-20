@@ -30,9 +30,98 @@ namespace Audere.EditorTools
             public string[] Pieces;
         }
         private static Vector2Int P(int x, int y) => new Vector2Int(x, y);
-        private static Layout[] Layouts() => new[]{new Layout { A=P(0,1),B=P(1,0),GoalA=P(3,1),GoalB=P(2,2),Cells=new[]{P(0,1),P(1,0),P(1,1),P(2,1),P(3,1),P(2,2)},Red=new[]{P(1,1)},Pieces=new[]{"Line_2","L_Corner_3","Line_3","Line_2"}},
-new Layout { A=P(1,0),B=P(0,1),GoalA=P(2,2),GoalB=P(4,1),Cells=new[]{P(0,1),P(1,0),P(1,1),P(2,1),P(3,1),P(4,1),P(2,2)},Red=new[]{P(1,1)},Pieces=new[]{"Line_2","L_Corner_3","Line_4","Line_2"}},
-new Layout { A=P(0,1),B=P(2,0),GoalA=P(4,1),GoalB=P(3,2),Cells=new[]{P(0,1),P(1,1),P(2,0),P(2,1),P(3,1),P(4,1),P(3,2)},Red=new[]{P(2,1)},Pieces=new[]{"Line_3","L_Corner_3","Line_3","Line_2"}}};
+        private static Layout[] Layouts() => new[]{new Layout { A=P(0,1),B=P(1,0),GoalA=P(3,1),GoalB=P(2,2),Cells=new[]{P(0,1),P(0,2),P(1,0),P(1,1),P(1,2),P(2,2),P(3,2),P(3,1)},Red=new[]{P(1,2)},Pieces=new[]{"L_Corner_3","Line_3","L_Corner","Line_2"}},
+new Layout { A=P(1,0),B=P(0,1),GoalA=P(2,2),GoalB=P(4,1),Cells=new[]{P(0,1),P(1,0),P(1,1),P(2,1),P(2,2),P(3,1),P(3,2),P(4,2),P(4,1)},Red=new[]{P(1,1),P(2,1)},Pieces=new[]{"Line_2","L_Corner_3","L_Corner_3","Line_2","L_Corner"}},
+new Layout { A=P(0,1),B=P(2,0),GoalA=P(4,1),GoalB=P(3,2),Cells=new[]{P(0,1),P(1,1),P(2,0),P(2,1),P(3,1),P(3,2),P(4,2),P(4,1)},Red=new[]{P(2,1),P(3,1)},Pieces=new[]{"Line_3","L_Corner_3","L_Corner_3","L_Corner_3","Line_2"}}};
+
+        [MenuItem("Audere/Story/Redesign Existing Cooperative Puzzles")]
+        public static void RedesignExisting()
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode)
+                throw new InvalidOperationException("Stop Play Mode before editing cooperative puzzles.");
+            var scene = SceneManager.GetActiveScene();
+            if (scene.path != Day2SchoolMorningSetupTool.ScenePath)
+                throw new InvalidOperationException("Open the Day 2 school scene first.");
+            RedesignExisting(scene);
+            EditorSceneManager.MarkSceneDirty(scene);
+            EditorSceneManager.SaveScene(scene);
+            AssetDatabase.SaveAssets();
+        }
+
+        // Mutate only the three scene-authored boards and their direct reveal/data references.
+        public static void RedesignExisting(Scene scene)
+        {
+            if (EditorApplication.isPlayingOrWillChangePlaymode || scene.path != Day2SchoolMorningSetupTool.ScenePath)
+                throw new InvalidOperationException("An editable Day 2 school scene is required.");
+            if (ShortPuzzleAuthoring.All<CooperativePuzzleSession>(scene).Length == 1)
+            { ShortPuzzleAuthoring.SingleCoop(scene); return; }
+            var roots = scene.GetRootGameObjects();
+            var school = roots.Single(r => r.name == "SCHOOL").transform;
+            var levels = school.Find("COOP PUZZLES");
+            var staging = school.Find("STAGING TARGETS");
+            var story = roots.Single(r => r.name == "STORY").transform;
+            var grassPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PuzzleContentConstants.AssetPaths.GrassPrefab);
+            if (grassPrefab == null) throw new InvalidOperationException("Missing grass tile prefab.");
+            var layouts = Layouts();
+            for (int i = 0; i < layouts.Length; i++)
+            {
+                var layout = layouts[i];
+                string id = "PZ_D2_COOP_0" + (i + 1);
+                var level = levels.Find(id).GetComponentInChildren<PuzzleController>(true);
+                var pair = level.Puzzle.Cooperative;
+                var boardRoot = level.PuzzleRoot.Find("StepTile Board");
+                var desired = new HashSet<string>(layout.Cells.Select(c => "Tile_" + c.x + "_" + c.y));
+                foreach (var tile in level.PuzzleRoot.GetComponentsInChildren<BoardTile>(true))
+                    if (!desired.Contains(tile.name)) Object.DestroyImmediate(tile.gameObject);
+                var tiles = level.PuzzleRoot.GetComponentsInChildren<BoardTile>(true).ToDictionary(t => t.name);
+                foreach (var cell in layout.Cells)
+                {
+                    string name = "Tile_" + cell.x + "_" + cell.y;
+                    if (!tiles.TryGetValue(name, out var tile))
+                    {
+                        var go = (GameObject)PrefabUtility.InstantiatePrefab(grassPrefab, boardRoot);
+                        go.name = name;
+                        go.transform.localPosition = (Vector3)(Vector2)cell;
+                        go.transform.localRotation = Quaternion.identity;
+                        go.transform.localScale = Vector3.one;
+                        tile = go.GetComponent<BoardTile>();
+                        tiles.Add(name, tile);
+                    }
+                    var red = tile.GetComponent<CooperativeRedTileBehaviour>();
+                    var renderer = tile.GetComponentsInChildren<SpriteRenderer>(true).First();
+                    if (layout.Red.Contains(cell))
+                    {
+                        if (red == null) red = tile.gameObject.AddComponent<CooperativeRedTileBehaviour>();
+                        renderer.color = new Color(.78f, .24f, .29f, 1f);
+                        Set(red, "session", pair, "tileRenderer", renderer);
+                    }
+                    else if (red != null)
+                    {
+                        Object.DestroyImmediate(red);
+                        var source = PrefabUtility.GetCorrespondingObjectFromSource(renderer);
+                        if (source != null) renderer.color = source.color;
+                    }
+                }
+                var pieces = layout.Pieces.Select(p => AssetDatabase.LoadAssetAtPath<PathPieceData>(
+                    "Assets/_Audere/Data/Puzzle/PathPieces/PathPiece_" + p + ".asset")).ToArray();
+                if (pieces.Any(p => p == null)) throw new InvalidOperationException("Missing path piece for " + id);
+                Set(level.Puzzle.PuzzleData, "availablePathPieces", pieces);
+                Set(pair, "openingActor", i == 1 ? (int)CooperativePuzzleSession.OpeningActor.Bianca
+                    : (int)CooperativePuzzleSession.OpeningActor.Audere);
+                level.Puzzle.Board.RegisterExistingTiles();
+                var aStart = tiles["Tile_" + layout.A.x + "_" + layout.A.y];
+                var bStart = tiles["Tile_" + layout.B.x + "_" + layout.B.y];
+                var reveal = story.Find("D2_SCHOOL_COOP_0" + (i + 1) + "/070_RevealCooperativeBoard")
+                    .GetComponent<BoardTileTransitionStep>();
+                Set(reveal, "objectsToReveal", tiles.Values.Where(t => t != aStart && t != bStart)
+                    .OrderBy(t => Vector3.Distance(t.transform.position, aStart.transform.position))
+                    .Select(t => t.transform).ToArray());
+                if (!level.Puzzle.Board.TryGetWorldBounds(out Bounds bounds))
+                    throw new InvalidOperationException("Board bounds missing for " + id);
+                var cameraPose = staging.Find("Camera_Coop_0" + (i + 1));
+                cameraPose.position = new Vector3(bounds.center.x, bounds.center.y + .11f, cameraPose.position.z);
+            }
+        }
 
         // Focused migration: never rebuild SCHOOL, its events or the authored combat.
         [MenuItem("Audere/Story/Polish Existing Cooperative Puzzles Only")]
@@ -51,6 +140,8 @@ new Layout { A=P(0,1),B=P(2,0),GoalA=P(4,1),GoalB=P(3,2),Cells=new[]{P(0,1),P(1,
 
         private static void PolishExisting(Scene scene)
         {
+            if (ShortPuzzleAuthoring.All<CooperativePuzzleSession>(scene).Length == 1)
+            { ShortPuzzleAuthoring.SingleCoop(scene); return; }
             var roots = scene.GetRootGameObjects();
             var levels = roots.Single(r => r.name == "SCHOOL").transform.Find("COOP PUZZLES");
             var story = roots.Single(r => r.name == "STORY").transform;
@@ -72,10 +163,11 @@ new Layout { A=P(0,1),B=P(2,0),GoalA=P(4,1),GoalB=P(3,2),Cells=new[]{P(0,1),P(1,
             for (int i = 0; i < layouts.Length; i++)
             {
                 Transform level = levels.Find("PZ_D2_COOP_0" + (i + 1));
-                string retained = "Tile_" + layouts[i].Red[0].x + "_" + layouts[i].Red[0].y;
+                Set(level.GetComponentInChildren<CooperativePuzzleSession>(true), "openingActor",
+                    i == 1 ? (int)CooperativePuzzleSession.OpeningActor.Bianca : (int)CooperativePuzzleSession.OpeningActor.Audere);
                 foreach (var red in level.GetComponentsInChildren<CooperativeRedTileBehaviour>(true))
                 {
-                    if (red.name == retained) continue;
+                    if (layouts[i].Red.Any(cell => red.name == "Tile_" + cell.x + "_" + cell.y)) continue;
                     foreach (var renderer in red.GetComponentsInChildren<SpriteRenderer>(true))
                     {
                         var source = PrefabUtility.GetCorrespondingObjectFromSource(renderer);
@@ -94,13 +186,13 @@ new Layout { A=P(0,1),B=P(2,0),GoalA=P(4,1),GoalB=P(3,2),Cells=new[]{P(0,1),P(1,
                 }
                 objective.SetSiblingIndex(e.transform.Find("070_RevealCooperativeBoard").GetSiblingIndex() + 1);
             }
-            // The second red hold no longer exists. Keep all other authored lines.
+            // The second red hold no longer exists; Audere holds the remaining red first.
             var speech = story.Find("D2_SCHOOL_COOP_03/080_MindTheSharedRedTile").GetComponent<DialogueStep>();
             var data = new SerializedObject(speech.DialogueData);
             var line = data.FindProperty("lines").GetArrayElementAtIndex(1).FindPropertyRelative("text");
             if (line.stringValue == "Ừ. Qua rồi tớ giữ ô bên kia cho cậu.")
             {
-                line.stringValue = "Ừ. Tớ qua trước nhé.";
+                line.stringValue = "Ừ. Ô sau để tớ.";
                 data.ApplyModifiedPropertiesWithoutUndo();
             }
         }
@@ -219,15 +311,15 @@ new Layout { A=P(0,1),B=P(2,0),GoalA=P(4,1),GoalB=P(3,2),Cells=new[]{P(0,1),P(1,
                     Talk(e,"080_CarrySuppliesBack",Day2SchoolMorningSetupTool.Dialogue("COOP_PICKUP",DialogueCharacterId.Bianca,
                         "R|Đủ rồi. Mình bê về lớp nhé.","L|Để tớ cầm băng dính."),ui.Dialogue);
                     Talk(e,"090_TimorChoosesWhoGoesFirst",Day2SchoolMorningSetupTool.Dialogue("COOP_TIMOR_START",DialogueCharacterId.Timor,
-                        "R|Để Bianca đi trước.","R|Chờ cô ấy mở đường rồi cậu theo sau."),ui.Dialogue);
+                        "R|Cậu lên ô đỏ trước.","R|Giữ chỗ đó cho Bianca qua."),ui.Dialogue);
                     Talk(e,"100_BiancaNeedsAudereToo",Day2SchoolMorningSetupTool.Dialogue("COOP_RED_FIRST_HOLD",DialogueCharacterId.Bianca,
-                        "R|Giữ ô đỏ đó nhé. Tớ qua cùng cậu.","L|…Ừ. Cậu qua đi."),ui.Dialogue);
+                        "R|Cậu giữ ô đỏ nhé. Tớ qua sau.","L|…Ừ. Tớ đứng đây."),ui.Dialogue);
                 } else if(i==1) {
                     Talk(e,"080_ReverseTheRoles",Day2SchoolMorningSetupTool.Dialogue("COOP_CHANGE_ROLES",DialogueCharacterId.Bianca,
-                        "R|Lần này để tớ giữ. Cậu qua trước đi.","L|Đợi tớ một chút nhé.","R|Ừ, tớ đang giữ mà."),ui.Dialogue);
+                        "R|Hai ô đỏ. Tớ giữ ô đầu nhé.","L|Ừ. Tớ nhìn ô còn lại.","R|Đi chậm thôi, còn phải đổi chỗ."),ui.Dialogue);
                 } else {
                     Talk(e,"080_MindTheSharedRedTile",Day2SchoolMorningSetupTool.Dialogue("COOP_SHARED_RED_V2",DialogueCharacterId.Bianca,
-                        "L|Để tớ giữ ô đỏ đầu tiên nhé.","R|Ừ. Qua rồi tớ giữ ô bên kia cho cậu."),ui.Dialogue);
+                        "L|Để tớ giữ ô đầu nhé.","R|Ừ. Ô sau để tớ."),ui.Dialogue);
                 }
                 var play=Step<PuzzleStep>(e,"110_PlayTogether");
                 Set(play,"puzzleController",level,"puzzleRoot",level.PuzzleRoot.gameObject,"resetBeforePlay",false,"normalizeOnCancel",prepare);
@@ -254,6 +346,7 @@ new Layout { A=P(0,1),B=P(2,0),GoalA=P(4,1),GoalB=P(3,2),Cells=new[]{P(0,1),P(1,
             camera.transform.Find("PuzzleViewportMask").gameObject.SetActive(true);
             story.GetComponent<StoryDirector>().RefreshRegistry();
             PolishExisting(scene);
+            ShortPuzzleAuthoring.SingleCoop(scene);
         }
 
         private static PuzzleController Level(Transform parent,int index,Layout layout,Vector3 offset,GridSpace2D grid,
@@ -307,7 +400,8 @@ new Layout { A=P(0,1),B=P(2,0),GoalA=P(4,1),GoalB=P(3,2),Cells=new[]{P(0,1),P(1,
             Set(manager,"puzzleData",data,"board",board,"playerStart",playerStart,"player",audere,"hand",ui.PathPieceHand,
                 "runtime",runtime,"placement",runtime.Placement,"placedPathRoot",runtime.PlacedPathRoot,"retryWhenOutOfPieces",true,"cooperative",pair);
             Set(controller,"puzzle",manager,"puzzleRoot",root,"cameraFollow",null,"playOnStart",false);
-            Set(pair,"puzzle",manager,"partner",bianca,"partnerStart",bStart,"audereGoal",tiles[layout.GoalA],"partnerGoal",tiles[layout.GoalB],"controls",controls);
+            Set(pair,"puzzle",manager,"partner",bianca,"partnerStart",bStart,"audereGoal",tiles[layout.GoalA],"partnerGoal",tiles[layout.GoalB],"controls",controls,
+                "openingActor",index == 1 ? (int)CooperativePuzzleSession.OpeningActor.Bianca : (int)CooperativePuzzleSession.OpeningActor.Audere);
             Transform beats=Child(root,"Carry Presentation");
             var aFade=ActorFade(beats,"Audere arrives and fades",audere.transform,0f,.4f);
             var bFade=ActorFade(beats,"Bianca arrives and fades",bianca.transform,0f,.4f);
@@ -315,9 +409,9 @@ new Layout { A=P(0,1),B=P(2,0),GoalA=P(4,1),GoalB=P(3,2),Cells=new[]{P(0,1),P(1,
             var bRestore=ActorFade(beats,"Restore Bianca for new attempt",bianca.transform,1f,0f);
             var encouragement=Child(beats,"Encouragement after second path").gameObject.AddComponent<DialogueStep>();
             string[][] lines={
-                new[]{"R|Cứ từ từ nhé. Tớ giữ được.","L|Ừ. Tớ qua đây."},
-                new[]{"L|Chồng giấy có nặng không?","R|Vẫn được. Sắp tới lớp rồi."},
-                new[]{"R|Còn một đoạn thôi.","L|Ừ. Tớ giữ cho cậu qua."}};
+                new[]{"R|Cứ từ từ nhé. Đừng buông vội.","L|Ừ. Tớ biết rồi."},
+                new[]{"L|Cậu ổn chứ?","R|Ừ. Mình đi tiếp nhé."},
+                new[]{"R|Cẩn thận ô đỏ nhé.","L|Ừ. Tớ thấy rồi."}};
             Set(encouragement,"dialogueData",Day2SchoolMorningSetupTool.Dialogue("COOP_ENCOURAGE_"+(index+1),DialogueCharacterId.Bianca,lines[index]),"dialogueController",ui.Dialogue);
             Set(pair,"audereArrivalFade",aFade,"partnerArrivalFade",bFade,"audereRestore",aRestore,"partnerRestore",bRestore,"encouragement",encouragement);
             board.RegisterExistingTiles();

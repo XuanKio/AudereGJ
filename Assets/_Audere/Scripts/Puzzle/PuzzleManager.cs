@@ -270,7 +270,7 @@ namespace Audere.Puzzle
                 var gate = GameplayUIRoot.Instance != null ? GameplayUIRoot.Instance.InputGate : null;
                 if (gate == null || !gate.Allows(Audere.GameplayInput.GameplayInputMode.Puzzle) ||
                     !result.CanCommit || hand.SelectedPiece == null || result.GridPath == null || result.GridPath.Count < 2) return;
-                GridPlayer mover = cooperative.ActorAtStart(result.GridPath[0], true);
+                GridPlayer mover = cooperative.ActorAtStart(result.GridPath[0]);
                 if (mover == null) return;
                 activePlayer = mover;
             }

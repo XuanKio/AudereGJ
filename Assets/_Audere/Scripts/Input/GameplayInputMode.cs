@@ -7,5 +7,6 @@ namespace Audere.GameplayInput
         Combat,
         Dialogue,
         Modal,
+        CreditsDodge,
     }
 }

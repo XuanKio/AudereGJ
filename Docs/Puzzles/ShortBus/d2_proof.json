@@ -1,0 +1,143 @@
+{
+  "solved": true,
+  "solution_count": 1,
+  "solutions_truncated": false,
+  "total_piece_steps": 7,
+  "parity_matches": true,
+  "valid_first_move_count": 3,
+  "winning_first_move_count": 1,
+  "trap_first_move_count": 2,
+  "dead_end_state_count": 5,
+  "premature_goal_hit_count": 1,
+  "sample_trap_first_moves": [
+    {
+      "piece": "l-corner",
+      "source_index": 1,
+      "rotation": 0,
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "end": [
+        1,
+        2
+      ]
+    },
+    {
+      "piece": "line-3",
+      "source_index": 0,
+      "rotation": 0,
+      "path": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          0
+        ]
+      ],
+      "end": [
+        2,
+        0
+      ]
+    }
+  ],
+  "sample_solutions": [
+    [
+      {
+        "piece": "l-corner-3",
+        "source_index": 2,
+        "rotation": 0,
+        "path": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            1,
+            1
+          ]
+        ],
+        "end": [
+          1,
+          1
+        ]
+      },
+      {
+        "piece": "l-corner",
+        "source_index": 1,
+        "rotation": 90,
+        "path": [
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            0
+          ]
+        ],
+        "end": [
+          3,
+          0
+        ]
+      },
+      {
+        "piece": "line-3",
+        "source_index": 0,
+        "rotation": 90,
+        "path": [
+          [
+            3,
+            0
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            3,
+            2
+          ]
+        ],
+        "end": [
+          3,
+          2
+        ]
+      }
+    ]
+  ],
+  "one_use_cell_count": 1,
+  "board": " 2 . # . G\n 1 . # # #\n 0 S R # #\n   0 1 2 3"
+}

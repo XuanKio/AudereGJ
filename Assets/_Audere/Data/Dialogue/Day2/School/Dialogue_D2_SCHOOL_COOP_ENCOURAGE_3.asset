@@ -19,8 +19,12 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "C\xF2n m\u1ED9t \u0111o\u1EA1n th\xF4i."
+    text: "C\u1EA9n th\u1EADn \xF4 \u0111\u1ECF nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
-    text: "\u1EEA. T\u1EDB gi\u1EEF cho c\u1EADu qua."
+    text: "\u1EEA. T\u1EDB th\u1EA5y r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

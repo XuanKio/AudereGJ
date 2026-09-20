@@ -9,7 +9,7 @@ namespace Audere.Combat
     public sealed class CombatPlayerView : MonoBehaviour
     {
         [SerializeField] private Image visual;
-        [SerializeField] private Color normalColor = new Color(.72f, .95f, .92f, 1f);
+        [SerializeField] private Color normalColor = Color.white;
         [SerializeField] private Color hitColor = new Color(1f, .38f, .44f, 1f);
 
         private RectTransform rectTransform;
@@ -19,6 +19,7 @@ namespace Audere.Combat
 
         public RectTransform RectTransform => rectTransform;
         public Vector2 Position => rectTransform != null ? rectTransform.anchoredPosition : Vector2.zero;
+        public CombatHeartScreenPose CaptureScreenPose(Camera camera) => CombatHeartScreenPose.Capture(visual, camera);
 
         private void Awake()
         {

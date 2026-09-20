@@ -4265,14 +4265,6 @@ PrefabInstance:
       propertyPath: authoredEnemyPreview
       value: 
       objectReference: {fileID: 1506626257}
-    - target: {fileID: 1456769421717324199, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1456769421717324199, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3122740741147979611, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -4375,7 +4367,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4556592770274357392, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -236
+      value: -229.6
       objectReference: {fileID: 0}
     - target: {fileID: 4731350101651780174, guid: 0953022e5ffc00846ac010e63eea0d2f, type: 3}
       propertyPath: m_AnchoredPosition.x

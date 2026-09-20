@@ -75,6 +75,8 @@ namespace Audere.Combat
         public bool IsRerolling => rerollInProgress;
         public bool IsInAirborneOverlay => airborneParent != null && rectTransform != null && rectTransform.parent == airborneParent;
         public Vector2 MoveVelocity => velocity;
+        public Color CatchVfxColor => symbolIcon != null ? symbolIcon.color :
+            background != null ? background.color : activeIconColor;
 
         private void Awake()
         {

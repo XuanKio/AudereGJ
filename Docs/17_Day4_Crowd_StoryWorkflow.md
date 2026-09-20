@@ -4,7 +4,7 @@
 
 **Design Intent của Xuân, đã author để duyệt:** Audere tự mang đồ lên lớp sau buổi sáng không có Timor. Cú ngã kéo lại nỗi sợ bị nhìn và bị cười; lời Đám đông là diễn giải trong suy nghĩ Audere, không xác nhận bạn học thực sự độc ác. Timor trở lại từ nỗi sợ mất quyền bảo vệ. Bianca hỏi một điều cụ thể về cơn đau; Audere vẫn sợ nhưng nghe được lời thật và cuối cùng xin cả lớp giúp.
 
-**Unresolved:** phản ứng tiếp theo của cả lớp và kết quả trận Timor cuối. Phần mở Scene150 đã author theo yêu cầu mới bên dưới; không kết luận Audere đã hết lo âu.
+**Unresolved:** phản ứng tiếp theo của cả lớp. Kết thúc Scene150 dưới đây là **Design Intent của Xuân**; không kết luận Audere đã hết lo âu.
 
 ## Flow và staging
 
@@ -21,15 +21,39 @@ Tám desk tiles cách nhau hai ô lưới (pitch0.20 sau lượt fit mask, trư�
 
 ## Combat
 
-- Encounter `Data/Combat/Crowd/CombatEncounter_D4_CROWD.asset`: **20sharedHP,90TIME**,3dice/batch,max2Attack; shared dice constants không đổi.
+- Encounter `Data/Combat/Crowd/CombatEncounter_D4_CROWD.asset`: **19 shared HP, 90 TIME**, 3 dice/batch, tối đa1 attack thường và1 rerolled attack/batch; shared dice constants không đổi.
 - Non-Timor combat music dùng slot Music_Combat hiện có. SceneMusicSpace nằm dưới presentation lớp học, nên nhả duck khi vào Combat; không đổi AudioService/Catalog/SFX.
-- `SharedHealthPlayerTime` là policy dùng lại được: HP chung, transition khi TIME/maximum <= threshold. Phase đầu threshold0.5, phase cuối kết thúcHP0. Không so enemyHP với50%. Heal không quay ngược phase. HP tối thiểu1 trước mốc thoại; cuối phase giữ1 đến hết cue lời thật. Không passiveHP decay.
-- Phase1 loop: HandWaves → ClaspAndStab → ShiftingPalms → RushingVoices. Theo yêu cầu mới của Xuân, đã bỏ đòn kéo người chơi ra góc. Ba bàn tay chụm giữ trong ClaspAndStab vẫn giữ; protection và grace sau nhả không đổi.
-- Palms có2tay, warning0.65s, đâm/xoay, bắn3loạt cách0.35s; vòng có khoảng trống hai viên. Ghép `ShiftingBattleBoxMove` thay Width/X; Frame/Height/Y giữ nguyên.
-- Khi TIME<=45: hủy move cũ, dọn hazards/dice theo phase lifecycle, Bianca nói “Audere, cậu có bị đau không?”. Phase2 không kéo và không co board; tay chậm1.1s/1tay, warning1.2s, ít volley và đạn thường1.1s/nhịp so0.35s trước đó.
+- Crowd dùng `SharedHealthThresholds`: HP chung, ba phase với mốc authored 10 HP → 3 HP → 0 HP (difficulty scaling vẫn dùng hệ chung). Cue lời thật phải chạy trước Victory. Không passive HP decay.
+- Phase1 loop hiện tại: HandWaves → ClaspAndStab → RushingVoices → ShiftingPalms. Clasp có từng tay đuổi theo Heart; chỉ chạm thật mới giữ và kích hoạt các tay đâm. Né hết thì tay mờ đi, không bị giữ.
+- Palms có2tay/nhịp, warning0.65s, một loạt10 viên với khoảng hở để lách; RushingVoices bắn3 viên/nhịp cách0.62s và cách nhau70 unit. Ghép `ShiftingBattleBoxMove` thay Width/X; Frame/Height/Y giữ nguyên.
+- Khi HP chung xuống10: vào phase2, Enemy Mount lao xuống tách board. Mỗi hit gây damage trong phase2 kích hoạt một cú phản đòn như vậy, rồi trở lại `WatchingAisle`/`PressureCorridor`. Khi còn3 HP: hủy phản đòn, khép board, Bianca nói “Audere, cậu có bị đau không?” và phase3 dùng lại `UncertainHands`/`DistantVoices`.
 - Enemy actor dùng IMG_1054.png, portrait ID8CrowdDistorted dùng Crowd.png, tay dùng IMG_1058.png. Không đổi importer PNG/Teacher catalog entries cũ.
 - `UIWrithingHand` uốn shaft bằng UV, giữ lòng bàn tay/ngón cố định. Tay được tăng gấp2: visual108×480, palm hitbox46×54. Gốc fade từ UVy0.18→0.42 để không lộ mép ảnh; shaft mờ là presentation, chỉ palm gây hit. Sprite UV rect nằm trong material riêng; shader hỗ trợ UI clipping/stencil. Bullet pool/session/phase/lease và grouped SFX giữ hệ dùng chung.
-- Các đòn tay trả lease khi đổi beat/cancel. Các viên từ lòng bàn tay tiếp tục bay đến khi ra board hoặc bị clear/phase/session invalidation. Forced control của đòn chụm giữ là owner-scoped và được clear cả phase/result/reset.
+- Các đòn tay trả lease khi đổi beat/cancel. Các viên từ lòng bàn tay tiếp tục bay đến khi ra board hoặc bị clear/phase/session invalidation. Forced control của Clasp chỉ bắt đầu sau va chạm, là owner-scoped và được clear cả phase/result/reset.
+
+### Phản đòn tách board và cảnh báo — 2026-09-20
+
+**Design Intent của Xuân, đã triển khai:** phase2 là nỗi sợ đám đông phản ứng khi Audere chống trả; đây là diễn giải thiết kế combat, không thêm canon hoặc lời thoại.
+
+- `EnemyMountDiveMove` di chuyển chính Enemy Mount, giữ scale scene. Một cú kéo lên0.48s → lao0.34s → giữ0.18s → trở về0.48s → khép/nghỉ0.42s. Rainbow Echo là các snapshot silhouette có material riêng; bóng dư và đường trở về không gây hit. Board tách thành hai nửa có mép răng cưa, Heart/dice dùng biên của hai nửa. Thân đang lao dùng swept collision, luôn chừa hai phía để né.
+- `damageReactionMove`/`damageReactionOnEnter` nằm trong phase data. Hit hợp lệ ngắt đòn cơ bản và dọn đạn trước khi phản đòn; hit đến khi đang lao xếp thêm một lượt, không giật enemy về vị trí đầu. Chuyển phase, Victory, Retry và Cancel xóa hàng chờ. Phase3 ở3 HP có ưu tiên hơn phản đòn.
+- Các đòn cơ bản phase2 dùng `ProcessionGateMove`: hàng đạn từ trên xuống có khe164 unit dịch dần; hai bên ép vào với hành lang ngang138 unit. Theo chỉnh sửa tiếp theo của Xuân, dùng `Bullet_CrowdHand` bay, lane cách132 unit, cộng54 unit visual vào khoảng hở; nhịp2.3s/4.1s để các lượt tay dài không dồn lên nhau. Background opacity theo phase là0.55/0.60/0.18.
+- Tay bắt có dấu `!` đỏ nhấp nháy0.4s bên trong board theo hướng xuất hiện, cách biên ngang22 unit và biên trên30 unit. Tay hiện0.14s, chỉ bám hướng0.28s rồi lao theo hướng khóa; tốc độ310 unit/s, xuất phát215 unit, toàn nhịp lao0.9s. Hụt thì rút28 unit và mờ0.38s, nghỉ0.3s trước tay sau. Bắt thật giữ1.02s và gọi3 tay đâm. Cú phản đòn cũng có `!` bên trong mép trên theo vị trí đáp trong toàn nhịp kéo lên. Warning dùng active time, không có hitbox, hủy/disable không để sót.
+- Menu `Audere/Combat/Apply Crowd Mount Dive Phase Two` cập nhật riêng HP, ba phase, moveset, reaction và tay bắt. Giữ các cue hiện có; cue Bianca chuyển sang phase3. Full author giữ cùng cấu hình. QA trực tiếp qua MCP8080:75/75 runtime và12/12 Scene140 đạt, gồm production →3 HP/thoại Bianca →Victory →Scene150, Retry/catch, cảnh báo và disable cleanup. Đã xem ảnh cảnh báo/cú đâm/board tách; kiểm biên ở1280×720,960×720,1680×720. Bằng chứng và ảnh trong `Temp/CrowdPhase2QA`. Test Retry trước đó chờ bắt dice ngay trong thoại mở đầu; harness đã chờ hết pause trước khi thử bắt. Chưa đo cảm giác né bằng chuột thủ công.
+
+### VFX bám visual và mép ngoài board — 2026-09-20
+
+- VFX đánh trúng trở thành object con của visual enemy qua xử lý chung, bám cả chuyển động visual và Enemy Mount; giữ kích thước hiển thị đã cân. Áp dụng cho toàn bộ combat, gồm các prefab có VFX anchor cũ nằm cạnh visual.
+- Khi board tách, biên ngang tính theo Heart thay vì vòng bắt lớn hơn; mở rộng mask của Dice Field theo độ tách và cập nhật cursor/dice sau chuyển động enemy trong cùng frame. Kết thúc/hủy trả mask và biên về ban đầu.
+- Kiểm nhanh qua MCP8080: **18/18 EditMode tests đạt**, gồm cả6 prefab enemy, hai mép ngoài ở3 độ tách và các kiểm tra dive/pause/cancel hiện có. Kết quả: `Temp/CrowdPhase2QA/following-vfx-split-18-pass.json`. Chưa kiểm lại cảm giác né bằng chuột thủ công trong lượt này.
+
+### Tay đuổi có thể né và cân phase — 2026-09-19
+
+- **Design Intent của Xuân:** mỗi tay đuổi Heart lần lượt trên nền chơi; người chơi tự tìm khe né, không có safe box hay tín hiệu đánh dấu trước. Nếu tay chạm Heart, giữ ngắn rồi các tay từ bốn hướng đâm vào vị trí bắt được; né được thì tay mờ dần và hết đòn.
+- `ConvergingHandsMove`: 3 lượt đuổi, mỗi lượt0.82s; tay xuất phát cách Heart170 unit, tốc độ390 unit/s, mờ0.3s, nghỉ0.18s. Chỉ palm va chạm mới kích hoạt giữ1.12s; bốn tay đâm cách0.12s. Dọn toàn bộ tay và nhả input khi kết thúc/hủy.
+- Phase đầu đổi từ sóng tay sang truy đuổi, rồi đạn chữ thưa, cuối cùng palm/board chuyển động. Phase sau `UncertainHands`/`DistantVoices` giữ nhịp dịu hơn. HP/TIME, dice, nhạc và dialogue không thuộc lần cân này.
+- Menu `Audere/Combat/Apply Crowd Dodge Phase Balance` cập nhật riêng các move asset và thứ tự moveset của Crowd; `PolishActive()` cũng áp cùng giá trị để lần dựng sau không hồi quy.
+- QA bản sao Unity ở `Temp/CrowdChaseQAProject`: `clasp-tests.xml` đạt5/5; `crowd-tests.xml` đạt10/11, gồm content phase order và production Scene140. Test Retry/cancel còn lại vướng harness cũ: batch `-nographics` không có GameView; lượt có graphics lộ giả định TIME90 cố định dù Easy dùng72. Assertion đã đổi sang `ActiveMaximumTime` và C# build0 lỗi, nhưng chưa có lượt chạy lại đạt cho test này. Chưa kiểm thao tác né bằng chuột thủ công.
 
 ### Bỏ corner pull — 2026-08-29
 
@@ -47,8 +71,23 @@ Tám desk tiles cách nhau hai ô lưới (pitch0.20 sau lượt fit mask, trư�
 - Timor: “Vậy à…” → Audere quay trái/chờ0.65s → quay phải/chờ0.8s → “Timor?” → **3s không có câu trả lời** → “Tớ tưởng cậu không cần tớ nữa.” → giữ0.45s → bóng lớn lên.
 - Facing dùng các SetActorFacingStep hiện có; actor và grounded shadow không đổi vị trí. Audere Tired→Scared; Timor Buon→LoLangKhongVui. Thoại có direct DialogueController references.
 - Shared profile `WorldTransition_TimorShadow.asset`, shader `FullscreenTimorShadow.shader`: silhouette đúng `Enemyy/timor.png` hiện từ phía phải, uốn nhẹ và lớn dần, tối phủ cả phòng. Duration5.4s, cover kín4.0–4.4s, swap4.2s, sạch5.4s. Không sửa Dreamy/Fracture/Fatigue profiles. Cancel trước/sau swap trả Story/mask, hủy runtime material, không giữ input.
-- Combat Root được sao chép qua Unity API từ setup Scene40 với visual Timor đã author; Combat Systems là sibling dưới SYSTEMS, không nằm trong presentation root. Encounter riêng `Data/Combat/TimorReturn/CombatEncounter_D4_TIMOR_RETURN.asset`, nhạc Music_TimorCombat/bossfightfull. Giữ moves/dice/36HP/66TIME và luật **Defeat-only** của trận cũ trong lúc chờ Xuân chốt kết quả; không tự quyết định kết thúc câu chuyện. Đã bỏ các cue và defeat dialogue riêng Ngày1 khỏi bản Day4; assets Ngày1 giữ nguyên. Chưa author hậu combat hoặc ending.
-- Author riêng `Day4TimorEveningSetupTool.AuthorActive()` chỉ chạy trên Scene150 sạch/EditMode. Không rerun broad Day3/School/Teacher builder. Khi chốt lại balance/outcome, cập nhật author cùng asset để rerun không phục hồi luật cũ.
+- Combat Root được sao chép qua Unity API từ setup Scene40 với visual Timor đã author; Combat Systems là sibling dưới SYSTEMS, không nằm trong presentation root. Encounter riêng `Data/Combat/TimorReturn/CombatEncounter_D4_TIMOR_RETURN.asset`, nhạc Music_TimorCombat/bossfightfull. Assets Ngày1 giữ nguyên.
+- `Day4TimorEveningSetupTool.AuthorActive()` dựng phần mở Scene150. `Day4TimorFinalSetupTool.AuthorActiveEndingOnly()` cập nhật riêng ending trong scene sạch/EditMode; không rerun broad Day3/School/Teacher builder.
+
+### Ending và after credit — Design Intent của Xuân, 2026-09-19
+
+- Sau khi thắng Timor, ẩn Gameplay Canvas gồm combat UI/máu/thoại; cover trận đấu, trở về Story mode, tắt `PuzzleViewportMask` và cho camera bám Audere gần giữa khung (framingOffset y=-0.04). Camera giữ nền tối gốc ở đầu scene và combat; chỉ khi bật ending tile field sau thắng Timor mới đổi sang `#FCE1C2`, hủy/disable field khôi phục màu nền trước đó. Audere đứng dậy trên một tile, giữ 1.2 giây; hàng tile trắng mở dần sang phải trong 2.2 giây trước khi Audere bắt đầu đi. Sau đó Audere đi liên tục qua 18 anchor trong 12 giây, từ chậm tới nhanh; đường tiếp tục mở phía trước theo tiến độ di chuyển. Field chỉ còn một hàng 21 tile, tile hiện rồi giữ lại; không rung, nháy, lan sóng hoặc tự biến mất. Shader riêng `Audere/Ending Tile Ripple` giữ silhouette sprite và alpha theo từng tile. Nếu StoryEvent bị hủy, field tắt, camera, mask và Gameplay Canvas trở về trạng thái trước ending.
+- Shared profile `TileRippleWalk_Ending.asset` điều khiển nhịp đứng chờ, mở hàng tile, chuyển động và sáng dần từ 70% thời lượng, khi Audere vẫn đang đi. Scene giữ direct references tới profile/actor/shadow/anchor/field. Ảnh `final_cutscene.png` (16:9) chỉ xuất hiện khi đã trắng hẳn; hiển thị nguyên tỉ lệ trên nền trắng cho các màn hình khác 16:9. Menu `Audere/Story/Update Scene150 Continuous Ripple Ending` chỉ cập nhật đoạn tile và camera; broader ending authoring cũng áp dụng cùng cấu hình.
+- Credits cuộn từ trên xuống hết màn hình trong 11 giây, rung chữ 1.5 giây, rồi dùng `Heart Visual` của combat cho màn né. Màn né kéo dài 30 giây trên toàn bộ nền đen, không có khung Battle Box; chuột điều khiển tim. Dòng credit đầu bay tới sau 0.12 giây, tách thành từ rồi thành chữ cái; các mảnh tiếp tục đổi hướng đuổi theo tim. Va chạm chỉ báo bằng nhấp nháy và SFX để người chơi luôn xem được hết credit.
+- Toàn bộ credit dùng `Music_Exploration`, tăng âm lượng nhạc nền lên 1.3 lần theo session; không dùng `Music_TimorCombat`. Hết 30 giây né, credits mờ đi và tự tải `10_MainMenu`.
+- QA hàng tile mới: build C# thành công; đã kiểm tra scene có 21 tile, không mất reference và giữ màu camera ban đầu. Test đã cập nhật cho nhịp đứng chờ, tile không rung/ẩn và chuyển động tăng tốc; chưa chạy lại test, render hoặc Play Mode cho phiên bản này.
+
+### Scene140: rơi trước combat — 2026-09-20
+
+- **Design Intent của Xuân:** sau “Mọi người… đừng cười mà.”, tile vỡ và lớp học trôi lên, tạo cảm giác Audere rơi xuống vực cảm xúc. Đây là trình bày chủ quan, không xác nhận mọi người thực sự cười.
+- `065_TheFloorFallsAway` dùng shared `FallingRoom_Classroom.asset`: camera/mask cùng đen, 10 tile tách mảnh, 8 bàn ghế trôi lên, 38 vệt pixel. Child event giữ rõ thứ tự: Audere hạ xuống 1.6 giây → nghỉ 0.5 giây → `Dialogue_D4_FALLING` → `070_TheRoomBecomesPressure` dùng Dreamy Disorientation như trước. Hiệu ứng tiếp tục trong lúc người chơi đọc thoại.
+- `Audere > Story > Apply Day4 Falling Room` chỉ cập nhật đoạn này. Full author và polish gọi lại cùng setup; không tạo bản sao fullscreen profile. Hết/hủy đoạn rơi trả nguyên trạng lớp học, pose, bóng, màu camera/mask và sorting bàn ghế.
+- Kiểm tra: build C# 0 lỗi; 4 ca NUnit gọi trực tiếp trong Unity đạt (MCP Test Runner timeout trước khi khởi chạy); Play production từ đầu tới combat đạt, hủy trước/sau mode swap và replay đạt. Console 0 lỗi; ảnh và kết quả tại `Temp/FallingRoomQA`. Chưa chơi lại toàn bộ trận hoặc hậu combat trong lượt này.
 
 ### QA Scene150 — 2026-08-29
 
@@ -78,7 +117,7 @@ Kết quả và ảnh cuối lượt nằm dưới đây. Không build executabl
 - Bootstrap được trả lại đúng thay đổi chưa lưu của Xuân: firstScene=Scene120, vẫn dirty=true có chủ ý, không ghi vào scene gốc. Hai snapshot trước/sau trong Temp/Day4Crowd so sánh không có khác biệt. Importer/portrait Teacher không sửa.
 - Không build executable hoặc nghe loa thật. Cần Xuân duyệt cảm giác độ khó với thao tác chuột.
 
-### Polish tay, nền và cú ngã — 2026-08-29
+### Polish tay, nền và cú ngã — 2026-08-29 (lịch sử trước bản tay đuổi)
 
 - `Day4CrowdSetupTool.PolishActive()` là lệnh scoped, không dựng lại cả scene. Full author cũng gọi nó ở cuối để không mất phần polish khi tạo mới. Giữ20HP/90TIME, mốc45TIME, dice/music và hậu combat.
 - `OscillatingHandWallMove`: 8tay mỗi phía trên/dưới, warning0.8s, chu kỳ2.3s, duration7.3s. Hai hàng lệch độ sâu theo cùng sóng chạy ngang; hành lang giữa uốn theo nhưng không khép kín. Cả16 tay dùng pool/lease; pause giữ vị trí, cancel trả toàn bộ.

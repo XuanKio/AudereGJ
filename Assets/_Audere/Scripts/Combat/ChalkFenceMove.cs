@@ -26,15 +26,19 @@ namespace Audere.Combat
         private sealed class Execution : ICombatMoveExecution
         {
             private readonly ChalkFenceMove d; private readonly CombatMoveExecutionContext c;
-            private float elapsed, next; private int wave; private bool cancelled;
+            private float elapsed, next, warningUntil; private int wave; private bool cancelled;
             public Execution(ChalkFenceMove d, CombatMoveExecutionContext c) { this.d=d; this.c=c; }
             public bool IsComplete => cancelled || elapsed >= d.Duration;
             public void Tick(float dt)
             {
                 if (IsComplete || c.Board == null || c.Board.PlayArea == null) return;
                 elapsed += Mathf.Max(0, dt);
+                if (elapsed < warningUntil) c.Board.ShowAttackWarning(this, c.Board.PlayArea.rect.center, elapsed);
+                else c.Board.HideAttackWarning(this);
                 if (elapsed < next || elapsed >= d.Duration) return;
                 next = elapsed + d.waveInterval;
+                warningUntil = elapsed + d.telegraph;
+                c.Board.ShowAttackWarning(this, c.Board.PlayArea.rect.center, elapsed);
                 Rect r=c.Board.PlayArea.rect;
                 // Alternate a clear lane; each paired fence also leaves a broad central corridor.
                 int gap = 1 + wave++ % (d.columns - 2);
@@ -53,7 +57,7 @@ namespace Audere.Combat
                     }
                 }
             }
-            public void Cancel() { cancelled=true;c.Board?.ClearStunTrails(c.SessionVersion,c.PhaseVersion,this); }
+            public void Cancel() { cancelled=true;c.Board?.HideAttackWarning(this);c.Board?.ClearStunTrails(c.SessionVersion,c.PhaseVersion,this); }
         }
     }
 }

@@ -8,6 +8,8 @@ spec=importlib.util.spec_from_file_location('step_tile_solver',f);base=importlib
 def solve(s):
  cells=set(map(tuple,s['cells']));red=set(map(tuple,s.get('one_use_cells',[])))
  starts=tuple(tuple(a['start']) for a in s['actors']);goals=tuple(tuple(a['goal']) for a in s['actors'])
+ opening_actor=next((i for i,a in enumerate(s['actors']) if a['id']==s.get('opening_actor')),None)
+ shared_priority=next((i for i,a in enumerate(s['actors']) if a['id']==s.get('shared_cell_priority')),None)
  gates={tuple(g['cell']):tuple(g['hold']) for g in s.get('gates',[])}
  shared=tuple(map(tuple,s.get('cooperative_red_cells',[])))
  pieces=tuple(base.Piece(p['id'],tuple(map(tuple,p['path'])),i) for i,p in enumerate(s['pieces']))
@@ -20,6 +22,8 @@ def solve(s):
   if not remain:dead+=1;return
   for actor in range(2):
    if pos[actor]==goals[actor]:continue # Arrived actors fade and cannot receive another path.
+   if not route and opening_actor is not None and actor!=opening_actor:continue
+   if shared_priority is not None and actor!=shared_priority and pos[actor]==pos[shared_priority] and pos[shared_priority]!=goals[shared_priority]:continue
    for pi,p in enumerate(remain):
     # Identical cards are interchangeable; do not count duplicate inventory permutations.
     if any(q.path==p.path and q.piece_id==p.piece_id for q in remain[:pi]):continue

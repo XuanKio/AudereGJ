@@ -232,10 +232,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d90dd71507553aa4aab5dd473a25ba72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemyPresentationRoot: {fileID: 4854494316948444328}
+  enemyLabelRoot: {fileID: 6611925825072985304}
   exteriorProjectileRoot: {fileID: 5250167202821434690}
   stunTrailRoot: {fileID: 8934588548818294451}
   stunTrailMaterial: {fileID: 2100000, guid: efea015124ddf744c95e9cd1373a72bc, type: 2}
   stunTrailInset: 14
+  ribbonEchoMaterial: {fileID: 2100000, guid: a0a341b19f69d20438c9ebe7c43e121d, type: 2}
   battleBoxFrame: {fileID: 4496751703159253568}
   playArea: {fileID: 6948764237161623633}
   stunZoneRoot: {fileID: 4193592549203949400}
@@ -516,7 +519,7 @@ RectTransform:
   m_Father: {fileID: 5039963021815469161}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1116,7 +1119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visual: {fileID: 3234248914585741108}
-  normalColor: {r: 0.72, g: 0.95, b: 0.92, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
   hitColor: {r: 1, g: 0.38, b: 0.44, a: 1}
 --- !u!1 &4210077583355143850
 GameObject:
@@ -1343,7 +1346,7 @@ MonoBehaviour:
     m_DisabledTrigger: Disabled
   m_Interactable: 0
   m_TargetGraphic: {fileID: 0}
-  m_FillRect: {fileID: 1456769421717324199}
+  m_FillRect: {fileID: 0}
   m_HandleRect: {fileID: 0}
   m_Direction: 2
   m_MinValue: 0
@@ -2185,6 +2188,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3785422078767170302}
+  - component: {fileID: 583925541966519518}
+  - component: {fileID: 6357198977972498828}
   m_Layer: 0
   m_Name: Feedback FX Root
   m_TagString: Untagged
@@ -2211,6 +2216,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &583925541966519518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7915846175582440839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54f621b8fad77c249937f62927124a53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  sourceParticle: {fileID: 2800000, guid: 471dbde73370e8441a8d6f962b433be1, type: 3}
+  fallbackColor: {r: 0.6784314, g: 0.57254905, b: 0.7490196, a: 1}
+  sourcePixelScale: 4
+--- !u!222 &6357198977972498828
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7915846175582440839}
+  m_CullTransparentMesh: 1
 --- !u!1 &7996016945503447183
 GameObject:
   m_ObjectHideFlags: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tutorialId: d1-classroom-combat-basics
   enemyDefinition: {fileID: 11400000, guid: 02c2f98d6c479b0489c10b7b499c0f74, type: 2}
-  playerTime: 120
+  playerTime: 30
   openingDice: 000000000100000002000000
   cues:
   - cueId: tutorial-overview
@@ -221,3 +221,66 @@ MonoBehaviour:
     requiredBeforeVictory: 0
     requiredBeforePhaseAdvance: 0
     requiredBeforePlayerDefeat: 0
+  useGuidedLessons: 1
+  squareBoardSize: 400
+  demonstrationBullet: {fileID: 6048505104675138802, guid: 3dbf775471ac5a0409fc3a7f933dfb9a, type: 3}
+  guidedLessons:
+  - id: guided-move
+    kind: 0
+    dialogue: {fileID: 11400000, guid: 910cefb256912a6458808c0b5ca81847, type: 2}
+    instruction: "R\xCA CHU\u1ED8T: \u0111\u01B0a Heart v\xE0o v\xF2ng s\xE1ng."
+  - id: guided-time
+    kind: 1
+    dialogue: {fileID: 11400000, guid: 3df78c3f3526ed14e8925c480087facf, type: 2}
+    instruction: "TIME L\xC0 M\xC1U C\u1EE6A C\u1EACU\nM\u1ED7i gi\xE2y tr\xF4i qua:
+      \u22121 TIME. V\u1EC1 0: thua.\nQuan s\xE1t thanh TIME gi\u1EA3m."
+  - id: guided-damage
+    kind: 2
+    dialogue: {fileID: 11400000, guid: 8db0e6feda0c2594ca29e2a795d9bcd5, type: 2}
+    instruction: "XEM M\u1ED8T L\u1EA6N TR\xDANG \u0110\u1EA0N\nTr\xFAng \u0111\u1EA1n:
+      \u22123 TIME.\nB\xE0i t\u1EADp n\xE0y kh\xF4ng th\u1EC3 thua."
+  - id: guided-heal
+    kind: 3
+    dialogue: {fileID: 11400000, guid: 31ea4ad5ff3575d43bd193563779853d, type: 2}
+    instruction: "R\xCA CHU\u1ED8T: cho vi\xEAn H\u1ED2I NH\u1ECAP v\xE0o v\xF2ng
+      b\u1EAFt.\nCHU\u1ED8T TR\xC1I: b\u1EAFt vi\xEAn \u0111\u1EC3 h\u1ED3i +3 TIME."
+  - id: guided-attack
+    kind: 4
+    dialogue: {fileID: 11400000, guid: a924b949b12aadb448bc84f88659c44c, type: 2}
+    instruction: "CHU\u1ED8T TR\xC1I: b\u1EAFt vi\xEAn T\u1EA4N C\xD4NG trong v\xF2ng.\nM\u1ED7i
+      vi\xEAn: \u22121 HP \u0111\u1ED1i th\u1EE7. V\u1EC1 0: th\u1EAFng."
+  - id: guided-reroll
+    kind: 5
+    dialogue: {fileID: 11400000, guid: ab32658e1a49f604aa9d40e8733112c0, type: 2}
+    instruction: "\u0110\u01B0a vi\xEAn v\xE0o v\xF2ng r\u1ED3i CHU\u1ED8T PH\u1EA2I:
+      gieo l\u1EA1i.\nB\xECnh th\u01B0\u1EDDng, m\u1EB7t m\u1EDBi l\xE0 ng\u1EABu
+      nhi\xEAn.\nTrong b\xE0i t\u1EADp, l\u1EA7n n\xE0y s\u1EBD ra KHI\xCAN."
+  - id: guided-shield
+    kind: 6
+    dialogue: {fileID: 11400000, guid: cee7fc619cebc7d458fe637793c931d2, type: 2}
+    instruction: "CHU\u1ED8T TR\xC1I: b\u1EAFt vi\xEAn KHI\xCAN.\nX\xF3a \u0111\u1EA1n
+      g\u1EA7n Heart.\n\u0110\u1EA1n \u1EDF xa v\u1EABn c\xF2n: ti\u1EBFp t\u1EE5c
+      n\xE9."
+  - id: guided-dodge
+    kind: 7
+    dialogue: {fileID: 11400000, guid: 82092e33d116ed449a2b45af4cf4f713, type: 2}
+    instruction: "R\xCA CHU\u1ED8T: \u0111\u01B0a Heart qua ch\u1ED7 tr\u1ED1ng.\nN\xE9
+      li\xEAn t\u1EE5c 4 gi\xE2y \u0111\u1EC3 ho\xE0n th\xE0nh."
+  - id: guided-stun-catch
+    kind: 8
+    dialogue: {fileID: 11400000, guid: 5852550244019d0479599422d67ecffc, type: 2}
+    instruction: "\u0110\u01B0a Heart v\xE0o v\xF9ng nhi\u1EC5u, vi\xEAn \u1EDF trong
+      v\xF2ng.\nTh\u1EED CHU\u1ED8T TR\xC1I: kh\xF4ng b\u1EAFt \u0111\u01B0\u1EE3c
+      \u1EDF \u0111\xE2y."
+  - id: guided-stun-reroll
+    kind: 9
+    dialogue: {fileID: 11400000, guid: 605dc44e7f7649b46a6a8e9755fc858e, type: 2}
+    instruction: "R\xCA CHU\u1ED8T: \u0111\u1EB7t vi\xEAn \u1EDF m\xE9p ph\u1EA3i
+      v\xF2ng b\u1EAFt.\nCHU\u1ED8T PH\u1EA2I: gieo vi\xEAn sang b\xEAn ph\u1EA3i.\nRa
+      kh\u1ECFi v\xF9ng nhi\u1EC5u r\u1ED3i CHU\u1ED8T TR\xC1I: b\u1EAFt."
+  - id: guided-finish
+    kind: 10
+    dialogue: {fileID: 11400000, guid: c351810474d9f2048a14456c0a4a1b89, type: 2}
+    instruction: "CHU\u1ED8T TR\xC1I: b\u1EAFt \u0111\u1EA7u tr\u1EADn th\u1EADt.\nTIME
+      \u0111\u01B0\u1EE3c h\u1ED3i \u0111\u1EA7y.\nH\u1EA1 HP \u0111\u1ED1i th\u1EE7
+      v\u1EC1 0 \u0111\u1EC3 th\u1EAFng."

@@ -133,6 +133,7 @@ namespace Audere.Combat
         {
             Rect rect = context.Board.PlayArea.rect;
             int count = Mathf.Max(1, data.ProjectilesPerShot);
+            float fanSpacing = data.Spacing;
             Vector2 baseOrigin;
             bool fromLeft = true;
 
@@ -157,6 +158,14 @@ namespace Audere.Combat
                     break;
             }
 
+            Vector2 fanAxis = data.TargetMode == LinearProjectileTargetMode.Down
+                ? Vector2.right
+                : Vector2.Perpendicular((context.Board.PlayerPosition - baseOrigin).normalized);
+            if (fanAxis.sqrMagnitude < .001f) fanAxis = Vector2.right;
+            if (data.SpawnMode != LinearProjectileSpawnMode.AlternatingSides)
+                baseOrigin = CombatVolleySpawnLayout.FitCenter(rect, baseOrigin,
+                    fanAxis, count, ref fanSpacing, 10f);
+
             for (int i = 0; i < count; i++)
             {
                 Vector2 origin = baseOrigin;
@@ -168,12 +177,12 @@ namespace Audere.Combat
                 }
                 else if (data.TargetMode == LinearProjectileTargetMode.Down)
                 {
-                    if (data.SpawnMode == LinearProjectileSpawnMode.RandomTop)
-                        origin.x = context.Random.Range(rect.xMin + 30f, rect.xMax - 30f);
+                    origin += fanAxis * ((i - (count - 1) * .5f) * fanSpacing);
                     direction = Rotate(Vector2.down, context.Random.Range(-data.SpreadDegrees, data.SpreadDegrees));
                 }
                 else
                 {
+                    origin += fanAxis * ((i - (count - 1) * .5f) * fanSpacing);
                     Vector2 aimed = (context.Board.PlayerPosition - origin).normalized;
                     float t = count <= 1 ? .5f : (float)i / (count - 1);
                     direction = Rotate(aimed, Mathf.Lerp(-data.SpreadDegrees, data.SpreadDegrees, t));
@@ -206,6 +215,44 @@ namespace Audere.Combat
             return new Vector2(
                 Mathf.Clamp(origin.x, minimumX, maximumX),
                 Mathf.Clamp(origin.y, minimumY, maximumY));
+        }
+    }
+
+    public static class CombatVolleySpawnLayout
+    {
+        public static Vector2 FitCenter(Rect rect, Vector2 center, Vector2 axis,
+            int count, ref float spacing, float inset)
+        {
+            if (count <= 1) return center;
+            axis.Normalize();
+            float steps = count - 1;
+            float availableWidth = Mathf.Max(0f, rect.width - inset * 2f);
+            float availableHeight = Mathf.Max(0f, rect.height - inset * 2f);
+            if (Mathf.Abs(axis.x) > .001f)
+                spacing = Mathf.Min(spacing, availableWidth / (steps * Mathf.Abs(axis.x)));
+            if (Mathf.Abs(axis.y) > .001f)
+                spacing = Mathf.Min(spacing, availableHeight / (steps * Mathf.Abs(axis.y)));
+            spacing = Mathf.Max(0f, spacing);
+            float halfX = Mathf.Abs(axis.x) * steps * spacing * .5f;
+            float halfY = Mathf.Abs(axis.y) * steps * spacing * .5f;
+            return new Vector2(
+                Mathf.Clamp(center.x, rect.xMin + inset + halfX, rect.xMax - inset - halfX),
+                Mathf.Clamp(center.y, rect.yMin + inset + halfY, rect.yMax - inset - halfY));
+        }
+
+        public static float RadialRadius(int count, float bulletDiameter, float padding)
+        {
+            if (count <= 1) return 0f;
+            return Mathf.Max(0f, bulletDiameter + padding) /
+                (2f * Mathf.Sin(Mathf.PI / count));
+        }
+
+        public static Vector2 FitCircleCenter(Rect rect, Vector2 center, float radius, float inset)
+        {
+            float margin = Mathf.Max(0f, radius + inset);
+            return new Vector2(
+                Mathf.Clamp(center.x, rect.xMin + margin, rect.xMax - margin),
+                Mathf.Clamp(center.y, rect.yMin + margin, rect.yMax - margin));
         }
     }
 }

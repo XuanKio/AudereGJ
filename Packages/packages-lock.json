@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.coplaydev.unity-mcp": {
-      "version": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
+      "version": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#v10.2.0",
       "depth": 0,
       "source": "git",
       "dependencies": {
@@ -15,7 +15,7 @@
         "com.unity.nuget.newtonsoft-json": "3.0.2",
         "com.unity.test-framework": "1.1.31"
       },
-      "hash": "4ce7dd3cc54e37e2ed6dc59cb5a047f3dccb3f50"
+      "hash": "30d22075093d1d35dfb0091c1c7550e9ad948577"
     },
     "com.unity.2d.animation": {
       "version": "10.2.2",
@@ -56,10 +56,12 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.2d.pixel-perfect": {
-      "version": "5.0.3",
-      "depth": 1,
+      "version": "5.1.1",
+      "depth": 0,
       "source": "registry",
-      "dependencies": {},
+      "dependencies": {
+        "com.unity.modules.imgui": "1.0.0"
+      },
       "url": "https://packages.unity.com"
     },
     "com.unity.2d.psdimporter": {
@@ -151,7 +153,7 @@
       "source": "builtin",
       "dependencies": {
         "com.unity.2d.animation": "10.2.2",
-        "com.unity.2d.pixel-perfect": "5.0.3",
+        "com.unity.2d.pixel-perfect": "5.1.1",
         "com.unity.2d.psdimporter": "9.1.1",
         "com.unity.2d.sprite": "1.0.0",
         "com.unity.2d.spriteshape": "10.0.7",

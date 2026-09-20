@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Audere.Story
 {
     [DisallowMultipleComponent]
-    public sealed class StoryDirector : MonoBehaviour
+    public sealed partial class StoryDirector : MonoBehaviour
     {
         [SerializeField] private Transform storyEventsRoot;
 
@@ -50,6 +50,7 @@ namespace Audere.Story
 
         private void OnDisable()
         {
+            debugCombatKeyPressCount = 0;
             CancelCurrentEvent();
         }
 
@@ -117,7 +118,8 @@ namespace Audere.Story
 
         private bool StartEvent(
             StoryEvent eventReference,
-            Action<StoryEventResult> onEnded)
+            Action<StoryEventResult> onEnded,
+            StoryStep firstStep = null)
         {
             if (!registeredEvents.Contains(eventReference))
             {
@@ -136,7 +138,7 @@ namespace Audere.Story
             activeCompletion = null;
             activeCompletion = onEnded;
 
-            bool started = eventReference.Play(result => HandleEventEnded(eventReference, result));
+            bool started = eventReference.PlayFromStep(firstStep, result => HandleEventEnded(eventReference, result));
             if (started)
                 return true;
 

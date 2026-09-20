@@ -21,7 +21,7 @@ namespace Audere.Story.Editor.Tests
             var scene=EditorSceneManager.OpenScene(Day2SchoolMorningSetupTool.ScenePath,OpenSceneMode.Single);
             var all=scene.GetRootGameObjects().SelectMany(r=>r.GetComponentsInChildren<Transform>(true)).ToArray();
             var pairs=all.Select(t=>t.GetComponent<Audere.Puzzle.CooperativePuzzleSession>()).Where(p=>p!=null).OrderBy(p=>p.Puzzle.PuzzleData.PuzzleId).ToArray();
-            Assert.AreEqual(3,pairs.Length);
+            Assert.AreEqual(1,pairs.Length);
             Assert.AreEqual(2,all.Count(t=>t.GetComponent<Audere.Puzzle.GridPlayer>()!=null));
             Assert.AreEqual(1,all.Count(t=>t.GetComponent<Audere.Puzzle.PuzzleRuntime>()!=null));
             Assert.AreEqual(0,all.Single(t=>t.name=="COOP PUZZLE CONTROLS").GetComponentsInChildren<UnityEngine.UI.Button>(true).Length);
@@ -32,11 +32,13 @@ namespace Audere.Story.Editor.Tests
             Bounds right=all.Single(t=>t.name=="Mask Right").GetComponent<SpriteRenderer>().bounds;
             Bounds top=all.Single(t=>t.name=="Mask Top").GetComponent<SpriteRenderer>().bounds;
             Bounds bottom=all.Single(t=>t.name=="Mask Bottom").GetComponent<SpriteRenderer>().bounds;
-            for(int i=0;i<3;i++)
+            for(int i=0;i<pairs.Length;i++)
             {
                 var pair=pairs[i];var puzzle=pair.Puzzle;var controller=puzzle.GetComponent<Audere.Puzzle.PuzzleController>();
+                Assert.AreEqual(Audere.Puzzle.CooperativePuzzleSession.OpeningActor.Bianca, pair.FirstActor);
                 var tiles=controller.PuzzleRoot.GetComponentsInChildren<Audere.Puzzle.Board.BoardTile>(true);
-                Assert.AreEqual(4,puzzle.PuzzleData.AvailablePathPieces.Count);
+                Assert.AreEqual(2, controller.PuzzleRoot.GetComponentsInChildren<Audere.Puzzle.CooperativeRedTileBehaviour>(true).Length);
+                Assert.AreEqual(5,puzzle.PuzzleData.AvailablePathPieces.Count);
                 Assert.IsTrue(puzzle.PuzzleData.RequireAllPathPieces);
                 var cells=tiles.Select(t=>puzzle.Board.GridSpace.WorldToCell(t.transform.position)).ToArray();
                 Assert.LessOrEqual(cells.Max(c=>c.x)-cells.Min(c=>c.x)+1,6);
@@ -88,23 +90,24 @@ namespace Audere.Story.Editor.Tests
             Application.runInBackground=true;
             EditorWindow.GetWindow(System.Type.GetType("UnityEditor.GameView,UnityEditor")).Focus();
             var pair=Object.FindObjectsByType<Audere.Puzzle.CooperativePuzzleSession>(FindObjectsInactive.Include,FindObjectsSortMode.None)
-                .Single(p=>p.Puzzle.PuzzleData.PuzzleId=="PZ_D2_COOP_03");
+                .Single(p=>p.Puzzle.PuzzleData.PuzzleId=="PZ_D2_COOP_01");
             var puzzle=pair.Puzzle;var level=puzzle.GetComponent<Audere.Puzzle.PuzzleController>();
             var grid=puzzle.Board.GridSpace;
             level.PuzzleRoot.parent.gameObject.SetActive(true);level.PuzzleRoot.gameObject.SetActive(true);
             Assert.IsTrue(level.Play());yield return null;
             var a=puzzle.Player;var b=pair.Partner;
+            Assert.IsNull(pair.ActorAtStart(a.GridPosition),"Bianca opens by holding the first red tile.");
+            Assert.AreSame(b,pair.ActorAtStart(b.GridPosition));
             var runtime=grid.GetComponentInChildren<Audere.Puzzle.PuzzleRuntime>(true);
             GameplayUIRoot.Instance.PathPieceHand.Select(0);runtime.Placement.Cancel();yield return null;
             Assert.IsFalse(runtime.Preview.GetComponentsInChildren<SpriteRenderer>(true).Any(r=>r.gameObject.activeInHierarchy),"Same-frame select/cancel must not leave a ghost preview.");
             b.SetPosition(a.GridPosition,grid.CellToWorldCenter(a.GridPosition));
             var savedRandom=Random.state;Random.InitState(712);
             var previewRandom=Random.state;
-            for(int i=0;i<12;i++)Assert.AreSame(a,pair.ActorAtStart(a.GridPosition,false));
+            for(int i=0;i<12;i++)Assert.AreSame(a,pair.ActorAtStart(a.GridPosition));
             Assert.AreEqual(previewRandom,Random.state,"Preview must not roll a new actor each frame.");
-            bool sawA=false,sawB=false;
-            for(int i=0;i<64;i++){var selected=pair.ActorAtStart(a.GridPosition,true);sawA|=selected==a;sawB|=selected==b;}
-            Assert.IsTrue(sawA&&sawB,"A shared-cell drop must be able to select either actor.");Random.state=savedRandom;
+            for(int i=0;i<64;i++)Assert.AreSame(a,pair.ActorAtStart(a.GridPosition),"A shared-cell drop must move Audere.");
+            Assert.AreEqual(previewRandom,Random.state,"A shared-cell drop must not consume randomness.");Random.state=savedRandom;
             yield return TickUntil(()=>b.transform.position.x-a.transform.position.x>.10f);
             Assert.AreEqual(a.GridPosition,b.GridPosition);
             Assert.Greater(b.transform.position.x-a.transform.position.x,.10f);
@@ -140,26 +143,26 @@ namespace Audere.Story.Editor.Tests
             var hand=GameplayUIRoot.Instance.PathPieceHand;
             puzzle.Board.NotifyPlayerEntered(redTile.GridPosition,b);
             hand.Select(0);
-            var fall=Audere.Puzzle.PathPieces.PathPlacementValidator.Validate(hand.SelectedPiece,a.GridPosition,
-                Audere.Puzzle.PathPieces.GridRotation.Degrees90,a.GridPosition,puzzle.Board,a);
+            var fall=Audere.Puzzle.PathPieces.PathPlacementValidator.Validate(hand.SelectedPiece,b.GridPosition,
+                Audere.Puzzle.PathPieces.GridRotation.Degrees90,b.GridPosition,puzzle.Board,b);
             Assert.IsTrue(fall.WillFall);puzzle.SubmitPlacement(fall);
-            yield return TickUntil(()=>puzzle.CurrentState==Audere.Puzzle.PuzzleManager.State.Playing && hand.Count==4);
+            yield return TickUntil(()=>puzzle.CurrentState==Audere.Puzzle.PuzzleManager.State.Playing && hand.Count==5);
             Assert.IsFalse(red.HasBeenEntered,"Falling resets shared red state.");
-            hand.Setup(new[]{puzzle.PuzzleData.AvailablePathPieces[0]});hand.Select(0);
-            var shortAttempt=Audere.Puzzle.PathPieces.PathPlacementValidator.Validate(hand.SelectedPiece,a.GridPosition,
-                Audere.Puzzle.PathPieces.GridRotation.Degrees0,a.GridPosition,puzzle.Board,a);
+            hand.Setup(new[]{puzzle.PuzzleData.AvailablePathPieces[2]});hand.Select(0);
+            var shortAttempt=Audere.Puzzle.PathPieces.PathPlacementValidator.Validate(hand.SelectedPiece,b.GridPosition,
+                Audere.Puzzle.PathPieces.GridRotation.Degrees0,b.GridPosition,puzzle.Board,b);
             Assert.IsTrue(shortAttempt.CanCommit);Assert.IsFalse(shortAttempt.WillFall);puzzle.SubmitPlacement(shortAttempt);
-            yield return TickUntil(()=>puzzle.CurrentState==Audere.Puzzle.PuzzleManager.State.Playing && hand.Count==4);
+            yield return TickUntil(()=>puzzle.CurrentState==Audere.Puzzle.PuzzleManager.State.Playing && hand.Count==5);
             Assert.IsFalse(red.HasBeenEntered,"Running out of path pieces resets every shared red tile.");
             a.SetPosition(pair.AudereGoal.GridPosition,grid.CellToWorldCenter(pair.AudereGoal.GridPosition));
             puzzle.StartCoroutine(pair.ResolveLanding(a));
             yield return TickUntil(()=>pair.HasArrived(a) && a.GetComponent<SpriteRenderer>().color.a<.001f);
-            Assert.IsTrue(pair.HasArrived(a));Assert.IsNull(pair.ActorAtStart(a.GridPosition,true));
+            Assert.IsTrue(pair.HasArrived(a));Assert.IsNull(pair.ActorAtStart(a.GridPosition));
             Assert.IsFalse(pair.BothAtGoals);
             foreach(var sr in a.GetComponentsInChildren<SpriteRenderer>(true))Assert.Less(sr.color.a,.001f);
             Assert.IsTrue(puzzle.Board.CanPlayerEnter(pair.PartnerGoal.GridPosition,b));
             Assert.IsTrue(puzzle.ResetPuzzle(true));
-            Assert.IsFalse(pair.HasArrived(a));Assert.AreEqual(4,GameplayUIRoot.Instance.PathPieceHand.Count);
+            Assert.IsFalse(pair.HasArrived(a));Assert.AreEqual(5,GameplayUIRoot.Instance.PathPieceHand.Count);
             Assert.IsTrue(redTile.GetComponentInChildren<SpriteRenderer>(true).enabled);
             foreach(var actor in new[]{a,b})
             {
