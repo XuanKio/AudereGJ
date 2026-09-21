@@ -19,26 +19,32 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: -4747829306167941163, guid: cdecd5c621db74b43927eb49d1f04191, type: 3}
   lines:
   - speaker: 0
-    text: "C\xF4 b\u1EA3o t\u1EDB ngh\u1EC9 m\u1ED9t ch\xFAt."
+    text: "C\xF4 b\u1EA3o t\u1EDB ngh\u1EC9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EADu ngh\u0129 c\xF4 kh\xF4ng th\u1EA5y phi\u1EC1n \xE0?"
+    text: "C\u1EADu ngh\u0129 c\xF4 kh\xF4ng phi\u1EC1n \xE0?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "H\xF4m qua, c\u1EADu c\u0169ng n\xF3i th\u1EBF v\u1EC1 Bianca."
+    text: "C\u1EADu c\u0169ng n\xF3i v\u1EADy v\u1EC1 Bianca."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "Nh\u01B0ng c\u1EADu \u1EA5y \u0111\xE3 c\xF9ng t\u1EDB s\u1EEDa l\u1EA1i."
+    text: "Nh\u01B0ng c\u1EADu \u1EA5y c\xF9ng t\u1EDB s\u1EEDa l\u1EA1i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: "L\u1EA7n n\xE0y c\xF3 th\u1EC3 kh\xE1c."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "C\xF3 th\u1EC3\u2026 \u0111\xE2u ph\u1EA3i l\xE0 ch\u1EAFc ch\u1EAFn."
+    text: "C\xF3 th\u1EC3\u2026 \u0111\xE2u ph\u1EA3i ch\u1EAFc ch\u1EAFn."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

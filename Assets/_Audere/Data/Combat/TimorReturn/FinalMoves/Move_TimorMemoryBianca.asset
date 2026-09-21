@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d0a08731778e804d8baccf14d329b82, type: 3}
+  m_Name: Move_TimorMemoryBianca
+  m_EditorClassIdentifier: 
+  duration: 15.8
+  leadInDuration: 0.35
+  actorPrefab: {fileID: 3076063008388383328, guid: bb39e8d445f20d543ab58b7566c98b6e, type: 3}
+  sprite: {fileID: -8027693430819633431, guid: 01279648afe3e354d81e9298be5e164a, type: 3}
+  displayName: Bianca
+  signatureMoves:
+  - {fileID: 11400000, guid: 457d25aface4f0f48bd4e2b970097ef6, type: 2}
+  visualSize: {x: 420, y: 560}
+  side: 1
+  attacksToDefeat: 3

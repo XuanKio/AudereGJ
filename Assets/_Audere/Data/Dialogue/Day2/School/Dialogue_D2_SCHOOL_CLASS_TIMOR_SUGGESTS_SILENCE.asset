@@ -19,8 +19,12 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "Ch\u01B0a c\u1EA7n l\xEAn ti\u1EBFng \u0111\xE2u."
+    text: "Ch\u01B0a c\u1EA7n n\xF3i \u0111\xE2u."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "S\u1EBD c\xF3 b\u1EA1n kh\xE1c xung phong m\xE0."
+    text: "S\u1EBD c\xF3 b\u1EA1n kh\xE1c m\xE0."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

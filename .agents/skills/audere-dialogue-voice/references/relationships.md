@@ -1,102 +1,78 @@
-# Audere–Timor Relationship
+# Relationships — quyền chọn và sự hiện diện
 
-## Current relationship: Day 1 through Day 2 home morning
+Đối chiếu production bốn ngày, 2026-09-20.
+[Chronology](../../../../Docs/Story/chronology.md) sở hữu thứ tự scene;
+[continuity](../../../../Docs/Story/continuity.md) sở hữu các điều chưa chốt.
 
-### Established Canon
+## Audere — Timor
 
-- Timor is present at the start of Audere's morning and speaks with familiar `tớ/cậu` address.
-- Audere accepts his sequencing of the routine and his company.
-- Timor notices Audere's state, supplies the next task, and knows a detail about breakfast prepared by her father.
-- Their exchange permits mild protest and light teasing without visible rupture.
-- At the bus stop, Audere thanks Timor and receives `Tớ ở đây mà` as reassurance.
-- In class, Timor closes the decoration option before Audere acts; Audere yields and returns
-  to her seat.
-- During recess, Bianca gives Audere room to accept or decline a small invitation. Before
-  Audere answers, Timor asks her to wait and look at him. Audere then names the concrete signs
-  of wanting to flee and chooses to face the anxiety herself; Timor says he will stay.
+### Established Canon: tiến triển theo scene
+
+| Mốc | Sự giúp đỡ / gắn bó | Cái giá hoặc thay đổi |
+| --- | --- | --- |
+| D1 sáng/bus | Chia nhỏ routine, đi cùng, trấn an | Audere quen để Timor chọn bước tiếp |
+| D1 lớp | Giúp tutorial, ở bên khi cô run | Trước đó hoãn ghi tên và chen vào khoảng chờ |
+| D1 tối | Nói sợ mất cô, sau trận lại xoa dịu | Cấm trả lời và chỉ để lại ba cách né tránh |
+| D2 sáng | Muốn giúp như trước | Theo sát từng việc, ngắt điều cô muốn hỏi |
+| D2 lấy đồ | Cảnh báo rủi ro | Audere làm việc nhỏ rồi hỏi thật Bianca thay vì nhận lời đoán |
+| D2 tối/mơ | Tiếp tục là điểm bấu víu | Không chứng minh biết suy nghĩ; trong mơ đòi vị trí duy nhất |
+| D3 cô giáo | Nói muốn tránh tổn thương | Audere yêu cầu nghe người thật, tự trả lời |
+| D3 Bianca reprise | Nói trước đây chỉ có mình | Diễn giải quan hệ mới thành bị bỏ lại, rút hướng dẫn |
+| D4 Crowd | Quay lại hứa đưa ra khỏi tình huống | Audere nghe Bianca, nhận giúp và hỏi cả lớp |
+| D4 final | Cả hai thừa nhận đã cần nhau | Audere đặt giới hạn; Timor đồng ý thử tin cô |
 
 ### Strongly Implied
 
-- Audere already relies on Timor for orientation in ordinary tasks.
-- Timor's guidance is habitual rather than a one-time intervention.
-- The relationship currently feels safe to Audere; otherwise her sleepy, minimally guarded responses and compliance would need more explanation.
+Sự hướng dẫn ban đầu có ích thật; sự thân thuộc khiến Audere vừa biết ơn vừa khó từ chối.
+Timor thường biến một khả năng xấu thành điều phải phòng ngừa ngay.
+Sự cô lập được củng cố mỗi lần nhẹ nhõm chỉ đến sau khi Audere không làm điều mình muốn.
+Không từ đó suy Timor luôn cố ý lừa cô hoặc hưởng thụ việc làm cô đau.
+
+### Design Intent: cơ chế quan hệ
+
+Audere quá tải → Timor chọn giúp một việc → cô đỡ lo và nghe theo → vị trí người dẫn đường mạnh hơn.
+Khi lựa chọn mới xuất hiện, cùng một cách giúp dần loại bỏ lựa chọn ấy.
+Quá trình đảo chiều là Audere tự thử, so lại lời đoán với sự kiện và đặt ranh giới có thể thực hiện.
+Ending giữ khả năng đi cùng nhau, đồng thời thay đổi ai có quyền quyết định bước của Audere.
+
+## Audere — Bianca
+
+### Established Canon
+
+- D1: một lời mời nhỏ có đường từ chối; Bianca chờ Audere tự đáp và tự ghi tên.
+- D2: hiểu nhầm Audere giận, nhẹ nhõm khi cô đi cùng; hai người cùng mang đồ và sửa nhầm hộp.
+- Sau battle: Audere hỏi liệu mình có phiền; Bianca trả lời bình thường, không cứu rỗi hay làm lễ ăn mừng.
+- D3: cùng làm bảng, khen một chi tiết, nhận ra cô mệt; sau đó hỏi muốn có người ở lại hay muốn một mình.
+- D4: hỏi chỗ đau, đề nghị vịn, đặt nhu cầu nghỉ trước đống đồ; Audere nhận giúp rồi mở lời với cả lớp.
 
 ### Design Intent
 
-- The player should initially value Timor's help.
-- Timor's protection and Audere's dependence form a mutually reinforcing loop.
-- The later problem is not that the early care was fake. It is that help increasingly replaces Audere's right to choose.
+Bianca là bạn học biết quan tâm, có công việc và phản ứng riêng.
+Cô không đọc được nội tâm Audere, không xác nhận Timor hay cung cấp đáp án tâm lý cho mọi vấn đề.
+Độ gần tăng nhờ những việc nhỏ và sự cho phép, không bằng lời hứa gắn bó mãi mãi.
+Bianca thật và BiancaDistorted không chia sẻ một hồ sơ ác ý.
 
-## Relationship mechanism
+## Audere — cô giáo
 
-```text
-Audere feels overloaded or uncertain
-→ Timor supplies a manageable decision
-→ Audere receives immediate relief and follows
-→ Timor's role as interpreter/protector is reinforced
-→ Audere gets less practice making the next choice herself
-```
+### Established Canon
 
-At the beginning, portray the relief and practical benefit as real. Introduce cost through accumulation, not through an obviously sinister line.
+D1: cô giáo mời mọi người chọn một việc vừa sức, làm nền cho việc Audere muốn tham gia.
+D3: Audere cần nghỉ; cô giáo hỏi thăm, không ép trả lời ngay, cho phép các mức chia sẻ khác nhau.
+Cô hỏi trước khi ôm; Audere đồng ý rồi staging mới chuyển gần.
 
-## Progression bands
+### Design Intent
 
-These are qualitative writing bands, not numerical game state.
+Quyền người lớn được thể hiện bằng việc tạo thời gian và giảm áp lực.
+Chăm sóc không phải phần thưởng cho câu trả lời “đúng”, kể hết chuyện hay cố làm thêm.
+Không biến cô thành chuyên gia chẩn đoán hoặc buộc cô hiểu bản thể Timor.
 
-### 1. Trusted guidance — established foundation
+## Audere — đám đông
 
-- Timor suggests or selects the next small action.
-- Audere mildly protests but generally follows.
-- Direction is paired with presence, reassurance, or useful knowledge.
-- Control can plausibly be read as care.
+**Established Canon:** Audere sợ bị nhìn/cười sau cú ngã; Bianca nói điều cô thật sự thấy và hỏi chỗ đau.
+**Design Intent:** lời hỏi cả lớp là mức mở rộng từ một người tin được sang nhiều người chưa biết chắc.
+**Unresolved:** ý nghĩ và phản hồi riêng của từng bạn; không tự viết cả lớp độc ác hoặc đồng loạt cứu cô.
 
-### 2. Protective pre-emption — first edge now established
+## Kiểm tra trước khi viết
 
-- Timor begins answering before Audere can decide.
-- He frames alternatives as needless risk, effort, or embarrassment.
-- Audere may still feel grateful even when an opportunity closes.
-- The classroom decoration beat is the first implemented example: Timor acknowledges that
-  Audere likes the task, then frames postponing the sign-up as rest after a nonstop morning.
-  The lost choice still sounds like care.
-- The Bianca beat strengthens the same band: an ordinary classmate leaves a genuine pause,
-  and Timor steps into that pause before Audere can answer. The beat also gives Audere a small
-  supported agency gain: she, not Timor, states the decision to face what is stopping her.
-- The post-combat continuation keeps this band: Audere gives Bianca her own answer and writes her
-  own name while still trembling, then thanks Timor for being present. Timor's reassurance remains
-  valuable and deepens trust, but the moment does not establish independence from him.
-- The implemented night-message beat now crosses from the upper edge of this band into the first
-  explicit `Restricted agency` conflict. Timor begins afraid and cites Audere's mother as proof that
-  trust is dangerous. Audere recognizes his worry but says she still wants to answer. Timor then
-  raises his voice, tells her she must listen, and says he cannot allow the reply. The scripted-defeat
-  encounter continues this attempt to contain her choice. This movement is **Design Intent**; the
-  exact family history, later recognition, and consequences remain `Unresolved`.
-
-### 3. Restricted agency — Design Intent
-
-- Timor treats Audere's independent choice as danger to be contained.
-- Audere starts recognizing that relief has a cost.
-- Resistance should begin with small refusals or delayed compliance, not an instant decisive break.
-- The implemented night ending enters this band: after combat exhausts Audere, Timor reframes the
-  loss as evidence, restores his familiar soothing voice, and offers only refusal, delay, or silence.
-  The player chooses the form of withdrawal, but the earlier option to answer Bianca has disappeared.
-- The Day 2 home morning continues this band without another outburst. Audere admits she is a
-  little afraid of Timor; he knows and softens his voice, but immediately resumes directing each
-  task. Re-checking the bag and lock, choosing walking distance, and selecting the safest place to
-  stand make ordinary care increasingly exhaustive. Audere notices the cost through `...Timor`
-  and repeated pauses, not through an open break.
-
-### 4. Open conflict — Unresolved
-
-- Exact trigger, language, outcome, and reconciliation/separation are not established in project sources.
-
-## Scene calibration
-
-Before writing their exchange, answer:
-
-1. What decision is Audere facing?
-2. How much space does Timor give her to make it at this story point?
-3. What genuine help does Timor provide?
-4. What tiny amount of agency might Audere lose?
-5. Does either character notice that cost yet?
-
-Do not move to a later progression band merely because a more dramatic line sounds stronger.
+Xác định Audere đang chọn việc gì, ai chừa khoảng trả lời, ai lấp khoảng đó, và việc gì đã xảy ra
+đủ để cô tin/nghi hơn trước. Một câu mạnh hơn không được đi trước bằng chứng của scene.

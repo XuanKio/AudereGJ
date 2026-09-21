@@ -20,33 +20,41 @@ MonoBehaviour:
   lines:
   - speaker: 0
     text: "Timor\u2026 \u0111\u01B0\u1EDDng \u0111\xE2u r\u1ED3i?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u0110\u1EEBng nh\xECn ch\u1ED7 \u0111\xF3 n\u1EEFa."
+    text: "\u0110\u1EEBng nh\xECn xu\u1ED1ng."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: "Nh\xECn t\u1EDB th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "Ch\u1EC9 c\xF3 t\u1EDB gi\xFAp c\u1EADu an to\xE0n th\xF4i."
+    text: "Ch\u1EC9 t\u1EDB gi\u1EEF c\u1EADu an to\xE0n."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "Ch\u1EC9 m\xECnh t\u1EDB l\xE0 b\u1EA1n th\u1EADt s\u1EF1 c\u1EE7a c\u1EADu."
+    text: "Ch\u1EC9 t\u1EDB l\xE0 b\u1EA1n th\u1EADt c\u1EE7a c\u1EADu."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "\u2026\u0110\u1EEBng \u0111i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: "T\u1EDB \u1EDF \u0111\xE2y."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "V\u1EADy c\u1EE9 nghe t\u1EDB, Audere."
+    text: "V\u1EADy c\u1EE9 nghe t\u1EDB."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

@@ -669,7 +669,10 @@ namespace Audere.Story.Editor
             string dialogueId,
             params DialogueLine[] lines)
         {
-            DialogueData data = EnsureAsset<DialogueData>($"{DialogueFolder}/{assetName}.asset");
+            string path = $"{DialogueFolder}/{assetName}.asset";
+            DialogueData data = AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+            if (data != null) return data;
+            data = EnsureAsset<DialogueData>(path);
             SerializedObject serialized = new SerializedObject(data);
             serialized.FindProperty("dialogueId").stringValue = dialogueId;
             serialized.FindProperty("leftCharacter").intValue = (int)DialogueCharacterId.Audere;

@@ -7,7 +7,7 @@ namespace Audere.Core
 {
     /// <summary>
     /// Hidden runtime scene navigator for quickly checking production builds.
-    /// Toggle with Ctrl + S + K. It is created before the first scene and survives loads.
+    /// Toggle by pressing Ctrl five times. Created before the first scene; survives loads.
     /// </summary>
     public sealed class RuntimeSceneDebugMenu : MonoBehaviour
     {
@@ -48,7 +48,7 @@ namespace Audere.Core
         private Rect windowRect;
         private Vector2 scrollPosition;
         private bool isVisible;
-        private bool hotkeyLatched;
+        private int controlPressCount;
         private bool previousCursorVisible;
         private CursorLockMode previousCursorLockMode;
         private GameplayInputGate claimedGate;
@@ -78,11 +78,12 @@ namespace Audere.Core
 
         private void Update()
         {
-            bool controlHeld = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-            bool chordHeld = controlHeld && Input.GetKey(KeyCode.S) && Input.GetKey(KeyCode.K);
-            if (chordHeld && !hotkeyLatched)
+            bool controlPressed = Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl);
+            if (controlPressed && ++controlPressCount >= 5)
+            {
+                controlPressCount = 0;
                 SetVisible(!isVisible);
-            hotkeyLatched = chordHeld;
+            }
 
             if (isVisible && Input.GetKeyDown(KeyCode.Escape))
                 SetVisible(false);
@@ -108,7 +109,7 @@ namespace Audere.Core
             string activeScene = SceneManager.GetActiveScene().name;
             GUILayout.Space(4f);
             GUILayout.Label("Đang ở: " + activeScene, titleStyle);
-            GUILayout.Label("Ctrl + S + K: đóng/mở  •  Esc: đóng", sceneStyle);
+            GUILayout.Label("Nhấn Ctrl 5 lần: đóng/mở  •  Esc: đóng", sceneStyle);
             GUILayout.Space(8f);
 
             int activeIndex = FindSceneIndex(activeScene);
@@ -178,6 +179,7 @@ namespace Audere.Core
 
         private void SetVisible(bool visible)
         {
+            controlPressCount = 0;
             if (isVisible == visible)
                 return;
 
@@ -219,6 +221,7 @@ namespace Audere.Core
 
         private void OnDisable()
         {
+            controlPressCount = 0;
             if (isVisible)
                 SetVisible(false);
         }

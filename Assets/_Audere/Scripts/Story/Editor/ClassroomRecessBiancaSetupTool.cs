@@ -344,6 +344,8 @@ namespace Audere.EditorTools
         {
             string path = $"{DialogueFolder}/{assetName}.asset";
             DialogueData asset = AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+            // Scene setup seeds missing dialogue; authored wording and expressions own existing assets.
+            if (asset != null) return asset;
             if (asset == null)
             {
                 asset = ScriptableObject.CreateInstance<DialogueData>();

@@ -32,50 +32,16 @@ namespace Audere.Combat.Editor
             var fence = Required<ChalkFenceMove>(Folder + "Moves/Move_ChalkFence.asset");
             var sweep = Required<ChalkSweepMove>(Folder + "Moves/Move_ChalkSweep.asset");
             EnableTrail(fence); EnableTrail(sweep);
-            SetMoves("MoveSet_ForcedRhythm", radial, sweep, fence);
-            SetMoves("MoveSet_OverlappingPressure", Required<CombatMoveDefinition>(Folder + "Moves/Move_TeacherFinalPressure.asset"),
-                Required<CombatMoveDefinition>(Folder + "Moves/Move_TeacherShiftAndSweep.asset"));
-
-            var enemy = Required<CombatEnemyDefinition>(Folder + "Enemy_Teacher_PLACEHOLDER.asset");
-            var es = new SerializedObject(enemy);
-            es.FindProperty("sharedMaxHealth").intValue = 15;
-            var phases = es.FindProperty("phases");
-            if (phases.arraySize != 3) throw new InvalidOperationException("Expected three Teacher phases; preserve custom data and migrate explicitly.");
-            for (int i = 0; i < 3; i++)
-            {
-                phases.GetArrayElementAtIndex(i).FindPropertyRelative("maxHealth").intValue = 15;
-                phases.GetArrayElementAtIndex(i).FindPropertyRelative("sharedExitThreshold").intValue = new[] { 7, 4, 0 }[i];
-            }
-            es.ApplyModifiedPropertiesWithoutUndo();
-            if (!enemy.Validate(out string error)) throw new InvalidOperationException(error);
-            AssetDatabase.SaveAssetIfDirty(enemy);
-            var encounter = Required<CombatEncounterData>(Folder + "CombatEncounter_D3_TEACHER_PRESSURE.asset");
-            var enc = new SerializedObject(encounter);
-            enc.FindProperty("encounterDuration").floatValue = 90;
-            enc.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssetIfDirty(encounter);
-            Debug.Log("[TeacherRadialTrails] 15 HP / 90 TIME, radial at 7 HP, chalk trails 3.6s; no vertical player impulse, field shift retained. No scene or dialogue rebuilt.");
+            TeacherBossPolishAuthoring.Author();
+            Debug.Log("[TeacherRadialTrails] Exterior roots and trails refreshed; Teacher boss balance reapplied.");
         }
 
         public static void EnableTrail(CombatMoveDefinition move)
         {
             var so = new SerializedObject(move); var trail = so.FindProperty("stunTrail");
             trail.FindPropertyRelative("enabled").boolValue = true;
-            trail.FindPropertyRelative("blockingDuration").floatValue = 3.6f;
+            trail.FindPropertyRelative("blockingDuration").floatValue = 2.8f;
             so.ApplyModifiedPropertiesWithoutUndo(); if (AssetDatabase.Contains(move)) AssetDatabase.SaveAssetIfDirty(move);
-        }
-
-        private static void SetMoves(string name, params CombatMoveDefinition[] moves)
-        {
-            var set = Required<CombatMoveSet>(Folder + "Moves/" + name + ".asset");
-            var so = new SerializedObject(set); var entries = so.FindProperty("entries"); entries.arraySize = moves.Length;
-            so.FindProperty("selectionPolicy").intValue = 0;
-            for (int i = 0; i < moves.Length; i++)
-            {
-                var entry = entries.GetArrayElementAtIndex(i);
-                entry.FindPropertyRelative("move").objectReferenceValue = moves[i];
-                entry.FindPropertyRelative("weight").floatValue = 1;
-            }
-            so.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssetIfDirty(set);
         }
 
         private static void AuthorBoardRoots()

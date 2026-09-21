@@ -72,7 +72,7 @@ Audere có ba cách nhận sự hiện diện của bạn; Timor thấy mình b�
 Mang đồ đến lớp rồi ngã khiến cô tưởng mọi người cười mình.
 Đám Đông và Timor ép cô rút lui; câu hỏi thật của Bianca là cô có đau không.
 Audere nhận giúp đỡ, rồi chủ động hỏi mọi người giúp mình.
-Đến tối cô kể rằng được người khác giúp; Timor trở lại với nỗi sợ không còn cần thiết.
+Đến tối cô nhớ Bianca giúp mình và việc đã dám nhờ cả lớp; Timor trở lại với nỗi sợ không còn cần thiết.
 
 Final battle lặp lại lý lẽ bảo vệ, kiểm soát và những hình ảnh từ các trận trước.
 Audere không bảo đảm rằng ngày mai tốt hơn hay cô sẽ không sai.
@@ -94,3 +94,17 @@ Timor đồng ý thử; gameplay frame rời đi, Audere bước theo đường 
 **Design Intent:** có thể hành động trong khi còn sợ; có thể nhờ giúp mà vẫn tự chọn.
 **Established Canon:** Audere không xóa bỏ Timor, không hứa hết lo và không tuyên bố người khác luôn tốt.
 **Unresolved:** bản thể Timor, nguyên nhân mất mẹ, tương lai sau ngày 4 và độ bền của sự hòa giải.
+
+## Nhịp cảm xúc của bản rút
+
+**Design Intent mới của Xuân, 2026-09-20:** trận Timor tăng từ kiểm soát sân tới can thiệp
+chọn dice, phân thân ngoài viền rồi hành lang tiêu cực kéo dài. Ký ức cô giáo, Bianca và mọi người
+giúp Audere lấy lại khoảng thở/quyền phản công; hòa giải hiện có vẫn kết bằng tự bước.
+Chi tiết và giới hạn xác minh ở [moveset Timor](../Combat/timor-finale-moves.md).
+
+**Design Intent theo Xuân:** giữ cảm xúc đến dần, không để câu ngắn khiến nhân vật chuyển ý tức thì.
+Lần đầu đáp Bianca cần bước ngập ngừng; lời cảm ơn Timor đến sau khi được nghe/đáp.
+Khi hỏi Bianca, Audere cần có cảm giác đang liều một câu hỏi, không đọc ra kết luận đã biết.
+Ở D3, sự chăm sóc cần thời gian được nhận trước khi chuyển sang lựa chọn quan hệ tiếp theo.
+Ending giữ ký ức được giúp, nỗi sợ bị bỏ lại, ranh giới tự bước và sự đồng ý thử theo thứ tự.
+Rút phần giải thích lặp; không rút mất những phản ứng làm một thay đổi trở nên đáng tin.

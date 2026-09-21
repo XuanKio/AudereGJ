@@ -19,12 +19,12 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 1
-    text: "C\u1EE9 nh\xECn ch\u1ED7 tr\u1ED1ng tr\u01B0\u1EDBc \u0111\xE3."
+    text: "Nh\xECn ch\u1ED7 tr\u1ED1ng nh\xE9."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u0110\u01B0a tr\xE1i tim qua \u0111\xF3 nh\xE9."
+    text: "\u0110\u01B0a tr\xE1i tim qua \u0111\xF3."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

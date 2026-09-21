@@ -12,6 +12,7 @@ namespace Audere.Combat
         private CombatMountRainbowEcho mountEcho;
         private CombatEnemyActor echoActor;
         private Material echoMaterial;
+        private bool echoMonochrome;
         private CombatSplitBoardGraphic splitBoardGraphic;
         private Image splitFrameImage, splitFieldImage;
         private RectMask2D splitFieldMask;
@@ -27,7 +28,7 @@ namespace Audere.Combat
         public int ActiveMountEchoes => mountEcho?.ActiveCount ?? 0;
         public bool OwnsMountDive(object owner) => ReferenceEquals(mountDiveOwner, owner);
 
-        public bool BeginMountDive(object owner, CombatEnemyActor actor, Material material)
+        public bool BeginMountDive(object owner, CombatEnemyActor actor, Material material, bool monochrome = false)
         {
             ResolveReferences();
             if(owner==null || actor==null || enemyMount==null || playArea==null || battleBoxFrame==null)return false;
@@ -37,10 +38,10 @@ namespace Audere.Combat
             Transform visual=actor.VisualRoot!=null?actor.VisualRoot:actor.transform;
             mountDiveHome=WorldToPlayArea(visual.position);
             mountVisualOffset=enemyMount.position-visual.position;
-            if(mountEcho==null || echoActor!=actor || echoMaterial!=material)
+            if(mountEcho==null || echoActor!=actor || echoMaterial!=material || echoMonochrome!=monochrome)
             {
-                mountEcho?.Dispose();mountEcho=new CombatMountRainbowEcho(enemyMount,actor,material);
-                echoActor=actor;echoMaterial=material;
+                mountEcho?.Dispose();mountEcho=new CombatMountRainbowEcho(enemyMount,actor,material,monochrome);
+                echoActor=actor;echoMaterial=material;echoMonochrome=monochrome;
             }
             mountEcho.Clear();
             splitFrameImage=battleBoxFrame.GetComponent<Image>();splitFieldImage=playArea.GetComponent<Image>();

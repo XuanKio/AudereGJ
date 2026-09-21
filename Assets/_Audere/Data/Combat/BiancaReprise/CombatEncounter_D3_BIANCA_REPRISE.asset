@@ -35,3 +35,4 @@ MonoBehaviour:
   playerHitInvulnerability: 0.55
   bulletTimePenaltySeconds: 3
   maximumAttacksPerBatch: 0
+  additionalRerolledAttacksPerBatch: 0

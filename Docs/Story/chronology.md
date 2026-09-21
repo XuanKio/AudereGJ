@@ -118,7 +118,7 @@ Các liên kết scene là nguồn thứ tự StoryStep; các thư mục thoại
 - **Nguồn:** [scene140](../../Assets/_Audere/Scenes/140_D4_Classroom.unity), [Crowd](../../Assets/_Audere/Data/Dialogue/Day4/Crowd).
 - **Established Canon:** mang đồ → ngã → tưởng bị cười → Crowd battle; Bianca hỏi có đau không.
 - **Bước ngoặt:** nghe đúng câu hỏi, vịn vào Bianca rồi tự hỏi mọi người giúp được không.
-- **Sang150:** nhịp chờ câu trả lời rồi tối ở nhà; lời hồi tưởng xác nhận đã nhận giúp đỡ.
+- **Sang150:** nhịp chờ câu trả lời rồi tối ở nhà; hồi tưởng giữ việc Bianca giúp và Audere dám hỏi cả lớp.
 - **Giới hạn:** không biến tiếng cười tưởng tượng thành hành vi ác ý được cả lớp xác nhận.
 
 ### 150_D4_Home_Evening — đặt giới hạn và bước tiếp

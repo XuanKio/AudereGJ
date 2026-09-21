@@ -16,6 +16,8 @@
 | Setup, Story integration và Retry | [setup-lifecycle-retry](Combat/setup-lifecycle-retry.md) |
 | Lịch sử prototype lớp học và hướng mở rộng | [classroom-prototype-history](Combat/classroom-prototype-history.md) |
 | Capture sequence, Timor ban đêm và nhạc | [timor-capture-and-music](Combat/timor-capture-and-music.md) |
+| Timor finale Scene150: hồi TIME và checkpoint phase | [timor-final-checkpoints](Combat/timor-final-checkpoints.md) |
+| Timor finale: chiêu mới, Battle Box đồng bộ và cao trào | [timor-finale-moves](Combat/timor-finale-moves.md) |
 | Bianca supplies encounter và bằng chứng QA | [bianca-supplies](Combat/bianca-supplies.md) |
 | Teacher, phấn, Victory và fading pressure | [teacher-and-fading-pressure](Combat/teacher-and-fading-pressure.md) |
 | Crowd phản đòn, split board và VFX | [crowd-reactions-and-vfx](Combat/crowd-reactions-and-vfx.md) |

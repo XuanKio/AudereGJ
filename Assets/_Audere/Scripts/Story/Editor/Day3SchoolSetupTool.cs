@@ -350,6 +350,7 @@ namespace Audere.EditorTools
             });
             Asset<CombatEncounterData>(EncounterPath,p=>Set(p,"encounterId","d3-teacher-perceived-pressure","enemyDefinition",enemy,
                 "encounterDuration",90f,"dicePerBatch",3,"maximumAttacksPerBatch",2,"bulletTimePenaltySeconds",3f,"victoryFadeDuration",.75f));
+            Audere.Combat.Editor.TeacherBossPolishAuthoring.Author();
         }
 
         private static void EnemyPrefab()

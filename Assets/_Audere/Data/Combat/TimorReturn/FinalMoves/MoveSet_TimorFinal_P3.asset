@@ -14,25 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectionPolicy: 0
   entries:
-  - move: {fileID: 11400000, guid: 16b844465d5c70341ba4f26426974501, type: 2}
+  - move: {fileID: 11400000, guid: a0a0fd02362b09c4aa61506cae5cb1df, type: 2}
     weight: 1
-  - move: {fileID: 11400000, guid: 7a8cfc3b5d3e06d42a979709fafe78e9, type: 2}
+  - move: {fileID: 11400000, guid: 98712f5a05d6cbf4d9e4a0f74c6a4598, type: 2}
     weight: 1
-  - move: {fileID: 11400000, guid: 8a5929e3d39e8a24da1f6875a3f3edaf, type: 2}
+  - move: {fileID: 11400000, guid: 0bc08548daccfdf4fa4aa046bff7291d, type: 2}
     weight: 1
-  - move: {fileID: 11400000, guid: 064bee8aeb5064e4f9f33816372a8ff9, type: 2}
-    weight: 1
-  - move: {fileID: 11400000, guid: c882f15848e040545b5f4ee2b51fd73a, type: 2}
-    weight: 1
-  - move: {fileID: 11400000, guid: b1fe8c9a0b147274bb9d3245a2a9ef58, type: 2}
-    weight: 1
-  - move: {fileID: 11400000, guid: 3238fe53e300ae1489c9e4d420afee4f, type: 2}
-    weight: 1
-  - move: {fileID: 11400000, guid: 113a1eb8c2b12ba409dfcf6a692004fe, type: 2}
-    weight: 1
-  - move: {fileID: 11400000, guid: 5da16ae7f5688d544a9880a625d9c47b, type: 2}
-    weight: 1
-  - move: {fileID: 11400000, guid: 31857fd4b1d9a354e84ae21bfc3d9eef, type: 2}
-    weight: 1
-  - move: {fileID: 11400000, guid: 0e8e57d31c29992419718cd2a1fa6d41, type: 2}
+  - move: {fileID: 11400000, guid: 58245dceb72047d41820039442995666, type: 2}
     weight: 1

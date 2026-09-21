@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Audere.Combat
@@ -17,6 +18,10 @@ namespace Audere.Combat
         [SerializeField, Range(.08f, .28f)] private float bodyWidthFraction = .22f;
         [SerializeField, Min(16f)] private float bodyHeight = 148f;
         [SerializeField] private Material rainbowEchoMaterial;
+        [SerializeField] private CombatBulletView impactBulletPrefab;
+        [SerializeField, Range(0, 7)] private int impactBulletsPerSide;
+        [SerializeField, Min(40f)] private float impactBulletSpeed = 140f;
+        [SerializeField, Min(.1f)] private float impactBulletWarning = .18f;
 
         public float CycleDuration => windup + plunge + hold + returnDuration + recovery;
         public float SequenceDuration => CycleDuration * (impactOffsets?.Length ?? 0);
@@ -34,6 +39,9 @@ namespace Audere.Combat
             if (separationFraction < .03f || separationFraction > .15f || bodyWidthFraction < .08f ||
                 bodyWidthFraction > .28f || bodyHeight < 16f)
             { error = "Mount dive geometry must preserve the authored dodge space."; return false; }
+            if (impactBulletsPerSide < 0 || impactBulletsPerSide > 7 ||
+                (impactBulletsPerSide > 0 && (impactBulletPrefab == null || impactBulletSpeed < 40f || impactBulletWarning < .1f)))
+            { error = "Impact fans need a projectile, readable warning and at most seven bullets per side."; return false; }
             error = null;
             return true;
         }
@@ -51,6 +59,8 @@ namespace Audere.Combat
             private readonly Vector2 home;
             private Vector2 lastBody;
             private int cycle = -1;
+            private int emittedImpactCycle = -1;
+            private readonly List<(CombatBulletView bullet, int lease)> impactBullets = new List<(CombatBulletView, int)>();
             private float impactX, elapsed;
             private bool cancelled, restored;
 
@@ -85,6 +95,7 @@ namespace Audere.Combat
                     Rect rect = context.Board.PlayArea.rect;
                     if (nextCycle != cycle)
                     {
+                        ClearImpactBullets();
                         cycle = nextCycle;
                         float offset = data.impactOffsets[cycle];
                         if (data.aimAtPlayer) offset += context.Board.PlayerPosition.x / rect.width;
@@ -137,17 +148,43 @@ namespace Audere.Combat
                             rect.width * data.bodyWidthFraction, data.bodyHeight);
                     context.Board.SetMountDiveSplit(this, impactX,
                         rect.width * data.separationFraction * opening, glow, constrainGap);
+                    if (elapsed - cycle * data.CycleDuration >= data.windup + data.plunge && emittedImpactCycle != cycle)
+                    {
+                        emittedImpactCycle = cycle;
+                        EmitImpact(bottom, activeDeltaTime - remaining);
+                    }
                     lastBody = body;
                 }
             }
 
             public void Cancel() { cancelled = true; Restore(); }
+            private void EmitImpact(Vector2 origin, float elapsedInFrame)
+            {
+                for (int side = -1; side <= 1; side += 2)
+                for (int i = 0; i < data.impactBulletsPerSide; i++)
+                {
+                    float angle = Mathf.Lerp(16f, 74f, (i + .5f) / data.impactBulletsPerSide) * Mathf.Deg2Rad;
+                    Vector2 direction = new Vector2(side * Mathf.Cos(angle), Mathf.Sin(angle));
+                    var bullet = context.Board.SpawnEnemyBullet(data.impactBulletPrefab, origin,
+                        direction * data.impactBulletSpeed, context.SessionVersion, context.PhaseVersion,
+                        elapsedInFrame + data.impactBulletWarning);
+                    if (bullet == null) continue;
+                    bullet.FadeInDuringTelegraph();
+                    impactBullets.Add((bullet, bullet.PoolLeaseVersion));
+                }
+            }
             private void Restore()
             {
                 if (restored) return;
                 restored = true;
+                ClearImpactBullets();
                 context.Board?.HideAttackWarning(this);
                 context.Board?.EndMountDive(this);
+            }
+            private void ClearImpactBullets()
+            {
+                foreach (var shot in impactBullets) context.Board?.ReturnEnemyBullet(shot.bullet, shot.lease);
+                impactBullets.Clear();
             }
             private static float Smooth(float t) => Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t));
         }

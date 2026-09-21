@@ -1,6 +1,7 @@
 # Project instructions
 
 - Người dùng tên là Xuân.
+- Sau mỗi lần sửa xong, build bản Windows 64-bit để Xuân test, tắt Development Build và cung cấp đường dẫn `.exe`. Chờ build thành công trước khi báo bản test sẵn sàng; mặc định xuất vào `D:/PJ/AudereBuilds/`.
 - Trước khi dựng, sửa hoặc review combat runtime, encounter, enemy, phase, move, dice, projectile, laser, Stun Zone, Battle Box, tutorial/Retry hoặc combat UI, phải dùng skill `.agents/skills/audere-combat/SKILL.md` và đọc các reference được skill định tuyến.
 - Trước mọi thay đổi liên quan tới dialogue, `DialogueData`, narrative sequence, tutorial dialogue, combat dialogue hoặc character interaction, phải dùng skill `.agents/skills/audere-dialogue-voice/SKILL.md` và đọc các reference liên quan trước khi chỉnh nội dung.
 - Trước khi dựng hoặc sửa production story flow trong Unity Scene/Hierarchy, phải dùng skill `.agents/skills/audere-story-scene-builder/SKILL.md`; toàn bộ scene authoring giữ hướng scene-first và direct reference.

@@ -1,159 +1,91 @@
-# Dialogue Evidence and Examples
+# Dialogue Evidence — chọn nguồn theo chức năng câu
 
-These lines are copied from current project assets for calibration. They are evidence, not mandatory formulas. Do not rewrite them unless the user requests a dialogue edit.
+Đối chiếu production bốn ngày, 2026-09-20.
+Các trích ngắn dưới đây là điểm neo; đọc asset hiện tại trước khi sao chép vì wording có thể được biên tập.
+Không coi ví dụ là công thức bắt mọi nhân vật dùng cùng một nhịp.
 
-## Good voice examples
+## Timor: làm một việc trở nên có thể
 
-### Timor — care expressed as concrete direction
+**Established Canon**, D1/Home `D1_HOME_MORNING`:
 
-> “Ừ. Không cần nghĩ hết mọi thứ bây giờ đâu. Đi rửa mặt trước nhé.”
+> Đánh răng trước nhé.
 
-Source: `Assets/_Audere/Data/Dialogue/Day1/Home/Dialogue_D1_HOME_MORNING.asset`
+Câu giúp chia nhỏ công việc; Timor đi cùng, nên sự giúp đỡ không chỉ là mệnh lệnh từ xa.
+Giữ nó cụ thể. Không thêm câu phân tích Audere lo âu hay báo trước Timor sẽ kiểm soát cô.
 
-Why it is useful: Timor reduces cognitive load, chooses one manageable action, and softens direction without explaining Audere's psychology.
+## Audere: một lựa chọn nhỏ đủ làm điểm ngoặt
 
-### Audere — sleepy protest without exposition
+**Established Canon**, D1/PostCombat `D1_CLASSROOM_POST_COMBAT_RESPONSE` và `SIGNUP`:
 
-> “…Tớ đang dậy mà.”
+> Tớ muốn thử.
 
-Source: `Assets/_Audere/Data/Dialogue/Day1/Home/Dialogue_D1_HOME_MORNING.asset`
+> Để tớ ghi.
 
-Why it is useful: short, familiar, mildly defensive, and emotionally legible without self-analysis.
+Hai hành động khác nhau: nhận lời rồi tự nhận quyền viết tên.
+Không cần biến chúng thành một bài nói tự tin; tay cô vẫn run trong đoạn sau đó.
 
-### Timor — familiarity through light teasing
+## Bianca: lời mời có thể được từ chối
 
-> “Đủ muộn để cậu đừng thử ngủ thêm năm phút nữa.”
+**Established Canon**, D1/Classroom `D1_CLASSROOM_BIANCA_EXIT`:
 
-Source: `Assets/_Audere/Data/Dialogue/Day1/Home/Dialogue_D1_HOME_MORNING.asset`
+> Không tiện cũng không sao.
 
-Why it is useful: shows that Timor knows Audere's likely behavior and can push her gently without sounding threatening.
+Nói một lần rồi chừa chỗ đáp. Lặp trấn an liên tục sẽ khiến câu hỏi nhỏ có vẻ là một sự kiện lớn.
 
-### Audere — minimization
+## Timor: cấm lựa chọn khi sợ mất cô
 
-> “Một chút thôi.”
+**Established Canon**, D1/Evening `D1_HOME_NIGHT_CONCLUSION`:
 
-Source: `Assets/_Audere/Data/Dialogue/Day1/Home/Dialogue_D1_AFTER_BRUSHING.asset`
+> Tớ không thể để cậu làm vậy.
 
-Why it is useful: Audere deflects Timor's positive observation rather than giving an emotional report.
+Ngay trước đó Audere đòi tự trả lời; Timor phủ nhận đúng ranh giới ấy.
+Sự đối đầu đến sau lời lo lắng và tranh luận về tin nhắn, không xuất hiện từ checklist sáng.
 
-### Timor — observation followed by the next task
+## Audere: phân biệt chưa biết với đã biết
 
-> “Tốt mà. Trông cậu đỡ ngái ngủ hơn rồi đấy.”
+**Established Canon**, D2/PostCombat `D2_BIANCA_YOU_DONT_KNOW_EITHER`:
 
-> “Vậy mình làm tiếp một việc nữa nhé. Giờ cậu cần ăn sáng.”
+> …Cậu cũng đâu biết.
 
-Source: `Assets/_Audere/Data/Dialogue/Day1/Home/Dialogue_D1_AFTER_BRUSHING.asset`
+Cô vừa nghe Bianca trả lời nên câu phản bác có bằng chứng.
+Đây là một khe nghi ngờ mở ra, không cho phép viết Audere đã hiểu hết Timor.
 
-Why it is useful: warm acknowledgement transitions directly into structure; `mình` frames direction as shared action.
+## Teacher: giảm yêu cầu thay vì chẩn đoán
 
-### Retry tone
+**Established Canon**, D3/TeacherAfterCombat `D3_TEACHER_AFTER_ASK_HUG`:
 
-> “Không sao. Mình quay lại từ đầu và thử từng bước nhé.”
+> Cô ôm em một chút được không?
 
-Source: serialized `UseAllPiecesTutorialGuide` text in `Assets/_Audere/Scenes/20_D1_Home_Morning.unity`
+Câu hỏi cần có câu đồng ý và hành động theo sau đúng thứ tự.
+Những choice trước đó cho phép Audere chia sẻ ít hoặc nhiều mà vẫn được hỗ trợ.
 
-Why it is useful: removes blame and gives a concrete recovery direction.
+## Audere: câu mình cần nói đã rộng hơn
 
-### Teacher — mature warmth through bounded choice
+**Established Canon**, D4/Crowd `D4_CROWD_ASK_FOR_HELP`:
 
-> “Các em cứ chọn phần mình thích.”
+> Mọi người… giúp tớ được không?
 
-> “Mỗi người một việc vừa sức là được.”
+Từ hỏi một bạn sang hỏi cả lớp, vẫn có ngập ngừng.
+Đừng thay bằng lời tuyên bố mạnh mẽ không còn sợ ánh nhìn.
 
-> “Không cần vội đâu.”
+## Ending: biết ơn đi cùng ranh giới
 
-Source: `Assets/_Audere/Data/Dialogue/Day1/Classroom/Dialogue_D1_TEACHER_DETAILS.asset`
+**Established Canon**, Day4/TimorFinal `VICTORY_RECONCILIATION`:
 
-Why it is useful: the teacher stays authoritative and clear while removing urgency, workload
-pressure, and competition. Each bubble carries one complete thought instead of packing the
-whole announcement into a paragraph. Her healing quality is behavioral rather than explained aloud.
+> Tớ vẫn cần cậu.
 
-### Bianca — invitation with an exit
+Câu kế tiếp đặt ranh giới: Audere phải được tự bước.
+Giữ đủ cả hai vế. Timor thử đồng ý không chứng minh mọi xung đột sau này đã biến mất.
 
-> “Cậu có muốn làm cùng không?”
+## Mẫu gây sai khi tái sử dụng
 
-> “Không tiện cũng không sao.”
+| Mẫu | Vấn đề |
+| --- | --- |
+| “Đi rửa mặt…” từ bible cũ | Đã đổi thành đánh răng trong production |
+| Nhật Linh/Nilah từ sample/audio | Không phải tên Audere trong nội dung hiện tại |
+| Taunt distorted gán cho Bianca/Teacher thật | Trộn suy đoán và phản ứng thật |
+| Lời final dựng ở opening | Vượt trước trải nghiệm giúp Audere nói được câu đó |
+| Chuỗi dài chỉ chia ở 42 ký tự | Có thể tăng click và ngắt ý dù từng bubble ngắn |
 
-Source: `Assets/_Audere/Data/Dialogue/Day1/Classroom/Dialogue_D1_CLASSROOM_BIANCA_INVITATION.asset`
-and `Dialogue_D1_CLASSROOM_BIANCA_EXIT.asset`
-
-Why it is useful: Bianca makes a concrete, small invitation and then gives Audere space. She
-does not over-explain Audere, pressure her, or cast herself as a rescuer.
-
-### Timor — fear crossing into restricted agency
-
-> “Nhưng tớ sợ lắm.”
-
-> “Mẹ cậu cũng từng tin người khác.”
-
-> “Nhưng tớ vẫn muốn trả lời.”
-
-> “Cậu phải nghe tớ lần này.”
-
-> “Lần này, để tớ tự trả lời.”
-
-> “Tớ không thể để cậu làm vậy.”
-
-Source: `D1_HOME_NIGHT_MESSAGE` and the authored Timor night-pressure bark assets.
-
-Status: **Design Intent**. Timor begins with a genuine admission of fear, then uses a past loss to
-make a present invitation feel unsafe. Audere does not become suddenly confident; she gives one
-tentative boundary and asks to make this reply herself. Timor's anger appears only after that small
-resistance and becomes an explicit demand for obedience. The progression should still read as fear
-and attachment curdling into control, not a villain changing personality. The mother-history claim,
-combat ontology, and Timor's reliability remain unresolved outside this authored beat.
-
-## Potentially inconsistent examples
-
-### Legacy sample naming
-
-> “Nhật Linh ơi, có con cừu đang ăn cỏ kìa!”
-
-Source: `Assets/_Audere/Data/Dialogue/Samples/Dialogue_Sample.asset`
-
-Concern: the speaker slot is Audere, but the line addresses `Nhật Linh`; current character systems use `Audere`. The sheep scene is a generic MVP sample and is not linked to the real Day 1 event. Do not use it to establish present story canon.
-
-### Stronger-than-intended early control
-
-> “Không được đâu, Audere. Cậu phải làm từng bước một, không được bỏ sót gì cả. Thử lại nhé.”
-
-Source: serialized `UseAllPiecesTutorialGuide` text in `Assets/_Audere/Scenes/20_D1_Home_Morning.unity`
-
-Concern: the hard opening and repeated obligation are stronger than the stated Day 1 intent, although the retry ending is gentle. Treat this as implemented text that may need future review, not as the default Timor voice pattern.
-
-### Bathroom continuity
-
-> “Đi rửa mặt trước nhé.”
-
-compared with:
-
-> “Xong rồi… vị bạc hà làm tớ tỉnh hẳn.”
-
-Sources: the two D1 DialogueData assets.
-
-Concern: the first establishes washing the face while the follow-up strongly signals brushing teeth. This is a continuity ambiguity, not a voice defect.
-
-## Insufficient evidence
-
-### Khoảng Lặng — current placeholder combat pressure
-
-> “Nói gì đi.”
-
-> “Bây giờ trả lời còn kỳ hơn.”
-
-Source: D1 Classroom production combat DialogueData assets marked `PLACEHOLDER`.
-
-Status: **Design Intent**, not a reusable canon voice example. The short repetition currently
-serves combat pacing by crowding Audere's unanswered choice. Do not extrapolate vocabulary,
-personality, ontology, or perception rules from these lines.
-
-There are currently no reliable project examples for:
-
-- Audere carrying a sustained conversation with classmates or unfamiliar people; her current
-  Bianca response is brief and followed by silence.
-- Audere making a meaningful independent choice.
-- Timor under genuine anger, fear, or loss of control.
-- Later-stage Timor restriction or an Audere–Timor confrontation.
-- Accepted final combat voice, text-message voice, or monologue/internal narration.
-
-Do not fabricate “representative examples” for these modes until accepted story content exists.
+Nguồn đầy đủ: [chronology](../../../../Docs/Story/chronology.md),
+[continuity](../../../../Docs/Story/continuity.md), [revision](../../../../Docs/Story/dialogue-revision.md).

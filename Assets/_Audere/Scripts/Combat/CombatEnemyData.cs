@@ -34,6 +34,7 @@ namespace Audere.Combat
         AllDiceTypesCaught = 9,
         MoveStarted = 10,
         CueCompleted = 11,
+        MoveCompleted = 12,
     }
 
     public enum CombatDialoguePresentation

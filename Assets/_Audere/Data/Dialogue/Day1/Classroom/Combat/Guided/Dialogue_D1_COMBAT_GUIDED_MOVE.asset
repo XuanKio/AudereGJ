@@ -19,7 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 1
-    text: "C\u1EE9 \u0111\u01B0a tr\xE1i tim theo tay c\u1EADu tr\u01B0\u1EDBc nh\xE9."
+    text: "Th\u1EED \u0111\u01B0a tr\xE1i tim theo tay c\u1EADu."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

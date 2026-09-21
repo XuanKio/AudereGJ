@@ -13,14 +13,15 @@ MonoBehaviour:
   m_Name: Move_ChalkSweep
   m_EditorClassIdentifier: 
   duration: 6
-  leadInDuration: 0
+  leadInDuration: 0.3
   projectilePrefab: {fileID: 8510501794874435420, guid: 6a62986d8883345478d2962117bc8838, type: 3}
-  telegraph: 0.65
-  flightDuration: 3
-  interval: 1.7
+  telegraph: 0.5
+  flightDuration: 1.3
+  interval: 0.28
   turns: 1.5
+  clockwiseLunges: 1
   stunTrail:
     enabled: 1
     width: 14
-    blockingDuration: 3.6
+    blockingDuration: 2.8
     fadeDuration: 0.3

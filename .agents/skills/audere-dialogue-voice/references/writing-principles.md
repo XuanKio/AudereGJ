@@ -12,6 +12,34 @@ Use the four labels defined in `SKILL.md` whenever evidence quality matters. A p
 - Let emotional change appear in choices, delays, corrections, interruptions, and willingness to answer.
 - Preserve gradual change. One successful interaction may create a small opening; it must not erase an established fear or dependency.
 
+## Emotional pacing takes priority over the word target
+
+Xuân's direction (2026-09-20): shorten dialogue by about 20% overall while keeping it moving,
+emotionally affecting, and unhurried at the important turns. The percentage is a soft target;
+do not take a needed response or hesitation out merely to reach it.
+
+Cut repeated explanation first. Preserve the sequence **feeling → acknowledgement → choice**
+where the acknowledgement lets the other character's words land. Silence, a name, `Ừ`, or `Tớ biết`
+can be a real relationship beat; judge its function before treating it as filler.
+
+| Protected turn | Keep room for |
+| --- | --- |
+| D1 accepting Bianca and thanking Timor | Audere finding the first word; still trembling; Timor hearing her; gratitude after that |
+| D1 night defeat → D2 morning | Exhaustion before yielding; Timor's soothing surface; the next morning's wary greeting before monitoring resumes |
+| D2 asking Bianca → asking Timor at home | Calling the person, getting a response, risking the question, receiving the answer, then doubting the old interpretation |
+| D3 care and company | The teacher's acknowledgement, Audere's chosen disclosure, permission before touch, Bianca leaving the choice open |
+| D4 help and reconciliation | Receiving help before asking more widely; remembering Timor's help, his fear, Audere's boundary, and a tentative agreement |
+
+Do not shorten `WaitStep`, fades, auto-dialogue minimum duration, or scene motion timings as a
+side effect of the copy edit. Even with unchanged minima, fewer lines can shorten a scene:
+review the complete exchange and adjacent action rather than relying on the timing fields alone.
+Do not merge across a speaker's response, portrait turn, or staging action just to save clicks.
+Do not add empty clicks or ellipses solely to imitate slowness; retain a specific reaction or choice.
+Keep final uncertainty in Audere's voice; a concise rhetorical victory can erase the effort of her choice.
+
+Protected scene context lives in [Story chronology](../../../../Docs/Story/chronology.md).
+Record cuts and retained emotional beats in [dialogue revision](../../../../Docs/Story/dialogue-revision.md).
+
 ## Spoken Vietnamese
 
 - Favor conversational Vietnamese over translated or literary sentence structure.
@@ -19,6 +47,16 @@ Use the four labels defined in `SKILL.md` whenever evidence quality matters. A p
 - Keep a line short when the speaker is hesitant, tired, pressured, or avoiding commitment.
 - Avoid naming an emotion when posture, silence, a partial answer, or a concrete concern can carry it.
 - Read exchanges aloud. Remove explanatory clauses that no person in the moment needs to say.
+
+## Human-writing pass for character dialogue
+
+Use `t1k:human-writing` and `t1k:human-reply` as supporting lenses when requested.
+Their business/email register is not the characters' voice; the profiles and story state still lead.
+Keep the useful checks: specific lived actions, spoken Vietnamese, varied rhythm, and evidence for
+what each person can know. Do not invent an event or make Audere sound certain to strengthen a line.
+A hesitation or acknowledgement can carry the relationship; do not delete it as a generic opener.
+Read both sides together: each answer must respond to the previous person's actual words.
+Cut repeated explanations and polished slogans before cutting vulnerability or a small ordinary joke.
 
 ## Dialogue bubble readability
 

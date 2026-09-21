@@ -20,16 +20,26 @@ MonoBehaviour:
   lines:
   - speaker: 0
     text: "\u2026"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "Th\u1EA5y ch\u01B0a."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "C\u1EADu m\u1EC7t r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "H\xF4m nay c\u1EADu \u0111\xE3 c\u1ED1 \u0111\u1EE7 nhi\u1EC1u r\u1ED3i."
+    text: "H\xF4m nay c\u1ED1 \u0111\u1EE7 r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "\u2026\u1EEA."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

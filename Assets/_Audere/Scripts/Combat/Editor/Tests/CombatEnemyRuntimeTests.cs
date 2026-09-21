@@ -174,6 +174,41 @@ namespace Audere.Combat.Editor.Tests
         }
 
         [Test]
+        public void TestPhaseShortcut_AdvancesOneSharedHealthThresholdEvenWithPendingCue()
+        {
+            var runtime = CreateRuntime(CombatPhasePolicy.SharedHealthThresholds, 12,
+                ("first", 1, 8, 5f), ("second", 1, 3, 5f), ("final", 1, 0, 5f));
+            var cue = new CombatDialogueCue();
+            SetField(cue, "cueId", "skip-test-cue");
+            SetField(cue, "requiredBeforePhaseAdvance", true);
+            SetField(runtime.CurrentPhase, "dialogueCues", new[] { cue });
+            Assert.IsTrue(runtime.TryAdvanceToNextPhaseForTesting());
+            Assert.AreEqual(CombatEnemyRuntimeState.TransitioningPhase, runtime.State);
+            Assert.AreEqual(8, runtime.CurrentHealth);
+            runtime.CompletePhaseBreak();
+            Assert.AreEqual(1, runtime.PhaseIndex);
+            Assert.IsTrue(runtime.TryAdvanceToNextPhaseForTesting());
+            Assert.AreEqual(3, runtime.CurrentHealth);
+            runtime.CompletePhaseBreak();
+            Assert.AreEqual(2, runtime.PhaseIndex);
+            Assert.IsFalse(runtime.TryAdvanceToNextPhaseForTesting());
+            Assert.AreEqual(CombatEnemyRuntimeState.Playing, runtime.State);
+        }
+
+        [Test]
+        public void TestPhaseShortcut_ResetsPerPhaseHealthAndCannotSkipDuringTransition()
+        {
+            var runtime = CreateRuntime(CombatPhasePolicy.PerPhaseHealth, 5,
+                ("first", 2, 0, 5f), ("second", 3, 0, 5f));
+            Assert.IsTrue(runtime.TryAdvanceToNextPhaseForTesting());
+            Assert.IsFalse(runtime.TryAdvanceToNextPhaseForTesting());
+            runtime.CompletePhaseBreak();
+            Assert.AreEqual(1, runtime.PhaseIndex);
+            Assert.AreEqual(3, runtime.CurrentHealth);
+            Assert.IsFalse(runtime.TryAdvanceToNextPhaseForTesting());
+        }
+
+        [Test]
         public void TimedSequence_OnlyTicksWhilePlaying()
         {
             CombatEnemyRuntime runtime = CreateRuntime(CombatPhasePolicy.TimedSequence, 1,
@@ -1293,45 +1328,21 @@ namespace Audere.Combat.Editor.Tests
         }
 
         [Test]
-        public void DiceBatchBudget_CapturedAttacksAndRerollsCannotExceedTwo()
+        public void DiceBatchBudget_LegacyCapDoesNotLimitIndependentAttackRolls()
         {
             var active = new List<CombatSymbol>();
             for (int i = 0; i < 3; i++)
                 active.Add(CombatDiceBatchBudget.Roll(2, active.Count(x => x == CombatSymbol.Attack), 0f));
-            Assert.AreEqual(2, active.Count(x => x == CombatSymbol.Attack));
-            int captured = 0;
-            for (int choice = 0; choice < 3; choice++)
-            {
-                for (int reroll = 0; reroll < 40; reroll++)
-                {
-                    int selected = reroll % active.Count;
-                    int reserved = captured + active.Where((_, i) => i != selected).Count(x => x == CombatSymbol.Attack);
-                    active[selected] = CombatDiceBatchBudget.Roll(2, reserved, 0f);
-                    Assert.LessOrEqual(captured + active.Count(x => x == CombatSymbol.Attack), 2);
-                }
-                if (active[0] == CombatSymbol.Attack) captured++;
-                active.RemoveAt(0);
-            }
-            Assert.AreEqual(2, captured);
-            Assert.AreEqual(CombatSymbol.Attack, CombatDiceBatchBudget.Roll(2, 0, 0f), "Fresh batch resets the budget.");
-            Assert.AreEqual(CombatSymbol.Attack, CombatDiceBatchBudget.Roll(0, 99, 0f), "Legacy encounters remain unrestricted.");
+            Assert.AreEqual(3, active.Count(x => x == CombatSymbol.Attack));
+            Assert.AreEqual(CombatSymbol.Attack, CombatDiceBatchBudget.Roll(2, 99, 0f));
+            Assert.AreEqual(CombatSymbol.Attack, CombatDiceBatchBudget.Roll(0, 99, 0f));
         }
 
         [Test]
-        public void DiceBatchBudget_OpeningAttackDoesNotConsumeAdditionalRerollAttack()
+        public void DiceBatchBudget_LegacyRerollAllowanceDoesNotConsumeAttackResults()
         {
-            CombatSymbol opening = CombatDiceBatchBudget.Roll(1, 0, 0f);
-            Assert.AreEqual(CombatSymbol.Attack, opening);
-
-            int rerolledAttacksGranted = 0;
-            CombatSymbol firstReroll = CombatDiceBatchBudget.Roll(1, rerolledAttacksGranted, 0f);
-            if (firstReroll == CombatSymbol.Attack) rerolledAttacksGranted++;
-            CombatSymbol secondReroll = CombatDiceBatchBudget.Roll(1, rerolledAttacksGranted, 0f);
-
-            Assert.AreEqual(CombatSymbol.Attack, firstReroll,
-                "The opening Attack uses a separate budget from rerolls.");
-            Assert.AreNotEqual(CombatSymbol.Attack, secondReroll,
-                "Only one additional Attack may be granted by rerolls in this batch.");
+            for (int reserved = 0; reserved < 40; reserved++)
+                Assert.AreEqual(CombatSymbol.Attack, CombatDiceBatchBudget.Roll(1, reserved, 0f));
         }
 
         [Test]

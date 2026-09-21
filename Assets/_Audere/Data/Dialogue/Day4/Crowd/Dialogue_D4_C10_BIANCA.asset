@@ -19,7 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: -8522945175667249623, guid: 185e3c99ab0def940b195570629d5076, type: 3}
   lines:
   - speaker: 1
-    text: "Audere, c\u1EADu c\xF3 b\u1ECB \u0111au kh\xF4ng?"
+    text: "Audere, c\u1EADu \u0111au kh\xF4ng?"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

@@ -21,6 +21,7 @@ namespace Audere.Combat
         [SerializeField] private RectTransform faceRect;
         [SerializeField] private Image symbolIcon;
         [SerializeField] private TMP_Text symbolLabel;
+        private TextMeshProUGUI choiceAnswerLabel;
         [FormerlySerializedAs("swordColor")]
         [SerializeField] private Color attackColor = new Color32(168, 59, 68, 255);
         [FormerlySerializedAs("armorColor")]
@@ -182,14 +183,47 @@ namespace Audere.Combat
         public void SetSymbol(CombatSymbol symbol)
         {
             Symbol = symbol;
+            if (choiceAnswerLabel != null) choiceAnswerLabel.gameObject.SetActive(false);
+            if (symbolIcon != null) symbolIcon.gameObject.SetActive(true);
             if (isLanded) ApplyLandedVisual();
             else ApplyAirborneVisual();
 
             if (symbolLabel != null)
             {
+                symbolLabel.gameObject.SetActive(true);
                 symbolLabel.color = normalSymbolColor;
                 symbolLabel.text = CombatDiceConstants.GetDefinition(symbol).ShortLabel;
             }
+        }
+
+        public void SetChoiceAnswerLabel(string answer, TMP_FontAsset font)
+        {
+            if (choiceAnswerLabel == null)
+            {
+                var parent = rectTransform;
+                var go = new GameObject("Choice answer", typeof(RectTransform),
+                    typeof(CanvasRenderer), typeof(TextMeshProUGUI));
+                go.layer = gameObject.layer;
+                go.transform.SetParent(parent, false);
+                var rect = (RectTransform)go.transform;
+                rect.anchorMin = rect.anchorMax = new Vector2(.5f, 1f);
+                rect.pivot = new Vector2(.5f, 0f);
+                rect.anchoredPosition = new Vector2(0f, 5f);
+                rect.sizeDelta = new Vector2(82f, 40f);
+                choiceAnswerLabel = go.GetComponent<TextMeshProUGUI>();
+                choiceAnswerLabel.fontSize = 34f;
+                choiceAnswerLabel.enableAutoSizing = true;
+                choiceAnswerLabel.fontSizeMin = 28f;
+                choiceAnswerLabel.fontSizeMax = 34f;
+                choiceAnswerLabel.alignment = TextAlignmentOptions.Center;
+                choiceAnswerLabel.color = Color.white;
+                choiceAnswerLabel.raycastTarget = false;
+            }
+            if (symbolIcon != null) symbolIcon.gameObject.SetActive(false);
+            if (symbolLabel != null) symbolLabel.gameObject.SetActive(false);
+            choiceAnswerLabel.font = font != null ? font : TMP_Settings.defaultFontAsset;
+            choiceAnswerLabel.text = answer;
+            choiceAnswerLabel.gameObject.SetActive(true);
         }
 
         public void TickMovement(Rect playRect, float deltaTime)
@@ -341,6 +375,11 @@ namespace Audere.Combat
             MoveToPresentationRoot(airborneParent);
             SetCenterInSpace(rectTransform, motionSpace, launchPlan.StartPosition);
             StartCoroutine(RerollLaunchAnimation(launchPlan, motionSpace));
+        }
+
+        public void SetPresentationAlpha(float alpha)
+        {
+            if (canvasGroup != null) canvasGroup.alpha = Mathf.Clamp01(alpha);
         }
 
         public void PlayCaptured()

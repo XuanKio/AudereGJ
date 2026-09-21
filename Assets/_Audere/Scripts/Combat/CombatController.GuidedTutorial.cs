@@ -204,7 +204,10 @@ namespace Audere.Combat
                 { ShowGuidedPrompt("Đưa vòng bắt trùm lên viên xúc xắc.\nBước này dùng CHUỘT TRÁI để bắt."); return; }
                 if (kind == CombatTutorialLessonKind.StunReroll && !guidedRerolled && !boardView.IsCursorStunned)
                 { ShowGuidedPrompt("Giữ vòng bắt chạm vùng nhiễu.\nCHUỘT PHẢI: thử gieo ở đây."); return; }
-                guidedDie = boardView.RerollDie(guidedDie, CombatSymbol.Shield);
+                CombatSymbol next = guidedDie.Symbol == CombatSymbol.Shield
+                    ? CombatDiceConstants.RerollSymbol(guidedDie.Symbol)
+                    : CombatSymbol.Shield;
+                guidedDie = boardView.RerollDie(guidedDie, next);
                 guidedRerolled = true;
                 AudioService.Instance?.Play(AudioId.Dice_Roll);
                 if (kind == CombatTutorialLessonKind.StunReroll)

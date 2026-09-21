@@ -20,5 +20,6 @@ MonoBehaviour:
   lines:
   - speaker: 1
     text: "Kh\xF4ng. C\u1EADu ch\u1EC9 c\u1EA7n h\u1ECD th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

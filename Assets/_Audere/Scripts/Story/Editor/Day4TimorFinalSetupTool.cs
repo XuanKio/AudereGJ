@@ -227,18 +227,18 @@ foreach (Image image in actor.Graphics.OfType<Image>())
                 "Assets/_Audere/Data/Combat/TimorNightPressure/Enemy_TimorNightPressure.asset");
             EditorUtility.CopySerialized(oldEnemy, enemy);
             Set(enemy, "enemyId", "d4-timor-final", "displayName", "TIMOR",
-                "phasePolicy", (int)CombatPhasePolicy.PerPhaseHealth, "sharedMaxHealth", 33,
+                "phasePolicy", (int)CombatPhasePolicy.PerPhaseHealth, "sharedMaxHealth", 36,
                 "passiveHealthDecayInterval", 0f);
             SerializedObject enemySo = new SerializedObject(enemy);
             SerializedProperty phases = enemySo.FindProperty("phases");
             phases.arraySize = 3;
-            Phase(phases.GetArrayElementAtIndex(0), "timor-final-protection", phase1,
+            Phase(phases.GetArrayElementAtIndex(0), "timor-final-protection", phase1, 10,
                 new CueSpec("timor-history", CombatDialogueCueTrigger.PhaseEnter, 0f, null,
                     new[] { history }, false, true));
-            Phase(phases.GetArrayElementAtIndex(1), "timor-final-control", phase2,
+            Phase(phases.GetArrayElementAtIndex(1), "timor-final-control", phase2, 12,
                 new CueSpec("timor-fear", CombatDialogueCueTrigger.PhaseEnter, 0f, null,
                     new[] { fear }, false, true));
-            Phase(phases.GetArrayElementAtIndex(2), "timor-final-uncertainty", phase3,
+            Phase(phases.GetArrayElementAtIndex(2), "timor-final-uncertainty", phase3, 14,
                 new CueSpec("timor-rebellion", CombatDialogueCueTrigger.PhaseEnter, 0f, null,
                     new[] { rebellion }, true, false),
                 new CueSpec("memory-bianca", CombatDialogueCueTrigger.MoveStarted, 0f, bianca,
@@ -265,7 +265,7 @@ foreach (Image image in actor.Graphics.OfType<Image>())
 
             CombatEncounterData encounter = New<CombatEncounterData>(Day4TimorEveningSetupTool.EncounterPath);
             Set(encounter, "encounterId", "d4-timor-final", "enemyDefinition", enemy,
-                "music", 9004, "encounterDuration", 243.75f, "dicePerBatch", 3,
+                "music", 9004, "encounterDuration", 105f, "dicePerBatch", 3,
                 "maximumAttacksPerBatch", 1, "additionalRerolledAttacksPerBatch", 1, "batchRespawnDelay", .14f,
                 "minimumDiceSpeed", 166f, "maximumDiceSpeed", 252f,
                 "playerHitInvulnerability", .4f, "bulletTimePenaltySeconds", 3.75f,
@@ -277,12 +277,19 @@ foreach (Image image in actor.Graphics.OfType<Image>())
             rules.FindPropertyRelative("playerDefeatGate").intValue =
                 (int)CombatPlayerDefeatGate.CurrentPhaseAndRequiredCues;
             rules.FindPropertyRelative("showRetryOnDefeat").boolValue = true;
+            SerializedProperty recovery = encounterSo.FindProperty("phaseRecovery");
+            recovery.FindPropertyRelative("enabled").boolValue = true;
+            recovery.FindPropertyRelative("timePerHealDie").floatValue = 18f;
+            recovery.FindPropertyRelative("dropInterval").floatValue = .48f;
+            recovery.FindPropertyRelative("maximumActiveDice").intValue = 4;
+            recovery.FindPropertyRelative("diceSpeed").floatValue = 145f;
             encounterSo.FindProperty("defeatPresentation").FindPropertyRelative("dialogue").objectReferenceValue = null;
             SerializedProperty vp = encounterSo.FindProperty("victoryPresentation");
             vp.FindPropertyRelative("dialogue").objectReferenceValue = victory;
             vp.FindPropertyRelative("hazardFadeDuration").floatValue = .65f;
             encounterSo.ApplyModifiedPropertiesWithoutUndo();
             Save(encounter, Day4TimorEveningSetupTool.EncounterPath);
+            Audere.Combat.Editor.TimorFinalPolishAuthoring.Author();
             return encounter;
         }
 
@@ -791,11 +798,11 @@ private static Transform CreateEndingAnchor(
             public bool Interrupt;
         }
 
-        private static void Phase(SerializedProperty phase, string id, CombatMoveSet moveSet,
+        private static void Phase(SerializedProperty phase, string id, CombatMoveSet moveSet, int maxHealth,
             params CueSpec[] specs)
         {
             phase.FindPropertyRelative("phaseId").stringValue = id;
-            phase.FindPropertyRelative("maxHealth").intValue = 11;
+            phase.FindPropertyRelative("maxHealth").intValue = maxHealth;
             phase.FindPropertyRelative("sharedExitThreshold").intValue = 0;
             phase.FindPropertyRelative("duration").floatValue = 1f;
             phase.FindPropertyRelative("moveSet").objectReferenceValue = moveSet;
@@ -844,7 +851,9 @@ private static Transform CreateEndingAnchor(
             params string[] lines)
         {
             string path = FinalDialogueFolder + "/Dialogue_D4_TIMOR_FINAL_" + id + ".asset";
-            DialogueData data = New<DialogueData>(path);
+            DialogueData data = AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+            if (data != null) return data;
+            data = New<DialogueData>(path);
             Set(data, "dialogueId", "D4_TIMOR_FINAL_" + id,
                 "leftCharacter", (int)DialogueCharacterId.Audere,
                 "rightCharacter", (int)DialogueCharacterId.Timor,
@@ -959,12 +968,18 @@ private static Transform CreateEndingAnchor(
         private static void ConfigureEnemyName(Scene scene)
         {
             TMP_Text label = All<TMP_Text>(scene).Single(text => text.name == "Enemy Name");
+            // Keep the left edge anchored beside Timor while giving the final R
+            // room at the largest authored font size.
+            RectTransform root = label.rectTransform.parent as RectTransform;
+            root.sizeDelta = new Vector2(264f, root.sizeDelta.y);
+            root.anchoredPosition = new Vector2(296.9f, root.anchoredPosition.y);
             label.enableAutoSizing = true;
             label.fontSizeMin = 36f;
             label.fontSizeMax = 57f;
             label.textWrappingMode = TextWrappingModes.NoWrap;
             label.overflowMode = TextOverflowModes.Truncate;
             label.alignment = TextAlignmentOptions.Center;
+            EditorUtility.SetDirty(root);
             EditorUtility.SetDirty(label);
         }
 }

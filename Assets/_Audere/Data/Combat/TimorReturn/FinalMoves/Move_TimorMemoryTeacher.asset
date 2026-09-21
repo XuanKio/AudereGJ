@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d0a08731778e804d8baccf14d329b82, type: 3}
+  m_Name: Move_TimorMemoryTeacher
+  m_EditorClassIdentifier: 
+  duration: 15.85
+  leadInDuration: 0.35
+  actorPrefab: {fileID: 6203938331374984877, guid: 6db0f4902ca560a45a3bf835520ef3d5, type: 3}
+  sprite: {fileID: -6851251128304860037, guid: d2458e92299d0524f88c873ad255e8cb, type: 3}
+  displayName: "C\xF4 gi\xE1o"
+  signatureMoves:
+  - {fileID: 11400000, guid: 39bcbdbdf61754547b954ee225f092a9, type: 2}
+  - {fileID: 11400000, guid: 89310130072633c459c40fd997c85b0b, type: 2}
+  visualSize: {x: 420, y: 560}
+  side: -1
+  attacksToDefeat: 3

@@ -20,17 +20,21 @@ MonoBehaviour:
   lines:
   - speaker: 1
     text: "Th\u1EA5y ch\u01B0a?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "\u2026"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EADu l\xE0m phi\u1EC1n c\u1EADu \u1EA5y r\u1ED3i."
+    text: "L\u1EA1i l\xE0m phi\u1EC1n c\u1EADu \u1EA5y r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "T\u1EDB \u0111\xE3 b\u1EA3o c\u1EADu \u1EDF l\u1EA1i l\u1EDBp m\xE0."
+    text: "T\u1EDB b\u1EA3o \u1EDF l\u1EA1i l\u1EDBp m\xE0."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

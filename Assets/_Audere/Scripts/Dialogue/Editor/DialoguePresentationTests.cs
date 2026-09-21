@@ -158,6 +158,10 @@ namespace Audere.Dialogue.Editor.Tests
             })
             {
                 var data = AssetDatabase.LoadAssetAtPath<DialogueData>(Root + pair.Path);
+                // The return to the real person may deliberately keep an authored expression.
+                var returnLine = data.Lines.Last(l => l.CharacterOverride == pair.Normal);
+                var returnPortrait = returnLine.PortraitOverride != null
+                    ? returnLine.PortraitOverride : Entry(pair.Normal).Portrait;
                 int callbacks = 0; bool sawCreepy = false, sawNormalAfter = false;
                 float previousScale = Time.timeScale;
                 int claims = root.InputGate.ActiveClaimCount;
@@ -166,7 +170,7 @@ namespace Audere.Dialogue.Editor.Tests
                 while (controller.IsPlaying && EditorApplication.timeSinceStartup < deadline)
                 {
                     sawCreepy |= rightImage.sprite == Entry(pair.Id).Portrait;
-                    sawNormalAfter |= sawCreepy && rightImage.sprite == Entry(pair.Normal).Portrait;
+                    sawNormalAfter |= sawCreepy && rightImage.sprite == returnPortrait;
                     Assert.AreSame(data.LeftPortraitOverride ?? Entry(DialogueCharacterId.Audere).Portrait, leftImage.sprite);
                     Assert.AreEqual(claims, root.InputGate.ActiveClaimCount);
                     EditorApplication.QueuePlayerLoopUpdate(); yield return null;

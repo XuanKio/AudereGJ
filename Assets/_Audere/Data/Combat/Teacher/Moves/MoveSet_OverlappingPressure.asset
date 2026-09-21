@@ -14,7 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectionPolicy: 0
   entries:
-  - move: {fileID: 11400000, guid: dc4d5e7ddb3e0b043b5179495d04a2e6, type: 2}
+  - move: {fileID: 11400000, guid: 53b7e8e6679682e4eabd9db4bc6ecaad, type: 2}
     weight: 1
   - move: {fileID: 11400000, guid: bcf0de3aca54d3242b88d7c86fd96955, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: dc4d5e7ddb3e0b043b5179495d04a2e6, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: 3ad163a9aa4c4e9a8f9104d636e2b019, type: 2}
     weight: 1

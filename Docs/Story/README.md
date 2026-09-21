@@ -22,7 +22,7 @@ Story không giữ bản sao HP, thời gian encounter, collider, UI layout hay 
 | --- | --- |
 | Agent quản lý docs | Giữ index, chủ sở hữu từng trang, liên kết và giới hạn dưới 200 dòng |
 | Agent nội dung | Cập nhật plot/chronology/continuity sau khi đối chiếu production |
-| Agent thoại | Đọc state và profile; sửa DialogueData; ghi số đo ở dialogue-revision |
+| Agent thoại | Đọc state/profile/nhịp cảm xúc; sửa DialogueData; ghi số đo và beat giữ lại ở dialogue-revision |
 | Agent gameplay/scene | Giữ runtime/workflow ở tài liệu chuyên môn; báo đổi nhịp cho agent nội dung |
 | Reviewer | Kiểm tra scene trước/sau, nhánh choice, ý nghĩa boss và điều không được suy diễn |
 
@@ -68,6 +68,15 @@ phải kiểm tra active state, nhánh và thứ tự step.
 - Scene80 dùng đoạn đi tự động/ác mộng; refine fall/wind/shadow thuộc workflow Dream.
 - Thoại có thể ngắn hơn nhưng vẫn giữ input bắt buộc, causal turn, choice và khoảng lặng có tác dụng.
 - Không biến mục tiêu giảm khoảng 20% chữ thành yêu cầu cắt đều 20% mọi scene.
+
+## Ưu tiên cảm xúc khi rút thoại
+
+Theo yêu cầu Xuân: câu chuyện vẫn cần đủ cảm động, các đoạn then chốt phải ra từ từ.
+Tỷ lệ rút là mục tiêu mềm; nhịp người này nói → người kia tiếp nhận → quyết định có ưu tiên cao hơn.
+Không giảm Wait, fade hoặc auto-dialogue minimum để đạt chỉ tiêu chữ/thời lượng.
+Số câu ít hơn vẫn có thể khiến một nhịp quá nhanh dù timing field giữ nguyên;
+review cả exchange và hành động trước/sau, đặc biệt lần nhận lời đầu, hỏi Bianca, chăm sóc và hòa giải.
+Các beat được bảo vệ nằm trong [writing principles](../../.agents/skills/audere-dialogue-voice/references/writing-principles.md).
 
 ## Lịch sử và giới hạn
 

@@ -20,21 +20,21 @@ MonoBehaviour:
   lines:
   - speaker: 1
     text: "Audere, em t\u1EC9nh r\u1ED3i \xE0?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EE9 n\u1EB1m ngh\u1EC9 th\xEAm m\u1ED9t ch\xFAt nh\xE9."
-    portraitOverride: {fileID: 0}
-    glitchPortraitTransition: 0
-  - speaker: 1
-    text: "C\xF4 \u1EDF \u0111\xE2y. Kh\xF4ng c\u1EA7n v\u1ED9i."
+    text: "C\u1EE9 n\u1EB1m ngh\u1EC9 th\xEAm nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "D\u1EA1\u2026 em xin l\u1ED7i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "Kh\xF4ng sao \u0111\xE2u. Em c\u1EE9 ngh\u1EC9 \u0111\xE3."
+    text: "Kh\xF4ng sao. C\xF4 \u1EDF \u0111\xE2y."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

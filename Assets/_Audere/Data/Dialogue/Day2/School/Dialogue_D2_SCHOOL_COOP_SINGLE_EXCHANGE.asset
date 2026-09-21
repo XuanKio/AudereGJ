@@ -19,7 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 0
-    text: "\u0110\u01B0\u1EE3c r\u1ED3i. C\u1EADu qua \u0111i."
+    text: "\u0110\u01B0\u1EE3c r\u1ED3i, c\u1EADu qua \u0111i."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

@@ -19,43 +19,42 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 4635894209233862288, guid: 402a6704a07a4bc49a4c347dd1722afe, type: 3}
   lines:
   - speaker: 1
-    text: "M\u1ED9t l\u1EA7n h\u1ECD gi\xFAp\u2026"
+    text: "H\xF4m nay h\u1ECD gi\xFAp\u2026"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "kh\xF4ng c\xF3 ngh\u0129a l\u1EA7n sau h\u1ECD c\u0169ng gi\xFAp."
+    text: "l\u1EA7n sau ch\u01B0a ch\u1EAFc \u0111\xE2u."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "M\u1ED9t l\u1EA7n c\u1EADu n\xF3i \u0111\u01B0\u1EE3c\u2026"
+    text: "H\xF4m nay c\u1EADu n\xF3i \u0111\u01B0\u1EE3c\u2026"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "kh\xF4ng c\xF3 ngh\u0129a c\u1EADu s\u1EBD kh\xF4ng l\xE0m h\u1ECFng."
+    text: "l\u1EA7n sau v\u1EABn c\xF3 th\u1EC3 h\u1ECFng."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EADu s\u1EBD l\u1EA1i n\xF3i sai."
+    text: "R\u1ED3i l\u1EA1i n\xF3i sai."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EADu s\u1EBD l\u1EA1i \u0111\u1EE9ng im."
+    text: "R\u1ED3i l\u1EA1i \u0111\u1EE9ng im."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EADu s\u1EBD l\u1EA1i khi\u1EBFn m\u1ECDi ng\u01B0\u1EDDi ph\u1EA3i
-      ch\u1EDD."
+    text: "B\u1EAFt m\u1ECDi ng\u01B0\u1EDDi ch\u1EDD."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "R\u1ED3i ch\xEDnh c\u1EADu s\u1EBD b\u1ECB t\u1ED5n th\u01B0\u01A1ng."
+    text: "Ch\xEDnh c\u1EADu s\u1EBD \u0111au th\xF4i."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

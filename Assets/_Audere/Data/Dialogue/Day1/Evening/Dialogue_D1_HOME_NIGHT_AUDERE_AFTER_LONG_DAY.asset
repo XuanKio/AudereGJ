@@ -19,8 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 0
-    text: "H\xF4m nay t\u1EDB n\xF3i chuy\u1EC7n"
+    text: "H\xF4m nay g\u1EB7p nhi\u1EC1u ng\u01B0\u1EDDi qu\xE1\u2026"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
-  - speaker: 0
-    text: "v\u1EDBi qu\xE1 nhi\u1EC1u ng\u01B0\u1EDDi r\u1ED3i."
-    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

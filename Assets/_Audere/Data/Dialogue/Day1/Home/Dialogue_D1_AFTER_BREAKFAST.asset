@@ -20,18 +20,26 @@ MonoBehaviour:
   lines:
   - speaker: 0
     text: "Xong r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u1EEA. C\xF2n m\u1ED7i vi\u1EC7c b\u01B0\u1EDBc ra kh\u1ECFi c\u1EEDa
-      th\xF4i."
+    text: "Gi\u1EDD ra kh\u1ECFi nh\xE0 th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
-    text: "Ra kh\u1ECFi nh\xE0 m\u1EDBi l\xE0 ph\u1EA7n kh\xF3."
+    text: "\u0110\xF3 m\u1EDBi l\xE0 ph\u1EA7n kh\xF3."
+    characterOverride: 0
     portraitOverride: {fileID: 5111810106087816393, guid: b7d038e70866c98478cb41d1c19a092d, type: 3}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "T\u1EDB bi\u1EBFt."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "N\xEAn m\xECnh kh\xF4ng ngh\u0129 xa. Ki\u1EC3m tra \u0111\u1ED3 tr\u01B0\u1EDBc
-      nh\xE9."
+    text: "Ki\u1EC3m tra \u0111\u1ED3 tr\u01B0\u1EDBc nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

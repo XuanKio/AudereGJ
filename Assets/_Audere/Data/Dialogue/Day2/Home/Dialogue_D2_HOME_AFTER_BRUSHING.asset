@@ -19,23 +19,27 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 0
-    text: "T\u1EDB nh\u1EDB l\xE0 ph\u1EA3i \u0103n s\xE1ng."
+    text: "T\u1EDB nh\u1EDB ph\u1EA3i \u0103n s\xE1ng."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u1EEA."
+    text: "B\xE1nh m\xEC trong b\u1EBFp."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "B\xE1nh m\xEC \u1EDF trong b\u1EBFp."
+    text: "\u0102n h\u1EBFt r\u1ED3i m\u1EDBi \u0111i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
-  - speaker: 1
-    text: "\u0102n h\u1EBFt r\u1ED3i m\xECnh m\u1EDBi \u0111i."
-    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "T\u1EDB t\u1EF1 l\xE0m \u0111\u01B0\u1EE3c."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "T\u1EDB bi\u1EBFt."
+    text: "T\u1EDB ch\u1EC9 s\u1EE3 c\u1EADu b\u1ECF b\u1EEFa."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
-  - speaker: 1
-    text: "T\u1EDB ch\u1EC9 mu\u1ED1n ch\u1EAFc c\u1EADu kh\xF4ng b\u1ECF b\u1EEFa."
-    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

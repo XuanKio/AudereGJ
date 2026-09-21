@@ -20,30 +20,31 @@ MonoBehaviour:
   lines:
   - speaker: 0
     text: "C\xF3 th\u1EC3."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u1EEA."
+    text: "N\xEAn t\u1EDB m\u1EDBi nh\u1EAFc."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "N\xEAn t\u1EDB m\u1EDBi ph\u1EA3i nh\u1EAFc c\u1EADu."
+    text: "C\u1EE9 t\xEDnh \u0111i\u1EC1u t\u1EC7 nh\u1EA5t."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EE9 chu\u1EA9n b\u1ECB cho \u0111i\u1EC1u t\u1EC7 nh\u1EA5t."
-    portraitOverride: {fileID: 0}
-    glitchPortraitTransition: 0
-  - speaker: 1
-    text: "N\u1EBFu n\xF3 \u0111\u1EBFn, c\u1EADu s\u1EBD kh\xF4ng b\u1ECB b\u1EA5t
-      ng\u1EDD."
+    text: "\u0110\u1EC3 kh\u1ECFi b\u1EA5t ng\u1EDD."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "Nh\u01B0ng h\xF4m nay\u2026 n\xF3 kh\xF4ng x\u1EA3y ra."
+    text: "Nh\u01B0ng h\xF4m nay \u0111\xE2u c\xF3 th\u1EBF."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: "H\xF4m nay th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

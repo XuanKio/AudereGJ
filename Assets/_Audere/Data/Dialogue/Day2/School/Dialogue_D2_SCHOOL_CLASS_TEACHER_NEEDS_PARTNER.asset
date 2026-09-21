@@ -19,9 +19,12 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "\u0110\u1ED3 h\u01A1i nhi\u1EC1u, c\xF4 c\u1EA7n th\xEAm m\u1ED9t b\u1EA1n
-      n\u1EEFa."
+    text: "\u0110\u1ED3 nhi\u1EC1u, c\u1EA7n th\xEAm m\u1ED9t b\u1EA1n."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "Ai \u0111i c\xF9ng Bianca \u0111\u01B0\u1EE3c nh\u1EC9?"
+    text: "Ai \u0111i c\xF9ng Bianca nh\u1EC9?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

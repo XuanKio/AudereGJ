@@ -19,17 +19,27 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 0
-    text: "H\xF4m nay l\u1EDBp c\xF2n chu\u1EA9n b\u1ECB s\u1EF1 ki\u1EC7n."
+    text: "H\xF4m nay l\u1EDBp chu\u1EA9n b\u1ECB li\xEAn hoan."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u0110\u1EE9ng \u1EDF \u0111\xE2y an to\xE0n h\u01A1n."
+    text: "\u0110\u1EE9ng \u0111\xE2y an to\xE0n h\u01A1n."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "T\u1EDB mu\u1ED1n th\u1EED gi\xFAp ti\u1EBFp."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "Xe s\u1EAFp \u0111\u1EBFn r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u0110\u1EEBng ngh\u0129 chuy\u1EC7n \u0111\xF3 l\xFAc n\xE0y."
+    text: "\u0110\u1EC3 chuy\u1EC7n \u0111\xF3 sau \u0111i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

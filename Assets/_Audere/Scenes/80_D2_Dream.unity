@@ -33755,6 +33755,9 @@ MonoBehaviour:
   breakLead: 0.07
   duration: 2.6
   backwardLean: 78
+  floatHeight: 0.025
+  floatPeriod: 2.8
+  floatTilt: 2.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

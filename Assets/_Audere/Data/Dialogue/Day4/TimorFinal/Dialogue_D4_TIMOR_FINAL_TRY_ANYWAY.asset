@@ -29,12 +29,12 @@ MonoBehaviour:
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "Nh\u01B0ng t\u1EDB kh\xF4ng mu\u1ED1n v\xEC kh\xF4ng bi\u1EBFt\u2026"
+    text: "Nh\u01B0ng t\u1EDB kh\xF4ng mu\u1ED1n v\xEC th\u1EBF\u2026"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "m\xE0 kh\xF4ng bao gi\u1EDD th\u1EED."
+    text: "m\xE0 ch\u1EB3ng bao gi\u1EDD th\u1EED."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

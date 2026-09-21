@@ -18,7 +18,6 @@ namespace Audere.Combat
         [SerializeField, Min(.25f)] private float stunDuration = 1f;
         [SerializeField, Min(16f)] private float catchRadius = 62f;
         [SerializeField, Min(60f)] private float visualHeight = 230f;
-        [SerializeField] private Color glowColor = new Color(.25f, .12f, .95f, .9f);
 
         public Sprite TailSprite => tailSprite;
         public Sprite NormalTimorSprite => normalTimorSprite;
@@ -90,8 +89,7 @@ namespace Audere.Combat
                 if (elapsed < warningEnd)
                 {
                     lockedTarget = context.Board.PlayerPosition;
-                    float pulse = .52f + Mathf.Sin(elapsed * 18f) * .16f;
-                    tailImage.color = new Color(1f, 1f, 1f, pulse);
+                    tailImage.color = Color.white;
                     tail.anchoredPosition = start + Vector2.Perpendicular((lockedTarget - start).normalized) *
                         Mathf.Sin(elapsed * 8f) * 8f;
                     AimAt(lockedTarget);
@@ -176,7 +174,7 @@ namespace Audere.Combat
             {
                 RectTransform parent = context.Board != null ? context.Board.PlayArea : null;
                 if (parent == null) return;
-                var go = new GameObject("TIMOR TAIL CONTROL TELEGRAPH", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Shadow));
+                var go = new GameObject("TIMOR TAIL CONTROL TELEGRAPH", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
                 tail = (RectTransform)go.transform;
                 tail.SetParent(parent, false);
                 tail.anchorMin = tail.anchorMax = new Vector2(.5f, .5f);
@@ -187,10 +185,6 @@ namespace Audere.Combat
                 tailImage.sprite = data.tailSprite;
                 tailImage.preserveAspect = true;
                 tailImage.raycastTarget = false;
-                var shadow = go.GetComponent<Shadow>();
-                shadow.effectColor = data.glowColor;
-                shadow.effectDistance = new Vector2(4f, -4f);
-                shadow.useGraphicAlpha = true;
                 Rect r = parent.rect;
                 int edge = Mathf.FloorToInt(context.Random.Value01() * 4f) % 4;
                 if (edge == 0) start = new Vector2(r.xMin - 36f, context.Random.Range(r.yMin, r.yMax));

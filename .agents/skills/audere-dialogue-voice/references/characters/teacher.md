@@ -1,59 +1,47 @@
-# Teacher
+# Cô giáo — sự hỗ trợ có giới hạn rõ
 
-## Evidence boundary
+Nguồn: scene30 và scene120; [chronology](../../../../../Docs/Story/chronology.md).
+Đối chiếu production 2026-09-20; nhân vật thật khác TeacherDistorted.
 
-The teacher currently appears only in `D1_CLASSROOM_ANNOUNCEMENT`. Her portrait, personal
-name, history, and relationship with individual students remain `Unresolved`. Her classroom
-voice below is intentionally established without turning placeholder art into canon.
+## Established Canon
 
-## Character model
+D1: cô mời lớp cùng chuẩn bị liên hoan, cho chọn một phần thích và một việc vừa sức.
+D3: cô ở cạnh khi Audere tỉnh, cho nghỉ, không ép câu trả lời và không trách.
+Audere có thể nói lo, mệt hoặc thiếu ngủ; sự quan tâm tiếp tục ở cả ba nhánh.
+Cô hỏi trước khi ôm, Audere đồng ý, rồi hành động mới diễn ra.
 
-### Established Canon
+## Giọng
 
-- She addresses the class calmly and announces a small end-of-year party.
-- She makes the activity collaborative: decoration, food, and games are prepared together.
-- She lets students choose a part they like and explicitly limits the expected contribution
-  to one manageable task.
-- She removes urgency and quantity pressure; a small contribution that helps everyone enjoy
-  the event is enough.
+“Cô/các em” khi nói với lớp; “cô/em” khi nói với Audere.
+Câu rõ, bình tĩnh, trọn một ý; ấm qua việc giảm yêu cầu, không qua nhiều lời khen.
+Giữ quyền dẫn dắt của người lớn nhưng cho học sinh thời gian và phạm vi chọn được.
+Sự vui vẻ vừa phải của thông báo D1 chuyển thành chăm sóc yên hơn ở D3.
 
-### Strongly Implied
+## Design Intent
 
-- She notices that students participate more comfortably when expectations are clear and
-  modest.
-- Her authority feels steady rather than strict; she guides the room without scolding it.
+Cô tạo một dạng quyền lực khác cách Timor quyết thay: có thể nói điều cần làm mà vẫn để Audere tự đáp.
+Sự hỗ trợ không đòi Audere phải giỏi, nói hết hay tiếp tục làm việc dù mệt.
+Một lời cho nghỉ và một hành động chờ có giá trị hơn bài giảng về chữa lành.
 
-### Design Intent
+## TeacherDistorted
 
-- Her presence should feel healing, gentle, cheerful, and more emotionally mature than the
-  students around her.
-- Warmth should appear through patience, inclusion, and reduced pressure—not through speeches
-  about emotional wellbeing.
-- Her optimism is grounded and adult: bright without becoming excitable or childish.
+**Established Canon:** battle D3 đặt lời trách móc trong ngữ cảnh Timor suy đoán cô đang nghĩ gì.
+Những câu thật hỏi thăm xen vào để Audere nhận ra khác biệt.
+`d3-teacher-perceived-small-task` có characterOverride/glitch đổi sang méo rồi về thật;
+không lấy rightCharacter cấp asset làm kết luận duy nhất.
 
-## Voice controls
+**Design Intent:** áp lực là Audere tưởng sự chăm sóc chứng minh mình làm phiền.
+Không chuyển các lời projection thành lịch sử cô giáo đối xử tệ với lớp.
 
-- **Rhythm:** calm, complete sentences with a soft landing.
-- **Sentence length:** short to medium; one expectation or reassurance at a time.
-- **Vocabulary:** ordinary classroom Vietnamese; concrete and inclusive.
-- **Address:** `cô/các em`, with `lớp mình` or `cả lớp mình` to create shared ownership.
-- **Direction:** clear but invitational; prefer `nhé`, `là được`, and manageable choices.
-- **Cheerfulness:** carried by small positive framing such as `chuyện vui`, not excessive
-  exclamation marks or exaggerated enthusiasm.
+## Khi rút thoại
 
-## Behavioral rules
+Giữ lời cho nghỉ, quyền chưa trả lời và câu hỏi xin ôm.
+Không để một choice ít bộc lộ nghe như nói dối hoặc chọn sai.
+Lược các lớp trấn an cùng nghĩa, giữ phản hồi sát điều Audere vừa nói.
+Không thay lời giản dị bằng thuật ngữ tâm lý, chẩn đoán hoặc giải pháp cho Timor.
 
-| Situation | Outward behavior | Speech tendency |
-| --- | --- | --- |
-| Settling the room | Gives one calm instruction and moves on | Gentle imperative followed by a clear transition |
-| Inviting participation | Offers bounded choices without ranking them | `Chọn một việc vừa sức là được` |
-| Students may feel pressure | Reduces urgency and workload | `Không cần vội`, `không cần làm thật nhiều` |
-| A student hesitates | Leaves space and keeps the invitation open | No public interrogation or forced encouragement |
+## Strongly Implied / Unresolved
 
-## Avoid
-
-- Therapy language, diagnosing a student's feelings, or announcing that she is “healing.”
-- Infantilizing praise, loud cheerleading, or a sugary tone.
-- Moralizing participation or making refusal sound selfish.
-- Giving Audere special attention that the current scene has not established.
-- Inferring age, appearance, family status, or personal history from placeholder art.
+**Strongly Implied:** cô hiểu cách giảm áp lực để học sinh có thể trả lời.
+**Unresolved:** tên riêng, tuổi, đời tư, lịch sử quan hệ với Audere trước game,
+nhận biết về Timor và ý nghĩ không được cô nói ra.

@@ -94,6 +94,13 @@ Nguồn: `Data/Combat/TimorReturn`, Day4/TimorFinal và encounter của `160_Tim
 Lời hòa giải nằm trong victory presentation, trước khi Story mở đường kết.
 Giữ cả hai vế: tình cảm còn đó và quyền quyết định phải thay đổi.
 
+**Design Intent mới, 2026-09-20:** [moveset cuối](../Combat/timor-finale-moves.md)
+đưa đuôi phá dice, bản sao Timor ngoài viền và hành lang lời tiêu cực kéo dài vào ba phase.
+Hành lang chỉ ở phase 2. Phase 3 gọi lần lượt hình chiếu cô giáo, Bianca và đám đông;
+chạy đủ đòn đặc trưng phase 2, nhận ba phản đòn rồi mới phát lời động viên hiện có.
+Lời cô giáo/Bianca và ký ức được cả lớp giúp mở đường đến SupportedWaves và hòa giải.
+Đây là ký ức/trình bày cảm xúc trong trận; không xác nhận họ đang có mặt ở nhà hay nhìn thấy Timor.
+
 ## Ending hiện tại
 
 Nguồn: [scene150](../../Assets/_Audere/Scenes/150_D4_Home_Evening.unity),

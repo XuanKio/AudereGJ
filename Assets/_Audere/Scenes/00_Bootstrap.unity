@@ -149,8 +149,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   servicesRoot: {fileID: 1247210075}
-  firstSceneAsset: {fileID: 102900000, guid: c48d3a7111b841241b766dcfd68b672b, type: 3}
-  firstScenePath: Assets/_Audere/Scenes/60_D2_School_Morning.unity
+  firstSceneAsset: {fileID: 102900000, guid: 130bfefa0eedc7e479fd97d7fe97c0ae, type: 3}
+  firstScenePath: Assets/_Audere/Scenes/10_MainMenu.unity
 --- !u!4 &337808937
 Transform:
   m_ObjectHideFlags: 0

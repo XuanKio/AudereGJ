@@ -259,7 +259,10 @@ namespace Audere.EditorTools
 
         private static DialogueData D(string folder, string suffix, DialogueCharacterId partner, string left, string right, params string[] lines)
         {
-            return Asset<DialogueData>(DialogueRoot + "/" + folder + "/Dialogue_D2_BIANCA_" + suffix + ".asset", a =>
+            string path = DialogueRoot + "/" + folder + "/Dialogue_D2_BIANCA_" + suffix + ".asset";
+            var existing = AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+            if (existing != null) return existing;
+            return Asset<DialogueData>(path, a =>
             {
                 var so = new SerializedObject(a);
                 so.FindProperty("dialogueId").stringValue = "d2-bianca-" + suffix.ToLowerInvariant().Replace('_', '-');

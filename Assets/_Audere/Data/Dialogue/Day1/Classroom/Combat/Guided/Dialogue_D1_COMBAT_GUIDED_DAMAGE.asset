@@ -19,12 +19,12 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 1
-    text: "T\u1EDB cho c\u1EADu xem m\u1ED9t l\u1EA7n nh\xE9."
+    text: "Xem m\u1ED9t l\u1EA7n nh\xE9."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "Sau \u0111\xF3 m\xECnh t\u1EADp n\xE9."
+    text: "R\u1ED3i m\xECnh t\u1EADp n\xE9."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

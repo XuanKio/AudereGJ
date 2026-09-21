@@ -20,13 +20,21 @@ MonoBehaviour:
   lines:
   - speaker: 1
     text: "N\xF3i g\xEC \u0111i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "C\u1EADu \u1EA5y \u0111ang ch\u1EDD."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "Im l\xE2u qu\xE1 r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EADu \u1EA5y b\u1EAFt \u0111\u1EA7u th\u1EA5y k\u1EF3 l\u1EA1 r\u1ED3i."
+    text: "C\u1EADu \u1EA5y th\u1EA5y k\u1EF3 r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

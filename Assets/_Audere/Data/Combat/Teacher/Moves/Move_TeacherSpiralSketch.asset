@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 113f79e8c8e04504cb26da7d10c67f52, type: 3}
+  m_Name: Move_TeacherSpiralSketch
+  m_EditorClassIdentifier: 
+  duration: 4.05
+  leadInDuration: 0.35
+  strokePrefab: {fileID: 4579758228704010168, guid: 8968ec977c605164d86c6746ea753db4, type: 3}
+  chalkTip: {fileID: 3841858148790890883, guid: 7911d205480d09a4ea29ed245d76c2f7, type: 3}
+  chalkMaterial: {fileID: 2100000, guid: 8be2d5cdb97d84b42baf8fe87cd0fc30, type: 2}
+  drawDuration: 0.8
+  warningDuration: 0.4
+  sweepRotations: 3
+  secondsPerRotation: 0.8333333
+  segmentCount: 128
+  turns: 2
+  outerRadius: 1.45
+  strokeWidth: 8

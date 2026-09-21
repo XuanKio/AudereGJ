@@ -19,18 +19,17 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 0
-    text: "H\xF4m nay kh\xF4ng c\xF3 Timor nh\u1EAFc\u2026"
+    text: "Kh\xF4ng c\xF3 Timor nh\u1EAFc\u2026"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "T\u1EDB v\u1EABn mang \u0111\u1ED3 c\xF4 nh\u1EDD l\xEAn l\u1EDBp \u0111\u01B0\u1EE3c
-      r\u1ED3i."
+    text: "T\u1EDB v\u1EABn mang \u0111\u1ED3 l\xEAn l\u1EDBp \u0111\u01B0\u1EE3c."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "\u0110\u1EB7t \u1EDF \u0111\xE2y l\xE0 xong."
+    text: "\u0110\u1EB7t \u0111\xE2y l\xE0 xong."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

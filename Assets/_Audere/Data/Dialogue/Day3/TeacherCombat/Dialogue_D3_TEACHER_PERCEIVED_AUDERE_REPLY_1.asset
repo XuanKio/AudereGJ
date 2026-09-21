@@ -19,22 +19,27 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: -4747829306167941163, guid: cdecd5c621db74b43927eb49d1f04191, type: 3}
   lines:
   - speaker: 0
-    text: "C\xF4\u2026 \u0111ang h\u1ECFi t\u1EDB m\xE0."
+    text: "C\xF4 \u0111ang h\u1ECFi t\u1EDB m\xE0."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "V\xEC c\xF4 \u0111ang ph\u1EA3i lo cho c\u1EADu \u0111\u1EA5y."
+    text: "V\xEC c\xF4 ph\u1EA3i lo cho c\u1EADu."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "T\u1EDB bi\u1EBFt. Nh\u01B0ng c\xF4 ch\u01B0a tr\xE1ch t\u1EDB."
+    text: "Nh\u01B0ng c\xF4 ch\u01B0a tr\xE1ch t\u1EDB."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\xF4 kh\xF4ng c\u1EA7n n\xF3i ra."
+    text: "C\xF4 \u0111\xE2u c\u1EA7n n\xF3i ra."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "\u2026C\u1EADu \u0111\xE2u bi\u1EBFt ch\u1EAFc."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

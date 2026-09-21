@@ -124,7 +124,9 @@ namespace Audere.Story.Editor
   static void Track(SerializedProperty tracks,int i,string name,params Keyframe[] keys){var track=tracks.GetArrayElementAtIndex(i);track.FindPropertyRelative("shaderProperty").stringValue=name;track.FindPropertyRelative("values").animationCurveValue=new AnimationCurve(keys);}
   static DialogueData D(string id,DialogueCharacterId right,string audere,string portrait,params string[] text)
   {
-   string path=DialogueFolder+"/Dialogue_D4_TIMOR_"+id+".asset";var d=New<DialogueData>(path);
+   string path=DialogueFolder+"/Dialogue_D4_TIMOR_"+id+".asset";var d=AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+            if(d!=null)return d;
+            d=New<DialogueData>(path);
    Set(d,"dialogueId","D4_TIMOR_"+id,"leftCharacter",1,"rightCharacter",(int)right,"leftPortraitOverride",Sprite("Audere/"+audere),"rightPortraitOverride",portrait==null?null:Sprite(portrait));
    var so=new SerializedObject(d);var lines=so.FindProperty("lines");lines.arraySize=text.Length;
    for(int i=0;i<text.Length;i++){var l=lines.GetArrayElementAtIndex(i);l.FindPropertyRelative("speaker").intValue=text[i][0]=='L'?0:1;l.FindPropertyRelative("text").stringValue=text[i].Substring(2);l.FindPropertyRelative("characterOverride").intValue=0;l.FindPropertyRelative("portraitOverride").objectReferenceValue=null;l.FindPropertyRelative("glitchPortraitTransition").boolValue=false;}so.ApplyModifiedPropertiesWithoutUndo();Save(d,path);return d;

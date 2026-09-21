@@ -15,12 +15,26 @@ MonoBehaviour:
   dialogueId: d1-combat-khoang-lang-anxiety-field-placeholder
   leftCharacter: 1
   rightCharacter: 5
+  leftPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "R\u1ED3i c\xF4 \u1EA5y s\u1EBD h\u1ECFi th\xEAm."
+    text: "R\u1ED3i c\xF4 \u1EA5y h\u1ECFi th\xEAm th\xEC sao?"
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "R\u1ED3i c\u1EADu s\u1EBD ph\u1EA3i l\xE0m c\xF9ng m\u1ECDi ng\u01B0\u1EDDi."
+    text: "R\u1ED3i ph\u1EA3i l\xE0m c\xF9ng m\u1ECDi ng\u01B0\u1EDDi."
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "N\u1EBFu l\xE0m kh\xF4ng t\u1ED1t th\xEC sao?"
+    text: "L\xE0m kh\xF4ng t\u1ED1t th\xEC sao?"
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u0110\u1ED3ng \xFD r\u1ED3i s\u1EBD kh\xF4ng r\xFAt l\u1EA1i \u0111\u01B0\u1EE3c."
+    text: "\u0110\u1ED3ng \xFD r\u1ED3i \u0111\xE2u r\xFAt l\u1EA1i \u0111\u01B0\u1EE3c."
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

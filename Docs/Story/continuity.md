@@ -44,9 +44,9 @@ Không xóa mất sự đính chính vì nó lặp một phần từ vựng: đ�
 Một số DialogueData dùng per-line portrait/glitch để đổi từ méo mó sang thật ngay trong một asset.
 Giữ những override ấy khi rút câu; kiểm tra slot thay vì chỉ nhìn tên file.
 
-**Điểm cần giữ dưới review:** `d3-teacher-perceived-small-task` dùng identity Teacher
-trong khi các asset projection khác dùng TeacherDistorted. Phải xem portrait/glitch và cue lúc chạy
-trước khi kết luận đây là lời giáo viên thật; đợt rút chữ không tự đổi enum/identity.
+**Đã xác minh:** `d3-teacher-perceived-small-task` có rightCharacter Teacher nhưng dòng đầu
+override thành TeacherDistorted + glitch; câu gọi thật cuối override về Teacher + glitch.
+Đây là chuyển giọng có chủ đích. Khi gộp/xóa dòng, giữ đúng override ở hai đầu chuyển ấy.
 
 ## Cầu nối không được cắt mất
 
@@ -69,6 +69,8 @@ trước khi kết luận đây là lời giáo viên thật; đợt rút chữ 
 Việc rút thoại không đổi gate combat, defeat bắt buộc, portrait, branch hoặc input.
 Không biến thời gian auto-dialogue thành cảm giác “khựng” bằng thêm nhiều câu ngắn vô nghĩa.
 Khoảng lặng có chức năng trước khi hỏi, sau khi ngã, sau khi Timor rút đi cần còn đủ để đọc hành động.
+Theo yêu cầu Xuân, mục tiêu khoảng 20% mềm hơn nhịp cảm xúc: giữ phản hồi của người nghe ở điểm ngoặt.
+Không giảm Wait/fade/auto-dialogue minima. Kiểm cả exchange vì bỏ câu vẫn có thể làm tổng nhịp gấp lên.
 
 ## Những thông tin cũ đã được loại khỏi canon hiện tại
 

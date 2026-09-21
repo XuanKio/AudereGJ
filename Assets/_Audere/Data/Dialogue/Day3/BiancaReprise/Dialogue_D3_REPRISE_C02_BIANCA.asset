@@ -24,13 +24,12 @@ MonoBehaviour:
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "T\u1EDB kh\xF4ng bi\u1EBFt c\u1EADu mu\u1ED1n c\xF3 ng\u01B0\u1EDDi \u1EDF
-      \u0111\xE2y\u2026"
+    text: "C\u1EADu mu\u1ED1n t\u1EDB \u1EDF \u0111\xE2y\u2026"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "Hay mu\u1ED1n \u1EDF m\u1ED9t m\xECnh."
+    text: "hay mu\u1ED1n \u1EDF m\u1ED9t m\xECnh?"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

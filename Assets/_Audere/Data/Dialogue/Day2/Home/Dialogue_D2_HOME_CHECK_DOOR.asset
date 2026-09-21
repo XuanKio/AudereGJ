@@ -19,20 +19,32 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "C\u1EADu ch\u1EAFc \u0111\xE3 kh\xF3a c\u1EEDa ch\u01B0a?"
+    text: "Kh\xF3a c\u1EEDa ch\u1EAFc ch\u01B0a?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
-    text: "T\u1EDB v\u1EEBa kh\xF3a r\u1ED3i."
+    text: "T\u1EDB v\u1EEBa kh\xF3a m\xE0."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "Th\u1EED tay n\u1EAFm m\u1ED9t l\u1EA7n n\u1EEFa nh\xE9."
+    text: "Th\u1EED tay n\u1EAFm l\u1EA7n n\u1EEFa nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: ...Timor.
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "M\u1ED9t l\u1EA7n th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "...\u1EEA."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

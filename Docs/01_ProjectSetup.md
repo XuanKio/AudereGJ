@@ -9,7 +9,7 @@ summary: How to open, run, and build Audere — engine version, packages, and pr
 
 # Audere — Project Setup
 
-> **Last updated:** 2026-09-19
+> **Last updated:** 2026-09-20
 
 ## Engine
 
@@ -45,6 +45,19 @@ Full list: `Packages/manifest.json`.
 > Always start from `00_Bootstrap`. Entering Play from `10_MainMenu`/`20_D1_Home_Morning` directly
 > means the services (SceneFlow, AudioService) were never initialized — `*.Instance` will
 > be null and those scenes will log errors.
+
+## Runtime scene menu
+
+- Nhấn **Ctrl 5 lần** để mở hoặc đóng menu chọn scene; dùng Ctrl trái hoặc phải.
+- Mỗi lần nhấn tính một lượt; giữ phím không tự tăng số lượt.
+- **Esc** hoặc nút **Đóng** đóng menu và xóa số lượt đang đếm.
+- Menu có trong bản Windows Release, cho phép chọn scene, tải lại, chuyển scene trước/sau.
+- Runtime: `Assets/_Audere/Scripts/Debug/RuntimeSceneDebugMenu.cs`.
+
+Các phím test cũng có trong bản Release:
+
+- **L 5 lần:** chuyển tới combat tiếp theo của scene; mỗi lần nhấn cách nhau tối đa 1,5 giây.
+- **K 5 lần:** thắng combat đang chạy, khi đã qua tutorial và encounter cho phép Victory.
 
 ## Build Settings
 

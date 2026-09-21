@@ -19,22 +19,27 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "H\xF4m nay c\u1EADu trang tr\xED b\u1EA3ng nh\xE9."
+    text: "C\u1EADu l\xE0m b\u1EA3ng nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "T\u1EDB ph\u1EE5 c\u1EADu chu\u1EA9n b\u1ECB \u0111\u1ED3."
+    text: "T\u1EDB chu\u1EA9n b\u1ECB \u0111\u1ED3."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: "C\u1EA7n g\xEC c\u1EE9 g\u1ECDi t\u1EDB."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "\u1EEA."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "C\u1EA3m \u01A1n c\u1EADu nhi\u1EC1u nha."
+    text: "C\u1EA3m \u01A1n c\u1EADu."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

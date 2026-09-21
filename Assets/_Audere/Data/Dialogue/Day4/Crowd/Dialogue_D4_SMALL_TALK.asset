@@ -19,7 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: -8522945175667249623, guid: 185e3c99ab0def940b195570629d5076, type: 3}
   lines:
   - speaker: 0
-    text: "T\u1EDB t\u01B0\u1EDFng m\u1ECDi ng\u01B0\u1EDDi \u0111ang c\u01B0\u1EDDi."
+    text: "T\u1EDB t\u01B0\u1EDFng m\u1ECDi ng\u01B0\u1EDDi c\u01B0\u1EDDi."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
@@ -29,18 +29,17 @@ MonoBehaviour:
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u0110\u1ED3 \u0111\u1EC3 \u0111\xF3 \u0111\xE3. M\xECnh ng\u1ED3i xu\u1ED1ng
-      nh\xE9?"
+    text: "\u0110\u1EC3 \u0111\u1ED3 \u0111\xF3. Ng\u1ED3i xu\u1ED1ng nh\xE9?"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "Nh\u01B0ng c\xF2n \u0111\u1ED3 c\xF4 nh\u1EDD\u2026"
+    text: "C\xF2n \u0111\u1ED3 c\xF4 nh\u1EDD\u2026"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "L\xE1t n\u1EEFa m\xECnh mang ti\u1EBFp."
+    text: "L\xE1t m\xECnh mang ti\u1EBFp."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

@@ -19,10 +19,12 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 7503800403365798388, guid: 03f69c0d5de4d5b4982fff343666a5cb, type: 3}
   lines:
   - speaker: 1
-    text: "T\u1EDBi r\u1ED3i. \u0110\u1EC3 h\u1ED9p xu\u1ED1ng \u0111\xE2y nh\xE9."
+    text: "T\u1EDBi r\u1ED3i. \u0110\u1EB7t h\u1ED9p \u0111\xE2y nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "\u1EEA\u2026"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

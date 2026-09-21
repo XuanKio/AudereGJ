@@ -22,6 +22,7 @@ namespace Audere.Combat.Editor.Tests
         public void SetUp()
         {
             board=Object.Instantiate(AssetDatabase.LoadAssetAtPath<CombatBoardView>("Assets/_Audere/Prefabs/Combat/World/CombatBoard.prefab"));
+            board.PlayArea.sizeDelta = new Vector2(720f,360f);
             board.gameObject.SetActive(true);Canvas.ForceUpdateCanvases();
             board.PrepareEncounter("Mount dive test");
             var enemy=AssetDatabase.LoadAssetAtPath<CombatEnemyDefinition>("Assets/_Audere/Data/Combat/Crowd/Enemy_Crowd.asset");
@@ -99,6 +100,138 @@ namespace Audere.Combat.Editor.Tests
         }
 
         [Test]
+        public void ImpactFiresFiveShotsEachSide_AfterPlunge_PausesAndCancels()
+        {
+            var execution=StartMove();
+            Tick(execution,.99f);
+            Assert.IsEmpty(board.GetComponentsInChildren<CombatBulletView>());
+            Tick(execution,.09f);
+            var shots=board.GetComponentsInChildren<CombatBulletView>();
+            Assert.AreEqual(10,shots.Length);
+            Assert.IsTrue(shots.All(b=>!b.CollisionActive));
+            var positions=shots.Select(b=>b.RectTransform.anchoredPosition).ToArray();
+            execution.Tick(0f);board.TickBullets(0f,.65f);
+            CollectionAssert.AreEqual(positions,shots.Select(b=>b.RectTransform.anchoredPosition));
+            Tick(execution,.3f);
+            Assert.AreEqual(10,board.GetComponentsInChildren<CombatBulletView>().Length);
+            Assert.AreEqual(5,shots.Count(b=>b.RectTransform.anchoredPosition.x<0f));
+            Assert.AreEqual(5,shots.Count(b=>b.RectTransform.anchoredPosition.x>0f));
+            Assert.IsTrue(shots.All(b=>b.RectTransform.anchoredPosition.y>board.PlayArea.rect.yMin+24f));
+            execution.Cancel();Assert.IsEmpty(board.GetComponentsInChildren<CombatBulletView>());AssertRestored();
+        }
+
+        [Test]
+        public void ImpactOnLongFrameDoesNotSpendPreImpactTimeFlying()
+        {
+            var execution=StartMove();
+            execution.Tick(1.12f);board.TickBullets(1.12f,.65f);
+            var shots=board.GetComponentsInChildren<CombatBulletView>();
+            Assert.AreEqual(10,shots.Length);
+            Assert.IsTrue(shots.All(b=>!b.CollisionActive));
+            Assert.IsTrue(shots.All(b=>Mathf.Abs(b.RectTransform.anchoredPosition.y-(board.PlayArea.rect.yMin+24f))<.01f));
+            execution.Cancel();
+        }
+
+        [TestCase(-1f)] [TestCase(1f)]
+        public void SmallerBoardPreservesSafeSpaceAgainstBodyAndImpactFan(float side)
+        {
+            var execution=StartMove();
+            int hits=0;
+            for(float t=0;t<move.Duration+.1f;t+=.01f)
+            {
+                board.CatchCursor.anchoredPosition=new Vector2(side*324f,-130f);
+                board.TickHeartFeedback(.01f);
+                execution.Tick(.01f);
+                hits+=board.TickBullets(.01f,.65f);
+            }
+            Assert.AreEqual(0,hits);
+            Assert.IsTrue(execution.IsComplete);AssertRestored();
+            Assert.IsEmpty(board.GetComponentsInChildren<CombatBulletView>());
+        }
+
+        [TestCase("Move_WatchingAisle",2f,5)]
+        [TestCase("Move_PressureCorridor",3.2f,4)]
+        public void DenserRanksStillLeaveAnUnobstructedHeartLaneEachVolley(string name,float interval,int count)
+        {
+            var gate=AssetDatabase.LoadAssetAtPath<ProcessionGateMove>("Assets/_Audere/Data/Combat/Crowd/"+name+".asset");
+            var serialized=new SerializedObject(gate);
+            var offsets=serialized.FindProperty("gapOffsets");
+            Assert.AreEqual(count,offsets.arraySize);
+            Assert.AreEqual(interval,serialized.FindProperty("volleyInterval").floatValue,.001f);
+            var execution=gate.CreateExecution(new CombatMoveExecutionContext(board,actor,new SystemCombatRandom(21),901,2));
+            for(int rank=0;rank<count;rank++)
+            {
+                execution.Tick(rank==0?.01f:interval);
+                var shots=board.GetComponentsInChildren<CombatBulletView>();
+                Assert.GreaterOrEqual(shots.Length,2);
+                float center=offsets.GetArrayElementAtIndex(rank).floatValue*(gate.FromBothSides?360f:720f);
+                foreach(var shot in shots)
+                {
+                    float p=gate.FromBothSides?shot.RectTransform.anchoredPosition.y:shot.RectTransform.anchoredPosition.x;
+                    Assert.GreaterOrEqual(Mathf.Abs(p-center),gate.GapWidth*.5f+54f+8f-.01f);
+                }
+                // Isolate this rank's complete safe lane from prior ranks that have left the field.
+                foreach(var shot in shots)board.ReturnEnemyBullet(shot,shot.PoolLeaseVersion);
+            }
+            execution.Cancel();
+        }
+
+        [Test]
+        public void SlamHoldsTwoSecondsBeforeSlowReturnAndBoardRejoin()
+        {
+            var execution=StartMove();
+            Tick(execution,1.06f);
+            Vector3 bottom=mount.localPosition;
+            float split=board.BoardSeparation;
+            Tick(execution,1.75f);
+            Assert.Less(Vector3.Distance(bottom,mount.localPosition),.01f);
+            Assert.AreEqual(split,board.BoardSeparation,.01f);
+            Tick(execution,.42f);
+            Assert.Greater(Vector3.Distance(bottom,mount.localPosition),1f);
+            Assert.Greater(board.BoardSeparation,0f);
+            execution.Cancel();AssertRestored();
+        }
+
+        [Test]
+        public void DiagonalHandRanksHaveTelegraphAndOneProjectedSafeAisle()
+        {
+            var gate=AssetDatabase.LoadAssetAtPath<ProcessionGateMove>(
+                "Assets/_Audere/Data/Combat/Crowd/Move_DiagonalHands.asset");
+            Assert.IsTrue(gate.Validate(out string error),error);
+            Assert.Greater(gate.DiagonalSlope,.2f);
+            var execution=gate.CreateExecution(new CombatMoveExecutionContext(board,actor,new SystemCombatRandom(21),901,2));
+            execution.Tick(.01f);
+            Assert.IsTrue(board.IsAttackWarningVisible);
+            var shots=board.GetComponentsInChildren<CombatBulletView>();
+            Assert.Greater(shots.Length,2);
+            Assert.IsTrue(shots.All(b=>!b.CollisionActive));
+            Assert.IsTrue(shots.Any(b=>Mathf.Abs(b.RectTransform.anchoredPosition.y)>130f));
+            execution.Cancel();AssertRestored();
+        }
+
+        [TestCase("Move_WatchingAisle")] [TestCase("Move_PressureCorridor")]
+        public void HeartCanFollowChangingAislesOnTheSmallerBoard(string name)
+        {
+            var gate=AssetDatabase.LoadAssetAtPath<ProcessionGateMove>("Assets/_Audere/Data/Combat/Crowd/"+name+".asset");
+            var serialized=new SerializedObject(gate);
+            var offsets=serialized.FindProperty("gapOffsets");
+            float interval=serialized.FindProperty("volleyInterval").floatValue;
+            var execution=gate.CreateExecution(new CombatMoveExecutionContext(board,actor,new SystemCombatRandom(21),901,2));
+            int hits=0;
+            for(float t=.02f;t<gate.Duration+.05f;t+=.02f)
+            {
+                int rank=Mathf.Min(offsets.arraySize-1,Mathf.FloorToInt(t/interval));
+                float previous=offsets.GetArrayElementAtIndex(Mathf.Max(0,rank-1)).floatValue;
+                float target=offsets.GetArrayElementAtIndex(rank).floatValue;
+                float lane=Mathf.Lerp(previous,target,Mathf.Clamp01((t-rank*interval)/.3f));
+                board.CatchCursor.anchoredPosition=gate.FromBothSides?new Vector2(0,lane*360f):new Vector2(lane*720f,0);
+                board.TickHeartFeedback(.02f);execution.Tick(.02f);hits+=board.TickBullets(.02f,.65f);
+            }
+            Assert.AreEqual(0,hits,"A real Heart must cross between consecutive gaps without unavoidable contact.");
+            execution.Cancel();Assert.IsEmpty(board.GetComponentsInChildren<CombatBulletView>());
+        }
+
+        [Test]
         public void SplitOuterEdgesUseHeartFootprintAndExpandThenRestoreMask()
         {
             var mask=board.PlayArea.GetComponent<RectMask2D>();Assert.IsNotNull(mask);
@@ -142,9 +275,9 @@ namespace Audere.Combat.Editor.Tests
             Assert.AreEqual(10,enemy.GetPhase(0).SharedExitThreshold);
             Assert.AreEqual(3,enemy.PhaseCount);
             Assert.AreEqual(3,enemy.GetPhase(1).SharedExitThreshold);
-            Assert.AreEqual(2,enemy.GetPhase(1).MoveSet.Count);
+            Assert.AreEqual(3,enemy.GetPhase(1).MoveSet.Count);
             Assert.IsFalse(enemy.GetPhase(1).MoveSet.Entries.Any(e=>e.Move is EnemyMountDiveMove));
-            Assert.AreEqual(2,enemy.GetPhase(1).MoveSet.Entries.Count(e=>e.Move is ProcessionGateMove));
+            Assert.AreEqual(3,enemy.GetPhase(1).MoveSet.Entries.Count(e=>e.Move is ProcessionGateMove));
             Assert.IsInstanceOf<EnemyMountDiveMove>(enemy.GetPhase(1).DamageReactionMove);
             Assert.IsEmpty(enemy.GetPhase(1).DialogueCues);
             Assert.IsTrue(enemy.GetPhase(2).DialogueCues.Single().RequiredBeforeVictory);
@@ -194,14 +327,64 @@ namespace Audere.Combat.Editor.Tests
             runtime.Tick(.65f);Vector3 p=mount.localPosition;
             runtime.PauseForDialogue();runtime.Tick(2f);Assert.AreEqual(p,mount.localPosition);runtime.ResumeFromDialogue();
             runtime.ApplyDamage(1,out _); // A second hit earns a second counter, without snapping a diving body home.
-            int version=runtime.MoveVersion;runtime.Tick(2f);
+            int version=runtime.MoveVersion;runtime.Tick(3.5f);
             Assert.Greater(runtime.MoveVersion,version);Assert.IsInstanceOf<EnemyMountDiveMove>(runtime.CurrentMove);
-            runtime.Tick(2f);Assert.IsInstanceOf<ProcessionGateMove>(runtime.CurrentMove);
+            runtime.Tick(4.2f);Assert.IsInstanceOf<ProcessionGateMove>(runtime.CurrentMove);
             Assert.AreEqual(CombatEnemyProgression.PhaseBreak,runtime.ApplyDamage(99,out _));
             Assert.AreEqual(3,runtime.CurrentHealth);Assert.IsFalse(board.IsMountDiveActive);
             runtime.CompletePhaseBreak();Assert.AreEqual(2,runtime.PhaseIndex);Assert.IsInstanceOf<GraspingHandsMove>(runtime.CurrentMove);
             runtime.RestartFromBeginning();Assert.AreEqual(19,runtime.CurrentHealth);Assert.IsFalse(board.IsMountDiveActive);
             runtime.Cancel();Assert.AreEqual(0,board.ActiveMountEchoes);
+        }
+
+        [TestCase(1)] [TestCase(2)]
+        public void CrowdPhaseThreeDiscardsQueuedCountersAndReleasesVictoryAfterItsCue(int queuedHits)
+        {
+            var enemy=AssetDatabase.LoadAssetAtPath<CombatEnemyDefinition>("Assets/_Audere/Data/Combat/Crowd/Enemy_Crowd.asset");
+            var runtime=new CombatEnemyRuntime(enemy,board,new SystemCombatRandom(41),903);
+            try
+            {
+                runtime.Start();
+                Assert.AreEqual(CombatEnemyProgression.PhaseBreak,runtime.ApplyDamage(99,out _));
+                runtime.CompletePhaseBreak();
+                Assert.AreEqual(1,runtime.PhaseIndex);
+                Assert.AreEqual(10,runtime.CurrentHealth);
+                Assert.IsInstanceOf<EnemyMountDiveMove>(runtime.CurrentMove);
+                int counterVersion=runtime.MoveVersion;
+                for(int hit=0;hit<queuedHits;hit++)
+                {
+                    Assert.AreEqual(CombatEnemyProgression.None,runtime.ApplyDamage(1,out int applied));
+                    Assert.AreEqual(1,applied);
+                    Assert.AreEqual(counterVersion,runtime.MoveVersion,"The current counter must remain active while another is queued.");
+                    Assert.IsTrue(board.IsMountDiveActive);
+                }
+                // Cross the threshold before ticking either the active or queued counter to completion.
+                Assert.AreEqual(CombatEnemyProgression.PhaseBreak,runtime.ApplyDamage(99,out _));
+                Assert.AreEqual(3,runtime.CurrentHealth);
+                Assert.DoesNotThrow(()=>runtime.CompletePhaseBreak());
+                Assert.AreEqual(2,runtime.PhaseIndex);
+                Assert.AreEqual(CombatEnemyRuntimeState.Playing,runtime.State);
+                Assert.IsFalse(board.IsMountDiveActive);
+                Assert.AreSame(enemy.GetPhase(2).MoveSet.Entries[0].Move,runtime.CurrentMove);
+                Assert.IsInstanceOf<GraspingHandsMove>(runtime.CurrentMove);
+                runtime.Tick(runtime.CurrentMove.Duration+.5f);
+                Assert.AreSame(enemy.GetPhase(2).MoveSet.Entries[1].Move,runtime.CurrentMove);
+
+                var cue=runtime.CurrentPhase.DialogueCues.Single();
+                Assert.IsTrue(cue.RequiredBeforeVictory);
+                Assert.IsFalse(runtime.IsCueResolved(cue.CueId));
+                Assert.AreEqual(CombatEnemyProgression.None,runtime.ApplyDamage(3,out int finalDamage));
+                Assert.AreEqual(3,finalDamage);
+                runtime.Tick(.01f);
+                Assert.AreEqual(CombatEnemyRuntimeState.Playing,runtime.State,"The required phase-three speech still gates Victory.");
+                Assert.IsTrue(runtime.MarkCuePlayed(cue));
+                runtime.MarkCueResolved(cue);
+                Assert.IsTrue(runtime.IsCueResolved(cue.CueId));
+                runtime.Tick(.01f);
+                Assert.AreEqual(CombatEnemyRuntimeState.Completed,runtime.State);
+                Assert.AreEqual(CombatEnemyProgression.None,runtime.ApplyDamage(1,out _));
+            }
+            finally { runtime.Cancel(); }
         }
 
         [Test]

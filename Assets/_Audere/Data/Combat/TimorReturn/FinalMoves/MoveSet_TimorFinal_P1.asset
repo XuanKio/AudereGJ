@@ -14,15 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectionPolicy: 0
   entries:
-  - move: {fileID: 11400000, guid: dba4ba7f3aa99154594313c3a4cdd3b8, type: 2}
+  - move: {fileID: 11400000, guid: 0ab4a0c35f2173941b16e371d52c077f, type: 2}
     weight: 1
-  - move: {fileID: 11400000, guid: 85090eaf6a737af4f95af83010cb5286, type: 2}
+  - move: {fileID: 11400000, guid: 113a1eb8c2b12ba409dfcf6a692004fe, type: 2}
     weight: 1
-  - move: {fileID: 11400000, guid: cbc27bdfcac7891418c6bcd8ca4c316a, type: 2}
-    weight: 1
-  - move: {fileID: 11400000, guid: d6a1a343e42f19349933baded9cbf8aa, type: 2}
-    weight: 1
-  - move: {fileID: 11400000, guid: 77fceba49652e6741974b283bb957a7c, type: 2}
-    weight: 1
-  - move: {fileID: 11400000, guid: b7105afee2bd73f49b54ed5f50c1666f, type: 2}
+  - move: {fileID: 11400000, guid: ff1e72709243bd44faa4e74dfaa750c8, type: 2}
     weight: 1

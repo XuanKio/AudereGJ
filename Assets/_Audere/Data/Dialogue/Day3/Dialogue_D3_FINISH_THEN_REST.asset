@@ -19,6 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 1802169272185732355, guid: 056875fa18e556d4cb0aba789bc44c9f, type: 3}
   lines:
   - speaker: 1
-    text: "M\xECnh l\xE0m nhanh r\u1ED3i ngh\u1EC9 nh\xE9, Audere."
+    text: "L\xE0m nhanh r\u1ED3i ngh\u1EC9 nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

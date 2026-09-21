@@ -10,9 +10,11 @@ Preserve what the project has established while keeping assumptions visibly sepa
 ## Read the relevant references
 
 - Always read [writing-principles.md](references/writing-principles.md) and [story-state.md](references/story-state.md).
-- Read the profile of every participating character: [Audere](references/characters/audere.md), [Timor](references/characters/timor.md), [Teacher](references/characters/teacher.md), [Bianca](references/characters/bianca.md), and/or [Khoảng Lặng](references/characters/khoang-lang.md).
+- Read the profile of every participating character: [Audere](references/characters/audere.md), [Timor](references/characters/timor.md), [Teacher](references/characters/teacher.md), [Bianca](references/characters/bianca.md), [Khoảng Lặng](references/characters/khoang-lang.md), and/or [Đám Đông](references/characters/crowd.md).
 - For scenes involving both characters or referring to their bond, read [relationships.md](references/relationships.md).
 - When drafting or reviewing voice, read [dialogue-examples.md](references/dialogue-examples.md). Treat the examples as evidence, not templates to copy.
+- For a full story audit or changes across scenes, follow [Docs/Story](../../../Docs/Story/README.md): plot, chronology, bosses/ending, continuity, then revision metrics. These pages own narrative facts; runtime and scene workflow docs own implementation.
+- Keep each new or changed document below 200 lines. Split by responsibility and link from the owning index; do not duplicate volatile combat balance in character profiles.
 
 If a requested character or story point has no reference yet, inspect the nearest project sources and mark missing information `Unresolved`; do not invent a profile silently.
 

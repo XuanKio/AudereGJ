@@ -20,33 +20,51 @@ MonoBehaviour:
   lines:
   - speaker: 1
     text: "C\u1EB7p?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "C\xF3."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "\u0110i\u1EC7n tho\u1EA1i?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "C\xF3."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "Ch\xECa kh\xF3a?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "\u2026C\xF3."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EADu v\u1EEBa ki\u1EC3m tra t\xFAi l\u1EA7n n\u1EEFa \u0111\xFAng
-      kh\xF4ng?"
+    text: "L\u1EA1i ki\u1EC3m tra t\xFAi \xE0?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "Cho ch\u1EAFc th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "Ch\xECa kh\xF3a v\u1EABn \u1EDF \u0111\xF3. T\u1EDB nh\xECn th\u1EA5y
-      m\xE0."
+    text: "V\u1EABn \u1EDF \u0111\xF3. T\u1EDB th\u1EA5y m\xE0."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "\u0110\u01B0\u1EE3c r\u1ED3i. \u0110i th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: -458334604, guid: 6996de3b28ad9a1448c8c318b9f09ff4, type: 3}
+    glitchPortraitTransition: 0

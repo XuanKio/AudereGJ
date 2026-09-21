@@ -1,84 +1,57 @@
-# Audere
+# Audere — giọng và mức chủ động
 
-## Evidence boundary
+Nguồn: [chronology](../../../../../Docs/Story/chronology.md),
+[relationships](../relationships.md). Phạm vi: production đủ bốn ngày, 2026-09-20.
 
-The current project contains Day 1 morning, classroom announcement, and Bianca recess exchanges for
-Audere. Her long-term characterization is still mostly `Design Intent`; details such as age,
-appearance in-world, broader history, school relationships, humor, and later arc state remain
-`Unresolved`.
+## Established Canon
 
-## Character model
+Audere quen Timor dẫn qua các việc nhỏ, nhưng thích trang trí và muốn giúp Bianca.
+Cô biết mình run, muốn trốn, mệt hoặc chóng mặt qua những chi tiết cơ thể cụ thể.
+Các thành công không xóa dấu hiệu ấy: lần đầu trả lời được, tay vẫn run; cuối truyện vẫn sợ.
+Cô dần chọn nói, ghi tên, đi giúp, hỏi thẳng, nghe lời thật, nhận giúp và đặt giới hạn với Timor.
 
-### Established Canon
+## Giọng theo chặng
 
-- Audere wakes late and is still sleepy at the opening of Day 1.
-- She accepts Timor's concrete direction to go wash up and allows him to accompany her.
-- After the bathroom task, she reports that the mint taste wakes her up, but immediately minimizes the improvement when Timor notices it.
-- She asks where breakfast is rather than independently stating the next action.
-- When Bianca leaves room for an answer during recess, Audere notices her trembling hands and
-  the impulse to flee. She says she does not want that impulse choosing for her and decides to
-  face it herself before the combat hand-off.
+| Chặng | Nhịp lời | Hành động lời nói được phép |
+| --- | --- | --- |
+| D1 sáng | Ngắn, buồn ngủ, phản đối nhẹ | Hỏi giờ, xin thêm phút, làm theo |
+| D1 lớp | Ngập ngừng nhưng muốn rõ một việc | Muốn thử, tự ghi tên |
+| D1 tối | Cố bảo vệ khả năng tự đáp | Phân biệt tin nhắn hiện tại với điều Timor sợ |
+| D2 | Lời phản biện nhỏ có tình huống cụ thể | Đã kiểm tra, chỉ đi lấy đồ, hỏi Bianca |
+| D3 | Mệt nhưng bắt đầu nối bằng chứng | Nhắc việc hôm qua, muốn nghe cô giáo, chọn mức chia sẻ |
+| D4 | Tự nhắc việc và mở lời hơn | Nhờ giúp, nhận chưa biết, đòi tự bước |
 
-### Strongly Implied
+Đây là mốc tối đa theo scene, không phải bắt mọi câu ngày4 dài hoặc tự tin hơn.
+Khi mệt hoặc bị dồn, lời ngắn lại vẫn hợp nhân vật.
 
-- She is comfortable enough with Timor to answer while tired and mildly protest his prompting.
-- She tends to conserve words and accept the next concrete step when overwhelmed or not fully alert.
-- She seeks orientation through small questions rather than openly asking for emotional reassurance.
+## Strongly Implied
 
-### Design Intent
+Cô thường tiết kiệm lời để giảm điều mình có thể nói sai.
+Câu hỏi về một việc cụ thể là cách thử độ an toàn của quan hệ.
+Sự chủ động tăng nhờ thấy người thật khác lời dự đoán, không nhờ hiểu một lý thuyết về bản thân.
 
-- Audere should not speak like someone clinically analyzing her own mental state.
-- Emotion appears through avoidance, hesitation, small decisions, confirmation-seeking, and omissions.
-- Her movement from dependence toward self-directed choice must be gradual; one scene cannot make her suddenly confident.
-- After the first classroom combat Victory, her hands still tremble. She answers Bianca with the
-  concrete sentence `Tớ muốn thử`, then chooses to write her own name. The success is acting while
-  fear remains, not becoming socially confident or cured.
-- In the night-message pressure beat, she initially defends small concrete possibilities: Bianca
-  is only asking, helping together could be enjoyable, and she could answer or learn gradually.
-  As Timor supplies more consequences, her replies shorten until she can no longer tell which
-  consequence she fears. This is implemented **Design Intent**, not a general clinical statement.
-- On Day 2 morning, she admits only `...Một chút` when Timor asks whether she is afraid of him.
-  She tries small boundaries such as `Tớ tự làm được`, `Tớ kiểm tra rồi`, and `...Timor`, but
-  complies after he narrows the instruction. Her thoughts about Bianca and the school event return
-  in short concrete lines and are interrupted rather than developed.
+## Design Intent
 
-## Behavioral rules
+Dùng “tớ/cậu” với bạn; “em/cô” với giáo viên.
+Một câu đáp nên cho thấy cô đang chọn, rút lại, dò hỏi hoặc giữ một ranh giới.
+Giữ ngập ngừng có chức năng; không rải “…” trước mọi dòng như dấu hiệu nhận dạng duy nhất.
+Cho phép một mẩu dí dỏm quen thuộc sáng D1, không biến cô thành người đối đáp sắc sảo mọi lúc.
 
-| Situation | Internal reaction | Outward behavior | Speech tendency |
-| --- | --- | --- | --- |
-| Just awakened or mentally overloaded | Wants more time and fewer demands | Delays, half-protests, then accepts one concrete action | Short fragments, ellipses, sleepy questions |
-| Timor gives a manageable next step | Relief mixed with mild reluctance | Follows without making a broader plan | “Được rồi…” or a small practical question |
-| Timor evaluates her condition | Does not want attention enlarged | Minimizes the change | Brief correction such as “Một chút thôi.” |
-| Unsure what comes next | Looks for orientation without exposing vulnerability directly | Asks about place, timing, or immediate action | Concrete question rather than “Tớ đang lo” |
-| Nervous around others | `Design Intent`: anticipates social risk | Avoids, pauses, gives partial answers | Hesitation and incomplete commitment; no polished self-diagnosis |
-| Beginning to choose for herself | `Design Intent`: wants agency but still fears consequences | Makes one small choice, possibly after a pause | Tentative but specific; confidence grows by degrees |
-| Pressured or angry | `Unresolved` | Do not assume shouting or eloquent confrontation | Establish from future canon before standardizing |
-| Comfortable or playful | `Unresolved` | Existing morning protest hints at familiarity, not a full humor style | Keep understated until more examples exist |
+## Khi rút thoại
 
-## Voice controls
+- Giữ câu cụ thể mà cô muốn nói, đặc biệt ở cuối tutorial, signup, hỏi Bianca và final.
+- Gộp phần tự giải thích lặp; không cắt bằng chứng làm lời phản biện đột nhiên quá sắc sảo.
+- Giữ các lựa chọn chia sẻ ít ở D3 như những đáp án hợp lệ.
+- Hành động được staging thể hiện rồi không cần cô kể lại toàn bộ.
+- Sau một thành công, giữ chút run/sợ/mệt cần thiết để đường tiến bộ không thành phép chữa tức thì.
 
-- **Rhythm:** brief, reactive, often one thought per line.
-- **Sentence length:** short at the current opening; longer speech under other conditions is not established.
-- **Vocabulary:** ordinary and concrete.
-- **Hesitation:** ellipses, delayed answers, soft corrections, questions.
-- **Directness:** low about feelings; moderate about immediate physical facts.
-- **Humor:** not established. Mild sleepy defensiveness is supported; witty banter is not.
+## Tránh
 
-## What Audere hides
+Chẩn đoán mình, diễn văn về sức khỏe tâm lý, lời đảm bảo đã hết lo hoặc biết tất cả người khác nghĩ gì.
+Không dùng việc thiếu ngủ/ngã làm bằng chứng cô không nên tham gia.
+Không mặc định tuổi, tên cũ hay toàn bộ quá khứ từ tên file và lời Timor kể.
 
-- `Design Intent`: distress and uncertainty are more likely to be hidden through silence or minimization than explained.
-- The exact fears, origin of dependence, and what she believes Timor protects her from are `Unresolved` in project sources.
+## Unresolved
 
-## Avoid
-
-- Clean psychological summaries such as “Tớ đang né tránh vì lo âu xã hội.”
-- Sudden assertive speeches unsupported by the current story state.
-- Long explanations when a pause, deflection, or small question would reveal more.
-- Treating hesitation as a joke or making her speech difficulty the punchline.
-- Assuming `Nilah` or `Nhật Linh` is her canonical name; see `story-state.md`.
-
-## Current arc movement
-
-At the current Day 2 implementation, Audere still primarily receives structure from Timor. The
-night rupture has made her wary enough to name a little fear and hesitate before obeying, but she
-does not yet sustain a refusal. This is recognition of cost, not independence or open resistance.
+Tuổi cụ thể, lịch sử trước bốn ngày, nguyên nhân mất mẹ và cuộc sống sau ending.
+Các giới hạn ấy do [continuity](../../../../../Docs/Story/continuity.md) quản lý.

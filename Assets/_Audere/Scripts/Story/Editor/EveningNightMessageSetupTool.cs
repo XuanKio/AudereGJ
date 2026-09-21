@@ -25,6 +25,8 @@ namespace Audere.EditorTools
     /// </summary>
     public static class EveningNightMessageSetupTool
     {
+        private static readonly System.Collections.Generic.HashSet<DialogueData> seededDialogues = new System.Collections.Generic.HashSet<DialogueData>();
+
         private const string ScenePath = "Assets/_Audere/Scenes/40_Evening.unity";
         private const string DialogueFolder = "Assets/_Audere/Data/Dialogue/Day1/Evening";
         private const string CombatFolder = "Assets/_Audere/Data/Combat/TimorNightPressure";
@@ -110,6 +112,7 @@ namespace Audere.EditorTools
 
         private static DialogueAssets CreateDialogueAssets()
         {
+            seededDialogues.Clear();
             Sprite audereNeutral = LoadFirstSprite(AudereArtFolder + "Audere.png", "Audere_0");
             Sprite audereSmiled = LoadFirstSprite(AudereArtFolder + "Audere_smiled.png", "Audere_smiled_0");
             Sprite audereScared = LoadFirstSprite(AudereArtFolder + "Audere_Scared.png", "Audere_Scared_0");
@@ -291,7 +294,11 @@ namespace Audere.EditorTools
             DialogueCharacterId counterpart,
             params DialogueLine[] lines)
         {
-            DialogueData asset = EnsureAsset<DialogueData>($"{DialogueFolder}/{assetName}.asset");
+            string path = $"{DialogueFolder}/{assetName}.asset";
+            DialogueData asset = AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+            if (asset != null) return asset;
+            asset = EnsureAsset<DialogueData>(path);
+            seededDialogues.Add(asset);
             SerializedObject serialized = new SerializedObject(asset);
             serialized.FindProperty("dialogueId").stringValue = id;
             serialized.FindProperty("leftCharacter").intValue = (int)DialogueCharacterId.Audere;
@@ -318,6 +325,8 @@ namespace Audere.EditorTools
             Sprite rightPortrait,
             params (int LineIndex, Sprite Portrait)[] lineOverrides)
         {
+            // Fixed seed indices must never be reapplied to a later editorial cut.
+            if (!seededDialogues.Remove(dialogue)) return;
             SerializedObject serialized = new SerializedObject(dialogue);
             serialized.FindProperty("leftPortraitOverride").objectReferenceValue = leftPortrait;
             serialized.FindProperty("rightPortraitOverride").objectReferenceValue = rightPortrait;

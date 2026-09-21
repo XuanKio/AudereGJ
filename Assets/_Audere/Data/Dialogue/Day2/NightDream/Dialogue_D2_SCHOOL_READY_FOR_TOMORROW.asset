@@ -19,30 +19,32 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "V\u1EADy l\xE0 \u0111\u1ED3 cho ng\xE0y mai \u0111\u1EE7 r\u1ED3i."
+    text: "\u0110\u1EE7 \u0111\u1ED3 cho ng\xE0y mai r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "Mai b\u1ECDn m\xECnh trang tr\xED b\u1EA3ng nh\xE9."
+    text: "Mai m\xECnh l\xE0m b\u1EA3ng nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "R\u1ED3i chu\u1EA9n b\u1ECB n\u1ED1t v\u1EDBi c\u1EA3 l\u1EDBp."
+    text: "R\u1ED3i ph\u1EE5 c\u1EA3 l\u1EDBp n\u1ED1t."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "\u2026V\u1EDBi m\u1ECDi ng\u01B0\u1EDDi n\u1EEFa \xE0?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: "\u1EEA. Chia nhau l\xE0m th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "Ph\u1EA7n b\u1EA3ng\u2026 t\u1EDB v\u1EABn mu\u1ED1n l\xE0m."
-    portraitOverride: {fileID: 0}
-    glitchPortraitTransition: 0
-  - speaker: 1
-    text: "\u1EEA, mai l\xE0m ti\u1EBFp."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

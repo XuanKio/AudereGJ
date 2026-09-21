@@ -19,12 +19,12 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "L\u1EA7n sau em c\u1EE9 ng\u1ED3i ngo\xE0i nh\xE9."
+    text: "L\u1EA7n sau c\u1EE9 ng\u1ED3i ngo\xE0i nh\xE9."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u0110\u1EEBng \u0111\u1EC3 m\u1ECDi ng\u01B0\u1EDDi ph\u1EA3i lo th\xEAm."
+    text: "\u0110\u1EEBng \u0111\u1EC3 m\u1ECDi ng\u01B0\u1EDDi lo th\xEAm."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

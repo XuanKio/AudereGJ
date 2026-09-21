@@ -135,7 +135,7 @@ namespace Audere.EditorTools
             walk.Waypoints[14].position = new Vector3(last.transform.position.x - stride * .06f, start.position.y, start.position.z);
             target.position = walk.Waypoints[14].position + new Vector3(.12f, -2.4f, 0f);
             target.rotation = start.rotation;
-            Set(fall, "breakLead", .07f, "backwardLean", 78f);
+            Set(fall, "breakLead", .07f, "backwardLean", 78f, "floatHeight", .025f, "floatPeriod", 2.8f, "floatTilt", 2.5f);
 
             // More path remains ahead: the failing tile must not advertise itself as the end of the road.
             var pathRoot = actor.parent;

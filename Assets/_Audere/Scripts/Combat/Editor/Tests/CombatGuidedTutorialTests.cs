@@ -195,6 +195,24 @@ namespace Audere.Combat.Editor.Tests
         }
 
         [Test]
+        public void StunReroll_AuthorsShieldFirst_ThenAlwaysChangesAnExistingShield()
+        {
+            Prepare(CombatTutorialLessonKind.StunReroll);
+            board.CatchCursor.anchoredPosition = Die.RectTransform.anchoredPosition;
+            RefreshStun();
+            Assert.AreEqual(CombatSymbol.Heal, Die.Symbol);
+            Click(false, true);
+            Assert.AreEqual(CombatSymbol.Shield, Die.Symbol);
+            Assert.IsTrue(Get<bool>(controller, "guidedRerolled"));
+            Die.SetupStationaryChoice(CombatSymbol.Shield, board.CatchCursor.anchoredPosition);
+            Assert.IsTrue(Die.CanInteract);
+            Click(false, true);
+            Assert.AreNotEqual(CombatSymbol.Shield, Die.Symbol);
+            Assert.IsFalse(Die.CanInteract);
+            Assert.IsFalse(Complete);
+        }
+
+        [Test]
         public void ResetDuringLessonReleasesSquareTargetConstraintAndStun()
         {
             Prepare(CombatTutorialLessonKind.Damage);

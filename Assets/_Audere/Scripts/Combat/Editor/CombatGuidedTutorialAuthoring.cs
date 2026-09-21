@@ -199,6 +199,8 @@ namespace Audere.Combat.Editor
                 spec.Id.Replace('-', '_').ToUpperInvariant() + ".asset";
             DialogueData source = RequireAsset<DialogueData>(SourceDialoguePath(spec.PortraitSource));
             DialogueData data = AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+            // Scene setup seeds missing dialogue; authored wording and expressions own existing assets.
+            if (data != null) return data;
             if (data == null)
             {
                 data = ScriptableObject.CreateInstance<DialogueData>();

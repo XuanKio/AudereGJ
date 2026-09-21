@@ -209,6 +209,7 @@ namespace Audere.Combat
         {
             SyncCombatViewportToCamera();
             SyncTimerToBoard();
+            SyncProjectilePresentationLayers();
         }
 
         private void SyncCombatViewportToCamera()
@@ -252,6 +253,7 @@ namespace Audere.Combat
         public void PrepareEncounter(string enemyName)
         {
             ResolveReferences();
+            ResetTeacherQuestionHistory();
             ClearDiceCatchVfx();
             ResetBattleBoxLayout();
             ResetPlayerDamageFeedback();
@@ -269,6 +271,7 @@ namespace Audere.Combat
                 boardCanvas = GetComponent<Canvas>();
             if (boardCanvas != null)
                 boardCanvas.enabled = visible;
+            SyncProjectilePresentationLayers();
         }
 
         public void BindAuthoredEnemyActor(CombatEnemyActor actor)
@@ -282,10 +285,12 @@ namespace Audere.Combat
             authoredEnemyActor.gameObject.SetActive(false);
         }
 
-        public CombatEnemyActor SpawnEnemyActor(CombatEnemyActor prefab, int sessionVersion)
+        private bool suppressEnemyHitFlash;
+        public CombatEnemyActor SpawnEnemyActor(CombatEnemyActor prefab, int sessionVersion, bool suppressHitFlash = false)
         {
             ResolveReferences();
             ClearEnemyActor();
+            suppressEnemyHitFlash = suppressHitFlash;
             if (enemyMount == null)
                 return null;
 
@@ -515,12 +520,15 @@ namespace Audere.Combat
                     continue;
                 }
 
-                if ((HasForcedMovementProtection && !bullet.BypassesForcedMovementProtection) ||
+                if (deltaTime <= 0f || (HasForcedMovementProtection && !bullet.BypassesForcedMovementProtection) ||
                     !bullet.CollisionActive ||
                     !RectTransformsOverlap(bullet.RectTransform, playerView.RectTransform)) continue;
                 if (playerView.TryRegisterHit(playerInvulnerability)) registeredHits++;
-                bullet.ReturnToPool();
-                activeBullets.RemoveAt(i);
+                if (bullet.ReturnOnPlayerHit)
+                {
+                    bullet.ReturnToPool();
+                    activeBullets.RemoveAt(i);
+                }
             }
 
             for (int i = activeLasers.Count - 1; i >= 0; i--)
@@ -542,7 +550,7 @@ namespace Audere.Combat
                     continue;
                 }
 
-                if (laser.CollisionActive &&
+                if (deltaTime > 0f && laser.CollisionActive &&
                     RectTransformsOverlap(laser.RectTransform, playerView.RectTransform) &&
                     playerView.TryRegisterHit(playerInvulnerability))
                     registeredHits++;
@@ -813,6 +821,9 @@ namespace Audere.Combat
 
         public void ResetBattleBoxLayout()
         {
+            RestoreCorridorFrame();
+            longCorridorActive = false;
+            corridorRunnerActive = false;
             ResetMountDive();
             CaptureBattleBoxLayout();
             battleBoxWidthFraction = 1f;
@@ -827,6 +838,8 @@ namespace Audere.Combat
                 airborneDiceRoot.sizeDelta = airborneDiceAuthoredSize;
                 airborneDiceRoot.anchoredPosition = airborneDiceAuthoredPosition;
             }
+            if (compactFrameCaptured && battleBoxFrame != null)
+                battleBoxFrame.sizeDelta = battleBoxAuthoredSize + compactFrameMargin;
             SyncTimerToBoard();
         }
 
@@ -839,6 +852,7 @@ namespace Audere.Combat
             Rect bounds = playArea.rect;
             localPoint.x = Mathf.Clamp(localPoint.x, bounds.xMin - boardSeparation + half.x, bounds.xMax + boardSeparation - half.x);
             localPoint.y = Mathf.Clamp(localPoint.y, bounds.yMin + half.y, bounds.yMax - half.y);
+            ClampLongCorridorCursor(ref localPoint, half);
             localPoint = ClampToSplitBoard(localPoint, half);
             if (!playerConstraintActive)
                 return localPoint;
@@ -1273,6 +1287,8 @@ namespace Audere.Combat
 
         public void ClearCombatRuntime()
         {
+            ClearMoveStages();
+            ClearTeacherQuestion();
             ResetPhasePresentation();
             EndGuidedTutorialPresentation();
             SetEncounterPresentationVisible(false);
@@ -1836,6 +1852,7 @@ namespace Audere.Combat
 
         private void SetEnemyWhiteFlash(bool enabled)
         {
+            enabled &= !suppressEnemyHitFlash;
             if (enemySpriteRenderers != null && enemyOriginalMaterials != null)
             {
                 for (int i = 0; i < enemySpriteRenderers.Length; i++)
@@ -1875,6 +1892,8 @@ namespace Audere.Combat
 
         private void OnDisable()
         {
+            ClearMoveStages();
+            ClearTeacherQuestion();
             ResetPhasePresentation();
             EndGuidedTutorialPresentation();
             ClearDiceCatchVfx();
@@ -1975,6 +1994,7 @@ namespace Audere.Combat
             }
             if (damageNumberRoot == null)
                 damageNumberRoot = FindDescendant(transform, "Damage Number Root") as RectTransform;
+            RefreshProjectilePresentationLayers();
         }
 
         private void ResolveStunZones()

@@ -19,18 +19,17 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "\u0110\u1EB9p qu\xE1!"
+    text: "N\xE9t n\xE0y kh\xE9o th\u1EADt!"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EADu v\u1EBD n\xE9t n\xE0y kh\xE9o th\u1EADt \u0111\u1EA5y."
-    portraitOverride: {fileID: 0}
-    glitchPortraitTransition: 0
-  - speaker: 1
-    text: "B\u1EA3ng l\u1EDBp m\xECnh s\xE1ng h\u1EB3n l\xEAn r\u1ED3i."
+    text: "B\u1EA3ng s\xE1ng h\u1EB3n l\xEAn r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "\u2026\u1EEA."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

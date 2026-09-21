@@ -24,7 +24,7 @@ MonoBehaviour:
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "H\u1ECD v\u1EABn \u0111ang nh\xECn c\u1EADu m\xE0."
+    text: "H\u1ECD v\u1EABn nh\xECn c\u1EADu m\xE0."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

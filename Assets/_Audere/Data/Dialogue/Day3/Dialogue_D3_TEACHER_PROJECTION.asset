@@ -19,23 +19,27 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: -4747829306167941163, guid: cdecd5c621db74b43927eb49d1f04191, type: 3}
   lines:
   - speaker: 1
-    text: "Gi\u1EDD c\xF4 c\u0169ng ph\u1EA3i d\u1EEBng vi\u1EC7c l\u1EA1i v\xEC
-      c\u1EADu."
+    text: "C\xF4 ph\u1EA3i d\u1EEBng vi\u1EC7c v\xEC c\u1EADu \u0111\u1EA5y."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "C\xF4 ch\u1EC9 \u0111ang h\u1ECFi t\u1EDB th\xF4i."
+    text: "C\xF4 ch\u1EC9 h\u1ECFi t\u1EDB th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u1EEA. Nh\u01B0ng c\xF4 \u0111\xE3 th\u1EA5y c\u1EADu th\u1EBF n\xE0y."
+    text: "Nh\u01B0ng c\xF4 \u0111\xE3 th\u1EA5y r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "L\u1EA7n sau c\xF4 c\xF2n d\xE1m giao vi\u1EC7c cho c\u1EADu \xE0?"
+    text: "L\u1EA7n sau c\xF2n d\xE1m giao c\u1EADu \xE0?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "T\u1EDB ch\u1EC9 c\u1EA7n ngh\u1EC9 m\u1ED9t l\xE1t."
+    text: "T\u1EDB ch\u1EC9 c\u1EA7n ngh\u1EC9 ch\xFAt."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

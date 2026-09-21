@@ -19,7 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "T\u1EA1i sao m\xECnh l\u1EA1i r\u1EE7 c\u1EADu \u1EA5y nh\u1EC9?"
+    text: "Sao m\xECnh l\u1EA1i r\u1EE7 c\u1EADu \u1EA5y nh\u1EC9?"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

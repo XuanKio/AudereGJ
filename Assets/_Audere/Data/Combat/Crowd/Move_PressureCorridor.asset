@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54dd00e078433094eac3a79e0b6fe538, type: 3}
   m_Name: Move_PressureCorridor
   m_EditorClassIdentifier: 
-  duration: 12.8
+  duration: 13.2
   leadInDuration: 0.5
   projectilePrefab: {fileID: 792354162730361880, guid: 6ab965fd084276c4da98b26693013e27, type: 3}
   fromBothSides: 1
@@ -20,9 +20,10 @@ MonoBehaviour:
   - -0.19
   - 0.19
   - 0
-  gapWidth: 138
-  spacing: 132
-  speed: 255
-  volleyInterval: 4.1
-  entryDelay: 0.3
+  - -0.19
+  gapWidth: 114
+  spacing: 46
+  speed: 235
+  volleyInterval: 3.2
+  entryDelay: 0.7
   visualHalfWidth: 54

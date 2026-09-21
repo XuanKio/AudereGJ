@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selectionPolicy: 0
   entries:
-  - move: {fileID: 11400000, guid: c2994ee8d62ba1a4dadb374cf65b3256, type: 2}
-    weight: 1
   - move: {fileID: 11400000, guid: 1003928f2e33da14aa70ec8585634d29, type: 2}
+    weight: 1
+  - move: {fileID: 11400000, guid: c2994ee8d62ba1a4dadb374cf65b3256, type: 2}
     weight: 1

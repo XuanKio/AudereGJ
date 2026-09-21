@@ -247,6 +247,8 @@ namespace Audere.Combat.Editor
         {
             string path = $"{DialogueFolder}/Dialogue_D1_COMBAT_TUTORIAL_{suffix}.asset";
             DialogueData data = AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+            // Scene setup seeds missing dialogue; authored wording and expressions own existing assets.
+            if (data != null) return data;
             if (data == null)
             {
                 data = ScriptableObject.CreateInstance<DialogueData>();

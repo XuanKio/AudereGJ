@@ -9,8 +9,10 @@ namespace Audere.Combat
     public sealed class CompositeCombatMove : CombatMoveDefinition
     {
         [SerializeField] private CombatMoveDefinition[] children;
+        [SerializeField] private float[] childStartDelays;
 
         public CombatMoveDefinition[] Children => children;
+        public float[] ChildStartDelays => childStartDelays;
 
         public override bool Validate(out string error)
         {
@@ -40,6 +42,19 @@ namespace Audere.Combat
                     return false;
                 }
             }
+            if (childStartDelays != null && childStartDelays.Length > 0 &&
+                childStartDelays.Length != children.Length)
+            {
+                error = $"Composite move '{name}' needs one start delay per child.";
+                return false;
+            }
+            if (childStartDelays != null)
+                for (int i = 0; i < childStartDelays.Length; i++)
+                    if (childStartDelays[i] < 0f || childStartDelays[i] >= Duration)
+                    {
+                        error = $"Composite move '{name}' child {i} has an invalid start delay.";
+                        return false;
+                    }
             error = null;
             return true;
         }
@@ -54,6 +69,7 @@ namespace Audere.Combat
         private sealed class Execution : ICombatMoveExecution
         {
             private readonly CompositeCombatMove data;
+            private readonly CombatMoveExecutionContext context;
             private readonly ICombatMoveExecution[] children;
             private float elapsed;
             private bool cancelled;
@@ -62,9 +78,8 @@ namespace Audere.Combat
             public Execution(CompositeCombatMove data, CombatMoveExecutionContext context)
             {
                 this.data = data;
+                this.context = context;
                 children = new ICombatMoveExecution[data.Children.Length];
-                for (int i = 0; i < children.Length; i++)
-                    children[i] = data.Children[i].CreateExecution(context);
             }
 
             public bool IsComplete => cancelled || elapsed >= data.Duration;
@@ -73,12 +88,18 @@ namespace Audere.Combat
             {
                 if (cancelled)
                     return;
+                float previous = elapsed;
                 elapsed = Mathf.Min(data.Duration, elapsed + Mathf.Max(0f, activeDeltaTime));
                 for (int i = 0; i < children.Length; i++)
                 {
+                    float delay = data.ChildStartDelays != null && i < data.ChildStartDelays.Length
+                        ? data.ChildStartDelays[i] : 0f;
+                    float childDelta = Mathf.Max(0f, elapsed - Mathf.Max(previous, delay));
+                    if (childDelta <= 0f) continue;
+                    if (children[i] == null) children[i] = data.Children[i].CreateExecution(context);
                     ICombatMoveExecution child = children[i];
                     if (child != null && !child.IsComplete)
-                        child.Tick(activeDeltaTime);
+                        child.Tick(childDelta);
                 }
                 if (elapsed >= data.Duration)
                     CancelChildren();

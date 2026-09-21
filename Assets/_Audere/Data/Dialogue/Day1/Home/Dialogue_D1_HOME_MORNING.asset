@@ -19,27 +19,42 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
   lines:
   - speaker: 1
-    text: "Audere\u2026 d\u1EADy th\xF4i. Mu\u1ED9n th\u1EADt r\u1ED3i \u0111\u1EA5y."
+    text: "Audere\u2026 d\u1EADy th\xF4i. Mu\u1ED9n r\u1ED3i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
-    text: "\u1EEAm\u2026 cho t\u1EDB m\u1ED9t ph\xFAt."
+    text: "\u1EEAm\u2026 m\u1ED9t ph\xFAt n\u1EEFa."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "M\u1ED9t ph\xFAt c\u1EE7a c\u1EADu th\u01B0\u1EDDng d\xE0i l\u1EAFm."
+    characterOverride: 0
     portraitOverride: {fileID: 188140060781976214, guid: 8b9bf032ca2b2d745b01ed08e5c65d23, type: 3}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "\u2026M\u1EA5y gi\u1EDD r\u1ED3i?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "V\u1EABn k\u1ECBp, n\u1EBFu m\xECnh b\u1EAFt \u0111\u1EA7u ngay b\xE2y
-      gi\u1EDD. Ch\u01B0a c\u1EA7n ngh\u0129 t\u1EDBi c\u1EA3 bu\u1ED5i s\xE1ng \u0111\xE2u."
+    text: "V\u1EABn k\u1ECBp. C\u1EE9 t\u1EEBng vi\u1EC7c m\u1ED9t th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: 4595680028844339828, guid: e0fa04c6868ef2a408bad3c9b70fb4dc, type: 3}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "\u0110\xE1nh r\u0103ng tr\u01B0\u1EDBc nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "\u1EEA\u2026 t\u1EDB d\u1EADy \u0111\xE2y."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "T\u1EDB \u0111i c\xF9ng c\u1EADu."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

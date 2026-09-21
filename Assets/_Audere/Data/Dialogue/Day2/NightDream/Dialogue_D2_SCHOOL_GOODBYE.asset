@@ -19,10 +19,12 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "V\u1EC1 th\xF4i. H\u1EB9n c\u1EADu ng\xE0y mai."
+    text: "V\u1EC1 th\xF4i. Mai g\u1EB7p nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "\u1EEA. Mai g\u1EB7p."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

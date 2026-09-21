@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a675c64455f07a4a927d8787082a06d, type: 3}
+  m_Name: Move_TimorCrossRhythm
+  m_EditorClassIdentifier: 
+  duration: 8.4
+  leadInDuration: 0.35
+  projectile: {fileID: 5703081939593138300, guid: 87d6ab8095da49b4db6b85a1d9722164, type: 3}
+  waveInterval: 0.5
+  warningDuration: 0.38
+  speed: 215
+  gapWidth: 144
+  wavesPerPhrase: 4
+  phraseRest: 0.55
+  minimumWidth: 0.7
+  sway: 0.78
+  horizontalVolley: 1
+  supported: 0
+  encouragement:
+  - "C\xF4 gi\xE1o: C\xF4 kh\xF4ng tr\xE1ch em."
+  - "Bianca: V\u1ECBn v\xE0o t\u1EDB nh\xE9?"
+  - "C\xE1c b\u1EA1n: T\u1EE5i m\xECnh c\xF9ng l\xE0m nh\xE9."

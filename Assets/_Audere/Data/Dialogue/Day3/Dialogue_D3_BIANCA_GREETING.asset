@@ -19,10 +19,12 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "Ch\xE0o Audere. H\xF4m nay c\u1EADu \u1ED5n kh\xF4ng?"
+    text: "Ch\xE0o Audere. C\u1EADu \u1ED5n ch\u1EE9?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "Ch\xE0o c\u1EADu."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

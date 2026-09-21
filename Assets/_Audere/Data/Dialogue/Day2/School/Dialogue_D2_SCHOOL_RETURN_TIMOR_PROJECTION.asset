@@ -19,10 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: -4747829306167941163, guid: cdecd5c621db74b43927eb49d1f04191, type: 3}
   lines:
   - speaker: 1
-    text: "Ngh\u0129 xem\u2026"
-    portraitOverride: {fileID: 0}
-    glitchPortraitTransition: 0
-  - speaker: 1
-    text: "Gi\u1EDD c\u1EADu \u1EA5y \u0111ang ngh\u0129 g\xEC v\u1EC1 c\u1EADu nh\u1EC9?"
+    text: "C\u1EADu \u1EA5y \u0111ang ngh\u0129 g\xEC v\u1EC1 c\u1EADu nh\u1EC9?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

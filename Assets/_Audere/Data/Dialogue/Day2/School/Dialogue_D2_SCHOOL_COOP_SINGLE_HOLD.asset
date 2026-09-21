@@ -19,13 +19,12 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "T\u1EDB gi\u1EEF \xF4 \u0111\u1ECF \u0111\u1EA7u. C\u1EADu qua tr\u01B0\u1EDBc
-      nh\xE9."
+    text: "T\u1EDB gi\u1EEF \xF4 \u0111\u1ECF \u0111\u1EA7u, c\u1EADu qua nh\xE9."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "\u1EEA... r\u1ED3i t\u1EDB gi\u1EEF \xF4 b\xEAn kia."
+    text: "\u1EEA\u2026 r\u1ED3i t\u1EDB gi\u1EEF \xF4 b\xEAn kia."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

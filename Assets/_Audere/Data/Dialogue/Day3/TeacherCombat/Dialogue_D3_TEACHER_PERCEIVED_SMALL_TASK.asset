@@ -19,17 +19,17 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "C\xF4 ph\u1EA3i b\u1ECF vi\u1EC7c \u0111\u1EC3 tr\xF4ng em."
+    text: "C\xF4 ph\u1EA3i b\u1ECF vi\u1EC7c tr\xF4ng em."
     characterOverride: 7
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 1
   - speaker: 1
-    text: "Em l\xE0m m\u1ECDi ng\u01B0\u1EDDi cu\u1ED1ng c\u1EA3 l\xEAn."
+    text: "Em l\xE0m c\u1EA3 l\u1EDBp cu\u1ED1ng l\xEAn."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "Audere, em nghe c\xF4 n\xF3i kh\xF4ng?"
+    text: "Audere, em nghe c\xF4 kh\xF4ng?"
     characterOverride: 3
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 1

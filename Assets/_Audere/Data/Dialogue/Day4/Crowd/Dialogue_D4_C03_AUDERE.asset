@@ -19,7 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 1802169272185732355, guid: 056875fa18e556d4cb0aba789bc44c9f, type: 3}
   lines:
   - speaker: 0
-    text: "T\u1EDB ch\u1EC9\u2026 mu\u1ED1n mang cho xong th\xF4i."
+    text: "T\u1EDB ch\u1EC9\u2026 mu\u1ED1n mang cho xong."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
@@ -29,7 +29,7 @@ MonoBehaviour:
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u0110\u1EC3 t\u1EDB \u0111\u01B0a c\u1EADu ra kh\u1ECFi \u0111\xE2y."
+    text: "\u0110\u1EC3 t\u1EDB \u0111\u01B0a c\u1EADu \u0111i."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

@@ -12,6 +12,15 @@ namespace Audere.Combat
         [SerializeField] private Vector2 normalizedDirection;
         [SerializeField, Min(.1f)] private float speedMultiplier;
 
+        public CombatScriptedDieSpawn(CombatSymbol symbol, Vector2 normalizedPosition,
+            Vector2 normalizedDirection, float speedMultiplier = 1f)
+        {
+            this.symbol = symbol;
+            this.normalizedPosition = normalizedPosition;
+            this.normalizedDirection = normalizedDirection;
+            this.speedMultiplier = speedMultiplier;
+        }
+
         public CombatSymbol Symbol => symbol;
         public Vector2 NormalizedPosition => normalizedPosition;
         public Vector2 NormalizedDirection => normalizedDirection.sqrMagnitude > .001f

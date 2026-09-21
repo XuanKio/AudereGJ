@@ -13,6 +13,13 @@ namespace Audere.Combat
 
         public void EmitRibbonEcho(RectTransform source, float hue)
         {
+            Color tint = Color.HSVToRGB(Mathf.Repeat(hue, 1f), .65f, 1f);
+            tint.a = .32f;
+            EmitRibbonEcho(source, tint);
+        }
+
+        public void EmitRibbonEcho(RectTransform source, Color tint)
+        {
             if (source == null || exteriorProjectileRoot == null) return;
             var sourceImage = source.GetComponentInChildren<Image>();
             if (sourceImage == null) return;
@@ -29,7 +36,7 @@ namespace Audere.Combat
                 ribbonEchoes.Add(echo);
             }
             echo.Active = true; echo.Age = 0f;
-            echo.Color = Color.HSVToRGB(Mathf.Repeat(hue, 1f), .65f, 1f); echo.Color.a = .32f;
+            echo.Color = tint;
             echo.Image.sprite = sourceImage.sprite; echo.Image.preserveAspect = true;
             var rect = echo.Image.rectTransform;
             rect.sizeDelta = sourceImage.rectTransform.rect.size;
@@ -57,6 +64,8 @@ namespace Audere.Combat
         {
             foreach (var echo in ribbonEchoes) { echo.Active = false; if (echo.Image != null) echo.Image.gameObject.SetActive(false); }
         }
+
+        public void ClearMotionEchoes() => ClearRibbonEchoes();
     }
 
     internal sealed class RibbonProjectileMotion : ICombatProjectileMotion

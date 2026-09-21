@@ -19,30 +19,37 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: -4747829306167941163, guid: cdecd5c621db74b43927eb49d1f04191, type: 3}
   lines:
   - speaker: 0
-    text: "Timor, \u0111\u1EEBng n\xF3i thay c\xF4 n\u1EEFa."
+    text: "Timor, \u0111\u1EEBng n\xF3i thay c\xF4."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "T\u1EDB ch\u1EC9 kh\xF4ng mu\u1ED1n c\u1EADu b\u1ECB t\u1ED5n th\u01B0\u01A1ng."
+    text: "T\u1EDB s\u1EE3 c\u1EADu b\u1ECB t\u1ED5n th\u01B0\u01A1ng."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "T\u1EDB bi\u1EBFt\u2026 T\u1EDB v\u1EABn s\u1EE3."
+    text: "T\u1EDB bi\u1EBFt\u2026 t\u1EDB v\u1EABn s\u1EE3."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "Nh\u01B0ng t\u1EDB \u0111ang m\u1EC7t th\u1EADt."
+    text: "Nh\u01B0ng t\u1EDB m\u1EC7t th\u1EADt."
+    characterOverride: 0
     portraitOverride: {fileID: 4102350588037513078, guid: f24416efd39bdb9469a2068f6e9639c4, type: 3}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "T\u1EDB mu\u1ED1n nghe c\xF4 n\xF3i."
+    text: "T\u1EDB mu\u1ED1n nghe c\xF4."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: "Audere\u2014"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "\u0110\u1EC3 t\u1EDB t\u1EF1 tr\u1EA3 l\u1EDDi."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

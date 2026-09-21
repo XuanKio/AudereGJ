@@ -127,6 +127,7 @@ namespace Audere.Story.Editor
             if (!AssetDatabase.IsValidFolder(DialogueFolder)) AssetDatabase.CreateFolder("Assets/_Audere/Data/Dialogue/Day3", "TeacherAfterCombat");
             string id = "D3_TEACHER_AFTER_" + suffix, path = DialogueFolder + "/Dialogue_" + id + ".asset";
             var data = AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+            if (data != null) return data;
             if (data == null) { data = ScriptableObject.CreateInstance<DialogueData>(); AssetDatabase.CreateAsset(data, path); }
             Set(data, "dialogueId", id, "leftCharacter", (int)DialogueCharacterId.Audere, "rightCharacter", (int)DialogueCharacterId.Teacher,
                 "leftPortraitOverride", Portrait("Assets/_Audere/AssetGame/Audere/Audere_Tired.png", "Audere_Tired_0"),

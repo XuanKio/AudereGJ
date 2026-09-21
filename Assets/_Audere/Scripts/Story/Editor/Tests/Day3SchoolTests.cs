@@ -25,7 +25,7 @@ namespace Audere.Story.Editor.Tests
     {
         private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
         [Test]
-        public void Authoring_DirectBindingsDialogueAndFifteenSharedHealth()
+        public void Authoring_DirectBindingsDialogueAndThreeEqualTeacherBands()
         {
             foreach (string path in new[] { Day3SchoolSetupTool.HomePath, Day3SchoolSetupTool.BoardPath, Day3SchoolSetupTool.TeacherPath })
             {
@@ -43,13 +43,13 @@ namespace Audere.Story.Editor.Tests
                 Assert.AreEqual(1, All<Camera>(scene).Length);
             }
             var data = AssetDatabase.LoadAssetAtPath<CombatEncounterData>(Day3SchoolSetupTool.EncounterPath);
-            Assert.AreEqual(90f, data.EncounterDuration);
+            Assert.AreEqual(120f, data.EncounterDuration);
             Assert.AreEqual(3, data.DicePerBatch); Assert.AreEqual(2, data.MaximumAttacksPerBatch);
             Assert.IsFalse(data.HasTutorial);
             Assert.IsTrue(data.EnemyDefinition.Validate(out var error), error);
             Assert.AreEqual(CombatPhasePolicy.SharedHealthThresholds, data.EnemyDefinition.PhasePolicy);
-            Assert.AreEqual(15, data.EnemyDefinition.SharedMaxHealth);
-            CollectionAssert.AreEqual(new[] { 7, 4, 0 }, Enumerable.Range(0,3).Select(i => data.EnemyDefinition.GetPhase(i).SharedExitThreshold));
+            Assert.AreEqual(21, data.EnemyDefinition.SharedMaxHealth);
+            CollectionAssert.AreEqual(new[] { 14, 7, 0 }, Enumerable.Range(0,3).Select(i => data.EnemyDefinition.GetPhase(i).SharedExitThreshold));
             Assert.IsEmpty(ShaderUtil.GetShaderMessages(Shader.Find("Audere/UI/Chalk")));
             var prefab = AssetDatabase.LoadAssetAtPath<ChalkDrawingView>(Day3SchoolSetupTool.DrawingPath);
             Assert.IsNotNull(prefab.Surface.GetComponent<CanvasRenderer>());
@@ -86,8 +86,8 @@ namespace Audere.Story.Editor.Tests
             var encounter = AssetDatabase.LoadAssetAtPath<CombatEncounterData>(Day3SchoolSetupTool.EncounterPath);
             var enemy = encounter.EnemyDefinition;
             Assert.IsTrue(enemy.Validate(out string error), error);
-            Assert.AreEqual(90f, encounter.EncounterDuration);
-            Assert.AreEqual(15, enemy.SharedMaxHealth);
+            Assert.AreEqual(120f, encounter.EncounterDuration);
+            Assert.AreEqual(21, enemy.SharedMaxHealth);
             for (int i = 0; i < 3; i++)
             {
                 var cues = enemy.GetPhase(i).DialogueCues;
@@ -97,7 +97,7 @@ namespace Audere.Story.Editor.Tests
                 Assert.AreEqual(CombatDialoguePresentation.AutoCombatDialogue, cue.Presentation);
                 Assert.IsFalse(cue.InterruptsAutoDialogue);
                 Assert.IsFalse(cue.RepeatOnTrigger);
-                Assert.IsFalse(cue.PausesCombatForPresentation);
+                Assert.IsTrue(cue.PausesCombatForPresentation);
                 Assert.AreEqual(i < 2, cue.RequiredBeforePhaseAdvance);
                 Assert.AreEqual(i == 2, cue.RequiredBeforeVictory);
                 Assert.AreEqual(3, cue.Sequence.Count);
@@ -230,7 +230,7 @@ namespace Audere.Story.Editor.Tests
             yield return Until(()=>e.CurrentStep is CombatStep,true,30);
             var combat=((CombatStep)e.CurrentStep).CombatController;
             yield return Until(()=>combat.CurrentState==CombatController.State.Playing,false);
-            Assert.AreEqual(15,combat.EnemyHealth);Assert.Greater(combat.PlayerTime,85);
+            Assert.AreEqual(21,combat.EnemyHealth);Assert.Greater(combat.PlayerTime,115);
             var board=combat.BoardView;
             yield return new WaitForSecondsRealtime(1.2f);
             Assert.IsTrue(board.GetComponentsInChildren<CombatBulletView>().Any(b=>b.CollisionActive));
@@ -291,7 +291,7 @@ namespace Audere.Story.Editor.Tests
             var button=GameplayUIRoot.Instance.CombatRetry.GetComponentInChildren<UnityEngine.UI.Button>(true);
             button.onClick.Invoke();button.onClick.Invoke();
             yield return Until(()=>c.CurrentState==CombatController.State.Playing,false);
-            Assert.AreNotSame(old,c.EnemyRuntime);Assert.AreEqual(0,c.EnemyRuntime.PhaseIndex);Assert.AreEqual(15,c.EnemyHealth);
+            Assert.AreNotSame(old,c.EnemyRuntime);Assert.AreEqual(0,c.EnemyRuntime.PhaseIndex);Assert.AreEqual(21,c.EnemyHealth);
             var impulse=AssetDatabase.LoadAssetAtPath<VerticalPlayerImpulseMove>("Assets/_Audere/Data/Combat/Teacher/Moves/Move_VerticalImpulse.asset");
             var move=impulse.CreateExecution(new CombatMoveExecutionContext(board,null,new SystemCombatRandom(3),c.EnemyRuntime.SessionVersion,c.EnemyRuntime.PhaseVersion));
             move.Tick(.4f);Assert.IsFalse(board.HasVerticalPlayerControl);move.Tick(.6f);Assert.IsTrue(board.HasVerticalPlayerControl);

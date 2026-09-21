@@ -19,22 +19,27 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 7503800403365798388, guid: 03f69c0d5de4d5b4982fff343666a5cb, type: 3}
   lines:
   - speaker: 1
-    text: "\u0110\u1EC3 ch\u1ED7 gi\u1EA5y c\xF2n l\u1EA1i tr\xEAn b\xE0n nh\xE9."
+    text: "\u0110\u1EC3 gi\u1EA5y c\xF2n l\u1EA1i tr\xEAn b\xE0n nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
     text: "Ch\u1ED7 n\xE0y \xE0?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u1EEA. Mai b\u1ECDn m\xECnh l\xE0m ti\u1EBFp."
+    text: "\u1EEA. Mai l\xE0m ti\u1EBFp."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "\u2026T\u1EDB c\xF3 th\u1EC3 c\u1EAFt n\u1ED1t m\u1EA5y h\xECnh n\xE0y."
+    text: "\u2026T\u1EDB c\u1EAFt n\u1ED1t m\u1EA5y h\xECnh n\xE0y nh\xE9?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: "\u0110\u01B0\u1EE3c. T\u1EDB d\xE1n b\xEAn kia."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

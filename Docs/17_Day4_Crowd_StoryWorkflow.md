@@ -6,6 +6,10 @@
 
 **Unresolved:** phản ứng tiếp theo của cả lớp. Kết thúc Scene150 dưới đây là **Design Intent của Xuân**; không kết luận Audere đã hết lo âu.
 
+## Combat polish — 2026-09-20
+
+Scene140 dùng field/overlay720×360, frame760×440. Cú đâm phản đòn có fan3 viên mỗi bên; hàng tay sau đâm dày hơn nhưng giữ khe164/138. Thông số, cleanup và bằng chứng mới ở [Crowd combat](Combat/crowd-reactions-and-vfx.md#handcrowd-vùng-chơi-và-nhịp-đòn--2026-09-20).
+
 ## Flow và staging
 
 `140_D4_Classroom/D4_CLASSROOM_CROWD`: fade-in → độc thoại đã mang được đồ → Audere nằm ngang trên tile → đau/lo đồ rơi/định nhặt lại → khoảng lặng → ngờ ngợ có tiếng cười → shared Dreamy Disorientation → Crowd combat → neutral cover → về lớp với Bianca bên phải → hỏi chỗ đau/xin phép vịn → Bianca nghiêng hỗ trợ, Audere đứng lên → cả hai hop cùng một lần → đối thoại ngắn → “Mọi người… giúp tớ được không?” → fade1.15s → `150_D4_Home_Evening`.

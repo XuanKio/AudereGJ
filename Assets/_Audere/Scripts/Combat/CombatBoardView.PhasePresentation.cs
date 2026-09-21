@@ -14,7 +14,7 @@ namespace Audere.Combat
         private Vector2 originalLabelPosition;
         private Vector2 originalFieldSize, originalFieldPosition, originalAirSize, originalAirPosition;
         private Vector2 originalFrameSize, originalFramePosition, originalEnemyPosition, originalNumberPosition;
-        private float recoveryElapsed = .4f, recoveryWidth = 1f, recoveryX;
+        private float recoveryElapsed = .4f, recoveryWidth = 1f, recoveryHeight = 1f, recoveryX;
         private Vector2 recoveryCursorPosition;
         private const float MoveRecoveryDuration = .4f;
         private readonly List<ExitImage> exitImages = new List<ExitImage>();
@@ -27,6 +27,8 @@ namespace Audere.Combat
         {
             FinishMoveRecovery();
             recoveryWidth = battleBoxWidthFraction;
+            recoveryHeight = playArea != null && battleBoxAuthoredSize.y > 0f
+                ? Mathf.Clamp01(playArea.rect.height / battleBoxAuthoredSize.y) : 1f;
             recoveryX = battleBoxNormalizedX;
             recoveryCursorPosition = catchCursor != null ? catchCursor.anchoredPosition : Vector2.zero;
             foreach (var bullet in activeBullets)
@@ -85,7 +87,9 @@ namespace Audere.Combat
 
         public void RestoreMoveExitPose()
         {
-            SetBattleBoxHorizontalLayout(recoveryWidth, recoveryX);
+            if (recoveryHeight < .999f)
+                SetBattleBoxSizeLayout(recoveryWidth, recoveryHeight, recoveryX);
+            else SetBattleBoxHorizontalLayout(recoveryWidth, recoveryX);
             if (catchCursor != null) catchCursor.anchoredPosition = recoveryCursorPosition;
         }
 
@@ -97,7 +101,10 @@ namespace Audere.Combat
             foreach (var entry in exitImages)
                 if (entry.Active && entry.Image != null)
                     entry.Image.color = new Color(entry.Color.r, entry.Color.g, entry.Color.b, entry.Color.a * (1f - t));
-            SetBattleBoxHorizontalLayout(Mathf.Lerp(recoveryWidth, 1f, t), Mathf.Lerp(recoveryX, 0f, t));
+            if (recoveryHeight < .999f)
+                SetBattleBoxSizeLayout(Mathf.Lerp(recoveryWidth, 1f, t),
+                    Mathf.Lerp(recoveryHeight, 1f, t), Mathf.Lerp(recoveryX, 0f, t));
+            else SetBattleBoxHorizontalLayout(Mathf.Lerp(recoveryWidth, 1f, t), Mathf.Lerp(recoveryX, 0f, t));
             if (!IsRecoveringMove) FinishMoveRecovery();
         }
 

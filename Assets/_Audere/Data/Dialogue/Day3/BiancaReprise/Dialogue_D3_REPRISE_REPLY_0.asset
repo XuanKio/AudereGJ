@@ -21,9 +21,11 @@ MonoBehaviour:
   - speaker: 0
     text: "C\u1EADu\u2026 ng\u1ED3i \u0111\xE2y m\u1ED9t l\xFAc \u0111\u01B0\u1EE3c
       kh\xF4ng?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
     text: "\u1EEA. T\u1EDB \u1EDF \u0111\xE2y."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

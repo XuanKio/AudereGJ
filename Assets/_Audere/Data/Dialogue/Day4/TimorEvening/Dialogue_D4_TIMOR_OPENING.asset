@@ -19,22 +19,22 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 0
-    text: "H\xF4m nay kh\xF4ng c\xF3 Timor nh\u1EAFc\u2026"
+    text: "Kh\xF4ng c\xF3 Timor nh\u1EAFc\u2026"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "May l\xE0 m\u1ECDi chuy\u1EC7n r\u1ED3i c\u0169ng \u1ED5n."
+    text: "T\u1EDB v\u1EABn t\u1EDBi l\u1EDBp \u0111\u01B0\u1EE3c."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "L\xFAc t\u1EDB ng\xE3, m\u1ECDi ng\u01B0\u1EDDi \u0111\xE3 gi\xFAp."
+    text: "Bianca gi\xFAp t\u1EDB \u0111\u1EE9ng d\u1EADy."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "T\u1EDB kh\xF4ng ph\u1EA3i l\xE0m h\u1EBFt m\u1ED9t m\xECnh."
+    text: "T\u1EDB c\xF2n nh\u1EDD m\u1ECDi ng\u01B0\u1EDDi gi\xFAp n\u1EEFa."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

@@ -39,27 +39,17 @@ MonoBehaviour:
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u1EEA."
+    text: "\u1EEA, m\xECnh \u0111em tr\u1EA3 th\xF4i."
     characterOverride: 0
     portraitOverride: {fileID: 7503800403365798388, guid: 03f69c0d5de4d5b4982fff343666a5cb, type: 3}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u0110\u1EC3 l\u1EA1i l\xE0 \u0111\u01B0\u1EE3c m\xE0."
+    text: "S\xE1ng nay t\u1EDB c\u0169ng l\u1EA5y nh\u1EA7m danh s\xE1ch."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "S\xE1ng nay t\u1EDB c\u0169ng c\u1EA7m nh\u1EA7m danh s\xE1ch."
-    characterOverride: 0
-    portraitOverride: {fileID: 0}
-    glitchPortraitTransition: 0
-  - speaker: 1
-    text: "T\u1EDB l\u1EA5y lu\xF4n c\u1EE7a nh\xF3m \u0111\u1ED3 \u0103n."
-    characterOverride: 0
-    portraitOverride: {fileID: 0}
-    glitchPortraitTransition: 0
-  - speaker: 1
-    text: "\u0110i n\u1EEDa c\u1EA7u thang m\u1EDBi nh\u1EADn ra."
+    text: "C\u1EE7a nh\xF3m \u0111\u1ED3 \u0103n \u1EA5y."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

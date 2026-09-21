@@ -20,10 +20,11 @@ MonoBehaviour:
   lines:
   - speaker: 1
     text: "V\u1EABn ch\u1ED7 c\u0169."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
-  - speaker: 1
-    text: "\u1ED4n r\u1ED3i."
-    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "\u1EEA."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

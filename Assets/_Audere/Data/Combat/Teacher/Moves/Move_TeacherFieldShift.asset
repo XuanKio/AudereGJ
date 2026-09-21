@@ -19,8 +19,8 @@ MonoBehaviour:
     normalizedX: -0.6
   - widthFraction: 0.82
     normalizedX: 0.6
-  telegraphDuration: 0.65
-  squeezeDuration: 0.65
-  holdDuration: 0.7
-  returnDuration: 0.6
+  telegraphDuration: 0.85
+  squeezeDuration: 0.8
+  holdDuration: 0.9
+  returnDuration: 0.7
   telegraphWidthPulse: 0.035

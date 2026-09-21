@@ -33,6 +33,7 @@ namespace Audere.Story.Steps
         private int attemptVersion;
         private bool ownsCombatSession;
         private bool isWaitingForRetry;
+        private int retryCheckpointPhaseIndex;
 
         public CombatController CombatController => combatController;
         public CombatEncounterData CombatEncounterData => combatEncounterData;
@@ -44,6 +45,7 @@ namespace Audere.Story.Steps
         protected override IEnumerator Execute()
         {
             int execution = ++executionVersion;
+            retryCheckpointPhaseIndex = 0;
 
             if (combatController == null)
             {
@@ -156,7 +158,8 @@ namespace Audere.Story.Steps
 
             bool started = controller.Play(
                 combatEncounterData,
-                result => HandleCombatEnded(execution, attempt, controller, result));
+                result => HandleCombatEnded(execution, attempt, controller, result),
+                retryCheckpointPhaseIndex);
 
             if (started)
                 return;
@@ -198,6 +201,9 @@ namespace Audere.Story.Steps
                     break;
 
                 case CombatResult.Defeat:
+                    if (combatEncounterData.PhaseRecovery.Enabled)
+                        retryCheckpointPhaseIndex = Mathf.Max(retryCheckpointPhaseIndex,
+                            controller.RetryCheckpointPhaseIndex);
                     ApplyBehaviour(execution, controller, defeatBehaviour);
                     break;
 
@@ -305,6 +311,7 @@ namespace Audere.Story.Steps
             isWaitingForRetry = false;
             activeController = null;
             activeRetryView = null;
+            retryCheckpointPhaseIndex = 0;
         }
     }
 }

@@ -440,6 +440,7 @@ MonoBehaviour:
   targetAlpha: 0
   duration: 0.7
   useUnscaledTime: 1
+  suppressMusicWhileOpaque: 1
 --- !u!1 &70413270
 GameObject:
   m_ObjectHideFlags: 0
@@ -606,6 +607,7 @@ MonoBehaviour:
   targetAlpha: 1
   duration: 0.45
   useUnscaledTime: 1
+  suppressMusicWhileOpaque: 1
 --- !u!1 &113488774
 GameObject:
   m_ObjectHideFlags: 0
@@ -787,6 +789,7 @@ MonoBehaviour:
   targetAlpha: 0
   duration: 0.6
   useUnscaledTime: 1
+  suppressMusicWhileOpaque: 1
 --- !u!1 &166487000
 GameObject:
   m_ObjectHideFlags: 0
@@ -835,6 +838,7 @@ MonoBehaviour:
   targetAlpha: 1
   duration: 0.7
   useUnscaledTime: 1
+  suppressMusicWhileOpaque: 1
 --- !u!1 &190109997
 GameObject:
   m_ObjectHideFlags: 0
@@ -1090,6 +1094,7 @@ MonoBehaviour:
   targetAlpha: 0
   duration: 0.55
   useUnscaledTime: 1
+  suppressMusicWhileOpaque: 1
 --- !u!1 &215364025
 GameObject:
   m_ObjectHideFlags: 0
@@ -2637,6 +2642,7 @@ MonoBehaviour:
   targetAlpha: 1
   duration: 1.1
   useUnscaledTime: 1
+  suppressMusicWhileOpaque: 1
 --- !u!1 &593764748
 GameObject:
   m_ObjectHideFlags: 0
@@ -3426,6 +3432,7 @@ MonoBehaviour:
   targetAlpha: 0
   duration: 0
   useUnscaledTime: 1
+  suppressMusicWhileOpaque: 1
 --- !u!1 &831848282
 GameObject:
   m_ObjectHideFlags: 0
@@ -4695,6 +4702,7 @@ MonoBehaviour:
   targetAlpha: 0
   duration: 0
   useUnscaledTime: 1
+  suppressMusicWhileOpaque: 1
 --- !u!1 &1122508498
 GameObject:
   m_ObjectHideFlags: 0
@@ -6561,6 +6569,7 @@ MonoBehaviour:
   targetAlpha: 1
   duration: 0
   useUnscaledTime: 1
+  suppressMusicWhileOpaque: 1
 --- !u!1 &1584962276 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1000, guid: a4f8e33c5e534dc790465ed3d12f2f17, type: 3}
@@ -7043,6 +7052,7 @@ MonoBehaviour:
   targetAlpha: 0
   duration: 0
   useUnscaledTime: 1
+  suppressMusicWhileOpaque: 1
 --- !u!1 &1759085954
 GameObject:
   m_ObjectHideFlags: 0

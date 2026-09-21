@@ -31,8 +31,17 @@ namespace Audere.Combat
                 throw new InvalidOperationException(error);
         }
 
-        public CombatMoveDefinition Next()
+        public CombatMoveDefinition Next(CombatMoveDefinition preferred = null)
         {
+            // A completed move may redirect only within this phase's authored moveset.
+            // Resume the ordered loop after that entry so a retry cannot skip its next lesson.
+            if (preferred != null)
+                for (int i = 0; i < moveSet.Count; i++)
+                    if (moveSet.Entries[i].Move == preferred)
+                    {
+                        orderedIndex = (i + 1) % moveSet.Count;
+                        return preferred;
+                    }
             if (moveSet.SelectionPolicy == CombatMoveSelectionPolicy.OrderedLoop)
             {
                 CombatMoveDefinition move = moveSet.Entries[orderedIndex % moveSet.Count].Move;
@@ -90,6 +99,11 @@ namespace Audere.Combat
         bool IsComplete { get; }
         void Tick(float activeDeltaTime);
         void Cancel();
+    }
+
+    public interface ICombatMoveFollowUp
+    {
+        CombatMoveDefinition NextMove { get; }
     }
 
     internal sealed class LinearProjectilePatternExecution : ICombatMoveExecution
@@ -216,6 +230,15 @@ namespace Audere.Combat
                 Mathf.Clamp(origin.x, minimumX, maximumX),
                 Mathf.Clamp(origin.y, minimumY, maximumY));
         }
+    }
+
+    // Moves that present their own dice suppress normal combat batches.
+    public interface ICombatExclusiveDiceMove { }
+
+    // The controller applies the result through the shared enemy-damage path.
+    public interface ICombatMoveDamageReward
+    {
+        int ConsumePendingDamage();
     }
 
     public static class CombatVolleySpawnLayout

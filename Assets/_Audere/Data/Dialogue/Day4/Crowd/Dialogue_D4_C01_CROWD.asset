@@ -19,12 +19,12 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 3787490157305779964, guid: 4987d6d90de1c1b468f2d948534fa623, type: 3}
   lines:
   - speaker: 1
-    text: "Mang c\xF3 m\u1EA5y th\u1EE9 c\u0169ng l\xE0m r\u01A1i."
+    text: "C\xF3 m\u1EA5y th\u1EE9 c\u0169ng l\xE0m r\u01A1i."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "Ai c\u0169ng \u0111ang nh\xECn k\xECa."
+    text: "Ai c\u0169ng nh\xECn k\xECa."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

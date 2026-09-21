@@ -14,13 +14,21 @@ namespace Audere.Combat
         private readonly float[] ages = new float[Count];
         private readonly bool[] live = new bool[Count];
         private readonly Color[] colors = new Color[Count];
+        private readonly bool monochrome;
         private float cooldown;
         private int next, emitted;
 
-        public CombatMountRainbowEcho(Transform mount, CombatEnemyActor actor, Material material)
+        public CombatMountRainbowEcho(Transform mount, CombatEnemyActor actor, Material material, bool monochrome = false)
+            : this(mount, actor.GetComponentsInChildren<Image>(true), material, monochrome) { }
+
+        public CombatMountRainbowEcho(Image source, Material material, bool monochrome = false)
+            : this(source.rectTransform, new[] { source }, material, monochrome) { }
+
+        private CombatMountRainbowEcho(Transform mount, Image[] sourceImages, Material material, bool monochrome)
         {
-            sources = actor.GetComponentsInChildren<Image>(true);
-            root = new GameObject("Mount Rainbow Echo (runtime)", typeof(RectTransform)).transform;
+            this.monochrome = monochrome;
+            sources = sourceImages;
+            root = new GameObject(monochrome ? "Mount Monochrome Echo (runtime)" : "Mount Rainbow Echo (runtime)", typeof(RectTransform)).transform;
             root.SetParent(mount.parent, false);
             root.SetSiblingIndex(mount.GetSiblingIndex());
             images = new Image[Count, sources.Length];
@@ -52,7 +60,8 @@ namespace Audere.Combat
             if(!emit || cooldown>0f)return;
             cooldown=Interval;
             int slot=next;next=(next+1)%Count;live[slot]=true;ages[slot]=0f;
-            colors[slot]=Color.HSVToRGB(Mathf.Repeat(emitted++*.105f,1f),.88f,1f);
+            colors[slot]=monochrome ? (emitted++ % 2 == 0 ? Color.white : Color.black)
+                : Color.HSVToRGB(Mathf.Repeat(emitted++*.105f,1f),.88f,1f);
             for(int j=0;j<sources.Length;j++)
             {
                 Image source=sources[j], image=images[slot,j];

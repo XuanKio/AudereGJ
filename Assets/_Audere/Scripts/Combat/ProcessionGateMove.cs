@@ -17,16 +17,19 @@ namespace Audere.Combat
         [SerializeField, Min(.7f)] private float volleyInterval = 1.15f;
         [SerializeField, Min(.1f)] private float entryDelay = .25f;
         [SerializeField, Min(0f)] private float visualHalfWidth;
+        [SerializeField, Range(-.5f, .5f)] private float diagonalSlope;
 
         public float GapWidth => gapWidth;
         public bool FromBothSides => fromBothSides;
+        public float DiagonalSlope => diagonalSlope;
         public override bool Validate(out string error)
         {
             if (!base.Validate(out error)) return false;
             if (projectilePrefab == null || gapOffsets == null || gapOffsets.Length == 0 ||
                 Array.Exists(gapOffsets, x => float.IsNaN(x) || Mathf.Abs(x) > .28f) ||
                 gapWidth < 100f || spacing < 40f || speed < 40f || volleyInterval < .7f || entryDelay < .1f ||
-                Duration < (gapOffsets.Length - 1) * volleyInterval + entryDelay + 1f)
+                Duration < (gapOffsets.Length - 1) * volleyInterval + entryDelay + 1f ||
+                (!fromBothSides && Mathf.Abs(diagonalSlope) > .001f))
             { error = "Procession gates require separated ranks, a wide aisle and time for the last rank to pass."; return false; }
             error = null; return true;
         }
@@ -40,6 +43,7 @@ namespace Audere.Combat
             private readonly ProcessionGateMove data;
             private readonly CombatMoveExecutionContext context;
             private readonly List<(CombatBulletView bullet, int lease)> ranks = new List<(CombatBulletView, int)>();
+            private readonly List<(Vector2 point, float until)> warnings = new List<(Vector2, float)>();
             private float elapsed;
             private int volley;
             private bool done;
@@ -54,6 +58,10 @@ namespace Audere.Combat
                 // One rank per tick prevents a stalled frame stacking several volleys.
                 if (volley < data.gapOffsets.Length && elapsed >= volley * data.volleyInterval)
                     SpawnRank(volley++);
+                warnings.RemoveAll(w => elapsed >= w.until);
+                var points = new Vector2[warnings.Count];
+                for (int i = 0; i < points.Length; i++) points[i] = warnings[i].point;
+                context.Board.ShowAttackWarnings(this, points, elapsed);
             }
             private void SpawnRank(int index)
             {
@@ -61,6 +69,17 @@ namespace Audere.Combat
                 float min = data.fromBothSides ? r.yMin : r.xMin;
                 float max = data.fromBothSides ? r.yMax : r.xMax;
                 float center = (min + max) * .5f + data.gapOffsets[index] * (max - min);
+                float halfGap = data.gapWidth * .5f;
+                if (data.fromBothSides)
+                {
+                    warnings.Add((new Vector2(r.center.x, center - halfGap), elapsed + data.entryDelay));
+                    warnings.Add((new Vector2(r.center.x, center + halfGap), elapsed + data.entryDelay));
+                }
+                else
+                {
+                    warnings.Add((new Vector2(center - halfGap, r.center.y), elapsed + data.entryDelay));
+                    warnings.Add((new Vector2(center + halfGap, r.center.y), elapsed + data.entryDelay));
+                }
                 int count = Mathf.FloorToInt((max - min - 36f) / data.spacing) + 1;
                 float first = (min + max) * .5f - (count - 1) * data.spacing * .5f;
                 for (int lane = 0; lane < count; lane++)
@@ -70,8 +89,9 @@ namespace Audere.Combat
                     if (Mathf.Abs(p - center) < data.gapWidth * .5f + half + 8f) continue;
                     if (data.fromBothSides)
                     {
-                        Spawn(new Vector2(r.xMin + 16f, p), Vector2.right);
-                        Spawn(new Vector2(r.xMax - 16f, p), Vector2.left);
+                        float rise = data.diagonalSlope * (r.width * .5f - 16f);
+                        Spawn(new Vector2(r.xMin + 16f, p - rise), new Vector2(1f, data.diagonalSlope).normalized);
+                        Spawn(new Vector2(r.xMax - 16f, p + rise), new Vector2(-1f, -data.diagonalSlope).normalized);
                     }
                     else Spawn(new Vector2(p, r.yMax - 16f), Vector2.down);
                 }
@@ -91,6 +111,8 @@ namespace Audere.Combat
                 done = true;
                 foreach (var rank in ranks) context.Board?.ReturnEnemyBullet(rank.bullet, rank.lease);
                 ranks.Clear();
+                warnings.Clear();
+                context.Board?.HideAttackWarning(this);
             }
         }
     }

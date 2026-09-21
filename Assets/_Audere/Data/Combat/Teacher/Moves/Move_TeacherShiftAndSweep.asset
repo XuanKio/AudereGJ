@@ -12,8 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6d984a5d5787b34cb9bb63257f5f366, type: 3}
   m_Name: Move_TeacherShiftAndSweep
   m_EditorClassIdentifier: 
-  duration: 7
-  leadInDuration: 0
+  duration: 7.4
+  leadInDuration: 1
   children:
   - {fileID: 11400000, guid: babb911df76f87b4980562f4b781fbe0, type: 2}
   - {fileID: 11400000, guid: 1003928f2e33da14aa70ec8585634d29, type: 2}
+  childStartDelays:
+  - 0
+  - 0.7

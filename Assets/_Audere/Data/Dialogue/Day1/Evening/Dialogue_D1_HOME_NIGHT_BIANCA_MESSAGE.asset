@@ -19,8 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 0}
   lines:
   - speaker: 1
-    text: "Ngo\xE0i ph\u1EA7n l\xE0m b\u1EA3ng,"
+    text: "Mai chu\u1EA9n b\u1ECB \u0111\u1ED3 c\xF9ng l\u1EDBp n\u1EEFa kh\xF4ng?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
-  - speaker: 1
-    text: "mai c\u1EADu c\xF3 mu\u1ED1n chu\u1EA9n b\u1ECB \u0111\u1ED3 c\xF9ng l\u1EDBp?"
-    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

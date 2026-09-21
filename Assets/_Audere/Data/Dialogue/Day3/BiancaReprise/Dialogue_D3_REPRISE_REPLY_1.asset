@@ -20,9 +20,11 @@ MonoBehaviour:
   lines:
   - speaker: 0
     text: "T\u1EDB \u1ED5n\u2026 C\u1EA3m \u01A1n c\u1EADu."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "\u1EEA. Kh\xF4ng c\xF3 g\xEC \u0111\xE2u."
+    text: "\u1EEA. Kh\xF4ng c\xF3 g\xEC."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

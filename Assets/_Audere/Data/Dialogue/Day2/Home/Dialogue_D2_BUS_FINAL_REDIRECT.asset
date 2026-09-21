@@ -20,25 +20,36 @@ MonoBehaviour:
   lines:
   - speaker: 0
     text: Timor.
+    characterOverride: 0
     portraitOverride: {fileID: 0}
-  - speaker: 1
-    text: "\u1EEA?"
-    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "T\u1ED1i qua..."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EB7p c\u1EE7a c\u1EADu ch\u01B0a k\xE9o k\xEDn."
+    text: "C\u1EB7p ch\u01B0a k\xE9o k\xEDn k\xECa."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: ...
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "Kh\xF3a l\u1EA1i \u0111i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 0
     text: "...\u1EEA."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "T\u1EDB ch\u1EC9 kh\xF4ng mu\u1ED1n c\u1EADu s\u01A1 su\u1EA5t."
+    text: "T\u1EDB s\u1EE3 c\u1EADu s\u01A1 su\u1EA5t th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

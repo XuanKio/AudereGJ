@@ -45,6 +45,7 @@ namespace Audere.Combat
         private bool playingDamageReaction;
         private bool playingOpeningMove;
         private int queuedDamageReactions;
+        private int recoveryMaxHealth;
 
         public CombatEnemyRuntime(
             CombatEnemyDefinition definition,
@@ -76,7 +77,8 @@ namespace Audere.Combat
                                     definition.PhasePolicy == CombatPhasePolicy.SharedHealthPlayerTime
             ? sharedHealth
             : currentHealth;
-        public int CurrentMaxHealth => definition.PhasePolicy == CombatPhasePolicy.SharedHealthThresholds ||
+        public int CurrentMaxHealth => recoveryMaxHealth > 0 ? recoveryMaxHealth :
+                                       definition.PhasePolicy == CombatPhasePolicy.SharedHealthThresholds ||
                                        definition.PhasePolicy == CombatPhasePolicy.CapturedDiceBatchSequence ||
                                     definition.PhasePolicy == CombatPhasePolicy.SharedHealthPlayerTime
             ? ScaleHealth(definition.SharedMaxHealth)
@@ -86,32 +88,61 @@ namespace Audere.Combat
         public CombatEnemyActor Actor => actor;
         public CombatMoveDefinition CurrentMove { get; private set; }
         public int MoveVersion { get; private set; }
+        public CombatMoveDefinition LastCompletedMove { get; private set; }
+        public int MoveCompletionVersion { get; private set; }
         public bool ShowsHealth => definition.PhasePolicy != CombatPhasePolicy.TimedSequence;
         public bool AcceptsDamage => State == CombatEnemyRuntimeState.Playing && ShowsHealth &&
             !CurrentPhase.AdvanceOnMoveComplete && !healthProgressionPending && !playingOpeningMove;
         public bool UsesCapturedBatchProgression => definition.PhasePolicy == CombatPhasePolicy.CapturedDiceBatchSequence;
         public bool IsBatchProgressionPending => batchProgressionPending;
-        public bool ShouldSpawnDice => CurrentPhase != null && CurrentPhase.SpawnDice && !playingOpeningMove;
+        public bool ShouldSpawnDice => CurrentPhase != null && CurrentPhase.SpawnDice &&
+            !playingOpeningMove && !(CurrentMove is ICombatExclusiveDiceMove);
         public bool IsOpeningMove => playingOpeningMove;
         public CombatDiceBatchDefinition CurrentDiceBatch => UsesCapturedBatchProgression ? CurrentPhase?.DiceBatch : null;
         public bool CanPlayerBeDefeated => CurrentPhase != null && CurrentPhase.AllowsPlayerDefeat && !HasUnresolvedPlayerDefeatGate();
         public float HealthMultiplier => healthMultiplier;
+        public bool IsRecoveringPhaseHealth => State == CombatEnemyRuntimeState.TransitioningPhase && recoveryMaxHealth > 0;
+
+        public bool TryBeginNextPhaseHealthRecovery()
+        {
+            if (State != CombatEnemyRuntimeState.TransitioningPhase ||
+                definition.PhasePolicy != CombatPhasePolicy.PerPhaseHealth || PhaseIndex + 1 >= PhaseCount)
+                return false;
+            if (recoveryMaxHealth > 0) return true;
+            recoveryMaxHealth = ScaleHealth(definition.GetPhase(PhaseIndex + 1).MaxHealth);
+            currentHealth = 0;
+            return true;
+        }
+
+        public int HealNextPhaseHealth(int amount)
+        {
+            if (!IsRecoveringPhaseHealth || amount <= 0) return 0;
+            int applied = Mathf.Min(amount, recoveryMaxHealth - currentHealth);
+            currentHealth += applied;
+            return applied;
+        }
 
         public float ScaleAuthoredHealthThreshold(float authoredThreshold)
         {
             return Mathf.Max(0f, authoredThreshold) * healthMultiplier;
         }
 
-        public void Start()
+        public void Start() => Start(0);
+
+        public void Start(int startPhaseIndex)
         {
             if (State != CombatEnemyRuntimeState.Inactive)
                 throw new InvalidOperationException("Enemy runtime can only be started once.");
-            actor = board.SpawnEnemyActor(definition.ActorPrefab, SessionVersion);
+            if (startPhaseIndex < 0 || startPhaseIndex >= PhaseCount ||
+                (startPhaseIndex > 0 && definition.PhasePolicy != CombatPhasePolicy.PerPhaseHealth))
+                throw new ArgumentOutOfRangeException(nameof(startPhaseIndex), startPhaseIndex,
+                    "Checkpoint start requires a valid phase with per-phase health.");
+            actor = board.SpawnEnemyActor(definition.ActorPrefab, SessionVersion, definition.SuppressHitFlash);
             if (actor == null)
                 throw new InvalidOperationException($"Could not spawn actor for enemy '{definition.EnemyId}'.");
             actor.Initialize(new CombatEnemyMechanicContext(board, SessionVersion));
             sharedHealth = ScaleHealth(definition.SharedMaxHealth);
-            EnterPhase(0);
+            EnterPhase(startPhaseIndex);
         }
 
         // Controller supplies the real TIME meter, including hits/heals. Progress only forwards;
@@ -187,6 +218,11 @@ namespace Audere.Combat
                 activeMove = CurrentMove.CreateExecution(new CombatMoveExecutionContext(
                     board, actor, random, SessionVersion, PhaseVersion));
             activeMove?.Tick(activeDeltaTime);
+            if (activeMove != null && activeMove.IsComplete)
+            {
+                LastCompletedMove = CurrentMove;
+                MoveCompletionVersion++;
+            }
             if (activeMove != null && activeMove.IsComplete && CurrentPhase.AdvanceOnMoveComplete && !playingOpeningMove)
             {
                 BeginProgression(CombatEnemyProgression.PhaseBreak);
@@ -271,10 +307,24 @@ namespace Audere.Combat
         {
             if (State != CombatEnemyRuntimeState.TransitioningPhase)
                 return;
+            if (IsRecoveringPhaseHealth && currentHealth < recoveryMaxHealth)
+                return;
             // The controller normally drains recovery before calling this. Direct runtime
             // callers still enter a settled board, without inheriting the old move's delay.
             board.TickMoveRecovery(.4f);
             EnterPhase(PhaseIndex + 1);
+        }
+
+        // A test shortcut still uses the normal phase-break cleanup and version boundary.
+        public bool TryAdvanceToNextPhaseForTesting()
+        {
+            if (State != CombatEnemyRuntimeState.Playing || PhaseIndex >= PhaseCount - 1)
+                return false;
+            if (definition.PhasePolicy == CombatPhasePolicy.SharedHealthThresholds)
+                sharedHealth = Mathf.Min(sharedHealth, ScaleHealth(CurrentPhase.SharedExitThreshold));
+            else if (definition.PhasePolicy == CombatPhasePolicy.PerPhaseHealth)
+                currentHealth = 0;
+            return BeginProgression(CombatEnemyProgression.PhaseBreak) == CombatEnemyProgression.PhaseBreak;
         }
 
         public void RestartFromBeginning()
@@ -314,6 +364,7 @@ namespace Audere.Combat
                 return;
             CancelActiveMove();
             State = CombatEnemyRuntimeState.Completed;
+            recoveryMaxHealth = 0;
         }
 
         public void Cancel()
@@ -323,6 +374,7 @@ namespace Audere.Combat
             CancelActiveMove();
             actor?.Shutdown();
             State = CombatEnemyRuntimeState.Cancelled;
+            recoveryMaxHealth = 0;
         }
 
         public bool MarkCuePlayed(CombatDialogueCue cue)
@@ -382,6 +434,10 @@ namespace Audere.Combat
             capturedBatchesInPhase = 0;
             batchProgressionPending = false;
             healthProgressionPending = false;
+            // Reactions belong to the phase that received the hit, including queued ones.
+            queuedDamageReactions = 0;
+            playingDamageReaction = false;
+            recoveryMaxHealth = 0;
             CombatPhaseDefinition phase = CurrentPhase;
             if (definition.PhasePolicy == CombatPhasePolicy.PerPhaseHealth)
                 currentHealth = ScaleHealth(phase.MaxHealth);
@@ -432,9 +488,11 @@ namespace Audere.Combat
             playingDamageReaction = false;
 
             playingOpeningMove = false;
+            CombatMoveDefinition followUp = activeMove != null && activeMove.IsComplete &&
+                activeMove is ICombatMoveFollowUp redirect ? redirect.NextMove : null;
             if (CurrentMove != null) RetireActiveMove();
 
-            CombatMoveDefinition move = moveSelector.Next();
+            CombatMoveDefinition move = moveSelector.Next(followUp);
             CurrentMove = move;
             MoveVersion++;
 
@@ -452,6 +510,11 @@ namespace Audere.Combat
                 return true;
             }
             return false;
+        }
+
+        public int ConsumeMoveDamageReward()
+        {
+            return activeMove is ICombatMoveDamageReward reward ? reward.ConsumePendingDamage() : 0;
         }
 
         private void CancelActiveMove()

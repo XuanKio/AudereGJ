@@ -42,7 +42,9 @@ namespace Audere.Combat.Editor.Tests
             }
             board.TickBullets(.55f, 1f); execution.Tick(.55f);
             Assert.AreEqual(0, board.ActiveStunTrailCount);
-            foreach (var b in bullets) Assert.AreEqual(.5f, b.GetComponent<Image>().color.a, .01f);
+            foreach (var b in bullets)
+                Assert.AreEqual(Mathf.SmoothStep(0f, 1f, .55f / Move.TelegraphDuration),
+                    b.GetComponent<Image>().color.a, .01f);
             execution.Tick(0); board.TickBullets(0, 1f);
             CollectionAssert.AreEqual(positions, bullets.Select(b => b.RectTransform.anchoredPosition).ToArray());
             execution.Cancel(); Assert.IsEmpty(ActiveBullets());
@@ -122,13 +124,13 @@ namespace Audere.Combat.Editor.Tests
         }
 
         [Test]
-        public void TeacherData_FifteenHpNinetyTime_RadialAtSeven_AllChalkTrails_NoVerticalImpulse()
+        public void TeacherData_EqualHealthBands_RadialFinale_ReadableChalkTrails_NoVerticalImpulse()
         {
             var encounter = AssetDatabase.LoadAssetAtPath<CombatEncounterData>("Assets/_Audere/Data/Combat/Teacher/CombatEncounter_D3_TEACHER_PRESSURE.asset");
             var enemy = encounter.EnemyDefinition;
-            Assert.AreEqual(15, enemy.SharedMaxHealth); Assert.AreEqual(90, encounter.EncounterDuration);
-            CollectionAssert.AreEqual(new[] { 7, 4, 0 }, Enumerable.Range(0, 3).Select(i => enemy.GetPhase(i).SharedExitThreshold));
-            Assert.AreSame(Move, enemy.GetPhase(1).MoveSet.Entries[0].Move);
+            Assert.AreEqual(21, enemy.SharedMaxHealth); Assert.AreEqual(120, encounter.EncounterDuration);
+            CollectionAssert.AreEqual(new[] { 14, 7, 0 }, Enumerable.Range(0, 3).Select(i => enemy.GetPhase(i).SharedExitThreshold));
+            Assert.AreSame(Move, enemy.GetPhase(2).MoveSet.Entries[0].Move);
             var all = Enumerable.Range(0,3).SelectMany(i => enemy.GetPhase(i).MoveSet.Entries.Select(e => e.Move)).SelectMany(Flatten).ToArray();
             Assert.IsFalse(all.Any(m => m is VerticalPlayerImpulseMove));
             Assert.IsTrue(all.Any(m => m is ShiftingBattleBoxMove));
@@ -136,7 +138,7 @@ namespace Audere.Combat.Editor.Tests
             {
                 var trail = new SerializedObject(move).FindProperty("stunTrail");
                 Assert.IsTrue(trail.FindPropertyRelative("enabled").boolValue);
-                Assert.AreEqual(3.6f, trail.FindPropertyRelative("blockingDuration").floatValue, .001f);
+                Assert.AreEqual(2.8f, trail.FindPropertyRelative("blockingDuration").floatValue, .001f);
                 Assert.IsTrue(move.Validate(out string error), error);
             }
         }

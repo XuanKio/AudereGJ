@@ -12,17 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4d7fcf2f39b990a47a918093465e9be4, type: 3}
   m_Name: Move_MountDive_Counter
   m_EditorClassIdentifier: 
-  duration: 1.9
+  duration: 4.09
   leadInDuration: 0.25
   impactOffsets:
   - 0
   aimAtPlayer: 1
   windup: 0.48
   plunge: 0.34
-  hold: 0.18
-  returnDuration: 0.48
+  hold: 2
+  returnDuration: 0.85
   recovery: 0.42
   separationFraction: 0.11
   bodyWidthFraction: 0.22
   bodyHeight: 148
   rainbowEchoMaterial: {fileID: 2100000, guid: a0a341b19f69d20438c9ebe7c43e121d, type: 2}
+  impactBulletPrefab: {fileID: 6048505104675138802, guid: 3dbf775471ac5a0409fc3a7f933dfb9a, type: 3}
+  impactBulletsPerSide: 5
+  impactBulletSpeed: 160
+  impactBulletWarning: 0.22

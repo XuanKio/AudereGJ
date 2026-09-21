@@ -52,9 +52,12 @@ namespace Audere.Story.Editor.Tests
    var enemy=combat.CombatEncounterData.EnemyDefinition;
    Assert.AreEqual(CombatPhasePolicy.PerPhaseHealth,enemy.PhasePolicy);
    Assert.AreEqual(3,enemy.PhaseCount);
-   Assert.IsTrue(enemy.Phases.All(p=>p.MaxHealth==11&&p.SpawnDice));
-   Assert.AreEqual(243.75f,combat.CombatEncounterData.EncounterDuration);
-   Assert.AreEqual(195f,
+   CollectionAssert.AreEqual(new[]{10,12,6},enemy.Phases.Select(p=>p.MaxHealth).ToArray());
+   Assert.IsTrue(enemy.Phases.All(p=>p.SpawnDice));
+   Assert.IsTrue(combat.CombatEncounterData.PhaseRecovery.Enabled);
+   Assert.AreEqual(6f,combat.CombatEncounterData.PhaseRecovery.TimePerHealDie);
+   Assert.AreEqual(120f,combat.CombatEncounterData.EncounterDuration);
+   Assert.AreEqual(96f,
     GameplayDifficultySettings.ScalePlayerTime(
      combat.CombatEncounterData.EncounterDuration,GameDifficulty.Easy),.001f);
    var biancaBoomerang=AssetDatabase.LoadAssetAtPath<ReturningOrbitMove>(
@@ -69,9 +72,9 @@ namespace Audere.Story.Editor.Tests
    Assert.IsTrue(combat.CombatEncounterData.OutcomeRules.Allows(CombatResult.Defeat));
    Assert.IsTrue(enemy.Phases.Take(2).All(p=>p.DialogueCues.Any(c=>c.RequiredBeforePhaseAdvance)));
    Assert.AreEqual(5,enemy.Phases[2].DialogueCues.Count(c=>c.RequiredBeforeVictory));
-   Assert.AreEqual(6, enemy.Phases[0].MoveSet.Entries.Count);
-   Assert.AreEqual(8, enemy.Phases[1].MoveSet.Entries.Count);
-   Assert.AreEqual(11, enemy.Phases[2].MoveSet.Entries.Count);
+   Assert.AreEqual(4, enemy.Phases[0].MoveSet.Entries.Count);
+   Assert.AreEqual(4, enemy.Phases[1].MoveSet.Entries.Count);
+   Assert.AreEqual(6, enemy.Phases[2].MoveSet.Entries.Count);
 
 
 
@@ -93,16 +96,15 @@ namespace Audere.Story.Editor.Tests
     Assert.IsTrue(phase1Patterns.All(m=>m.SafeGapFraction>=.34f&&m.WavesPerBurst==2&&m.BreatherGridPulses>=1));
     Assert.IsTrue(phase2Patterns.All(m=>m.SafeGapFraction>=.32f&&m.WavesPerBurst==3&&m.BreatherGridPulses>=1));
     Assert.IsTrue(phase3Patterns.All(m=>m.SafeGapFraction>=.30f&&m.WavesPerBurst==3&&m.BreatherGridPulses>=1));
-    Assert.GreaterOrEqual(enemy.Phases[1].MoveSet.Entries.Count(e=>e.Move is CompositeCombatMove),3);
-    Assert.GreaterOrEqual(enemy.Phases[2].MoveSet.Entries.Count(e=>e.Move is CompositeCombatMove),3);
+    Assert.IsTrue(enemy.Phases[1].MoveSet.Entries.Any(e=>e.Move is TargetedDiceBreakMove));
+    Assert.IsTrue(enemy.Phases[2].MoveSet.Entries.Any(e=>e.Move is ScrollingWordCorridorMove));
     Assert.IsFalse(enemy.Phases.SelectMany(p=>p.MoveSet.Entries)
         .Any(e=>e.Move!=null&&e.Move.name=="Move_TimorNightPressure_11"),
         "Scene150 must not reuse Scene40's forced-defeat finale.");
-    Assert.IsTrue(enemy.Phases[1].MoveSet.Entries.Any(e=>e.Move is TimorTailThrowMove));
+    Assert.IsTrue(enemy.Phases[0].MoveSet.Entries.Any(e=>e.Move is TimorTailThrowMove));
    var projections=enemy.Phases[2].MoveSet.Entries.Select(e=>e.Move).OfType<ProjectionAssaultMove>().ToArray();
-   Assert.AreEqual(3,projections.Length);
-   CollectionAssert.AreEquivalent(new[]{"IMG_1040_0","IMG_1043_0","IMG_1054_0"},projections.Select(p=>p.ProjectionSprite.name));
-   Assert.IsTrue(projections.All(p=>p.Copies==2));
+   Assert.AreEqual(0,projections.Length);
+   Assert.IsTrue(enemy.Phases[2].MoveSet.Entries.Any(e=>e.Move is TimorPressureWaveMove));
    var board=All<CombatBoardView>(s).Single();
    var field=board.GetComponentsInChildren<RectTransform>(true).Single(x=>x.name=="Dice Field");
    var mount=board.GetComponentsInChildren<RectTransform>(true).Single(x=>x.name=="Enemy Mount");
@@ -138,7 +140,8 @@ namespace Audere.Story.Editor.Tests
    Assert.AreEqual(RenderMode.ScreenSpaceOverlay,finalCanvasComponent.renderMode);
    var mainCamera=All<Camera>(s).Single(x=>x.CompareTag("MainCamera"));
    Assert.AreEqual(new Rect(0f,0f,1f,1f),mainCamera.rect);
-   Assert.AreEqual(16f/9f,mainCamera.aspect,.001f);
+   Assert.Greater(mainCamera.aspect,1f,
+    "Camera aspect follows the current Game View, which can differ from 16:9.");
     var credits=All<CanvasGroup>(s).Single(x=>x.name=="CREDITS");
     var whiteCover=All<CanvasGroup>(s).Single(x=>x.name=="ENDING WHITE COVER");
     Assert.Greater(finalCanvasComponent.sortingOrder,1000);
@@ -199,17 +202,34 @@ namespace Audere.Story.Editor.Tests
    runtime.Start();
    for(int phase=0;phase<2;phase++)
    {
-    var cue=runtime.CurrentPhase.DialogueCues.Single(x=>x.RequiredBeforePhaseAdvance);
+    var cues=runtime.CurrentPhase.DialogueCues.Where(x=>x.RequiredBeforePhaseAdvance).ToArray();
     runtime.ApplyDamage(99,out int applied);
     Assert.AreEqual(1,runtime.CurrentHealth);
     Assert.AreEqual(CombatEnemyRuntimeState.Playing,runtime.State);
     Assert.IsFalse(runtime.AcceptsDamage);
-    runtime.MarkCueResolved(cue);runtime.Tick(0f);
+    foreach(var cue in cues)runtime.MarkCueResolved(cue);runtime.Tick(0f);
     Assert.AreEqual(CombatEnemyRuntimeState.TransitioningPhase,runtime.State);
     runtime.CompletePhaseBreak();
     Assert.AreEqual(phase+1,runtime.PhaseIndex);
-    Assert.AreEqual(11,runtime.CurrentHealth);
+    Assert.AreEqual(phase==0?12:6,runtime.CurrentHealth);
    }
+   runtime.Cancel();combat.BoardView.ClearCombatRuntime();
+  }
+
+  [Test]
+  public void Runtime_CheckpointStartsAtReachedPhaseWithFreshHealth()
+  {
+   var s=EditorSceneManager.OpenScene(Day4TimorEveningSetupTool.ScenePath);
+   var combat=All<CombatController>(s).Single();
+   Transform combatRoot=combat.BoardView.transform;
+   while(combatRoot.parent!=null&&combatRoot.parent.name!="WORLD")combatRoot=combatRoot.parent;
+   combatRoot.gameObject.SetActive(true);combat.gameObject.SetActive(true);
+   var runtime=new CombatEnemyRuntime(combat.CurrentEncounter.EnemyDefinition,
+    combat.BoardView,new SystemCombatRandom(72),72,true);
+   runtime.Start(2);
+   Assert.AreEqual(2,runtime.PhaseIndex);
+   Assert.AreEqual(6,runtime.CurrentHealth);
+   Assert.AreEqual(CombatEnemyRuntimeState.Playing,runtime.State);
    runtime.Cancel();combat.BoardView.ClearCombatRuntime();
   }
 
@@ -232,35 +252,37 @@ namespace Audere.Story.Editor.Tests
    Assert.AreEqual(0,combat.EnemyRuntime.PhaseIndex);
    combat.EnemyRuntime.ApplyDamage(99,out int p1Damage);
    Assert.AreEqual(1,combat.EnemyHealth);
+   yield return CatchRecoveryDice(combat);
    yield return Until(()=>combat.EnemyRuntime.PhaseIndex==1,true,20);
-   Assert.AreEqual(11,combat.EnemyHealth);
-   yield return Until(()=>combat.EnemyRuntime.CurrentMove is TimorTailThrowMove,true,8);
-   var actorImage=combat.EnemyRuntime.Actor.Graphics.OfType<UnityEngine.UI.Image>().First();
-   Assert.AreEqual("timor no tail",actorImage.sprite.name);
-   yield return Capture("150-tail-warning");
-   yield return Until(()=>combat.BoardView.HasForcedPlayerControl,true,5);
-   yield return Capture("150-tail-caught");
-   Assert.IsTrue(combat.BoardView.HasForcedMovementProtection);
-   yield return Until(()=>!combat.BoardView.HasForcedPlayerControl,true,5);
-   Assert.AreEqual("timor",actorImage.sprite.name);
+   Assert.AreEqual(1,combat.RetryCheckpointPhaseIndex);
+   Assert.AreEqual(12,combat.EnemyHealth);
+   yield return Until(()=>combat.EnemyRuntime.CurrentMove is ScrollingWordCorridorMove,true,8);
+   yield return new WaitForSecondsRealtime(2f);
+   yield return Capture("150-word-corridor");
+   yield return Until(()=>combat.EnemyRuntime.CurrentMove is OrbitingCloneVolleyMove,true,20);
+   yield return new WaitForSecondsRealtime(2f);
+   yield return Capture("150-orbit-clones");
    combat.EnemyRuntime.ApplyDamage(99,out int p2Damage);
+   yield return Until(()=>combat.IsRecoveringPlayerTime,true,40);
+   yield return CatchRecoveryDice(combat);
    yield return Until(()=>combat.EnemyRuntime.PhaseIndex==2,true,20);
+   Assert.AreEqual(2,combat.RetryCheckpointPhaseIndex);
+   Assert.AreEqual(6,combat.EnemyHealth);
    combat.EnemyRuntime.ApplyDamage(99,out int p3Damage);
    Assert.AreEqual(1,combat.EnemyHealth);
-   string[] memories={"IMG_1040","IMG_1043","IMG_1054"};
-   foreach(string memory in memories)
+   double memoryDeadline=EditorApplication.timeSinceStartup+85;
+   while(!(combat.EnemyRuntime.CurrentMove is TimorPressureWaveMove)&&EditorApplication.timeSinceStartup<memoryDeadline)
    {
-    yield return Until(()=>combat.EnemyRuntime.CurrentMove is ProjectionAssaultMove p&&
-     p.ProjectionSprite!=null&&p.ProjectionSprite.name.IndexOf(memory,StringComparison.OrdinalIgnoreCase)>=0,true,20);
-    yield return null;
-    Assert.AreEqual(2,combat.BoardView.GetComponentsInChildren<UnityEngine.UI.Image>(true)
-     .Count(x=>x.name.StartsWith("MEMORY PROJECTION")));
-    yield return Capture("150-memory-"+memory.Replace(" ","-"));
-    combat.EnemyRuntime.Tick(combat.EnemyRuntime.CurrentMove.Duration+.1f);
+    var dialogue=GameplayUIRoot.Instance?.Dialogue;
+    if(dialogue!=null&&dialogue.IsPlaying)typeof(DialogueController).GetMethod("EndPlayback",Private).Invoke(dialogue,new object[]{DialogueResult.Completed,true});
+    var counter=combat.BoardView.GetComponentsInChildren<CombatDieView>().FirstOrDefault(d=>d.CanInteract&&d.Symbol==CombatSymbol.Attack);
+    if(counter!=null&&combat.CurrentState==CombatController.State.Playing){combat.BoardView.CatchCursor.position=counter.RectTransform.position;combat.EnemyRuntime.HandleMoveInput(true,false);combat.EnemyRuntime.ConsumeMoveDamageReward();}
     yield return null;
    }
+   Assert.IsInstanceOf<TimorPressureWaveMove>(combat.EnemyRuntime.CurrentMove);
+   yield return new WaitForSecondsRealtime(3f);yield return Capture("150-supported-waves");
    yield return Until(()=>combat.CurrentState==CombatController.State.Victory||
-    !combat.IsPlaying,true,30);
+    !combat.IsPlaying,true,60);
    yield return Until(()=>Step(director)=="200_AudereChoosesToStand",true,25);
    Assert.IsFalse(combat.IsPlaying);
    Assert.IsFalse(GameplayUIRoot.Instance.GameplayCanvas.enabled);
@@ -377,7 +399,37 @@ namespace Audere.Story.Editor.Tests
    LogAssert.NoUnexpectedReceived();
   }
   static string Step(StoryDirector d)=>d.CurrentEvent?.CurrentStep?.name;
-  static IEnumerator Capture(string name){System.IO.Directory.CreateDirectory("Temp/Day4Timor");ScreenCapture.CaptureScreenshot("Temp/Day4Timor/"+name+".png");yield return new WaitForSecondsRealtime(.22f);}
+  static IEnumerator CatchRecoveryDice(CombatController combat)
+  {
+   yield return Until(()=>combat.IsRecoveringPlayerTime,true,20);
+   float pausedTime=combat.PlayerTime;
+   yield return new WaitForSecondsRealtime(.2f);
+   Assert.AreEqual(pausedTime,combat.PlayerTime,.01f,
+    "TIME must pause while Timor drops Heal dice.");
+   var diceField=typeof(CombatController).GetField("activeDice",Private);
+   var catchDie=typeof(CombatController).GetMethod("CatchDie",Private);
+   Assert.IsNotNull(diceField);Assert.IsNotNull(catchDie);
+   double deadline=EditorApplication.timeSinceStartup+20;
+   while(combat.IsRecoveringPlayerTime&&
+    combat.PlayerTime<combat.ActiveMaximumTime-.01f&&EditorApplication.timeSinceStartup<deadline)
+   {
+    var dice=((IList)diceField.GetValue(combat)).Cast<CombatDieView>()
+     .FirstOrDefault(d=>d!=null&&d.CanInteract);
+    if(dice!=null)
+    {
+     Assert.AreEqual(CombatSymbol.Heal,dice.Symbol);
+     float before=combat.PlayerTime;
+     catchDie.Invoke(combat,new object[]{dice});
+     Assert.AreEqual(before,combat.PlayerTime,.001f);
+     yield return new WaitForSecondsRealtime(.25f);
+     Assert.Greater(combat.PlayerTime,before);
+    }
+    yield return null;
+   }
+   yield return Until(()=>!combat.IsRecoveringPlayerTime,true,5);
+   Assert.AreEqual(combat.ActiveMaximumTime,combat.PlayerTime,.01f);
+  }
+static IEnumerator Capture(string name){System.IO.Directory.CreateDirectory("Temp/Day4Timor");ScreenCapture.CaptureScreenshot("Temp/Day4Timor/"+name+".png");yield return new WaitForSecondsRealtime(.22f);}
 static void Services()
   {
    Application.runInBackground=true;

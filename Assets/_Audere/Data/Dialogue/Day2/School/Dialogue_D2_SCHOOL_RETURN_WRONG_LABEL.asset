@@ -19,6 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 7503800403365798388, guid: 03f69c0d5de4d5b4982fff343666a5cb, type: 3}
   lines:
   - speaker: 0
-    text: "Khoan\u2026 \u0111\xE2y kh\xF4ng ph\u1EA3i l\u1EDBp m\xECnh."
+    text: "Khoan\u2026 h\u1ED9p n\xE0y ghi l\u1EDBp kh\xE1c."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

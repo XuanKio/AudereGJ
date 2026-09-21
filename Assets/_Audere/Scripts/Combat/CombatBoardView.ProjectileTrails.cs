@@ -10,9 +10,12 @@ namespace Audere.Combat
         [SerializeField] private RectTransform exteriorProjectileRoot;
         [SerializeField] private RectTransform stunTrailRoot;
         [SerializeField] private Material stunTrailMaterial;
+        [SerializeField] private Color stunTrailTint = new Color(.9f, .84f, .94f, 1f);
         [SerializeField, Min(0f)] private float stunTrailInset = 14f;
         private const int MaximumTrailSegments = 384;
         private readonly List<TrailSegment> trailPool = new List<TrailSegment>();
+        private readonly Vector3[] trailCorners = new Vector3[4];
+        private CombatChalkTrailGraphic trailGraphic;
 
         private sealed class TrailSegment
         {
@@ -20,6 +23,8 @@ namespace Audere.Combat
             public object Owner;
             public int Session, Phase;
             public float Age, Hold, Fade;
+            public Vector2 From, To;
+            public float Width, Alpha;
             public bool Active;
         }
 
@@ -90,34 +95,27 @@ namespace Audere.Combat
         public void EmitStunTrail(object owner, int session, int phase, Vector2 from, Vector2 to,
             float width, float hold, float fade)
         {
-            if (!isActiveAndEnabled || stunTrailRoot == null || playArea == null || owner == null) return;
-            Rect bounds = playArea.rect;
-            // Keep the complete rotated strip (not just its center) inside the gameplay mask.
-            float inset = stunTrailInset + width * .5f;
-            bounds = Rect.MinMaxRect(bounds.xMin + inset, bounds.yMin + inset, bounds.xMax - inset, bounds.yMax - inset);
-            if (!ClipTrailSegment(bounds, ref from, ref to) || (to - from).sqrMagnitude < .01f) return;
+            if (!isActiveAndEnabled || stunTrailRoot == null || playArea == null || owner == null ||
+                width <= 0f || hold <= 0f || fade <= 0f) return;
+            if (!ClipVisibleTrail(ref from, ref to, width)) return;
+            EnsureTrailGraphic();
             TrailSegment segment = null;
             foreach (var candidate in trailPool) if (!candidate.Active) { segment = candidate; break; }
             if (segment == null)
             {
                 if (trailPool.Count >= MaximumTrailSegments) return;
-                var go = new GameObject("Stun Trail (pooled)", typeof(RectTransform), typeof(CanvasRenderer),
-                    typeof(CanvasGroup), typeof(Image), typeof(CombatStunZoneView));
+                var go = new GameObject("Stun Trail (pooled)", typeof(RectTransform),
+                    typeof(CanvasGroup), typeof(CombatStunZoneView));
                 go.transform.SetParent(stunTrailRoot, false);
-                var image = go.GetComponent<Image>();
-                image.raycastTarget = false;
-                image.material = stunTrailMaterial;
                 segment = new TrailSegment { View = go.GetComponent<CombatStunZoneView>() };
                 trailPool.Add(segment);
             }
             segment.Owner = owner; segment.Session = session; segment.Phase = phase;
             segment.Age = 0; segment.Hold = hold; segment.Fade = fade; segment.Active = true;
-            Vector2 direction = to - from;
-            var rect = segment.View.RectTransform;
-            rect.anchorMin = rect.anchorMax = playArea.pivot;
-            rect.localRotation = Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+            segment.From = from; segment.To = to; segment.Width = width;
             segment.View.gameObject.SetActive(true);
-            segment.View.SetPresentation((from + to) * .5f, new Vector2(direction.magnitude, width), .75f, true);
+            UpdateTrailPresentation(segment);
+            trailGraphic.SetVerticesDirty();
         }
 
         public void ClearStunTrails(int session = -1, int phase = -1, object owner = null)
@@ -125,21 +123,91 @@ namespace Audere.Combat
             foreach (var t in trailPool)
                 if (t.Active && (session < 0 || t.Session == session) && (phase < 0 || t.Phase == phase) &&
                     (owner == null || ReferenceEquals(owner, t.Owner))) HideTrail(t);
+            trailGraphic?.SetVerticesDirty();
             catchCursorView?.SetStunned(OverlapsActiveStunZone(catchCursor));
         }
 
         private void TickStunTrails(float deltaTime)
         {
-            if (deltaTime <= 0f) return;
+            bool changed = false;
             foreach (var t in trailPool)
             {
                 if (!t.Active || t.View == null) continue;
-                t.Age += deltaTime;
+                changed = true;
+                t.Age += Mathf.Max(0f, deltaTime);
                 if (t.Age >= t.Hold + t.Fade) { HideTrail(t); continue; }
-                float alpha = t.Age < t.Hold ? .75f : .75f * (1f - (t.Age - t.Hold) / t.Fade);
-                t.View.SetPresentation(t.View.RectTransform.anchoredPosition, t.View.RectTransform.sizeDelta, alpha, t.Age < t.Hold);
+                UpdateTrailPresentation(t);
             }
+            if (changed) trailGraphic?.SetVerticesDirty();
             catchCursorView?.SetStunned(OverlapsActiveStunZone(catchCursor));
+        }
+
+        private void EnsureTrailGraphic()
+        {
+            if (trailGraphic != null) return;
+            var go = new GameObject("Chalk Trail Surface", typeof(RectTransform), typeof(CanvasRenderer),
+                typeof(CombatChalkTrailGraphic));
+            go.transform.SetParent(stunTrailRoot, false);
+            var rect = (RectTransform)go.transform;
+            rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            rect.pivot = playArea.pivot;
+            trailGraphic = go.GetComponent<CombatChalkTrailGraphic>();
+            trailGraphic.material = stunTrailMaterial;
+            trailGraphic.raycastTarget = false;
+            trailGraphic.Bind(this);
+        }
+
+        private bool ClipVisibleTrail(ref Vector2 from, ref Vector2 to, float width)
+        {
+            Rect bounds = playArea.rect;
+            // Include the strip's half-width so its full rotated footprint stays visible.
+            float inset = stunTrailInset + width * .5f;
+            bounds = Rect.MinMaxRect(bounds.xMin + inset, bounds.yMin + inset, bounds.xMax - inset, bounds.yMax - inset);
+            return ClipTrailSegment(bounds, ref from, ref to) && (to - from).sqrMagnitude >= .01f;
+        }
+
+        private bool UpdateTrailPresentation(TrailSegment trail)
+        {
+            Vector2 from = trail.From, to = trail.To;
+            if (!ClipVisibleTrail(ref from, ref to, trail.Width))
+            {
+                trail.Alpha = 0f;
+                trail.View.ForceHide();
+                return false;
+            }
+            Vector2 direction = to - from;
+            var rect = trail.View.RectTransform;
+            rect.anchorMin = rect.anchorMax = playArea.pivot;
+            rect.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+            trail.Alpha = .8f * (1f - Mathf.SmoothStep(0f, 1f, (trail.Age - trail.Hold) / trail.Fade));
+            trail.View.SetPresentation((from + to) * .5f, new Vector2(direction.magnitude, trail.Width),
+                trail.Alpha, trail.Age < trail.Hold);
+            // CombatStunZoneView clamps tiny generic zones to one unit; trail endpoints must
+            // preserve their exact clipped length to avoid extending beyond the visible stroke.
+            rect.sizeDelta = new Vector2(direction.magnitude, trail.Width);
+            return true;
+        }
+
+        internal void PopulateStunTrailMesh(VertexHelper vertices, RectTransform surface)
+        {
+            vertices.Clear();
+            foreach (var trail in trailPool)
+            {
+                if (!trail.Active || trail.View == null || !UpdateTrailPresentation(trail)) continue;
+                trail.View.RectTransform.GetWorldCorners(trailCorners);
+                Color tint = stunTrailTint;
+                tint.a *= trail.Alpha;
+                int start = vertices.currentVertCount;
+                // One common surface keeps shader grain in board space across every strip.
+                // Adjacent strips share endpoints; neither geometry nor collision adds caps.
+                vertices.AddVert(surface.InverseTransformPoint(trailCorners[0]), tint, Vector2.zero);
+                vertices.AddVert(surface.InverseTransformPoint(trailCorners[1]), tint, Vector2.up);
+                vertices.AddVert(surface.InverseTransformPoint(trailCorners[2]), tint, Vector2.one);
+                vertices.AddVert(surface.InverseTransformPoint(trailCorners[3]), tint, Vector2.right);
+                vertices.AddTriangle(start, start + 1, start + 2);
+                vertices.AddTriangle(start, start + 2, start + 3);
+            }
         }
 
         private static void HideTrail(TrailSegment trail)
@@ -153,7 +221,8 @@ namespace Audere.Combat
         {
             if (target == null || stunTrailRoot == null || !stunTrailRoot.gameObject.activeInHierarchy) return false;
             foreach (var t in trailPool)
-                if (t.Active && t.View != null && t.View.IsBlocking && CircleOverlapsRectTransform(target, t.View.RectTransform)) return true;
+                if (t.Active && t.View != null && UpdateTrailPresentation(t) && t.View.IsBlocking &&
+                    CircleOverlapsRectTransform(target, t.View.RectTransform)) return true;
             return false;
         }
 

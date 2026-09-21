@@ -60,6 +60,7 @@ namespace Audere.Combat
             private readonly RadialInwardTrailMove data;
             private readonly CombatMoveExecutionContext context;
             private readonly List<(CombatBulletView bullet, int lease)> bullets = new List<(CombatBulletView, int)>();
+            private Vector2[] warningPoints;
             private float elapsed;
             private bool emitted, cancelled;
             public bool IsComplete => cancelled || elapsed >= data.Duration;
@@ -72,16 +73,20 @@ namespace Audere.Combat
                 elapsed += deltaTime;
                 if (elapsed >= data.Duration) { Cancel(); return; }
                 if (elapsed < data.telegraphDuration)
-                    context.Board.ShowAttackWarning(this, context.Board.PlayArea.rect.center, elapsed);
+                    context.Board.ShowAttackWarnings(this, warningPoints, elapsed);
                 else context.Board.HideAttackWarning(this);
                 if (emitted) return;
                 emitted = true;
                 Rect field = context.Board.PlayArea.rect;
                 float radius = RingRadius(field.size, data.projectileCount, data.angularOffset,
                     data.projectilePrefab.GetComponent<RectTransform>().rect.width * .5f, data.outerPadding);
+                warningPoints = new Vector2[data.projectileCount];
                 for (int i = 0; i < data.projectileCount; i++)
                 {
                     Vector2 outward = RingDirection(i, data.projectileCount, data.angularOffset);
+                    float sx = Mathf.Abs(outward.x)<.001f ? float.PositiveInfinity : (field.width*.5f-28f)/Mathf.Abs(outward.x);
+                    float sy = Mathf.Abs(outward.y)<.001f ? float.PositiveInfinity : (field.height*.5f-30f)/Mathf.Abs(outward.y);
+                    warningPoints[i]=field.center+outward*Mathf.Min(sx,sy);
                     Vector2 start = field.center + outward * radius;
                     Vector2 end = field.center - outward * radius;
                     float rotation = Mathf.Atan2(-outward.y, -outward.x) * Mathf.Rad2Deg;
@@ -93,6 +98,7 @@ namespace Audere.Combat
                         t => Vector2.Lerp(start, end, t), t => rotation), context, this));
                     bullet.FadeInDuringTelegraph();
                 }
+                context.Board.ShowAttackWarnings(this,warningPoints,elapsed);
             }
 
             public void Cancel()

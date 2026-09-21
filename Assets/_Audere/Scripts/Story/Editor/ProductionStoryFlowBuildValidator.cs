@@ -50,7 +50,7 @@ namespace Audere.Story.Editor
         public static void ValidateFromMenu()
         {
             ValidateOrThrow();
-            Debug.Log("[ProductionStoryFlow] 14 production scenes and 13 scene edges are valid.");
+            Debug.Log("[ProductionStoryFlow] 14 production scenes and 14 scene edges are valid.");
         }
 
         private static void ValidateOrThrow()
@@ -149,7 +149,7 @@ namespace Audere.Story.Editor
             }
 
             SceneLoadStep[] loads = ComponentsInScene<SceneLoadStep>(scene);
-            int expectedLoadCount = orderIndex < ProductionOrder.Length - 1 ? 1 : 0;
+            const int expectedLoadCount = 1;
             if (loads.Length != expectedLoadCount)
             {
                 errors.Add(scene.name + " must contain " + expectedLoadCount +
@@ -157,12 +157,11 @@ namespace Audere.Story.Editor
                 return;
             }
 
-            if (expectedLoadCount == 0)
-                return;
-
             SerializedObject loadData = new SerializedObject(loads[0]);
             string target = loadData.FindProperty("sceneName").stringValue;
-            string expectedTarget = ProductionOrder[orderIndex + 1];
+            string expectedTarget = orderIndex < ProductionOrder.Length - 1
+                ? ProductionOrder[orderIndex + 1]
+                : GameScenes.MainMenu;
             if (!string.Equals(target, expectedTarget, StringComparison.Ordinal))
                 errors.Add(scene.name + "/" + loads[0].name + " targets '" + target +
                            "' instead of '" + expectedTarget + "'.");

@@ -26,12 +26,41 @@ namespace Audere.Combat
         public bool IsConfigured => dialogue != null && dialogue.HasLines;
     }
 
+    [Serializable]
+    public sealed class CombatPhaseRecoverySettings
+    {
+        [SerializeField] private bool enabled;
+        [SerializeField, Min(1f)] private float timePerHealDie = 18f;
+        [SerializeField, Min(.1f)] private float dropInterval = .48f;
+        [SerializeField, Range(1, 8)] private int maximumActiveDice = 4;
+        [SerializeField, Min(20f)] private float diceSpeed = 145f;
+        [SerializeField, Min(.05f)] private float healAnimationDuration = .24f;
+        [SerializeField] private bool healEnemyOnDrop;
+        [SerializeField, Min(1)] private int enemyHealthPerDie = 1;
+        [SerializeField, Min(1f)] private float droppedDiceLifetime = 3f;
+
+        public bool Enabled => enabled;
+        public float TimePerHealDie => Mathf.Max(1f, timePerHealDie);
+        public float DropInterval => Mathf.Max(.1f, dropInterval);
+        public int MaximumActiveDice => Mathf.Clamp(maximumActiveDice, 1, 8);
+        public float DiceSpeed => Mathf.Max(20f, diceSpeed);
+        public float HealAnimationDuration => Mathf.Max(.05f, healAnimationDuration);
+        public bool HealEnemyOnDrop => healEnemyOnDrop;
+        public int EnemyHealthPerDie => Mathf.Max(1, enemyHealthPerDie);
+        public float DroppedDiceLifetime => Mathf.Max(1f, droppedDiceLifetime);
+    }
+
     [CreateAssetMenu(menuName = "Audere/Combat/Encounter Data", fileName = "CombatEncounter_New")]
     public sealed class CombatEncounterData : ScriptableObject
     {
         [Header("Identity")]
         [SerializeField] private string encounterId = "combat-sample";
         [SerializeField] private CombatEnemyDefinition enemyDefinition;
+        [Header("Optional dice interception")]
+        [SerializeField, Range(0f, 1f)] private float diceBreakChance;
+        [SerializeField] private Sprite diceBreakTailSprite;
+        public float DiceBreakChance => Mathf.Clamp01(diceBreakChance);
+        public Sprite DiceBreakTailSprite => diceBreakTailSprite;
         [SerializeField] private CombatTutorialData tutorialData;
 
         [Header("Music")]
@@ -42,6 +71,8 @@ namespace Audere.Combat
         [SerializeField, Min(1f)] private float encounterDuration = 40f;
         [SerializeField] private CombatEncounterOutcomeRules outcomeRules = new CombatEncounterOutcomeRules();
         [SerializeField] private CombatDefeatPresentation defeatPresentation = new CombatDefeatPresentation();
+        [Header("Between Phases")]
+        [SerializeField] private CombatPhaseRecoverySettings phaseRecovery = new CombatPhaseRecoverySettings();
 
         [SerializeField, Min(0f)] private float victoryFadeDuration;
         [SerializeField] private CombatVictoryPresentation victoryPresentation = new CombatVictoryPresentation();
@@ -69,11 +100,12 @@ namespace Audere.Combat
         public float EncounterDuration => encounterDuration;
         public CombatEncounterOutcomeRules OutcomeRules => outcomeRules ??= new CombatEncounterOutcomeRules();
         public CombatDefeatPresentation DefeatPresentation => defeatPresentation;
-        [Tooltip("Zero leaves the initial random dice unrestricted. Includes already caught Attack dice while the batch is spawning.")]
-        [SerializeField, Min(0)] private int maximumAttacksPerBatch;
+        public CombatPhaseRecoverySettings PhaseRecovery => phaseRecovery ??= new CombatPhaseRecoverySettings();
+        [Tooltip("Legacy serialized value retained for asset compatibility. Normal random dice no longer use an Attack quota.")]
+        [SerializeField, HideInInspector, Min(0)] private int maximumAttacksPerBatch;
         public int MaximumAttacksPerBatch => Mathf.Max(0, maximumAttacksPerBatch);
-        [Tooltip("Optional extra Attack results that rerolls may create per batch. Zero preserves the legacy shared budget.")]
-        [SerializeField, Min(0)] private int additionalRerolledAttacksPerBatch;
+        [Tooltip("Legacy serialized value retained for asset compatibility. Rerolls now choose equally between the other two faces.")]
+        [SerializeField, HideInInspector, Min(0)] private int additionalRerolledAttacksPerBatch;
         public int AdditionalRerolledAttacksPerBatch => Mathf.Max(0, additionalRerolledAttacksPerBatch);
         public int DicePerBatch => dicePerBatch;
         public float BatchRespawnDelay => batchRespawnDelay;
@@ -97,6 +129,9 @@ namespace Audere.Combat
                 Debug.LogError($"[CombatEncounterData] '{name}' requires Outcome Rules.", this);
             if (tutorialData != null && !tutorialData.Validate(out string tutorialError))
                 Debug.LogError($"[CombatEncounterData] '{name}' has invalid tutorial data: {tutorialError}", this);
+            if (PhaseRecovery.Enabled && enemyDefinition != null &&
+                enemyDefinition.PhasePolicy != CombatPhasePolicy.PerPhaseHealth)
+                Debug.LogError($"[CombatEncounterData] '{name}' phase recovery requires per-phase enemy health.", this);
         }
     }
 }

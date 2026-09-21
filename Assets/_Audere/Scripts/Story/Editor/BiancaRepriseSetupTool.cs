@@ -197,7 +197,10 @@ namespace Audere.Story.Editor
 
         private static DialogueData D(string suffix, DialogueCharacterId right, string portrait, params string[] lines)
         {
-            var d = Asset<DialogueData>(DialogueFolder + "/Dialogue_D3_REPRISE_" + suffix + ".asset");
+            string path = DialogueFolder + "/Dialogue_D3_REPRISE_" + suffix + ".asset";
+            var d = AssetDatabase.LoadAssetAtPath<DialogueData>(path);
+            if (d != null) return d;
+            d = Asset<DialogueData>(path);
             Set(d, "dialogueId", "D3_REPRISE_" + suffix, "leftCharacter", (int)DialogueCharacterId.Audere, "rightCharacter", (int)right,
                 "leftPortraitOverride", Portrait("Audere/Audere_Tired.png"), "rightPortraitOverride", Portrait(portrait));
             var so = new SerializedObject(d); var a = so.FindProperty("lines"); a.arraySize = lines.Length;

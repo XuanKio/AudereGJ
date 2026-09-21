@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Audere.Combat
@@ -26,6 +27,8 @@ namespace Audere.Combat
         private sealed class Execution : ICombatMoveExecution
         {
             private readonly ChalkFenceMove d; private readonly CombatMoveExecutionContext c;
+            private readonly List<(CombatBulletView bullet,int lease)> bullets = new List<(CombatBulletView,int)>();
+            private Vector2[] warningPoints;
             private float elapsed, next, warningUntil; private int wave; private bool cancelled;
             public Execution(ChalkFenceMove d, CombatMoveExecutionContext c) { this.d=d; this.c=c; }
             public bool IsComplete => cancelled || elapsed >= d.Duration;
@@ -33,15 +36,17 @@ namespace Audere.Combat
             {
                 if (IsComplete || c.Board == null || c.Board.PlayArea == null) return;
                 elapsed += Mathf.Max(0, dt);
-                if (elapsed < warningUntil) c.Board.ShowAttackWarning(this, c.Board.PlayArea.rect.center, elapsed);
+                if (elapsed < warningUntil) c.Board.ShowAttackWarnings(this, warningPoints, elapsed);
                 else c.Board.HideAttackWarning(this);
-                if (elapsed < next || elapsed >= d.Duration) return;
+                if (elapsed >= d.Duration) { Cancel(); return; }
+                if (elapsed < next || elapsed + d.telegraph + d.flightDuration > d.Duration) return;
                 next = elapsed + d.waveInterval;
                 warningUntil = elapsed + d.telegraph;
-                c.Board.ShowAttackWarning(this, c.Board.PlayArea.rect.center, elapsed);
+                c.Board.ShowAttackWarnings(this, warningPoints, elapsed);
                 Rect r=c.Board.PlayArea.rect;
                 // Alternate a clear lane; each paired fence also leaves a broad central corridor.
                 int gap = 1 + wave++ % (d.columns - 2);
+                var marks = new List<Vector2>();
                 for(int i=0;i<d.columns;i++)
                 {
                     if(i==gap) continue;
@@ -50,14 +55,18 @@ namespace Audere.Combat
                     {
                         float y=side<0?r.yMin-25:r.yMax+25;
                         Vector2 start=new Vector2(x,y);
+                        marks.Add(new Vector2(x,side<0?r.yMin+16:r.yMax-30));
                         float depth=-side*r.height*d.reachFraction;
                         var b=c.Board.SpawnEnemyBullet(d.projectilePrefab,start,Vector2.zero,c.SessionVersion,c.PhaseVersion,d.telegraph);
+                        if(b!=null)bullets.Add((b,b.PoolLeaseVersion));
                         b?.ConfigurePathMotion(d.stunTrail.Wrap(new ParametricProjectileMotion(d.flightDuration,
                             t=>start+Vector2.up*(depth*Reach(t)), t=>90f),c,this));
                     }
                 }
+                warningPoints=marks.ToArray();
+                c.Board.ShowAttackWarnings(this,warningPoints,elapsed);
             }
-            public void Cancel() { cancelled=true;c.Board?.HideAttackWarning(this);c.Board?.ClearStunTrails(c.SessionVersion,c.PhaseVersion,this); }
+            public void Cancel() { if(cancelled)return;cancelled=true;foreach(var b in bullets)c.Board?.ReturnEnemyBullet(b.bullet,b.lease);bullets.Clear();c.Board?.HideAttackWarning(this);c.Board?.ClearStunTrails(c.SessionVersion,c.PhaseVersion,this); }
         }
     }
 }

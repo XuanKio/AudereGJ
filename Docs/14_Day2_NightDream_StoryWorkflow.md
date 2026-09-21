@@ -74,6 +74,8 @@ Timor gọi ở step270 như cũ; step275 dựng đứng và step280 bật ngư�
 
 Shadow art có sprite bounds center Y=0.215 khác pivot. `Shadow_Start` bù offset này theo world scale để **tâm ellipse nhìn thấy** nằm ở Y=-0.04, ngang mặt tile và chân; không đặt Transform của bóng ở tâm tile. Khi bước, bóng chỉ theo ground trajectory, không nhảy theo body; màu/material/scale và sorting Player/4 giữ nguyên.
 
+Follow-up float: từ 60% cú rơi, `DreamFallStep` tăng dần nhấp nhô ±0.025 world units, chu kỳ 2.8 s, chao nhẹ ±2.5° quanh pose ngả 78°. Nhịp tiếp tục bằng unscaled time suốt thoại Timor; camera chỉ theo độ rơi gốc, không bob theo cơ thể. Cancel/disable bỏ offset tạm tại vị trí rơi hiện tại; replay không giữ float cũ.
+
 Thoại cuối: Timor gọi “Audere.” / “Nhìn tớ.” trong khi Audere tiếp tục rơi ngửa. “Timor… đường đâu rồi?” Timor kéo sự chú ý về mình: “Đừng nhìn chỗ đó nữa.” / “Nhìn tớ thôi.” / “Chỉ có tớ giúp cậu an toàn thôi.” / “Chỉ mình tớ là bạn thật sự của cậu.” Audere: “…Đừng đi.” Timor: “Tớ ở đây.” / “Vậy cứ nghe tớ, Audere.”
 
 Portrait Audere chuyển sang `Audere_Scared`; cơ thể vẫn ngả sau, shadow ẩn vì không còn mặt đất. Hold 0.7 s, fade 0.85 s rồi load Scene90. Chỉ scene tỉnh giấc mới có startle tại chỗ.
@@ -103,6 +105,7 @@ Cover → reset pose → reveal 0.35 s → startle dọc 0.19 s / arc 0.09 → g
 ## QA revision 2026-09-20
 
 - Initial automatic traversal suite: **8/8 passed**, `Temp/DreamAutomaticQA/results.xml`.
+- Float follow-up: **2/2 Play tests passed**, `Temp/DreamAutomaticQA/float-final-play.xml` (2026-09-20 06:05:29Z). Quan sát trọn chu kỳ ở thoại270/300: biên độ Y trong 0.035–0.055 units, góc chao 2–5.1°, luôn ngả >75°, camera/scale cố định; cancel trong lúc rơi và thoại loại bỏ offset rồi replay sạch. Đã xem `float-high.png`/`float-low.png` tại 875×498; Console0error, scene80 saved clean, rerun author byte-identical.
 - Follow-up giữ ngả sau/gió/shadow: **3/3 passed**, `Temp/DreamAutomaticQA/held-fall-wind-shadow.xml` (2026-09-20 05:34:04Z). Production 70→80→90, visible shadow center đúng mặt tile suốt bước, feet chỉ lift theo stride; giữ thoại270/300 vẫn nghiêng >75° và gió tiếp tục chạy; cancel khi đi, đang rơi và trong thoại cuối đều dọn sạch rồi replay. Ảnh `run.png`, `fall-timor-call.png`, `fall-only-me.png` đã xem ở 875×498. Compile/Console 0 error, 0 missing script, rerun author byte-identical. Chưa lặp visual ở aspect ratio khác.
 - After Xuân's center-impact/backward-fall/text-flash refinement: scene structure and unchanged opening checks passed; final two Play tests **2/2 passed**, `Temp/DreamAutomaticQA/refinement-final-play.xml` (2026-09-20 05:16:11Z). Covers Home→Dream→Awakening without any puzzle drop; exactly eight visible murmurs at glass swap and walk start; center approach <0.025 units; ≥32 tile fragments; body lean >65° while falling; hidden grounded shadow; cancel while walking/falling; replay restores upright pose and removes fragments/input claims.
 - The first refinement run caught TMP mesh arrays not yet initialized on hidden text. Presentation colors/poses now capture before reveal, while mesh cache waits until text is active after Awake. The final rerun passes with that correction.

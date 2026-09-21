@@ -206,9 +206,9 @@ namespace Audere.Story.Editor.Tests
             Assert.IsFalse(GameplayUIRoot.Instance.PuzzleUi.gameObject.activeSelf);
             ScreenCapture.CaptureScreenshot("Temp/Day2NightDreamQA/dream-collapse.png");
             var wind = All<FallingWindView>(s).Single();
-            yield return AssertHeldFall(actor.transform, wind, "fall-timor-call");
+            yield return AssertHeldFall(actor.transform, wind, fall, "fall-timor-call");
             yield return Until(() => e.CurrentStep != null && e.CurrentStep.name == "300_OnlyMe");
-            yield return AssertHeldFall(actor.transform, wind, "fall-only-me");
+            yield return AssertHeldFall(actor.transform, wind, fall, "fall-only-me");
             yield return Until(() => SceneManager.GetActiveScene().name == GameScenes.Day2HomeAwakening, true, 25);
             s = SceneManager.GetActiveScene();
             e = All<StoryEvent>(s).Single();
@@ -264,10 +264,18 @@ namespace Audere.Story.Editor.Tests
                 Assert.Less(walk.Progress, .15f, "Replay must start at the first authored stride.");
                 Assert.AreEqual(0f, atmosphere.Chaos);
                 if (pass == 0) yield return Until(() => walk.Progress > .4f, false);
-                else if (pass == 1) yield return Until(() => fall.Progress > .35f && fall.IsRunning, false);
+                else if (pass == 1) yield return Until(() => fall.Progress > .8f && fall.IsRunning, false);
                 else yield return Until(() => e.CurrentStep != null && e.CurrentStep.name == "300_OnlyMe");
+                if (pass == 2) Assert.IsTrue(fall.IsFloating);
                 director.CancelCurrentEvent();
                 yield return null;
+                Assert.IsFalse(fall.IsFloating);
+                if (pass == 2)
+                {
+                    var target = (Transform)typeof(DreamFallStep).GetField("fallTarget", Private).GetValue(fall);
+                    Assert.Less(Vector3.Distance(target.position, walk.Actor.position), .0001f,
+                        "Cancellation must remove only the temporary float, without teleporting back up.");
+                }
                 Assert.IsFalse(walk.IsRunning);
                 Assert.IsFalse(fall.IsRunning);
                 Assert.IsFalse(atmosphere.IsRunning);
@@ -501,21 +509,36 @@ namespace Audere.Story.Editor.Tests
             captured(ScreenCapture.CaptureScreenshotAsTexture());
         }
 
-        private static IEnumerator AssertHeldFall(Transform actor, FallingWindView wind, string image)
+        private static IEnumerator AssertHeldFall(Transform actor, FallingWindView wind, DreamFallStep fall, string image)
         {
             Assert.IsTrue(wind.IsRunning);
             Assert.GreaterOrEqual(wind.StreakCount, 8);
             var streak = wind.GetComponentsInChildren<SpriteRenderer>().First();
             float initialY = streak.transform.position.y;
-            double end = EditorApplication.timeSinceStartup + .8;
+            var target = (Transform)typeof(DreamFallStep).GetField("fallTarget", Private).GetValue(fall);
+            var camera = Camera.main;
+            Vector3 cameraPosition = camera.transform.position;
+            Vector3 scale = actor.localScale;
+            float minY = actor.position.y, maxY = minY;
+            float minAngle = actor.eulerAngles.z, maxAngle = minAngle;
+            bool highFrame = false, lowFrame = false;
+            double end = EditorApplication.timeSinceStartup + 3.5;
             while (EditorApplication.timeSinceStartup < end)
             {
                 Assert.Greater(Quaternion.Angle(Quaternion.identity, actor.rotation), 75f,
                     "Audere must remain leaned back even while waiting for dialogue input.");
                 Assert.IsTrue(wind.IsRunning);
+                minY = Mathf.Min(minY, actor.position.y); maxY = Mathf.Max(maxY, actor.position.y);
+                minAngle = Mathf.Min(minAngle, actor.eulerAngles.z); maxAngle = Mathf.Max(maxAngle, actor.eulerAngles.z);
+                Assert.Less(Vector3.Distance(cameraPosition, camera.transform.position), .0001f, "Float must not bob the camera.");
+                Assert.AreEqual(scale, actor.localScale);
+                if (!highFrame && actor.position.y > target.position.y + .02f) { ScreenCapture.CaptureScreenshot("Temp/DreamAutomaticQA/float-high.png"); highFrame = true; }
+                if (!lowFrame && actor.position.y < target.position.y - .02f) { ScreenCapture.CaptureScreenshot("Temp/DreamAutomaticQA/float-low.png"); lowFrame = true; }
                 EditorApplication.QueuePlayerLoopUpdate();
                 yield return null;
             }
+            Assert.That(maxY - minY, Is.InRange(.035f, .055f), "The held falling body should gently float without drifting away.");
+            Assert.That(maxAngle - minAngle, Is.InRange(2f, 5.1f), "Keep a subtle airborne tilt, not a standing pose or a tumble.");
             Assert.Greater(Mathf.Abs(streak.transform.position.y - initialY), .01f,
                 "Wind must keep moving during player-paced dialogue.");
             ScreenCapture.CaptureScreenshot("Temp/DreamAutomaticQA/" + image + ".png");

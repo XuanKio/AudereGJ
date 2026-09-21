@@ -19,17 +19,17 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 1802169272185732355, guid: 056875fa18e556d4cb0aba789bc44c9f, type: 3}
   lines:
   - speaker: 0
-    text: "C\u1EADu \u1EA5y \u0111ang h\u1ECFi t\u1EDB c\xF3 \u0111au kh\xF4ng."
+    text: "C\u1EADu \u1EA5y h\u1ECFi t\u1EDB c\xF3 \u0111au kh\xF4ng."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "T\u1EDB ch\u01B0a bi\u1EBFt m\u1ECDi ng\u01B0\u1EDDi ngh\u0129 g\xEC\u2026"
+    text: "T\u1EDB ch\u01B0a bi\u1EBFt h\u1ECD ngh\u0129 g\xEC\u2026"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "Nh\u01B0ng t\u1EDB mu\u1ED1n nghe c\u1EADu \u1EA5y n\xF3i."
+    text: "Nh\u01B0ng t\u1EDB mu\u1ED1n nghe Bianca."
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

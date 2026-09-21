@@ -24,7 +24,7 @@ MonoBehaviour:
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "Audere, c\u1EADu c\xF3 nghe t\u1EDB kh\xF4ng?"
+    text: "C\u1EADu nghe t\u1EDB kh\xF4ng?"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

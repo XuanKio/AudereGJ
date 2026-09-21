@@ -19,12 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: -8522945175667249623, guid: 185e3c99ab0def940b195570629d5076, type: 3}
   lines:
   - speaker: 1
-    text: "Xin l\u1ED7i!"
-    characterOverride: 0
-    portraitOverride: {fileID: 0}
-    glitchPortraitTransition: 0
-  - speaker: 1
-    text: "T\u1EDB l\xE0m c\u1EADu gi\u1EADt m\xECnh \xE0?"
+    text: "Xin l\u1ED7i! C\u1EADu gi\u1EADt m\xECnh \xE0?"
     characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

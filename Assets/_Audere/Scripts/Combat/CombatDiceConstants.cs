@@ -74,18 +74,23 @@ namespace Audere.Combat
         public const float RerollBoardEdgePadding = 0f;
 
         public const int AttackDamage = 1;
-        public const int AttackRollWeight = 5;
+        public const int AttackRollWeight = 1;
 
         // The catch cursor is 100 wide (50 radius). Shield clears roughly three
         // catcher radii around Audere so it reads as a deliberate breathing-space tool.
         public const float ShieldBulletClearRadius = 150f;
-        public const int ShieldRollWeight = 3;
+        public const int ShieldRollWeight = 1;
 
         public const float HealTimeSeconds = 3f;
-        public const int HealRollWeight = 2;
+        public const int HealRollWeight = 1;
 
         public const int TotalRollWeight =
             AttackRollWeight + ShieldRollWeight + HealRollWeight;
+
+        public const float LowTimeAssistThreshold = .30f;
+        private const int LowTimeAttackRollWeight = 42;
+        private const int LowTimeShieldRollWeight = 16;
+        private const int LowTimeHealRollWeight = 42;
 
         private static readonly CombatDiceDefinition AttackDefinition = new CombatDiceDefinition(
             CombatSymbol.Attack,
@@ -105,7 +110,7 @@ namespace Audere.Combat
             "Xung khiên",
             "Bắt để phá các viên đạn đang bay gần Audere.",
             CombatDiceAbility.DestroyNearbyBullets,
-            CombatDiceRarity.Uncommon,
+            CombatDiceRarity.Common,
             ShieldRollWeight,
             0f,
             ShieldBulletClearRadius);
@@ -117,7 +122,7 @@ namespace Audere.Combat
             "Lấy lại nhịp",
             "Bắt để hồi lại một phần thời gian chiến đấu.",
             CombatDiceAbility.RestoreEncounterTime,
-            CombatDiceRarity.Rare,
+            CombatDiceRarity.Common,
             HealRollWeight,
             HealTimeSeconds);
 
@@ -133,6 +138,21 @@ namespace Audere.Combat
 
         public static float GetRollChance(CombatSymbol symbol)
         {
+            return GetRollChance(symbol, false);
+        }
+
+        public static float GetRollChance(CombatSymbol symbol, bool lowTimeAssist)
+        {
+            if (lowTimeAssist)
+            {
+                return symbol switch
+                {
+                    CombatSymbol.Attack => LowTimeAttackRollWeight / 100f,
+                    CombatSymbol.Shield => LowTimeShieldRollWeight / 100f,
+                    CombatSymbol.Heal => LowTimeHealRollWeight / 100f,
+                    _ => 0f,
+                };
+            }
             return TotalRollWeight > 0
                 ? GetDefinition(symbol).RollWeight / (float)TotalRollWeight
                 : 0f;
@@ -140,15 +160,49 @@ namespace Audere.Combat
 
         public static CombatSymbol RollSymbol()
         {
-            int roll = Random.Range(0, TotalRollWeight);
-            if (roll < AttackRollWeight)
-                return CombatSymbol.Attack;
+            return RollSymbol(Random.value);
+        }
 
-            roll -= AttackRollWeight;
-            if (roll < ShieldRollWeight)
-                return CombatSymbol.Shield;
+        // Every normal spawn is independent of the rest of its batch.
+        public static CombatSymbol RollSymbol(float value01) => RollSymbol(value01, false);
 
-            return CombatSymbol.Heal;
+        public static CombatSymbol RollSymbol(float value01, bool lowTimeAssist) =>
+            lowTimeAssist
+                ? RollWeighted(value01, LowTimeAttackRollWeight, LowTimeShieldRollWeight, LowTimeHealRollWeight)
+                : RollWeighted(value01, AttackRollWeight, ShieldRollWeight, HealRollWeight);
+
+        public static CombatSymbol RerollSymbol(CombatSymbol current) =>
+            RerollSymbol(current, Random.value);
+
+        // Preserve the relative rarity of the remaining faces while excluding the current face.
+        public static CombatSymbol RerollSymbol(CombatSymbol current, float value01) =>
+            RerollSymbol(current, value01, false);
+
+        public static CombatSymbol RerollSymbol(CombatSymbol current, float value01, bool lowTimeAssist)
+        {
+            if (lowTimeAssist)
+            {
+                // Reroll cannot keep its current face. Keep Shield at no more than
+                // 16% even after the excluded face changes the choice set.
+                return current switch
+                {
+                    CombatSymbol.Attack => RollWeighted(value01, 0, 16, 84),
+                    CombatSymbol.Shield => RollWeighted(value01, 50, 0, 50),
+                    CombatSymbol.Heal => RollWeighted(value01, 84, 16, 0),
+                    _ => RollSymbol(value01, true),
+                };
+            }
+            return RollWeighted(value01,
+                current == CombatSymbol.Attack ? 0 : AttackRollWeight,
+                current == CombatSymbol.Shield ? 0 : ShieldRollWeight,
+                current == CombatSymbol.Heal ? 0 : HealRollWeight);
+        }
+
+        private static CombatSymbol RollWeighted(float value01, int attackWeight, int shieldWeight, int healWeight)
+        {
+            float roll = Mathf.Clamp(value01, 0f, .999999f) * (attackWeight + shieldWeight + healWeight);
+            if (roll < attackWeight) return CombatSymbol.Attack;
+            return roll < attackWeight + shieldWeight ? CombatSymbol.Shield : CombatSymbol.Heal;
         }
     }
 }

@@ -19,19 +19,17 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 1802169272185732355, guid: 056875fa18e556d4cb0aba789bc44c9f, type: 3}
   lines:
   - speaker: 0
-    text: Timor.
-    portraitOverride: {fileID: 0}
-    glitchPortraitTransition: 0
-  - speaker: 1
-    text: "\u1EEA?"
+    text: "Timor\u2026"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "L\xFAc \u1EDF kho\u2026"
+    text: "L\xFAc l\u1EA5y nh\u1EA7m h\u1ED9p\u2026"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "C\u1EADu th\u1EADt s\u1EF1 bi\u1EBFt Bianca \u0111ang ngh\u0129 g\xEC
-      \xE0?"
+    text: "C\u1EADu bi\u1EBFt Bianca ngh\u0129 g\xEC th\u1EADt \xE0?"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

@@ -31,8 +31,6 @@ namespace Audere.Combat
         private readonly Queue<PendingCombatCue> pendingCombatCues = new Queue<PendingCombatCue>();
         private readonly HashSet<CombatSymbol> caughtTutorialSymbols = new HashSet<CombatSymbol>();
         private int batchIndex;
-        private int capturedAttacksInBatch;
-        private int rerolledAttacksGrantedInBatch;
         private float encounterTimeRemaining;
         private bool isPlaying;
         private bool isBatchSpawning;
@@ -50,6 +48,14 @@ namespace Audere.Combat
         private Coroutine activeAutoDialogueRoutine;
         private Coroutine resultPresentationRoutine;
         private int observedMoveVersion;
+        private bool exclusiveDiceMoveActive;
+        private bool isRecoveringPlayerTime;
+        private float pendingRecoveryTime;
+        private readonly Dictionary<CombatDieView, float> recoveryDiceAges = new Dictionary<CombatDieView, float>();
+        private float recoveryDropRemaining;
+        private int recoveryDropIndex;
+        private DiceCatchSabotage diceSabotage;
+        private int retryCheckpointPhaseIndex;
         private GameDifficulty activeDifficulty = GameDifficulty.Easy;
         public CombatHeartScreenPose LastDefeatHeartPose { get; private set; }
         private Texture2D defeatBackdrop;
@@ -59,9 +65,8 @@ namespace Audere.Combat
             defeatBackdrop = null;
             return snapshot;
         }
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
         private int debugVictoryKeyPressCount;
-#endif
+        private int debugNextPhaseKeyPressCount;
 
         private readonly struct PendingCombatCue
         {
@@ -90,6 +95,8 @@ namespace Audere.Combat
         public bool IsInstructionPauseActive => tutorialInstructionAwaitingInteraction;
         public float ActiveMaximumTime => ResolveActiveMaximumTime();
         public GameDifficulty ActiveDifficulty => activeDifficulty;
+        public int RetryCheckpointPhaseIndex => retryCheckpointPhaseIndex;
+        public bool IsRecoveringPlayerTime => isRecoveringPlayerTime;
 
         private void Awake()
         {
@@ -120,14 +127,22 @@ namespace Audere.Combat
                 return;
             }
             if (CurrentState != State.Playing || encounterData == null || boardView == null || enemyRuntime == null) return;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (!tutorialActive && encounterData.OutcomeRules.Allows(CombatResult.Victory) &&
                 HasCombatInput() && Input.GetKeyDown(KeyCode.K) && ++debugVictoryKeyPressCount >= 5)
             {
                 EndCombat(State.Victory);
                 return;
             }
-#endif
+            if (!tutorialActive && HasCombatInput() && Input.GetKeyDown(KeyCode.P) &&
+                ++debugNextPhaseKeyPressCount >= 5)
+            {
+                debugNextPhaseKeyPressCount = 0;
+                if (enemyRuntime.TryAdvanceToNextPhaseForTesting())
+                {
+                    StartCoroutine(PhaseBreakRoutine(enemyRuntime.SessionVersion, enemyRuntime.PhaseVersion, true));
+                    return;
+                }
+            }
             boardView.SetAttackAudioPaused(Time.timeScale <= 0f);
             float deltaTime = Time.deltaTime;
             float timeScale = tutorialActive ? tutorialTimeScale : 1f;
@@ -146,11 +161,17 @@ namespace Audere.Combat
                 cursorWasStunned = cursorIsStunned;
             }
             boardView.TickHeartFeedback(deltaTime);
+            diceSabotage?.Tick(deltaTime);
             enemyRuntime.ObservePlayerTime(encounterTimeRemaining, ResolveActiveMaximumTime());
             int healthBeforeTick = enemyRuntime.CurrentHealth;
             bool wasMountDiveActive=boardView.IsMountDiveActive;
             bool wasOpeningMove = enemyRuntime.IsOpeningMove;
+            int completionBeforeTick = enemyRuntime.MoveCompletionVersion;
             enemyRuntime.Tick(deltaTime);
+            if (completionBeforeTick != enemyRuntime.MoveCompletionVersion)
+                EnqueueCue(FindTriggeredCue(CombatDialogueCueTrigger.MoveCompleted,
+                    triggerMove: enemyRuntime.LastCompletedMove), enemyRuntime.SessionVersion, enemyRuntime.PhaseVersion);
+            SyncExclusiveMoveDice();
             if (wasOpeningMove && !enemyRuntime.IsOpeningMove && enemyRuntime.ShouldSpawnDice && enemyRuntime.State == CombatEnemyRuntimeState.Playing)
                 ScheduleNextBatch(encounterData.BatchRespawnDelay);
             if(hasCombatInput && (wasMountDiveActive || boardView.IsMountDiveActive))boardView.UpdateCursor(Input.mousePosition);
@@ -175,7 +196,11 @@ namespace Audere.Combat
             {
                 bool catchPressed = Input.GetMouseButtonDown(0);
                 bool rerollPressed = Input.GetMouseButtonDown(1);
-                if (enemyRuntime.HandleMoveInput(catchPressed, rerollPressed)) { }
+                if (enemyRuntime.HandleMoveInput(catchPressed, rerollPressed))
+                {
+                    int reward = enemyRuntime.ConsumeMoveDamageReward();
+                    if (reward > 0) ApplyEnemyDamage(reward);
+                }
                 else if (catchPressed) TryCatchUnderCursor();
                 else if (rerollPressed) TryRerollUnderCursor();
             }
@@ -183,7 +208,10 @@ namespace Audere.Combat
                 TryStartPendingCombatCue();
         }
 
-        public bool Play(CombatEncounterData data, Action<CombatResult> onEnded = null)
+        public bool Play(CombatEncounterData data, Action<CombatResult> onEnded = null) =>
+            Play(data, onEnded, 0);
+
+        public bool Play(CombatEncounterData data, Action<CombatResult> onEnded, int startPhaseIndex)
         {
             if (data == null || boardView == null || data.EnemyDefinition == null)
             {
@@ -191,6 +219,14 @@ namespace Audere.Combat
                 return false;
             }
             if (!data.EnemyDefinition.Validate(out string error)) { Debug.LogError(error, data.EnemyDefinition); return false; }
+            if (startPhaseIndex < 0 || startPhaseIndex >= data.EnemyDefinition.PhaseCount ||
+                (startPhaseIndex > 0 && (!data.PhaseRecovery.Enabled ||
+                    data.EnemyDefinition.PhasePolicy != CombatPhasePolicy.PerPhaseHealth)) ||
+                (data.PhaseRecovery.Enabled && data.EnemyDefinition.PhasePolicy != CombatPhasePolicy.PerPhaseHealth))
+            {
+                Debug.LogError("[CombatController] Invalid phase checkpoint or phase recovery policy.", data);
+                return false;
+            }
             if (data.TutorialData != null && !data.TutorialData.Validate(out string tutorialError))
             {
                 Debug.LogError(tutorialError, data.TutorialData);
@@ -209,7 +245,7 @@ namespace Audere.Combat
             activeDifficulty = GameplayDifficultySettings.Current;
             completionCallback = onEnded;
             isPlaying = true;
-            StartEncounterRuntime(requestVersion);
+            StartEncounterRuntime(requestVersion, startPhaseIndex);
             return isPlaying;
         }
 
@@ -228,9 +264,10 @@ namespace Audere.Combat
         public void DebugSetTimerHalf() { if (encounterData == null || boardView == null) return; encounterTimeRemaining = ResolveActiveMaximumTime() * .5f; boardView.UpdateTimer(.5f); }
         public void DebugTakePlayerHit() { if (CurrentState == State.Playing) ApplyPlayerHit(); }
 
-        private void StartEncounterRuntime(int sessionVersion)
+        private void StartEncounterRuntime(int sessionVersion, int startPhaseIndex)
         {
             ResetRuntimeState(false);
+            retryCheckpointPhaseIndex = startPhaseIndex;
             AudioService.Instance?.SetCombatMusicOwner(this, true, encounterData.Music, 1);
             tutorialActive = encounterData.TutorialData != null && !completedGuidedTutorials.Contains(encounterData.TutorialData);
             tutorialOpeningBatchPending = tutorialActive;
@@ -258,7 +295,7 @@ namespace Audere.Combat
                     sessionVersion,
                     encounterData.OutcomeRules.Allows(CombatResult.Victory),
                     GameplayDifficultySettings.GetEnemyHealthMultiplier(activeDifficulty));
-                enemyRuntime.Start();
+                enemyRuntime.Start(startPhaseIndex);
             }
             catch (Exception exception)
             {
@@ -367,8 +404,6 @@ namespace Audere.Combat
                 CombatDieView die = activeDice[i];
                 if (die == null || !die.CanInteract || !boardView.CursorOverlaps(die)) continue;
                 CombatSymbol rerolledSymbol = RollRerollSymbol(die);
-                if (rerolledSymbol == CombatSymbol.Attack && encounterData.AdditionalRerolledAttacksPerBatch > 0)
-                    rerolledAttacksGrantedInBatch++;
                 activeDice[i] = boardView.RerollDie(die, rerolledSymbol);
                 AudioService.Instance?.Play(AudioId.Dice_Roll);
                 QueueCurrentPhaseCue(CombatDialogueCueTrigger.DiceRerolled);
@@ -378,13 +413,19 @@ namespace Audere.Combat
 
         private void CatchDie(CombatDieView die)
         {
+            if (TrySabotageDie(die)) return;
             if (die == null || die.IsCaptured || !activeDice.Remove(die)) return;
+            recoveryDiceAges.Remove(die);
             CombatSymbol symbol = die.Symbol;
-            if (symbol == CombatSymbol.Attack) capturedAttacksInBatch++;
             boardView.PlayDiceCatchVfx(die);
             die.PlayCaptured();
             AudioService.Instance?.Play(AudioId.Dice_Catch);
-            ApplyImmediateDiceEffect(symbol);
+            if (isRecoveringPlayerTime && symbol == CombatSymbol.Heal)
+            {
+                pendingRecoveryTime = Mathf.Min(ResolveActiveMaximumTime() - encounterTimeRemaining,
+                    pendingRecoveryTime + encounterData.PhaseRecovery.TimePerHealDie);
+            }
+            else ApplyImmediateDiceEffect(symbol);
             if (CurrentState == State.Playing)
             {
                 QueueCurrentPhaseCue(CombatDialogueCueTrigger.DiceCaught, symbol, true);
@@ -407,19 +448,7 @@ namespace Audere.Combat
             switch (definition.Ability)
             {
                 case CombatDiceAbility.DamageEnemy:
-                    int previous = enemyRuntime.CurrentHealth;
-                    int maximum = Mathf.Max(1, enemyRuntime.CurrentMaxHealth);
-                    CombatEnemyProgression progression = enemyRuntime.ApplyDamage(Mathf.Max(1, Mathf.RoundToInt(definition.EffectAmount)), out int applied);
-                    if (applied > 0)
-                    {
-                        boardView.PlayEnemyDamageFeedback(previous / (float)maximum, enemyRuntime.CurrentHealth / (float)maximum);
-                        boardView.PlayEnemyDamageNumber(applied);
-                        boardView.PlayAttackHitVfx();
-                        boardView.TriggerEnemyHitFeedback();
-                        AudioService.Instance?.Play(AudioId.Enemy_Hurt);
-                    }
-                    if (progression == CombatEnemyProgression.Victory) EndCombat(State.Victory);
-                    else if (progression == CombatEnemyProgression.PhaseBreak) StartCoroutine(PhaseBreakRoutine(enemyRuntime.SessionVersion, enemyRuntime.PhaseVersion));
+                    ApplyEnemyDamage(Mathf.Max(1, Mathf.RoundToInt(definition.EffectAmount)));
                     break;
                 case CombatDiceAbility.DestroyNearbyBullets:
                     boardView.DestroyBulletsNearPlayer(definition.EffectRadius);
@@ -432,9 +461,43 @@ namespace Audere.Combat
             }
         }
 
-        private IEnumerator PhaseBreakRoutine(int sessionVersion, int oldPhaseVersion)
+        private void ApplyEnemyDamage(int amount)
+        {
+            int previous = enemyRuntime.CurrentHealth;
+            int maximum = Mathf.Max(1, enemyRuntime.CurrentMaxHealth);
+            CombatEnemyProgression progression = enemyRuntime.ApplyDamage(amount, out int applied);
+            if (applied > 0)
+            {
+                boardView.PlayEnemyDamageFeedback(previous / (float)maximum, enemyRuntime.CurrentHealth / (float)maximum);
+                boardView.PlayEnemyDamageNumber(applied);
+                boardView.PlayAttackHitVfx();
+                boardView.TriggerEnemyHitFeedback();
+                AudioService.Instance?.Play(AudioId.Enemy_Hurt);
+            }
+            if (progression == CombatEnemyProgression.Victory) EndCombat(State.Victory);
+            else if (progression == CombatEnemyProgression.PhaseBreak)
+                StartCoroutine(PhaseBreakRoutine(enemyRuntime.SessionVersion, enemyRuntime.PhaseVersion));
+        }
+
+        private void SyncExclusiveMoveDice()
+        {
+            if (enemyRuntime == null || enemyRuntime.State != CombatEnemyRuntimeState.Playing) return;
+            bool exclusive = enemyRuntime.CurrentMove is ICombatExclusiveDiceMove;
+            if (exclusive == exclusiveDiceMoveActive) return;
+            exclusiveDiceMoveActive = exclusive;
+            if (exclusive)
+            {
+                boardView.CaptureDiceExit();
+                StopBatchAndClearDice();
+            }
+            else if (enemyRuntime.ShouldSpawnDice && CurrentState == State.Playing)
+                ScheduleNextBatch(encounterData.BatchRespawnDelay);
+        }
+
+        private IEnumerator PhaseBreakRoutine(int sessionVersion, int oldPhaseVersion, bool skipForTesting = false)
         {
             CurrentState = State.PhaseTransition;
+            debugNextPhaseKeyPressCount = 0;
             pendingCombatCues.Clear();
             StopAutoDialogue();
             HideTutorialInstruction();
@@ -447,7 +510,7 @@ namespace Audere.Combat
                 boardView.TickMoveRecovery(Time.unscaledDeltaTime);
                 yield return null;
             }
-            CombatDialogueCue exitCue = FindTriggeredCue(CombatDialogueCueTrigger.PhaseExit);
+            CombatDialogueCue exitCue = skipForTesting ? null : FindTriggeredCue(CombatDialogueCueTrigger.PhaseExit);
             if (exitCue != null && exitCue.PausesCombatForPresentation)
             {
                 bool dialogueCompleted = false;
@@ -465,9 +528,23 @@ namespace Audere.Combat
                 enemyRuntime.MarkCueResolved(exitCue);
             }
             if (!PhaseIsCurrent(sessionVersion, oldPhaseVersion)) yield break;
-            yield return PresentPausedCueInstruction(exitCue, sessionVersion, oldPhaseVersion);
+            if (!skipForTesting)
+                yield return PresentPausedCueInstruction(exitCue, sessionVersion, oldPhaseVersion);
             if (!PhaseIsCurrent(sessionVersion, oldPhaseVersion)) yield break;
+            if (!skipForTesting && encounterData.PhaseRecovery.Enabled)
+            {
+                yield return RecoverPlayerTimeWithHealDice(sessionVersion, oldPhaseVersion);
+                if (!PhaseIsCurrent(sessionVersion, oldPhaseVersion) || CurrentState != State.PhaseTransition)
+                    yield break;
+            }
+            if (skipForTesting && encounterData.PhaseRecovery.Enabled)
+            {
+                encounterTimeRemaining = ResolveActiveMaximumTime();
+                boardView.UpdateTimer(1f);
+            }
             enemyRuntime.CompletePhaseBreak();
+            if (encounterData.PhaseRecovery.Enabled)
+                retryCheckpointPhaseIndex = enemyRuntime.PhaseIndex;
             observedMoveVersion = enemyRuntime.CurrentMove != null && enemyRuntime.CurrentMove.LeadInDuration > 0f ? 0 : enemyRuntime.MoveVersion;
             ApplyCurrentPhaseTimeFloor();
             UpdateEnemyHealthImmediate();
@@ -475,6 +552,11 @@ namespace Audere.Combat
             yield return boardView.TransitionPhasePresentation(enemyRuntime.CurrentPhase.Presentation);
             if (!PhaseIsCurrent(sessionVersion, newPhaseVersion)) yield break;
             CombatDialogueCue enterCue = FindTriggeredCue(CombatDialogueCueTrigger.PhaseEnter);
+            if (skipForTesting)
+            {
+                enemyRuntime.MarkCueResolved(enterCue);
+                enterCue = null;
+            }
             if (enterCue != null && enterCue.PausesCombatForPresentation)
             {
                 HideTutorialInstruction();
@@ -499,6 +581,118 @@ namespace Audere.Combat
                 QueueCueCompleted(enterCue, sessionVersion, newPhaseVersion);
             if (enemyRuntime.ShouldSpawnDice)
                 ScheduleNextBatch(0f);
+        }
+
+        private IEnumerator RecoverPlayerTimeWithHealDice(int sessionVersion, int phaseVersion)
+        {
+            BeginPhaseRecovery();
+            while (PhaseIsCurrent(sessionVersion, phaseVersion) && CurrentState == State.PhaseTransition &&
+                !IsPhaseRecoveryComplete())
+            {
+                float deltaTime = Time.deltaTime;
+                bool hasInput = HasCombatInput();
+                if (hasInput)
+                    boardView.UpdateCursor(Input.mousePosition);
+                boardView.TickHeartFeedback(deltaTime);
+                TickPhaseRecovery(deltaTime);
+                if (hasInput && Input.GetMouseButtonDown(0))
+                    TryCatchUnderCursor();
+                yield return null;
+            }
+            isRecoveringPlayerTime = false;
+            pendingRecoveryTime = 0f;
+            recoveryDiceAges.Clear();
+            if (PhaseIsCurrent(sessionVersion, phaseVersion))
+            {
+                boardView.CaptureMoveExit();
+                boardView.CaptureDiceExit();
+                StopBatchAndClearDice();
+                while (boardView.IsRecoveringMove && PhaseIsCurrent(sessionVersion, phaseVersion))
+                {
+                    boardView.TickMoveRecovery(Time.unscaledDeltaTime);
+                    yield return null;
+                }
+            }
+        }
+
+        private void BeginPhaseRecovery()
+        {
+            if (encounterData.PhaseRecovery.HealEnemyOnDrop &&
+                !enemyRuntime.TryBeginNextPhaseHealthRecovery())
+                throw new InvalidOperationException("Enemy healing between phases requires a pending per-phase HP transition.");
+            isRecoveringPlayerTime = true;
+            pendingRecoveryTime = 0f;
+            recoveryDropRemaining = 0f;
+            recoveryDropIndex = 0;
+            recoveryDiceAges.Clear();
+            UpdateEnemyHealthImmediate();
+        }
+
+        private bool IsPhaseRecoveryComplete()
+        {
+            return encounterData.PhaseRecovery.HealEnemyOnDrop
+                ? enemyRuntime.CurrentHealth >= enemyRuntime.CurrentMaxHealth && activeDice.Count == 0 && pendingRecoveryTime <= .01f
+                : encounterTimeRemaining >= ResolveActiveMaximumTime() - .01f;
+        }
+
+        private void TickPhaseRecovery(float deltaTime)
+        {
+            if (!isRecoveringPlayerTime || CurrentState != State.PhaseTransition || deltaTime <= 0f) return;
+            CombatPhaseRecoverySettings settings = encounterData.PhaseRecovery;
+            TickRecoveryHealing(deltaTime);
+            // Missed recovery dice expire, so reaching the active-dice cap never requires a catch.
+            if (settings.HealEnemyOnDrop)
+            {
+                for (int i = activeDice.Count - 1; i >= 0; i--)
+                {
+                    CombatDieView die = activeDice[i];
+                    if (die == null || !recoveryDiceAges.TryGetValue(die, out float age)) continue;
+                    age += deltaTime;
+                    if (age >= settings.DroppedDiceLifetime)
+                    {
+                        recoveryDiceAges.Remove(die);
+                        activeDice.RemoveAt(i);
+                        die.ReturnToPool();
+                    }
+                    else
+                    {
+                        recoveryDiceAges[die] = age;
+                        die.SetPresentationAlpha((settings.DroppedDiceLifetime - age) / .4f);
+                    }
+                }
+            }
+            TickDice(deltaTime);
+            recoveryDropRemaining -= deltaTime;
+            bool needsDrop = settings.HealEnemyOnDrop
+                ? enemyRuntime.CurrentHealth < enemyRuntime.CurrentMaxHealth
+                : encounterTimeRemaining + pendingRecoveryTime < ResolveActiveMaximumTime() - .01f;
+            if (!needsDrop || recoveryDropRemaining > 0f || activeDice.Count >= settings.MaximumActiveDice) return;
+            float x = .5f + (recoveryDropIndex % 3 - 1) * .075f;
+            float drift = (recoveryDropIndex % 2 == 0 ? 1f : -1f) * .18f;
+            var spawn = new CombatScriptedDieSpawn(CombatSymbol.Heal,
+                new Vector2(x, .91f), new Vector2(drift, -1f));
+            CombatDieView spawned = boardView.SpawnDie(spawn, settings.DiceSpeed);
+            if (spawned == null) return;
+            activeDice.Add(spawned);
+            if (settings.HealEnemyOnDrop)
+            {
+                recoveryDiceAges[spawned] = 0f;
+                enemyRuntime.HealNextPhaseHealth(settings.EnemyHealthPerDie);
+                UpdateEnemyHealthImmediate();
+            }
+            recoveryDropIndex++;
+            recoveryDropRemaining = settings.DropInterval;
+        }
+
+        private void TickRecoveryHealing(float dt)
+        {
+            if (!isRecoveringPlayerTime || dt <= 0f) return;
+            var settings = encounterData.PhaseRecovery;
+            float healing = Mathf.Min(pendingRecoveryTime,
+                settings.TimePerHealDie / settings.HealAnimationDuration * dt);
+            pendingRecoveryTime -= healing;
+            encounterTimeRemaining = Mathf.Min(ResolveActiveMaximumTime(), encounterTimeRemaining + healing);
+            boardView.UpdateTimer(encounterTimeRemaining / ResolveActiveMaximumTime());
         }
 
         private bool TryStartMidPhaseDialogue()
@@ -735,6 +929,7 @@ namespace Audere.Combat
                     trigger == CombatDialogueCueTrigger.PlayerHit ||
                     trigger == CombatDialogueCueTrigger.AllDiceTypesCaught ||
                     trigger == CombatDialogueCueTrigger.MoveStarted ||
+                    trigger == CombatDialogueCueTrigger.MoveCompleted ||
                     trigger == CombatDialogueCueTrigger.CueCompleted;
                 bool triggered = isImmediateEvent ||
                     (trigger == CombatDialogueCueTrigger.HealthAtOrBelow &&
@@ -742,7 +937,8 @@ namespace Audere.Combat
                     (trigger == CombatDialogueCueTrigger.ElapsedActiveTime && enemyRuntime.PhaseElapsed >= cue.TriggerValue);
                 if (triggered && cue.FilterBySymbol && (!hasSymbol || !cue.MatchesSymbol(symbol)))
                     triggered = false;
-                if (triggered && trigger == CombatDialogueCueTrigger.MoveStarted && cue.TriggerMove != triggerMove)
+                if (triggered && (trigger == CombatDialogueCueTrigger.MoveStarted ||
+                    trigger == CombatDialogueCueTrigger.MoveCompleted) && cue.TriggerMove != triggerMove)
                     triggered = false;
                 if (triggered && trigger == CombatDialogueCueTrigger.CueCompleted &&
                     !string.Equals(cue.TriggerCueId, completedCueId, StringComparison.Ordinal))
@@ -1007,27 +1203,23 @@ namespace Audere.Combat
             return enemyRuntime != null && enemyRuntime.CanPlayerBeDefeated;
         }
 
-        private CombatSymbol RollBatchSymbol(CombatDieView replaced = null)
-        {
-            int attackReservations = capturedAttacksInBatch;
-            foreach (CombatDieView die in activeDice)
-                if (die != null && die != replaced && !die.IsCaptured && die.Symbol == CombatSymbol.Attack)
-                    attackReservations++;
-            return CombatDiceBatchBudget.Roll(
-                encounterData.MaximumAttacksPerBatch, attackReservations, UnityEngine.Random.value);
-        }
+        private bool UseLowTimeDiceAssist() =>
+            activeDifficulty == GameDifficulty.Easy &&
+            encounterData != null &&
+            encounterTimeRemaining < ResolveActiveMaximumTime() * CombatDiceConstants.LowTimeAssistThreshold;
+
+        private CombatSymbol RollBatchSymbol() =>
+            CombatDiceConstants.RollSymbol(UnityEngine.Random.value, UseLowTimeDiceAssist());
 
         private CombatSymbol RollRerollSymbol(CombatDieView replaced)
         {
-            int additionalAllowance = encounterData.AdditionalRerolledAttacksPerBatch;
-            return additionalAllowance > 0
-                ? CombatDiceBatchBudget.Roll(additionalAllowance, rerolledAttacksGrantedInBatch, UnityEngine.Random.value)
-                : RollBatchSymbol(replaced);
+            return CombatDiceConstants.RerollSymbol(replaced.Symbol, UnityEngine.Random.value, UseLowTimeDiceAssist());
         }
 
         private void ScheduleNextBatch(float delay)
         {
-            if (batchRoutine != null || CurrentState != State.Playing) return;
+            if (batchRoutine != null || CurrentState != State.Playing ||
+                enemyRuntime == null || !enemyRuntime.ShouldSpawnDice) return;
             batchRoutine = StartCoroutine(SpawnBatchAfterDelay(delay, enemyRuntime.SessionVersion, enemyRuntime.PhaseVersion));
         }
 
@@ -1040,10 +1232,9 @@ namespace Audere.Combat
                 delay += scriptedBatch.SpawnDelay;
             if (delay > 0f)
                 yield return WaitForCombatActiveDelay(delay, sessionVersion, phaseVersion);
-            if (!PhaseIsCurrent(sessionVersion, phaseVersion) || CurrentState != State.Playing) { batchRoutine = null; yield break; }
+            if (!PhaseIsCurrent(sessionVersion, phaseVersion) || CurrentState != State.Playing ||
+                !enemyRuntime.ShouldSpawnDice) { batchRoutine = null; yield break; }
             isBatchSpawning = true;
-            capturedAttacksInBatch = 0;
-            rerolledAttacksGrantedInBatch = 0;
             bool isOpeningTutorialBatch = tutorialActive && batchIndex == 0;
             batchIndex++;
             IReadOnlyList<CombatSymbol> openingDice = isOpeningTutorialBatch
@@ -1054,7 +1245,8 @@ namespace Audere.Combat
                 : scriptedBatch != null ? scriptedBatch.Count : encounterData.DicePerBatch;
             for (int i = 0; i < diceCount; i++)
             {
-                if (!PhaseIsCurrent(sessionVersion, phaseVersion) || CurrentState != State.Playing) break;
+                if (!PhaseIsCurrent(sessionVersion, phaseVersion) || CurrentState != State.Playing ||
+                    !enemyRuntime.ShouldSpawnDice) break;
                 float speed = UnityEngine.Random.Range(encounterData.MinimumDiceSpeed, encounterData.MaximumDiceSpeed);
                 CombatDieView die;
                 if (openingDice != null)
@@ -1089,6 +1281,7 @@ namespace Audere.Combat
 
         private void StopBatchAndClearDice()
         {
+            diceSabotage?.Cancel(); diceSabotage = null;
             if (batchRoutine != null) StopCoroutine(batchRoutine);
             batchRoutine = null;
             isBatchSpawning = false;
@@ -1299,9 +1492,15 @@ namespace Audere.Combat
             tutorialOpeningBatchPending = false;
             activeAutoDialogueRoutine = null;
             observedMoveVersion = 0;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            exclusiveDiceMoveActive = false;
+            isRecoveringPlayerTime = false;
+            pendingRecoveryTime = 0f;
+            recoveryDiceAges.Clear();
+            recoveryDropRemaining = 0f;
+            recoveryDropIndex = 0;
+            diceSabotage?.Cancel(); diceSabotage = null;
             debugVictoryKeyPressCount = 0;
-#endif
+            debugNextPhaseKeyPressCount = 0;
             HideTutorialInstruction();
             GameplayUIRoot.Instance?.Dialogue?.ForceClose();
             enemyRuntime?.Cancel();

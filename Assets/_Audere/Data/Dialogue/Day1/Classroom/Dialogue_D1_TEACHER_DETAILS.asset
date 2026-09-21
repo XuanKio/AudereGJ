@@ -20,22 +20,26 @@ MonoBehaviour:
   lines:
   - speaker: 1
     text: "Trang tr\xED, \u0111\u1ED3 \u0103n, tr\xF2 ch\u01A1i\u2026"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "L\u1EDBp m\xECnh s\u1EBD c\xF9ng chu\u1EA9n b\u1ECB."
+    text: "C\xE1c em ch\u1ECDn ph\u1EA7n m\xECnh th\xEDch nh\xE9."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\xE1c em c\u1EE9 ch\u1ECDn ph\u1EA7n m\xECnh th\xEDch."
+    text: "L\xE1t n\u1EEFa ghi t\xEAn v\xE0o danh s\xE1ch."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
-    text: "L\xE1t n\u1EEFa ghi t\xEAn v\xE0o danh s\xE1ch nh\xE9."
+    text: "M\u1ED9t vi\u1EC7c v\u1EEBa s\u1EE9c l\xE0 \u0111\u1EE7."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
-  - speaker: 1
-    text: "M\u1ED7i ng\u01B0\u1EDDi m\u1ED9t vi\u1EC7c v\u1EEBa s\u1EE9c l\xE0 \u0111\u01B0\u1EE3c."
-    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
   - speaker: 1
     text: "Kh\xF4ng c\u1EA7n v\u1ED9i \u0111\xE2u."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
-  - speaker: 1
-    text: "G\xF3p m\u1ED9t ch\xFAt \u0111\u1EC3 c\xF9ng vui l\xE0 \u0111\u1EE7."
-    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0

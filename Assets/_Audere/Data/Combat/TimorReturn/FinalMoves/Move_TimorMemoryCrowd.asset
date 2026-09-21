@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d0a08731778e804d8baccf14d329b82, type: 3}
+  m_Name: Move_TimorMemoryCrowd
+  m_EditorClassIdentifier: 
+  duration: 20.29
+  leadInDuration: 0.35
+  actorPrefab: {fileID: 7455955963728027949, guid: eaf714f66a44263468d58ee647cbed5d, type: 3}
+  sprite: {fileID: 822509364092603275, guid: ce4ec9ee90a81aa4d99ac4c6d86c2fc6, type: 3}
+  displayName: "M\u1ECDi ng\u01B0\u1EDDi"
+  signatureMoves:
+  - {fileID: 11400000, guid: 882201ca5f7485d4e832f182a8daa170, type: 2}
+  - {fileID: 11400000, guid: e6b78545a1964fe88808d5b26b64ae28, type: 2}
+  visualSize: {x: 530, y: 390}
+  side: 0
+  attacksToDefeat: 3

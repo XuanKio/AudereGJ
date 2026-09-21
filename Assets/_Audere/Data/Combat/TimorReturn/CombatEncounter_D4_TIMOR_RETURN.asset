@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   encounterId: d4-timor-final
   enemyDefinition: {fileID: 11400000, guid: ba1346f1de2335b4dbf7f076d10e574d, type: 2}
+  diceBreakChance: 0.3
+  diceBreakTailSprite: {fileID: 218921286961725087, guid: 6000ad8dcf254f64498663af69ac4761, type: 3}
   tutorialData: {fileID: 0}
   music: 9004
-  encounterDuration: 243.75
+  encounterDuration: 120
   outcomeRules:
     allowedOutcomes: 3
     playerDefeatGate: 1
@@ -24,6 +26,16 @@ MonoBehaviour:
   defeatPresentation:
     dialogue: {fileID: 0}
     hazardFadeDuration: 0.62
+  phaseRecovery:
+    enabled: 1
+    timePerHealDie: 6
+    dropInterval: 0.48
+    maximumActiveDice: 4
+    diceSpeed: 145
+    healAnimationDuration: 0.24
+    healEnemyOnDrop: 1
+    enemyHealthPerDie: 1
+    droppedDiceLifetime: 3
   victoryFadeDuration: 0.8
   victoryPresentation:
     dialogue: {fileID: 11400000, guid: 5f91118f012b5ad4c91c6ed21ca7ecb6, type: 2}
@@ -32,7 +44,7 @@ MonoBehaviour:
   batchRespawnDelay: 0.14
   minimumDiceSpeed: 166
   maximumDiceSpeed: 252
-  playerHitInvulnerability: 0.4
-  bulletTimePenaltySeconds: 3.75
+  playerHitInvulnerability: 0.85
+  bulletTimePenaltySeconds: 3
   maximumAttacksPerBatch: 1
   additionalRerolledAttacksPerBatch: 1

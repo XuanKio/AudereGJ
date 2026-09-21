@@ -6,6 +6,12 @@
 > “Hiện tại”, thông số và kết quả QA bên dưới áp dụng tại mốc của đoạn gốc; việc tách doc ngày 2026-09-20 không phải lượt xác minh runtime mới.
 > Scene/DialogueData đang được tham chiếu và cấu hình runtime được ưu tiên nếu có khác biệt. Cốt truyện tổng hợp: [Story](../../Story/README.md).
 
+## Cập nhật encounter Teacher — 2026-09-20
+
+**Design Intent:** `Enemy_Teacher_PLACEHOLDER.asset` dùng 21 shared HP với các ngưỡng 14/7/0; `CombatEncounter_D3_TEACHER_PRESSURE.asset` dùng 120 TIME. Menu `Audere/Combat/Polish Teacher Boss` cập nhật move assets và font câu hỏi trên shared `CombatBoard.prefab` mà không rebuild Scene120 hoặc DialogueData. Các thông số 15 HP / 90 TIME bên dưới là checkpoint lịch sử.
+
+Phase1 mở bằng Sweep phấn lao theo chiều kim đồng hồ, sau đó Fence; Phase2 OrderedLoop `Move_TeacherGeometrySketch` → `Move_TeacherArithmeticChoice` → `Move_TeacherSpiralSketch` → `Move_TeacherArithmeticChoice`; Phase3 Radial → ShiftAndSweep → FinalPressure. Geometry có nhiều phấn cùng vẽ từ hai bên:20 hình/8.8 giây, bắn chéo bốn hướng với khe né di chuyển hình số8. Xoắn ốc vẽ0.8 giây, báo0.4 giây rồi quay3 vòng trong2.5 giây, buộc Heart luồn theo khoảng giữa các vòng. Toán dùng ba đáp án số giãn cách trong board 360×190, phép cộng/trừ hai chữ số; cô bay phía trên với dư ảnh trắng–đen, chọn đúng gây 3 HP qua damage chung; chọn sai chuyển về Hình học và lần toán sau dùng đề mới. Phấn hướng tâm phase3 còn8 hướng, vệt chặn catch1 giây để mở khoảng bắt dice. Đạn dùng Canvas chung Board+20 để không bị timer/enemy che. Phase3 dùng stream riêng `Move_TeacherReadableStream`, còn `Move_ChalkSineStream` phục vụ nội dung khác. Composite trì hoãn child 2 thay vì bật mọi đòn cùng khung hình. Cơ chế và QA tại [Teacher combat](../../Combat/teacher-and-fading-pressure.md).
+
 <!-- BEGIN PRESERVED SOURCE -->
 # Ngày 3 — vẽ bảng, mệt mỏi và lời hỏi han bị diễn giải thành áp lực
 

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54dd00e078433094eac3a79e0b6fe538, type: 3}
   m_Name: Move_WatchingAisle
   m_EditorClassIdentifier: 
-  duration: 10
+  duration: 11
   leadInDuration: 0.45
   projectilePrefab: {fileID: 792354162730361880, guid: 6ab965fd084276c4da98b26693013e27, type: 3}
   fromBothSides: 0
@@ -21,9 +21,10 @@ MonoBehaviour:
   - 0
   - 0.23
   - 0
-  gapWidth: 164
-  spacing: 132
+  - -0.23
+  gapWidth: 114
+  spacing: 58
   speed: 235
-  volleyInterval: 2.3
-  entryDelay: 0.3
+  volleyInterval: 2
+  entryDelay: 0.65
   visualHalfWidth: 54

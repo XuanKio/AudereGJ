@@ -19,6 +19,7 @@ MonoBehaviour:
   rightPortraitOverride: {fileID: 1802169272185732355, guid: 056875fa18e556d4cb0aba789bc44c9f, type: 3}
   lines:
   - speaker: 1
-    text: "C\xF4 \u1EA5y ch\u1EC9 mu\u1ED1n l\xE0m tr\xF2n vi\u1EC7c th\xF4i."
+    text: "C\u1EADu \u1EA5y l\xE0m cho xong vi\u1EC7c th\xF4i."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

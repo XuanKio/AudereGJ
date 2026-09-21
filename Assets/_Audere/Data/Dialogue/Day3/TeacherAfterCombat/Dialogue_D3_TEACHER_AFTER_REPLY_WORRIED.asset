@@ -20,13 +20,16 @@ MonoBehaviour:
   lines:
   - speaker: 0
     text: "Em c\u1EE9 th\u1EA5y r\u1EA5t lo\u2026"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "Em s\u1EE3 m\xECnh l\xE0m m\u1ECDi ng\u01B0\u1EDDi th\u1EA5t v\u1ECDng."
+    text: "S\u1EE3 m\u1ECDi ng\u01B0\u1EDDi th\u1EA5t v\u1ECDng."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EA3m gi\xE1c \u0111\xF3 ch\u1EAFc h\u1EB3n r\u1EA5t m\u1EC7t."
+    text: "Lo v\u1EADy ch\u1EAFc m\u1EC7t l\u1EAFm."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

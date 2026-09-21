@@ -1,40 +1,41 @@
-# Khoảng Lặng
+# Khoảng Lặng — sức ép trong một câu chưa trả lời
 
-## Status
+Nguồn: scene30, Day1/Combat DialogueData và [bosses](../../../../../Docs/Story/bosses-and-ending.md).
+Đối chiếu production 2026-09-20. Không giữ HP/moveset tạm trong profile thoại.
 
-- **Design Intent:** `Khoảng Lặng` is the display name of the current D1 Classroom combat
-  prototype and is placed immediately after Timor takes over Audere's unanswered pause.
-- **Established implementation state:** `DialogueCharacterId.KhoangLang = 5` exists as a
-  stable technical hook. The catalog uses `Audere_Creepy_0` from `Audere_Creepy.png`, as requested
-  by Xuân. Narrative content remains `PLACEHOLDER`. The prototype uses one authored
-  `6 HP` combat phase, loops three projectile moves, and uses
-  `Enemy_KhoangLang_PLACEHOLDER.prefab`.
-- **Established implementation state:** after the isolated tutorial, short Khoảng Lặng lines use
-  the standard non-blocking DialogueUI during Aimed Fan and Side Sweep, with Audere on the
-  left and Khoảng Lặng on the right. At `2 HP`, four supplied worry-lines repeat as a dense low-opacity
-  background field with soft smear and wobble. These assets are production-wired but remain
-  `PLACEHOLDER` narrative content.
-- **Design Intent:** the current wording pressures Audere with immediate social consequences. It
-  is terse and repetitive because it crowds her decision, not because a general enemy voice has
-  been established.
-- **Design Intent:** the production beat immediately before combat frames the encounter as Audere
-  facing the anxiety that tries to choose an answer for her. This does not establish literal
-  creature ontology or a voice for Khoảng Lặng.
-- **Unresolved:** final psychological or in-world ontology, voice, vocabulary, relationship to
-  Audere or Timor, canon dialogue, portrait, final art, final moveset,
-  balance, outcome, and whether the display name remains canon.
+## Established Canon
 
-## Dialogue guardrails
+Encounter xuất hiện khi Bianca chờ Audere trả lời lời mời làm bảng.
+Audere nói muốn đáp nhưng run và muốn trốn; Timor giúp cô giữ một câu muốn nói.
+Các cue thúc phải nói ngay, rồi bảo nói lúc này đã quá muộn hoặc hãy để Bianca đi.
+Victory dẫn đến Audere tự đáp và tự ghi tên; Defeat thông thường không tự mở đoạn nhận lời.
 
-- Do not infer a voice from the name, projectile patterns, phase count, placeholder art, or
-  combat placement.
-- Do not create additional taunts, tutorial lines, internal monologue, or phase-break dialogue
-  beyond the supplied D1 placeholder set unless Xuân explicitly approves the direction.
-- The current D1 tutorial is spoken only by Timor/Audere and uses a separate instruction HUD;
-  it does not establish a voice, intent, or perception rules for Khoảng Lặng.
-- Empty phase-break and mid-phase dialogue hooks are intentional production data, not missing
-  lines to fill automatically.
-- Do not extrapolate the D1 combat-dialogue vocabulary into a reusable canon voice. Final speaker ontology,
-  perception rules and whether the displayed words are literal speech remain `Unresolved`.
-- If future dialogue is requested, first resolve who can perceive the speaker, whether it is a
-  character or presentation device, and what Audere understands at that point.
+## Design Intent
+
+Tên và sự lặp ngắn làm khoảng chờ có trọng lượng.
+Áp lực đổi hướng nhưng cùng bóp lựa chọn: phải đáp ngay, rồi đáp gì cũng sai.
+Trọng tâm là Audere tìm được câu của mình, không phải hiểu hết lai lịch boss.
+Timor/Audere nói trong tutorial; HUD chịu trách nhiệm input và rule.
+
+## Khi rút hoặc viết lại cue
+
+Giữ ngôn ngữ sát tình huống: người kia đang chờ, sợ làm không tốt, sợ đã đồng ý thì không thể rút.
+Để câu ngắn tạo cảm giác dồn, nhưng không nhân số click bằng những mảnh câu vô nghĩa.
+Giữ điểm tựa Audere–Timor và câu muốn thử để outcome nối được vào Bianca đang chờ ngoài Story.
+Không thêm lời độc thoại tiết lộ bản chất boss mà scene chưa biết.
+
+## Strongly Implied
+
+Các cue tập hợp suy nghĩ gây áp lực quanh việc trả lời, thay vì thể hiện một cuộc nói chuyện cân bằng.
+Đây là cách đọc presentation; chưa xác định ai nghe được những lời ấy trong thế giới truyện.
+
+## Unresolved
+
+Bản thể, quan hệ nhân quả với Timor, hình dạng thực, người có thể nhìn/nghe và trạng thái “final art”.
+Production wiring là bằng chứng về nhịp hiện có; placeholder không tự xác nhận hoặc phủ nhận ontology.
+Các đề xuất trước đây chưa được dùng không phải phần thiếu cần tự viết bù.
+
+## Liên kết
+
+[Audere](audere.md) giữ mức tự chủ; [Timor](timor.md) giữ giọng hướng dẫn đầu game.
+[Continuity](../../../../../Docs/Story/continuity.md) quản lý các câu hỏi chưa có bằng chứng.

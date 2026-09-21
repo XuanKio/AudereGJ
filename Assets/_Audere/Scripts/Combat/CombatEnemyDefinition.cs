@@ -10,6 +10,8 @@ namespace Audere.Combat
         [SerializeField] private string enemyId;
         [SerializeField] private string displayName;
         [SerializeField] private CombatEnemyActor actorPrefab;
+        [SerializeField] private bool suppressHitFlash;
+        public bool SuppressHitFlash => suppressHitFlash;
         [SerializeField] private CombatPhasePolicy phasePolicy;
         [SerializeField, Min(1)] private int sharedMaxHealth = 1;
         [SerializeField] private CombatPhaseDefinition[] phases;
@@ -87,7 +89,8 @@ namespace Audere.Combat
                     if (cue == null) { error = $"Enemy '{enemyId}' phase '{phase.PhaseId}' has a null cue at index {cueIndex}."; return false; }
                     if (string.IsNullOrWhiteSpace(cue.CueId) || !cueIds.Add(cue.CueId)) { error = $"Enemy '{enemyId}' has an empty or duplicate Cue ID in phase '{phase.PhaseId}'."; return false; }
                     if (!cue.HasContent) { error = $"Enemy '{enemyId}' cue '{cue.CueId}' has no dialogue or instruction."; return false; }
-                    if (cue.Trigger == CombatDialogueCueTrigger.MoveStarted && cue.TriggerMove == null)
+                    if ((cue.Trigger == CombatDialogueCueTrigger.MoveStarted ||
+                        cue.Trigger == CombatDialogueCueTrigger.MoveCompleted) && cue.TriggerMove == null)
                     { error = $"Enemy '{enemyId}' cue '{cue.CueId}' requires a Move reference."; return false; }
                     if (cue.Trigger == CombatDialogueCueTrigger.CueCompleted && string.IsNullOrWhiteSpace(cue.TriggerCueId))
                     { error = $"Enemy '{enemyId}' cue '{cue.CueId}' requires a completed Cue ID."; return false; }

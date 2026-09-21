@@ -20,17 +20,21 @@ MonoBehaviour:
   lines:
   - speaker: 0
     text: "Em c\u1EA3m th\u1EA5y m\u1EC7t \u1EA1."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "L\u1EA7n \u0111\u1EA7u em tham gia c\xF9ng m\u1ECDi ng\u01B0\u1EDDi\u2026"
+    text: "L\u1EA7n \u0111\u1EA7u l\xE0m c\xF9ng m\u1ECDi ng\u01B0\u1EDDi\u2026"
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 0
-    text: "Em c\u1EE9 s\u1EE3 m\xECnh kh\xF4ng theo k\u1ECBp."
+    text: "Em s\u1EE3 kh\xF4ng theo k\u1ECBp."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0
   - speaker: 1
-    text: "C\u1EA3m gi\xE1c \u0111\xF3 ch\u1EAFc h\u1EB3n r\u1EA5t m\u1EC7t."
+    text: "Ch\u01B0a theo k\u1ECBp c\u0169ng kh\xF4ng sao."
+    characterOverride: 0
     portraitOverride: {fileID: 0}
     glitchPortraitTransition: 0

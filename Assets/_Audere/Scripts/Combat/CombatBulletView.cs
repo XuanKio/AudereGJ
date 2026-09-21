@@ -8,6 +8,7 @@ namespace Audere.Combat
     public sealed class CombatBulletView : MonoBehaviour
     {
         private RectTransform rectTransform;
+        private Vector2 authoredSizeDelta;
         private Vector2 velocity;
         private Vector2 pendingVelocity;
         private float activationDelay;
@@ -36,10 +37,16 @@ namespace Audere.Combat
         public bool AttackActive => collisionActive;
         public bool BypassesForcedMovementProtection => bypassesForcedMovementProtection;
         public int PoolLeaseVersion { get; private set; }
+        public bool ReturnOnPlayerHit { get; private set; }
+
+        // Contact normally leaves the projectile moving; Heart owns hit cooldown.
+        // A specialized mechanic must explicitly opt into consuming a projectile.
+        public void SetReturnOnPlayerHit(bool value) => ReturnOnPlayerHit = value;
 
         private void Awake()
         {
             rectTransform = GetComponent<RectTransform>();
+            authoredSizeDelta = rectTransform.sizeDelta;
             CapturePresentation();
         }
 
@@ -71,8 +78,10 @@ namespace Audere.Combat
             ClearAvoidance();
             presentationFading = false;
             bypassesForcedMovementProtection = false;
+            ReturnOnPlayerHit = false;
             PoolLeaseVersion++;
             SourcePrefab = sourcePrefab;
+            RestoreFootprint();
             OwnerSessionVersion = sessionVersion;
             OwnerPhaseVersion = phaseVersion;
             rectTransform.anchoredPosition = startPosition;
@@ -304,6 +313,8 @@ namespace Audere.Combat
 
         public void ReturnToPool()
         {
+            ReturnOnPlayerHit = false;
+            RestoreFootprint();
             ClearAvoidance();
             ClearPathMotion();
             returningOrbit = false;
@@ -327,6 +338,13 @@ namespace Audere.Combat
             returningOrbit = false; horizontalReturn = false;
             pathMotion = motion;
             pathMotion?.Tick(rectTransform, 0f);
+        }
+
+        private void RestoreFootprint()
+        {
+            if(rectTransform==null)return;
+            var source=SourcePrefab!=null?SourcePrefab.GetComponent<RectTransform>():null;
+            rectTransform.sizeDelta=source!=null?source.sizeDelta:authoredSizeDelta;
         }
 
         private void ClearPathMotion() { pathMotion?.Cancel(); pathMotion = null; }

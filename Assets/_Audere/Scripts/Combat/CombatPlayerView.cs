@@ -49,7 +49,7 @@ namespace Audere.Combat
 
         public void TickVisual(float deltaTime)
         {
-            if (rectTransform == null)
+            if (rectTransform == null || deltaTime <= 0f)
                 return;
 
             invulnerabilityRemaining = Mathf.Max(0f, invulnerabilityRemaining - deltaTime);

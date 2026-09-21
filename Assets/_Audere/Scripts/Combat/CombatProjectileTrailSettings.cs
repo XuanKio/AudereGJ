@@ -27,6 +27,7 @@ namespace Audere.Combat
 
         private sealed class TrailMotion : ICombatProjectileMotion
         {
+            private const float SegmentLength = 16f;
             private readonly ICombatProjectileMotion motion;
             private readonly CombatMoveExecutionContext context;
             private readonly object owner;
@@ -41,17 +42,34 @@ namespace Audere.Combat
             public bool Tick(RectTransform target, float activeDeltaTime)
             {
                 if (cancelled || target == null || context.Board == null || !context.Board.isActiveAndEnabled) return false;
+                // Capture the spawn point before moving: the first active frame must paint too.
+                if (!initialized) { previous = target.anchoredPosition; initialized = true; }
                 bool alive = motion.Tick(target, activeDeltaTime);
                 Vector2 current = target.anchoredPosition;
-                if (!initialized) { previous = current; initialized = true; }
-                if (activeDeltaTime > 0f && !(owner is ICombatMoveExecution execution && execution.IsComplete) &&
-                    ((current - previous).sqrMagnitude >= 16f * 16f || !alive))
+                if (activeDeltaTime > 0f && !(owner is ICombatMoveExecution execution && execution.IsComplete))
                 {
-                    context.Board.EmitStunTrail(owner, context.SessionVersion, context.PhaseVersion, previous, current, width, hold, fade);
-                    previous = current;
+                    Vector2 remaining = current - previous;
+                    // Retain the sub-segment remainder between ticks. A long frame paints the
+                    // same spacing as several short frames instead of stretching one rectangle.
+                    while (remaining.sqrMagnitude >= SegmentLength * SegmentLength)
+                    {
+                        Vector2 next = previous + remaining.normalized * SegmentLength;
+                        Emit(previous, next);
+                        previous = next;
+                        remaining = current - previous;
+                    }
+                    if (!alive && remaining.sqrMagnitude > .0001f)
+                    {
+                        Emit(previous, current);
+                        previous = current;
+                    }
                 }
                 return alive;
             }
+
+            private void Emit(Vector2 from, Vector2 to) => context.Board.EmitStunTrail(
+                owner, context.SessionVersion, context.PhaseVersion, from, to, width, hold, fade);
+
             public void Cancel() { if (cancelled) return; cancelled = true; motion.Cancel(); }
         }
     }

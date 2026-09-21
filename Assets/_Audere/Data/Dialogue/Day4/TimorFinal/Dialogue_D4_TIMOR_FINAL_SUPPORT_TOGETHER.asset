@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 988dc6f5856c55141a8b5eb029f35e6d, type: 3}
+  m_Name: Dialogue_D4_TIMOR_FINAL_SUPPORT_TOGETHER
+  m_EditorClassIdentifier: 
+  dialogueId: D4_TIMOR_FINAL_SUPPORT_TOGETHER
+  leftCharacter: 1
+  rightCharacter: 4
+  leftPortraitOverride: {fileID: 0}
+  rightPortraitOverride: {fileID: 0}
+  lines:
+  - speaker: 0
+    text: "M\xECnh \u0111\xE3 nh\u1EDD m\u1ECDi ng\u01B0\u1EDDi gi\xFAp."
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
+  - speaker: 0
+    text: "V\xE0 m\xECnh kh\xF4ng ph\u1EA3i l\xE0m h\u1EBFt m\u1ED9t m\xECnh."
+    characterOverride: 0
+    portraitOverride: {fileID: 0}
+    glitchPortraitTransition: 0
