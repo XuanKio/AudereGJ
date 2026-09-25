@@ -1,5 +1,7 @@
 #if UNITY_EDITOR
 using System.Linq;
+using System.Reflection;
+using Audere.Dialogue;
 using Audere.GameplayInput;
 using NUnit.Framework;
 using UnityEditor;
@@ -73,6 +75,52 @@ namespace Audere.UI.Editor.Tests
             finally
             {
                 PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        [TestCase(false, 1f)]
+        [TestCase(true, 0f)]
+        public void DialoguePauseOwnership_CloseSettingsRestoresExpectedGlobalTime(
+            bool dialogueOwnsGlobalPause,
+            float expectedScale)
+        {
+            GameObject prefab = PrefabUtility.LoadPrefabContents(PrefabPath);
+            float originalTimeScale = Time.timeScale;
+            PropertyInfo instanceProperty = typeof(GameplayUIRoot).GetProperty(
+                "Instance", BindingFlags.Public | BindingFlags.Static);
+            MethodInfo setInstance = instanceProperty?.GetSetMethod(true);
+            GameplayUIRoot originalRoot = (GameplayUIRoot)instanceProperty?.GetValue(null);
+            try
+            {
+                GameplayUIRoot root = prefab.GetComponent<GameplayUIRoot>();
+                InGameSettingsPanel settings = prefab.GetComponent<InGameSettingsPanel>();
+                DialogueController dialogue = root != null ? root.Dialogue : null;
+                FieldInfo ownsGameplayPause = typeof(DialogueController).GetField(
+                    "ownsGameplayPause", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.IsNotNull(root);
+                Assert.IsNotNull(settings);
+                Assert.IsNotNull(dialogue);
+                Assert.IsNotNull(ownsGameplayPause);
+                Assert.IsNotNull(setInstance);
+
+                ownsGameplayPause.SetValue(dialogue, dialogueOwnsGlobalPause);
+                setInstance.Invoke(null, new object[] { root });
+
+                Time.timeScale = 1f;
+                settings.Open();
+                Assert.AreEqual(0f, Time.timeScale);
+                settings.Close();
+
+                Assert.AreEqual(expectedScale, Time.timeScale,
+                    dialogueOwnsGlobalPause
+                        ? "Closing Settings must preserve a dialogue-owned global pause."
+                        : "Closing Settings must restore global time while caller-owned dialogue remains active.");
+            }
+            finally
+            {
+                setInstance?.Invoke(null, new object[] { originalRoot });
+                Time.timeScale = originalTimeScale;
+                PrefabUtility.UnloadPrefabContents(prefab);
             }
         }
 

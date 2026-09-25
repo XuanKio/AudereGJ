@@ -62,6 +62,7 @@ namespace Audere.Dialogue
         private bool viewportLayoutCaptured, viewportLayoutApplied;
 
         public bool IsPlaying => playbackRoutine != null;
+        public bool OwnsGlobalTimePause => ownsGameplayPause;
 
         private void Awake()
         {

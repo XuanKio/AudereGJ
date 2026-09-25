@@ -203,7 +203,7 @@ private void RestoreGameplayTime(bool forceResume = false)
 private static bool HasActiveDialoguePause()
         {
             Audere.Dialogue.GameplayUIRoot root = Audere.Dialogue.GameplayUIRoot.Instance;
-            return root != null && root.Dialogue != null && root.Dialogue.IsPlaying;
+            return root != null && root.Dialogue != null && root.Dialogue.OwnsGlobalTimePause;
         }
 
 public static bool TryGetResumeTimeScale(out float scale)
